@@ -1,0 +1,82 @@
+#Copyright 2018 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+book_path: /graphics/_book.yaml
+project_path: /graphics/_project.yaml
+description: <!--no description-->
+landing_page:
+  custom_css_path: /site-assets/css/style.css
+  rows:
+  - heading: Differentiable Graphics Layers for TensorFlow.
+    items:
+    - classname: devsite-landing-row-50
+      description: >
+        The last few years have seen a rise in novel differentiable graphics layers
+        which can be inserted in neural network architectures. From spatial transformers
+        to differentiable graphics renderers, these new layers leverage the knowledge
+        acquired over years of computer vision and graphics research to build novel and
+        more efficient network architectures. Explicitly modeling geometric priors and
+        constraints into machine learning models opens up the door to architectures that can be
+        trained robustly, efficiently, and more importantly, in a self-supervised
+        fashion.
+        <br>
+        <br>
+        <em>TensorFlow Graphics</em> aims at making useful graphics functions widely accessible to
+        the community by providing a set of differentiable graphics layers
+        (e.g. cameras, reflectance models, mesh convolutions) and 3D viewer functionalities
+        (e.g. 3D TensorBoard) that can be used in your machine learning
+        models of choice.
+        <br>
+        <br>
+        To get started, see a more detailed <a href="./overview">overview</a>, the
+        <a href="./install">installation guide</a>, and the <a href="./api_docs/python/tfg">API</a>.
+
+      code_block: |
+        <pre class = "prettyprint">
+        import numpy as np
+        import tensorflow as tf
+        import trimesh
+
+        import tensorflow_graphics.geometry.transformation as tfg_transformation
+        from tensorflow_graphics.notebooks import threejs_visualization
+
+        tf.enable_eager_execution()
+
+        # Download the mesh.
+        !wget https://storage.googleapis.com/tensorflow-graphics/notebooks/index/cow.obj
+        # Load the mesh.
+        mesh = trimesh.load("cow.obj")
+        mesh = {"vertices": mesh.vertices, "faces": mesh.faces}
+        # Visualize the original mesh.
+        threejs_visualization.triangular_mesh_renderer(mesh, width=400, height=400)
+        # Set the axis and angle parameters.
+        axis = np.array((0., 1., 0.))  # y axis.
+        angle = np.array((np.pi / 4.,))  # 45 degree angle.
+        # Rotate the mesh.
+        mesh['vertices'] = tfg_transformation.axis_angle.rotate(mesh["vertices"], axis,
+                                                                angle).numpy()
+        # Visualize the rotated mesh.
+        threejs_visualization.triangular_mesh_renderer(mesh, width=400, height=400)
+        </pre>
+        {% dynamic if request.tld != 'cn' %}
+        <a class="colab-button" target="_blank" href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/g3doc/_index.ipynb">Run in a <span>Notebook</span></a>
+        {% dynamic endif %}
+
+  - classname: devsite-landing-row-cards
+    items:
+    - heading: "TensorFlow Graphics on GitHub"
+      image_path: /resources/images/github-card-16x9.png
+      path: https://github.com/tensorflow/graphics
+      buttons:
+      - label: View on GitHub
+        path: https://github.com/tensorflow/graphics
