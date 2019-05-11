@@ -155,7 +155,8 @@ advised to write code that takes dependency on them.
 ## TensorBoard 3D
 Visual debugging is a great way to assess whether an experiment is going in the
 right direction. To this end, TensorFlow Graphics comes with a TensorBoard
-plugin to interactively visualize 3D meshes and point clouds. Follow [these instructions](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/g3doc/tensorboard.md)
+plugin to interactively visualize 3D meshes and point clouds. [This demo](https://colab.research.google.com/github/tensorflow/tensorboard/blob/master/tensorboard/plugins/mesh/Mesh_Plugin_Tensorboard.ipynb)
+shows how to use the plugin. Follow [these instructions](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/g3doc/tensorboard.md)
 to install and configure TensorBoard 3D. Note that TensorBoard 3D is currently
 not compatible with eager execution nor TensorFlow 2.
 
