@@ -156,7 +156,8 @@ advised to write code that takes dependency on them.
 Visual debugging is a great way to assess whether an experiment is going in the
 right direction. To this end, TensorFlow Graphics comes with a TensorBoard
 plugin to interactively visualize 3D meshes and point clouds. Follow [these instructions](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/g3doc/tensorboard.md)
-to install and configure TensorBoard 3D.
+to install and configure TensorBoard 3D. Note that TensorBoard 3D is currently
+not compatible with eager execution nor TensorFlow 2.
 
 <div align="center">
   <img border="0"  src="https://storage.googleapis.com/tensorflow-graphics/git/readme/tensorboard_plugin.jpg" width="1280">
