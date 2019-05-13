@@ -196,18 +196,18 @@ If you use TensorFlow Graphics in your research, please reference it as:
     }
 
 ### Contributors - in alphabetical order
-- Sofien Bouaziz
-- Jay Busch
-- Forrester Cole
 - Ambrus Csaszar
-- Boyang Deng
-- Ariel Gordon
-- Cem Keskin
 - Ameesh Makadia
-- Rohit Pandey
-- Pavel Pidlypenskyi
-- Avneesh Sud
 - Anastasia Tkach
-- Julien Valentin
+- Ariel Gordon
+- Avneesh Sud
+- Boyang Deng
+- Cem Keskin
+- Forrester Cole
 - He Wang
+- Jay Busch
+- Julien Valentin
+- Pavel Pidlypenskyi
+- Rohit Pandey
+- Sofien Bouaziz
 - Yinda Zhang
