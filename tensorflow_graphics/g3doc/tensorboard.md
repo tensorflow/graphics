@@ -108,7 +108,8 @@ the Terminal:
 ```
 
 Please consult the
-[example Colab notebook](https://colab.sandbox.google.com/drive/1E6j9qXMGhxYb17diCR5qFMMk2YgC_Kk6)
+[example Colab notebook](
+https://colab.research.google.com/github/tensorflow/tensorboard/blob/master/tensorboard/plugins/mesh/Mesh_Plugin_Tensorboard.ipynb)
 for more details.
 
 ### Terminal
