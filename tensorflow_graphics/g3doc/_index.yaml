@@ -74,6 +74,17 @@ landing_page:
 
   - classname: devsite-landing-row-cards
     items:
+    - heading: "Introducing TensorFlow Graphics"
+      image_path: /resources/images/tf-logo-card-16x9.png
+      path: https://medium.com/tensorflow/introducing-tensorflow-graphics-computer-graphics-meets-deep-learning-c8e3877b7668
+      buttons:
+      - label: Read on TensorFlow blog
+        path: https://medium.com/tensorflow/introducing-tensorflow-graphics-computer-graphics-meets-deep-learning-c8e3877b7668
+    - heading: "Cutting Edge TensorFlow (Google I/O'19)"
+      youtube_id: Un0JDL3i5Hg
+      buttons:
+      - label: Watch the video
+        path: https://youtu.be/Un0JDL3i5Hg?t=1614
     - heading: "TensorFlow Graphics on GitHub"
       image_path: /resources/images/github-card-16x9.png
       path: https://github.com/tensorflow/graphics
