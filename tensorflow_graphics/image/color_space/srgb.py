@@ -34,9 +34,10 @@ from tensorflow_graphics.util import shape
 _A = constants.srgb_gamma["A"]
 _PHI = constants.srgb_gamma["PHI"]
 _K0 = constants.srgb_gamma["K0"]
+_GAMMA = constants.srgb_gamma["GAMMA"]
 
 
-def from_linear_rgb(linear_rgb, gamma=2.4, name=None):
+def from_linear_rgb(linear_rgb, name=None):
   """Converts linear RGB to sRGB colors.
 
   Note:
@@ -45,7 +46,6 @@ def from_linear_rgb(linear_rgb, gamma=2.4, name=None):
   Args:
     linear_rgb: A Tensor of shape `[A_1, ..., A_n, 3]`, where the last dimension
       represents RGB values in the range [0, 1] in linear color space.
-    gamma: A float gamma value to use for the conversion.
     name: A name for this op that defaults to "srgb_from_linear_rgb".
 
   Raises:
@@ -70,7 +70,7 @@ def from_linear_rgb(linear_rgb, gamma=2.4, name=None):
     # tf.where.
     linear_rgb += sys.float_info.epsilon
     return tf.where(linear_rgb <= _K0 / _PHI, linear_rgb * _PHI,
-                    (1 + _A) * (linear_rgb**(1 / gamma)) - _A)
+                    (1 + _A) * (linear_rgb**(1 / _GAMMA)) - _A)
 
 
 # API contains all public functions and classes.

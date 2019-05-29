@@ -20,4 +20,4 @@ from __future__ import print_function
 
 # Conversion constants following the naming convention from the 'theory of the
 # transformation' section at https://en.wikipedia.org/wiki/SRGB.
-srgb_gamma = {"A": 0.055, "PHI": 12.92, "K0": 0.04045}
+srgb_gamma = {"A": 0.055, "PHI": 12.92, "K0": 0.04045, "GAMMA": 2.4}

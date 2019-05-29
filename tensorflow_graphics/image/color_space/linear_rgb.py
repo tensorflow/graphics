@@ -28,17 +28,10 @@ from tensorflow_graphics.util import shape
 _A = constants.srgb_gamma["A"]
 _PHI = constants.srgb_gamma["PHI"]
 _K0 = constants.srgb_gamma["K0"]
+_GAMMA = constants.srgb_gamma["GAMMA"]
 
 
-def _check_shape(tensor):
-  """Checks if a Tensor has rank >=1 and last dimension 3."""
-  if len(tensor.get_shape()) < 1:
-    raise ValueError("Input Tensor must be of rank >= 1.")
-  if tensor.get_shape()[-1] != 3:
-    raise ValueError("Input Tensor must have last dimension equal to 3.")
-
-
-def from_srgb(srgb, gamma=2.4, name=None):
+def from_srgb(srgb, name=None):
   """Converts sRGB colors to linear colors.
 
   Note:
@@ -47,7 +40,6 @@ def from_srgb(srgb, gamma=2.4, name=None):
   Args:
     srgb: A tensor of shape `[A_1, ..., A_n, 3]`, where the last dimension
       represents sRGB values.
-    gamma: A float gamma value to use for the conversion.
     name: A name for this op that defaults to "srgb_to_linear".
 
   Raises:
@@ -67,7 +59,7 @@ def from_srgb(srgb, gamma=2.4, name=None):
         has_dim_equals=(-1, 3))
 
     asserts.assert_all_in_range(srgb, 0., 1.)
-    return tf.where(srgb <= _K0, srgb / _PHI, ((srgb + _A) / (1 + _A))**gamma)
+    return tf.where(srgb <= _K0, srgb / _PHI, ((srgb + _A) / (1 + _A))**_GAMMA)
 
 
 # API contains all public functions and classes.
