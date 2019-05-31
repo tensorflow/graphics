@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Rendering utils for tf-graphics.
+# Differentiable Rasterizer functionalities for tf-graphics.
 
 # google internal)
 
@@ -20,16 +20,36 @@ licenses(["notice"])  # Apache 2.0
 package(default_visibility = ["//visibility:public"])
 
 py_library(
-    name = "rendering",
-    srcs = [
-        "__init__.py",
-    ],
+    name = "rasterizer",
+    srcs = ["rasterizer.py"],
     srcs_version = "PY2AND3",
-    visibility = ["//visibility:public"],
     deps = [
-        "//tensorflow_graphics/rendering/camera",
-        "//tensorflow_graphics/rendering/differentiable_renderer",
-        "//tensorflow_graphics/rendering/reflectance",
+        # google internal,
+        "//tensorflow_graphics/rendering/camera:orthographic",
+        "//tensorflow_graphics/util:shape",
+    ],
+)
+
+py_library(
+    name = "differentiable_renderer",
+    srcs = ["__init__.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":rasterizer",
         "//tensorflow_graphics/util:export_api",
+    ],
+)
+
+py_test(
+    name = "rasterizer_test",
+    srcs = ["tests/rasterizer_test.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":rasterizer",
+        # package dep
+        # package dep
+
+        # google internal,
+        "//tensorflow_graphics/util:test_case",
     ],
 )
