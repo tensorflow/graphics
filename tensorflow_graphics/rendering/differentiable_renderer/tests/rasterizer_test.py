@@ -159,14 +159,13 @@ class RasterizerTest(test_case.TestCase):
         rasterizer.rasterizer_rasterize_triangle, shapes, dtypes)
 
   @parameterized.parameters(
-      ("index must have a rank of 0",
-       ((1,), (128, 128, 5), (10, 3), (7, 3)),
+      ("index must have a rank of 0", ((1,), (128, 128, 5), (10, 3), (7, 3)),
        (tf.int32, tf.float32, tf.float32, tf.int32)),
       ("result_tensor must have exactly 5 dimensions in axis -1",
-       ((), (128, 128, 1), (10, 3), (7, 3)),
-       (tf.int32, tf.float32, tf.float32, tf.int32)),
-      ("vertices must have exactly 3 dimensions in axis -1",
-       ((), (128, 128, 5), (10, 1), (7, 3)),
+       ((), (128, 128, 1), (10, 3),
+        (7, 3)), (tf.int32, tf.float32, tf.float32, tf.int32)),
+      ("vertices must have exactly 3 dimensions in axis -1", ((), (128, 128, 5),
+                                                              (10, 1), (7, 3)),
        (tf.int32, tf.float32, tf.float32, tf.int32)),
       ("triangles must have exactly 3 dimensions in axis -1",
        ((), (128, 128, 5), (10, 3),
@@ -211,15 +210,15 @@ class RasterizerTest(test_case.TestCase):
 #     self.assert_jacobian_is_correct(vertices, vertices_init,
 #                                     new_result_tensor[y, x, :], atol=1e-4)
 
-  # @parameterized.parameters(
-  #     (((5, 3), (10, 3), (), (), ()),
-  #      (tf.float32, tf.int32, tf.int32, tf.int32, tf.float32)),
-  #     (((1, 3), (1, 3), (), ()), (tf.float32, tf.int32, tf.int32, tf.int32)),
-  # )
-  # def test_rasterize_mesh_exception_not_raised(self, shapes, dtypes):
-  #   """Tests that the shape exceptions are not raised."""
-  #   self.assert_exception_is_not_raised(rasterizer._rasterize_mesh, shapes,
-  #                                       dtypes)
+# @parameterized.parameters(
+#     (((5, 3), (10, 3), (), (), ()),
+#      (tf.float32, tf.int32, tf.int32, tf.int32, tf.float32)),
+#     (((1, 3), (1, 3), (), ()), (tf.float32, tf.int32, tf.int32, tf.int32)),
+# )
+# def test_rasterize_mesh_exception_not_raised(self, shapes, dtypes):
+#   """Tests that the shape exceptions are not raised."""
+#   self.assert_exception_is_not_raised(rasterizer._rasterize_mesh, shapes,
+#                                       dtypes)
 
   @parameterized.parameters(
       ("vertices must have a rank of 2",
@@ -278,16 +277,16 @@ class RasterizerTest(test_case.TestCase):
 #                                     result_tensor[y, x, 0], atol=1e-4)
 #     self.assert_jacobian_is_correct(vertices, vertices_init,
 #                                     result_tensor[y, x, 2:], atol=1e-4)
-  # @parameterized.parameters(
-  #     (((5, 3), (10, 3), (), (), ()),
-  #      (tf.float32, tf.int32, tf.int32, tf.int32, tf.float32)),
-  #     (((1, 3), (1, 3), (), ()),
-  #      (tf.float32, tf.int32, tf.int32, tf.int32)),
-  # )
-  # def test_rasterize_exception_not_raised(self, shapes, dtypes):
-  #   """Tests that the shape exceptions are not raised."""
-  #   self.assert_exception_is_not_raised(rasterizer.rasterizer_rasterize,
-  #                                       shapes, dtypes)
+# @parameterized.parameters(
+#     (((5, 3), (10, 3), (), (), ()),
+#      (tf.float32, tf.int32, tf.int32, tf.int32, tf.float32)),
+#     (((1, 3), (1, 3), (), ()),
+#      (tf.float32, tf.int32, tf.int32, tf.int32)),
+# )
+# def test_rasterize_exception_not_raised(self, shapes, dtypes):
+#   """Tests that the shape exceptions are not raised."""
+#   self.assert_exception_is_not_raised(rasterizer.rasterizer_rasterize,
+#                                       shapes, dtypes)
 
   @parameterized.parameters(
       ("vertices must have a rank greater than 1",
