@@ -114,7 +114,6 @@ class RasterizerTest(test_case.TestCase):
     self.assert_exception_is_raised(rasterizer.rasterizer_bounding_box,
                                     error_msg, shape)
 
-
 #   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
 #   def test_rasterizer_bounding_box_jacobian_random(self):
 #     """Tests the Jacobian of rasterizer_bounding_box."""
