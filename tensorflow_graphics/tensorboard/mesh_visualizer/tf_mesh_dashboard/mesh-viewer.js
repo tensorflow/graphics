@@ -34,7 +34,7 @@ class MeshViewer extends THREE.EventDispatcher {
     this._runColor = runColor;
   }
 
-  // TODO replace with some thirdparty library call.
+  // TODO(b/130030314) replace with some thirdparty library call.
   /**
    * Returns true if the specified value is an object.
    * @param {?} val Variable to test.
@@ -372,7 +372,7 @@ class MeshViewer extends THREE.EventDispatcher {
       }
     });
 
-    // TODO: use BufferGeometry for performance reasons!
+    // TODO(podlipensky): use BufferGeometry for performance reasons!
     let geometry = new THREE.Geometry();
 
     vertices.forEach(function(point) {

@@ -83,7 +83,7 @@ def triangulate(startpoints, endpoints, weights, name=None):
 
     left_hand_side_list = []
     right_hand_side_list = []
-    # TODO: Replace the inefficient for loop and add comments here.
+    # TODO(b/130892100): Replace the inefficient for loop and add comments here.
     for ray_id in range(weights.shape[-1]):
       weights_single_ray = weights[..., ray_id]
       startpoints_single_ray = startpoints[..., ray_id, :]
@@ -116,7 +116,7 @@ def triangulate(startpoints, endpoints, weights, name=None):
     return points
 
 
-# TODO: Add batch support for radii and return [A1, ... , 3, 2].
+# TODO(b/130893491): Add batch support for radii and return [A1, ... , 3, 2].
 def intersection_ray_sphere(sphere_center,
                             sphere_radius,
                             ray,
