@@ -53,7 +53,7 @@ class TestCaseTest(test_case.TestCase):
   @parameterized.parameters(None, (((1.0,),),))
   def test_assert_tf_lite_convertible_exception_raised(self, test_inputs):
     """Tests that assert_tf_lite_convertible succeeds with a simple function."""
-    # TODO: TFLite conversion throws SIGABRT instead of Exception.
+    # TODO(b/131912561): TFLite conversion throws SIGABRT instead of Exception.
     return
     # pylint: disable=unreachable
     # This code should be able to catch exceptions correctly once TFLite bug
