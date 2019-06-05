@@ -24,6 +24,14 @@ var vz_mesh;
 (function(vz_mesh) {
 
 /**
+* Types of errors during network data roundtrip.
+* @enum {number}
+*/
+vz_mesh.ErrorCodes = {
+  CANCELLED: 1  // Happens when the request was cancelled before it finished.
+};
+
+/**
 * Types of content displayed by the plugin.
 * @enum {number}
 */
@@ -81,7 +89,10 @@ class ArrayBufferDataProvider {
 
     const processData = this._canceller.cancellable(response => {
       if (response.cancelled) {
-        return;
+        return Promise.reject({
+          code: vz_mesh.ErrorCodes.CANCELLED,
+          message: 'Response was invalidated.'
+        });
       }
       let buffer = response.value;
       let data;
