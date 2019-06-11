@@ -127,7 +127,7 @@ class GraphConvolutionTestFeatureSteeredConvolutionLayerTests(
                                   (3, 0), (3, 2), (3, 3)))
     neighbors = tf.SparseTensor(
         neighbors_indices, np.ones(shape=(12,)) / 3.0, dense_shape=(4, 4))
-    initializer = tf.initializers.zeros()
+    initializer = tf.keras.initializers.zeros()
 
     if tf.executing_eagerly():
       layer = gc_layer.FeatureSteeredConvolutionKerasLayer(
@@ -233,7 +233,7 @@ class GraphConvolutionTestDynamicGraphConvolutionKerasLayerTests(
         num_output_channels=out_channels,
         reduction=reduction,
         use_bias=False,
-        kernel_initializer=tf.initializers.zeros())
+        kernel_initializer=tf.keras.initializers.zeros())
 
     output = layer(inputs=[data, neighbors], sizes=None)
 

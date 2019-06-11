@@ -398,7 +398,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
         strides=(1, kernel_size),
         padding='valid',
         use_bias=False,
-        kernel_initializer=tf.initializers.zeros())
+        kernel_initializer=tf.keras.initializers.zeros())
 
     upsampled = gp.upsample_transposed_convolution(
         data, pool_map, sizes=None, kernel_size=kernel_size,

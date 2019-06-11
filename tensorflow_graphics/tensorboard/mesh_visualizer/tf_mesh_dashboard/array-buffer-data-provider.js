@@ -18,7 +18,7 @@ limitations under the License.
  * receive and parse response.
  */
 
-// TODO: this class must be refactored into base DataProvider and
+// TODO(podlipensky): this class must be refactored into base DataProvider and
 // subclass ArrayBufferDataProvider later.
 var vz_mesh;
 (function(vz_mesh) {
@@ -107,7 +107,7 @@ class ArrayBufferDataProvider {
           data = new Uint8Array(buffer);
           break;
       }
-      // TODO: handle empty metadata.
+      // TODO(podlipensky): handle empty metadata.
       // itemShape expected to be of shape BxNxK, where B stands for batch,
       // N for number of points and K is either number of items representing
       // coordinate (x,y,z) or face indices or color (rgb).
@@ -225,7 +225,7 @@ class ArrayBufferDataProvider {
    * @return {!Object} with wall_time, step number and data for the step.
    */
   _createStepDatum(metadata, vertices, faces, colors) {
-    // TODO: add data validation to make sure frontend is
+    // TODO(podlipensky): add data validation to make sure frontend is
     // compatible with backend.
     return {
       // The wall time within the metadata is in seconds. The Date
