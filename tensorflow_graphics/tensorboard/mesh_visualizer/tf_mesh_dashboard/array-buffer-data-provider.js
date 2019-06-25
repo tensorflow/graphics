@@ -18,7 +18,7 @@ limitations under the License.
  * receive and parse response.
  */
 
-// TODO(podlipensky): this class must be refactored into base DataProvider and
+// TODO: this class must be refactored into base DataProvider and
 // subclass ArrayBufferDataProvider later.
 var vz_mesh;
 (function(vz_mesh) {
@@ -80,12 +80,28 @@ class ArrayBufferDataProvider {
    * @param {!array} metadata List of metadata to complete with data from the
    *  server.
    * @param {number} sample Sample index from a batch of data.
+   * @param {number} timestamp Point in time when data was recorded.
+   * @param {!Object} meshData Map to populate with mesh data.
    * @return {!Object} Promise object representing server request.
    * @private
    */
-  _fetchDataByType(run, tag, content_type, metadata, sample) {
+  _fetchDataByTimestamp(run, tag, content_type, sample, timestamp, meshData) {
     const url = tf_backend.getRouter().pluginRoute(
-        'mesh', '/data', new URLSearchParams({tag, run, content_type, sample}));
+        'mesh', '/data',
+        new URLSearchParams({tag, run, content_type, sample, timestamp}));
+
+    const reshapeTo1xNx3 = function (data) {
+      const channelsCount = 3;
+      let items = [];
+      for (let i = 0; i < data.length / channelsCount; i++) {
+        let dataEntry = [];
+        for (let j = 0; j < channelsCount; j++) {
+          dataEntry.push(data[i * channelsCount + j]);
+        }
+        items.push(dataEntry);
+      }
+      return items;
+    };
 
     const processData = this._canceller.cancellable(response => {
       if (response.cancelled) {
@@ -95,38 +111,18 @@ class ArrayBufferDataProvider {
         });
       }
       let buffer = response.value;
-      let data;
       switch(content_type) {
         case 'VERTEX':
-          data = new Float32Array(buffer);
+          meshData.vertices = reshapeTo1xNx3(new Float32Array(buffer));
           break;
         case 'FACE':
-          data = new Int32Array(buffer);
+          meshData.faces = reshapeTo1xNx3(new Int32Array(buffer));
           break;
         case 'COLOR':
-          data = new Uint8Array(buffer);
+          meshData.colors = reshapeTo1xNx3(new Uint8Array(buffer));
           break;
       }
-      // TODO(podlipensky): handle empty metadata.
-      // itemShape expected to be of shape BxNxK, where B stands for batch,
-      // N for number of points and K is either number of items representing
-      // coordinate (x,y,z) or face indices or color (rgb).
-      const itemShape = metadata[0].data_shape;
-      if (itemShape.length != 3) {
-        throw 'Data item shape expected to have 3 dimensions BxNxK';
-      }
-      const itemsCount = itemShape.slice(1).reduce((a, b) => a * b);
-      for (let i = 0; i < metadata.length; i++) {
-        let itemsFlat = data.slice(itemsCount * i, (i + 1) * itemsCount);
-        let items = [];
-        for (let n = 0; n < itemShape[1]; n++) {
-          items.push([]);
-          for (let m = 0; m < itemShape[2]; m++) {
-            items[n].push(itemsFlat[n * itemShape[2] + m]);
-          }
-        }
-        metadata[i].data = items;
-      }
+      return meshData;
     });
     return this._requestManager
         .fetch(
@@ -138,25 +134,24 @@ class ArrayBufferDataProvider {
 
   /**
    * Requests new data for each type of metadata from the server.
+   * Mesh may conists of vertices and optionally faces and colors, each data
+   * type must be requested separately due to performance reasons.
+   * @param {!Object} stepDatum Dictionary with mesh data for the current step.
    * @param {string} run Name of the run to get data for.
    * @param {string} tag Name of the tug to get data for.
-   * @param {!array} metadata List of metadata to complete with data from the
-   *  server.
    * @param {number} sample Sample index from a batch of data.
    * @private
    */
-  _fetchData(run, tag, metadata, sample) {
+  fetchData(stepDatum, run, tag, sample) {
     let promises = [];
+    // Map to populate with mesh data, i.e. vertices, faces, etc.
+    let meshData = new Map();
     Object.keys(ContentType).forEach(contentType => {
-      let metadataType = [];
-      for (let i = 0; i < metadata.length; i++) {
-        if (metadata[i].content_type == ContentType[contentType]) {
-          metadataType.push(metadata[i]);
-        }
-      }
-      if (metadataType.length) {
-        promises.push(this._fetchDataByType(
-            run, tag, contentType, metadataType, sample));
+      const component = (1 << ContentType[contentType]);
+      if (stepDatum.components & component) {
+        promises.push(this._fetchDataByTimestamp(
+            run, tag, contentType, sample, stepDatum.wall_time_sec,
+            meshData));
       }
     });
     return Promise.all(promises);
@@ -176,25 +171,27 @@ class ArrayBufferDataProvider {
         'mesh', '/meshes', new URLSearchParams({tag, run, sample}));
     const requestData = this._canceller.cancellable(response => {
       if (response.cancelled) {
-        return;
+        return Promise.reject({
+          code: vz_mesh.ErrorCodes.CANCELLED,
+          message: 'Response was invalidated.'
+        });
       }
-      let metadata = response.value;
-      return this._fetchData(run, tag, metadata, sample).then(() => {
-        return this._processMetadata(metadata);
-      });
+      return response.value;
     });
     return this._requestManager.fetch(url)
         .then(response => response.json())
-        .then(requestData);
+        .then(requestData)
+        .then(this._processMetadata.bind(this));
   }
 
   /**
    * Process server raw data into frontend friendly format.
-   * @param {!Array} data list of raw server records.
+   * @param {!Array|undefined} data list of raw server records.
    * @return {!Array} list of step datums.
    * @private
    */
   _processMetadata(data) {
+    if (!data) return;
     const timestampToData = new Map();
     for (let i = 0; i < data.length; i++) {
       let dataEntry = data[i];
@@ -205,11 +202,7 @@ class ArrayBufferDataProvider {
     }
     let datums = [];
     timestampToData.forEach((data) => {
-      let datum;
-      let vertices = data.filter(i => i.content_type == ContentType.VERTEX);
-      let faces = data.filter(i => i.content_type == ContentType.FACE);
-      let colors = data.filter(i => i.content_type == ContentType.COLOR);
-      datum = this._createStepDatum(data[0], vertices, faces, colors);
+      let datum = this._createStepDatum(data[0]);
       datums.push(datum);
     });
     return datums;
@@ -218,24 +211,21 @@ class ArrayBufferDataProvider {
   /**
    * Process single row of server-side data and puts it in more structured form.
    * @param {!Object} metadata Object describing step summary.
-   * @param {!Array} vertices List of 3D coordinates of vertices.
-   * @param {?Array} faces List of indices of coordinates which form mesh faces.
-   * @param {?Array} colors List of colors for each vertex.
    * @private
    * @return {!Object} with wall_time, step number and data for the step.
    */
-  _createStepDatum(metadata, vertices, faces, colors) {
-    // TODO(podlipensky): add data validation to make sure frontend is
+  _createStepDatum(metadata) {
+    // TODO: add data validation to make sure frontend is
     // compatible with backend.
     return {
       // The wall time within the metadata is in seconds. The Date
       // constructor accepts a time in milliseconds, so we multiply by 1000.
       wall_time: new Date(metadata.wall_time * 1000),
+      wall_time_sec: metadata.wall_time,
       step: metadata.step,
-      vertices: vertices[0] && vertices[0].data,
-      faces: faces && faces[0] && faces[0].data,
-      colors: colors && colors[0] && colors[0].data,
-      config: metadata.config
+      config: metadata.config,
+      content_type: metadata.content_type,
+      components: metadata.components
     };
   }
 }

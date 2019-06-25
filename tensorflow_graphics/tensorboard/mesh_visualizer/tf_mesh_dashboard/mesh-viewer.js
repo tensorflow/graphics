@@ -34,7 +34,7 @@ class MeshViewer extends THREE.EventDispatcher {
     this._runColor = runColor;
   }
 
-  // TODO(b/130030314) replace with some thirdparty library call.
+  // TODO replace with some thirdparty library call.
   /**
    * Returns true if the specified value is an object.
    * @param {?} val Variable to test.
@@ -246,22 +246,23 @@ class MeshViewer extends THREE.EventDispatcher {
    * @private
    */
   _createGeometry(currentStep, config) {
-    if (currentStep.vertices && currentStep.faces) {
-      this._createMesh(currentStep, config);
+    const mesh = currentStep.mesh;
+    if (mesh.vertices && mesh.faces && mesh.faces.length) {
+      this._createMesh(mesh, config);
     } else {
-      this._createPointCloud(currentStep, config);
+      this._createPointCloud(mesh, config);
     }
   }
 
   /**
    * Creates point cloud geometry for current step data.
-   * @param {!Object} currentStep Step datum.
+   * @param {!Object} pointCloudData Object with point cloud data.
    * @param {!Object} config Scene rendering configuration.
    * @private
    */
-  _createPointCloud(currentStep, config) {
-    const points = currentStep.vertices;
-    const colors = currentStep.colors;
+  _createPointCloud(pointCloudData, config) {
+    const points = pointCloudData.vertices;
+    const colors = pointCloudData.colors;
     let defaultConfig = {
       material: {
         cls: 'PointsMaterial', size: 0.005
@@ -355,14 +356,14 @@ class MeshViewer extends THREE.EventDispatcher {
 
   /**
    * Creates mesh geometry for current step data.
-   * @param {!Object} currentStep Step datum.
+   * @param {!Object} meshData Object with mesh data.
    * @param {!Object} config Scene rendering configuration.
    * @private
    */
-  _createMesh(currentStep, config) {
-    const vertices = currentStep.vertices;
-    const faces = currentStep.faces;
-    const colors = currentStep.colors;
+  _createMesh(meshData, config) {
+    const vertices = meshData.vertices;
+    const faces = meshData.faces;
+    const colors = meshData.colors;
     const mesh_config = this._applyDefaults(config, {
       material: {
         cls: 'MeshStandardMaterial',
@@ -372,7 +373,6 @@ class MeshViewer extends THREE.EventDispatcher {
       }
     });
 
-    // TODO(podlipensky): use BufferGeometry for performance reasons!
     let geometry = new THREE.Geometry();
 
     vertices.forEach(function(point) {
@@ -389,7 +389,7 @@ class MeshViewer extends THREE.EventDispatcher {
     faces.forEach(function(face_indices) {
       let face =
           new THREE.Face3(face_indices[0], face_indices[1], face_indices[2]);
-      if (colors) {
+      if (colors && colors.length) {
         const face_colors = [
           colors[face_indices[0]], colors[face_indices[1]],
           colors[face_indices[2]]
@@ -405,7 +405,7 @@ class MeshViewer extends THREE.EventDispatcher {
       geometry.faces.push(face);
     });
 
-    if (colors) {
+    if (colors && colors.length) {
       mesh_config.material = mesh_config.material || {};
       mesh_config.material.vertexColors = THREE.VertexColors;
     }
