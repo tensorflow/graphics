@@ -30,6 +30,10 @@ upper_tabs:
         path: /graphics/overview
       - title: Install
         path: /graphics/install
+      - title: Debug
+        path: /graphics/debug_mode
+      - title: TensorBoard
+        path: /graphics/tensorboard
       - heading: Tutorials
       - title: 6DOF alignment
         path: https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/6dof_alignment.ipynb

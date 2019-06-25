@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 name: TensorFlow Graphics
-breadcrumb_name: Graphics
+breadcrumb_name: Graphics v1.0
 home_url: /graphics/
 parent_project_metadata_path: /_project.yaml
 description: >
