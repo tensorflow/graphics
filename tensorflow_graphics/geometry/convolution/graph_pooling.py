@@ -168,7 +168,8 @@ def unpool(data, pool_map, sizes, name=None):
     pool_map_transpose = tf.sparse.transpose(pool_map, permutation)
     row_sum = tf.sparse.reduce_sum(
         tf.abs(pool_map_transpose), keepdims=True, axis=-1)
-    normalize_weights = tf.where(tf.equal(row_sum, 0), row_sum, 1.0 / row_sum)
+    normalize_weights = tf.compat.v1.where(
+        tf.equal(row_sum, 0), row_sum, 1.0 / row_sum)
     pool_map_normalize = normalize_weights * pool_map_transpose
 
     if sizes is not None:
@@ -311,7 +312,7 @@ def upsample_transposed_convolution(data,
                               scatter_shape)
     scatter = tf.sparse.reorder(scatter)
     row_sum = tf.sparse.reduce_sum(tf.abs(scatter), keepdims=True, axis=-1)
-    row_sum = tf.where(tf.equal(row_sum, 0.), row_sum, 1.0 / row_sum)
+    row_sum = tf.compat.v1.where(tf.equal(row_sum, 0.), row_sum, 1.0 / row_sum)
     scatter = row_sum * scatter
     x_upsample = tf.sparse.sparse_dense_matmul(scatter, x_upsample[0, 0, :, :])
 

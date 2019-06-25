@@ -69,8 +69,8 @@ def from_linear_rgb(linear_rgb, name=None):
     # Adds a small eps to avoid nan gradients from the second branch of
     # tf.where.
     linear_rgb += sys.float_info.epsilon
-    return tf.where(linear_rgb <= _K0 / _PHI, linear_rgb * _PHI,
-                    (1 + _A) * (linear_rgb**(1 / _GAMMA)) - _A)
+    return tf.compat.v1.where(linear_rgb <= _K0 / _PHI, linear_rgb * _PHI,
+                              (1 + _A) * (linear_rgb**(1 / _GAMMA)) - _A)
 
 
 # API contains all public functions and classes.

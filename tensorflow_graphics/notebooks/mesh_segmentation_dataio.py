@@ -324,7 +324,7 @@ def create_input_from_dataset(dataset_fn, files, io_params):
     io_params[k] = io_params[k] if k in io_params else DEFAULT_IO_PARAMS[k]
 
   dataset = dataset_fn(files, io_params)
-  mesh_data = dataset.make_one_shot_iterator().get_next()
+  mesh_data = tf.compat.v1.data.make_one_shot_iterator(dataset).get_next()
   mesh_data['neighbors'] = adjacency_from_edges(mesh_data['edges'],
                                                 mesh_data['edge_weights'],
                                                 mesh_data['num_edges'],

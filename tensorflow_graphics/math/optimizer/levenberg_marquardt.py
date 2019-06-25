@@ -194,11 +194,12 @@ def minimize(residuals,
         # If the new estimated solution does not decrease the objective value,
         # no updates are performed, but a new regularizer is computed.
         cond = tf.less(new_objective_value, objective_value)
-        regularizer = tf.where(cond, x=regularizer, y=regularizer * multiplier)
-        objective_value = tf.where(
+        regularizer = tf.compat.v1.where(
+            cond, x=regularizer, y=regularizer * multiplier)
+        objective_value = tf.compat.v1.where(
             cond, x=new_objective_value, y=objective_value)
         variables = [
-            tf.where(cond, x=new_variable, y=variable)
+            tf.compat.v1.where(cond, x=new_variable, y=variable)
             for variable, new_variable in zip(variables, new_variables)
         ]
       # Note that catching InvalidArgumentError will only work in eager mode.

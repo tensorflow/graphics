@@ -334,12 +334,12 @@ def from_rotation_matrix(rotation_matrix, name=None):
       cond = tf.tile(cond, [1] * (rotation_matrix.shape.ndims - 2) + [4])
       return cond
 
-    where_2 = tf.where(
+    where_2 = tf.compat.v1.where(
         cond_idx(entries[1][1] > entries[2][2]), cond_2(), cond_3())
-    where_1 = tf.where(
+    where_1 = tf.compat.v1.where(
         cond_idx((entries[0][0] > entries[1][1])
                  & (entries[0][0] > entries[2][2])), cond_1(), where_2)
-    quat = tf.where(cond_idx(trace > 0), tr_positive(), where_1)
+    quat = tf.compat.v1.where(cond_idx(trace > 0), tr_positive(), where_1)
     return quat
 
 
@@ -399,7 +399,7 @@ def is_normalized(quaternion, atol=1e-3, name=None):
         tensor=quaternion, tensor_name="quaternion", has_dim_equals=(-1, 4))
 
     norms = tf.norm(tensor=quaternion, axis=-1, keepdims=True)
-    return tf.where(
+    return tf.compat.v1.where(
         tf.abs(norms - 1.) < atol, tf.ones_like(norms, dtype=bool),
         tf.zeros_like(norms, dtype=bool))
 

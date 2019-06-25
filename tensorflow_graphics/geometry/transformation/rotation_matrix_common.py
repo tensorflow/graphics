@@ -64,9 +64,9 @@ def is_valid(matrix, atol=1e-3, name=None):
     norm_diff = tf.norm(tensor=difference_to_identity, axis=(-2, -1))
     # Computes the mask of entries that satisfies all conditions.
     mask = tf.logical_and(distance_to_unit_determinant < atol, norm_diff < atol)
-    output = tf.where(mask,
-                      tf.ones_like(distance_to_unit_determinant, dtype=bool),
-                      tf.zeros_like(distance_to_unit_determinant, dtype=bool))
+    output = tf.compat.v1.where(
+        mask, tf.ones_like(distance_to_unit_determinant, dtype=bool),
+        tf.zeros_like(distance_to_unit_determinant, dtype=bool))
     return tf.expand_dims(output, axis=-1)
 
 

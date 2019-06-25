@@ -43,7 +43,8 @@ def _downsample(image, kernel):
     and width of the downsampled image.
 
   """
-  return tf.nn.conv2d(image, kernel, strides=[1, 2, 2, 1], padding="SAME")
+  return tf.nn.conv2d(
+      input=image, filters=kernel, strides=[1, 2, 2, 1], padding="SAME")
 
 
 def _binomial_kernel(num_channels, dtype=tf.float32):

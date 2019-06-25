@@ -71,7 +71,7 @@ def gather_faces(vertices, indices, name=None):
       broadcasted_vertices = tf.broadcast_to(
           expanded_vertices,
           broadcasted_shape)
-      return tf.batch_gather(broadcasted_vertices, indices)
+      return tf.compat.v1.batch_gather(broadcasted_vertices, indices)
     else:
       return tf.gather(
           vertices, indices, axis=-2, batch_dims=indices.shape.ndims - 2)

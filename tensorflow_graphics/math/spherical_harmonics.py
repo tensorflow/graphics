@@ -128,8 +128,8 @@ def _evaluate_legendre_polynomial_loop_body(x, n, l, m, pmm, pmm1):
   m_float = tf.cast(m, dtype=x.dtype)
   pmn = (x * (2.0 * n_float - 1.0) * pmm1 - (n_float + m_float - 1) * pmm) / (
       n_float - m_float)
-  pmm = tf.where(tf.less_equal(n, l), pmm1, pmm)
-  pmm1 = tf.where(tf.less_equal(n, l), pmn, pmm1)
+  pmm = tf.compat.v1.where(tf.less_equal(n, l), pmm1, pmm)
+  pmm1 = tf.compat.v1.where(tf.less_equal(n, l), pmn, pmm1)
   n += 1
   return x, n, l, m, pmm, pmm1
 
@@ -146,7 +146,7 @@ def _evaluate_legendre_polynomial_loop(x, m, l, pmm, pmm1):
 def _evaluate_legendre_polynomial_branch(l, m, x, pmm):
   pmm1 = x * (2.0 * tf.cast(m, dtype=x.dtype) + 1.0) * pmm
   # if, l == m + 1 return pmm1, otherwise lift to the next band.
-  res = tf.where(
+  res = tf.compat.v1.where(
       tf.equal(l, m + 1), pmm1,
       _evaluate_legendre_polynomial_loop(x, m, l, pmm, pmm1))
   return res
@@ -193,7 +193,7 @@ def evaluate_legendre_polynomial(degree_l, order_m, x):
   x = asserts.assert_all_in_range(x, -1.0, 1.0)
 
   pmm = _evaluate_legendre_polynomial_pmm_eval(order_m, x)
-  return tf.where(
+  return tf.compat.v1.where(
       tf.equal(degree_l, order_m), pmm,
       _evaluate_legendre_polynomial_branch(degree_l, order_m, x, pmm))
 
@@ -220,7 +220,7 @@ def _evaluate_spherical_harmonics_branch(degree,
           degree, order, tf.cos(theta))
   positive = tmp * tf.cos(order_float * phi)
   negative = tmp * tf.sin(order_float * phi)
-  return tf.where(tf.greater(sign_order, 0), positive, negative)
+  return tf.compat.v1.where(tf.greater(sign_order, 0), positive, negative)
   # pylint: enable=missing-docstring
 
 
@@ -297,7 +297,8 @@ def evaluate_spherical_harmonics(degree_l, order_m, theta, phi, name=None):
             degree_l, zeros, tf.cos(theta))
     result_branch = _evaluate_spherical_harmonics_branch(
         degree_l, order_m, theta, phi, sign_m, var_type)
-    return tf.where(tf.equal(order_m, zeros), result_m_zero, result_branch)
+    return tf.compat.v1.where(
+        tf.equal(order_m, zeros), result_m_zero, result_branch)
 
 
 def rotate_zonal_harmonics(zonal_coeffs, theta, phi, name=None):

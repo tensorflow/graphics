@@ -59,7 +59,8 @@ def from_srgb(srgb, name=None):
         has_dim_equals=(-1, 3))
 
     asserts.assert_all_in_range(srgb, 0., 1.)
-    return tf.where(srgb <= _K0, srgb / _PHI, ((srgb + _A) / (1 + _A))**_GAMMA)
+    return tf.compat.v1.where(srgb <= _K0, srgb / _PHI,
+                              ((srgb + _A) / (1 + _A))**_GAMMA)
 
 
 # API contains all public functions and classes.

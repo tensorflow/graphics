@@ -154,8 +154,8 @@ def brdf(direction_incoming_light,
     common_shape = [d_val(dim) for dim in common_shape]
     condition = tf.broadcast_to(tf.greater_equal(min_dot, 0.0), common_shape)
     blinn_phong_model = tf.broadcast_to(blinn_phong_model, common_shape)
-    return tf.where(condition, blinn_phong_model,
-                    tf.zeros_like(blinn_phong_model))
+    return tf.compat.v1.where(condition, blinn_phong_model,
+                              tf.zeros_like(blinn_phong_model))
 
 
 # API contains all public functions and classes.

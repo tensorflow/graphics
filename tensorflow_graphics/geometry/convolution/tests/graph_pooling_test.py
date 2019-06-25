@@ -398,7 +398,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
         strides=(1, kernel_size),
         padding='valid',
         use_bias=False,
-        kernel_initializer=tf.keras.initializers.zeros())
+        kernel_initializer=tf.compat.v1.keras.initializers.zeros())
 
     upsampled = gp.upsample_transposed_convolution(
         data, pool_map, sizes=None, kernel_size=kernel_size,
@@ -430,7 +430,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
         shape=(1, kernel_size, num_features, num_features),
         dtype=np.float32)
     selection[0, kernel_index, feature1_index, feature2_index] = 1.
-    initializer = tf.constant_initializer(value=selection)
+    initializer = tf.compat.v1.constant_initializer(value=selection)
     transposed_convolution_op = tf.keras.layers.Conv2DTranspose(
         filters=num_features,
         kernel_size=(1, kernel_size),
@@ -468,7 +468,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
           (0., 0., 1.))), dtype=np.float32))
 
     kernel = np.ones(shape=(1, 2, 2, 2), dtype=np.float32)
-    initializer = tf.constant_initializer(value=kernel)
+    initializer = tf.compat.v1.constant_initializer(value=kernel)
     transposed_convolution_op = tf.keras.layers.Conv2DTranspose(
         filters=2,
         kernel_size=(1, 2),

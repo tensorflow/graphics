@@ -131,7 +131,7 @@ def from_quaternion(quaternions, name=None):
     # solution is not toooff in these cases.
     is_gimbal = tf.less(tf.abs(tf.abs(r20) - 1.0), 1.0e-6)
     gimbal_mask = tf.stack((is_gimbal, is_gimbal, is_gimbal), axis=-1)
-    return tf.where(gimbal_mask, gimbal_solution, general_solution)
+    return tf.compat.v1.where(gimbal_mask, gimbal_solution, general_solution)
 
 
 def from_rotation_matrix(rotation_matrix, name=None):
@@ -207,7 +207,7 @@ def from_rotation_matrix(rotation_matrix, name=None):
     gimbal_solution = gimbal_lock(rotation_matrix, r20, eps_addition)
     is_gimbal = tf.equal(tf.abs(r20), 1)
     gimbal_mask = tf.stack((is_gimbal, is_gimbal, is_gimbal), axis=-1)
-    return tf.where(gimbal_mask, gimbal_solution, general_solution)
+    return tf.compat.v1.where(gimbal_mask, gimbal_solution, general_solution)
 
 
 def inverse(euler_angle, name=None):

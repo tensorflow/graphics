@@ -59,7 +59,7 @@ def cartesian_to_spherical_coordinates(point_cartesian, name=None):
 
 
 def _double_factorial_loop_body(n, result, two):
-  result = tf.where(tf.greater_equal(n, two), result * n, result)
+  result = tf.compat.v1.where(tf.greater_equal(n, two), result * n, result)
   return n - two, result, two
 
 

@@ -37,7 +37,7 @@ def nonzero_sign(x, name=None):
     x = tf.convert_to_tensor(value=x)
 
     one = tf.ones_like(x)
-    return tf.where(tf.greater_equal(x, 0.0), one, -one)
+    return tf.compat.v1.where(tf.greater_equal(x, 0.0), one, -one)
 
 
 def safe_cospx_div_cosx(theta, factor, eps=None, name=None):

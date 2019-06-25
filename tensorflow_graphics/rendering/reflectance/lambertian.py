@@ -114,7 +114,8 @@ def brdf(direction_incoming_light,
     common_shape = [d_val(dim) for dim in common_shape]
     condition = tf.broadcast_to(tf.greater_equal(min_dot, 0.0), common_shape)
     albedo = tf.broadcast_to(albedo, common_shape)
-    return tf.where(condition, albedo / math.pi, tf.zeros_like(albedo))
+    return tf.compat.v1.where(condition, albedo / math.pi,
+                              tf.zeros_like(albedo))
 
 
 # API contains all public functions and classes.

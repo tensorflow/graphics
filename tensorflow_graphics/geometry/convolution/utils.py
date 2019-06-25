@@ -273,7 +273,7 @@ def flatten_batch_to_2d(data, sizes=None, name=None):
       # `mask[a1, ..., an, :] = [True, ..., True, False, ..., False]` where
       # the number of True elements is `sizes[a1, ..., an]`.
       mask = tf.sequence_mask(sizes, data_shape[-2])
-      mask_indices = tf.cast(tf.where(mask), tf.int32)
+      mask_indices = tf.cast(tf.compat.v1.where(mask), tf.int32)
       flat = tf.gather_nd(params=data, indices=mask_indices)
 
       def unflatten(flat, name=None):
@@ -363,7 +363,7 @@ def unflatten_2d_to_batch(data, sizes, max_rows=None, name=None):
       raise TypeError("'sizes' must have an integer type.")
 
     mask = tf.sequence_mask(sizes, max_rows)
-    mask_indices = tf.cast(tf.where(mask), tf.int32)
+    mask_indices = tf.cast(tf.compat.v1.where(mask), tf.int32)
     output_shape = tf.concat(
         (tf.shape(input=sizes), (max_rows,), tf.shape(input=data)[-1:]), axis=0)
     return tf.scatter_nd(indices=mask_indices, updates=data, shape=output_shape)
