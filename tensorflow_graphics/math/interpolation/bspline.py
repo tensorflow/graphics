@@ -30,7 +30,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-# TODO: remove when TF API is
+# TODO(b/131510643): remove when TF API is
 def _mod(x, y):
   return x - tf.cast((x // y) * y, dtype=x.dtype)
 
