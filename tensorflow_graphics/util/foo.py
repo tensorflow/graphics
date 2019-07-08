@@ -11,15 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Rendering module."""
+"""TODO(julienvalentin): DO NOT SUBMIT without one-line documentation for foo.
+
+TODO(julienvalentin): DO NOT SUBMIT without a detailed description of foo.
+"""
+
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import google_type_annotations
 from __future__ import print_function
 
-from tensorflow_graphics.rendering import camera
-from tensorflow_graphics.rendering import differentiable_renderer
-from tensorflow_graphics.rendering import reflectance
-from tensorflow_graphics.util import export_api as _export_api
+from absl import app
+from absl import flags
 
-# API contains submodules of tensorflow_graphics.rendering.
-__all__ = _export_api.get_modules()
+FLAGS = flags.FLAGS
+
+
+def main(argv):
+  if len(argv) > 1:
+    raise app.UsageError('Too many command-line arguments.')
+
+if __name__ == '__main__':
+  app.run(main)
