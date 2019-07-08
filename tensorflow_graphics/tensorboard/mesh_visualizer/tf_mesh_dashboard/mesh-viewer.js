@@ -34,7 +34,7 @@ class MeshViewer extends THREE.EventDispatcher {
     this._runColor = runColor;
   }
 
-  // TODO(b/130030314) replace with some thirdparty library call.
+  // TODO replace with some thirdparty library call.
   /**
    * Returns true if the specified value is an object.
    * @param {?} val Variable to test.

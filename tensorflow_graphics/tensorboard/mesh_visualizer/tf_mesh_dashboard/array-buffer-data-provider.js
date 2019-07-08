@@ -18,7 +18,7 @@ limitations under the License.
  * receive and parse response.
  */
 
-// TODO(b/135959734): this class must be refactored into base DataProvider and
+// TODO: this class must be refactored into base DataProvider and
 // subclass ArrayBufferDataProvider later.
 var vz_mesh;
 (function(vz_mesh) {
