@@ -18,7 +18,7 @@ limitations under the License.
  * receive and parse response.
  */
 
-// TODO: this class must be refactored into base DataProvider and
+// TODO(b/135959734): this class must be refactored into base DataProvider and
 // subclass ArrayBufferDataProvider later.
 var vz_mesh;
 (function(vz_mesh) {
@@ -75,20 +75,21 @@ class ArrayBufferDataProvider {
   /**
    * Requests new data of some particular type from the server.
    * @param {string} run Name of the run to get data for.
-   * @param {string} tag Name of the tug to get data for.
+   * @param {string} tag Name of the tag to get data for.
    * @param {string} content_type Type of the content to retrieve.
    * @param {!array} metadata List of metadata to complete with data from the
    *  server.
    * @param {number} sample Sample index from a batch of data.
-   * @param {number} timestamp Point in time when data was recorded.
+   * @param {number} step Step value, representing a point in the time when the
+      event occurred.
    * @param {!Object} meshData Map to populate with mesh data.
    * @return {!Object} Promise object representing server request.
    * @private
    */
-  _fetchDataByTimestamp(run, tag, content_type, sample, timestamp, meshData) {
+  _fetchDataByStep(run, tag, content_type, sample, step, meshData) {
     const url = tf_backend.getRouter().pluginRoute(
         'mesh', '/data',
-        new URLSearchParams({tag, run, content_type, sample, timestamp}));
+        new URLSearchParams({tag, run, content_type, sample, step}));
 
     const reshapeTo1xNx3 = function (data) {
       const channelsCount = 3;
@@ -134,12 +135,13 @@ class ArrayBufferDataProvider {
 
   /**
    * Requests new data for each type of metadata from the server.
-   * Mesh may conists of vertices and optionally faces and colors, each data
-   * type must be requested separately due to performance reasons.
-   * @param {!Object} stepDatum Dictionary with mesh data for the current step.
+   * Metadata consists of wall_time, step, tensor shape, content type and other
+   * info, but not tensor data itself.
+   * @param {!Object} stepDatum Dictionary with mesh data for a current step.
    * @param {string} run Name of the run to get data for.
    * @param {string} tag Name of the tug to get data for.
    * @param {number} sample Sample index from a batch of data.
+   * @return {!Object} Joint promise for all requests being sent.
    * @private
    */
   fetchData(stepDatum, run, tag, sample) {
@@ -149,8 +151,8 @@ class ArrayBufferDataProvider {
     Object.keys(ContentType).forEach(contentType => {
       const component = (1 << ContentType[contentType]);
       if (stepDatum.components & component) {
-        promises.push(this._fetchDataByTimestamp(
-            run, tag, contentType, sample, stepDatum.wall_time_sec,
+        promises.push(this._fetchDataByStep(
+            run, tag, contentType, sample, stepDatum.step,
             meshData));
       }
     });
@@ -162,7 +164,8 @@ class ArrayBufferDataProvider {
    * @param {string} run Name of the run to get data for.
    * @param {string} tag Name of the tug to get data for.
    * @param {number} sample Sample index from a batch of data.
-   * completion.
+   *  completion.
+   * @return {!Object} Promise for requested metadata.
    * @private
    */
   _fetchMetadata(run, tag, sample) {
@@ -192,16 +195,16 @@ class ArrayBufferDataProvider {
    */
   _processMetadata(data) {
     if (!data) return;
-    const timestampToData = new Map();
+    const stepToData = new Map();
     for (let i = 0; i < data.length; i++) {
       let dataEntry = data[i];
-      if (!timestampToData.has(dataEntry.wall_time)) {
-        timestampToData.set(dataEntry.wall_time, []);
+      if (!stepToData.has(dataEntry.step)) {
+        stepToData.set(dataEntry.step, []);
       }
-      timestampToData.get(dataEntry.wall_time).push(dataEntry);
+      stepToData.get(dataEntry.step).push(dataEntry);
     }
     let datums = [];
-    timestampToData.forEach((data) => {
+    stepToData.forEach((data) => {
       let datum = this._createStepDatum(data[0]);
       datums.push(datum);
     });
@@ -215,13 +218,10 @@ class ArrayBufferDataProvider {
    * @return {!Object} with wall_time, step number and data for the step.
    */
   _createStepDatum(metadata) {
-    // TODO: add data validation to make sure frontend is
-    // compatible with backend.
     return {
       // The wall time within the metadata is in seconds. The Date
       // constructor accepts a time in milliseconds, so we multiply by 1000.
       wall_time: new Date(metadata.wall_time * 1000),
-      wall_time_sec: metadata.wall_time,
       step: metadata.step,
       config: metadata.config,
       content_type: metadata.content_type,
