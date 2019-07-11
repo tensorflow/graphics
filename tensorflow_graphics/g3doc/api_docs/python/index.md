@@ -8,14 +8,6 @@
 *   <a href="./tfg/geometry/convolution/graph_convolution.md"><code>tfg.geometry.convolution.graph_convolution</code></a>
 *   <a href="./tfg/geometry/convolution/graph_convolution/edge_convolution_template.md"><code>tfg.geometry.convolution.graph_convolution.edge_convolution_template</code></a>
 *   <a href="./tfg/geometry/convolution/graph_convolution/feature_steered_convolution.md"><code>tfg.geometry.convolution.graph_convolution.feature_steered_convolution</code></a>
-*   <a href="./tfg/geometry/convolution/utils.md"><code>tfg.geometry.convolution.utils</code></a>
-*   <a href="./tfg/geometry/convolution/utils/check_valid_graph_convolution_input.md"><code>tfg.geometry.convolution.utils.check_valid_graph_convolution_input</code></a>
-*   <a href="./tfg/geometry/convolution/utils/check_valid_graph_pooling_input.md"><code>tfg.geometry.convolution.utils.check_valid_graph_pooling_input</code></a>
-*   <a href="./tfg/geometry/convolution/utils/check_valid_graph_unpooling_input.md"><code>tfg.geometry.convolution.utils.check_valid_graph_unpooling_input</code></a>
-*   <a href="./tfg/geometry/convolution/utils/convert_to_block_diag_2d.md"><code>tfg.geometry.convolution.utils.convert_to_block_diag_2d</code></a>
-*   <a href="./tfg/geometry/convolution/utils/flatten_batch_to_2d.md"><code>tfg.geometry.convolution.utils.flatten_batch_to_2d</code></a>
-*   <a href="./tfg/geometry/convolution/utils/partition_sums_2d.md"><code>tfg.geometry.convolution.utils.partition_sums_2d</code></a>
-*   <a href="./tfg/geometry/convolution/utils/unflatten_2d_to_batch.md"><code>tfg.geometry.convolution.utils.unflatten_2d_to_batch</code></a>
 *   <a href="./tfg/geometry/deformation_energy.md"><code>tfg.geometry.deformation_energy</code></a>
 *   <a href="./tfg/geometry/deformation_energy/as_conformal_as_possible.md"><code>tfg.geometry.deformation_energy.as_conformal_as_possible</code></a>
 *   <a href="./tfg/geometry/deformation_energy/as_conformal_as_possible/energy.md"><code>tfg.geometry.deformation_energy.as_conformal_as_possible.energy</code></a>
@@ -27,9 +19,6 @@
 *   <a href="./tfg/geometry/representation/mesh/normals/face_normals.md"><code>tfg.geometry.representation.mesh.normals.face_normals</code></a>
 *   <a href="./tfg/geometry/representation/mesh/normals/gather_faces.md"><code>tfg.geometry.representation.mesh.normals.gather_faces</code></a>
 *   <a href="./tfg/geometry/representation/mesh/normals/vertex_normals.md"><code>tfg.geometry.representation.mesh.normals.vertex_normals</code></a>
-*   <a href="./tfg/geometry/representation/mesh/utils.md"><code>tfg.geometry.representation.mesh.utils</code></a>
-*   <a href="./tfg/geometry/representation/mesh/utils/extract_unique_edges_from_triangular_mesh.md"><code>tfg.geometry.representation.mesh.utils.extract_unique_edges_from_triangular_mesh</code></a>
-*   <a href="./tfg/geometry/representation/mesh/utils/get_degree_based_edge_weights.md"><code>tfg.geometry.representation.mesh.utils.get_degree_based_edge_weights</code></a>
 *   <a href="./tfg/geometry/representation/point.md"><code>tfg.geometry.representation.point</code></a>
 *   <a href="./tfg/geometry/representation/point/distance_to_ray.md"><code>tfg.geometry.representation.point.distance_to_ray</code></a>
 *   <a href="./tfg/geometry/representation/point/project_to_ray.md"><code>tfg.geometry.representation.point.project_to_ray</code></a>
