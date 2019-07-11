@@ -18,5 +18,3 @@ Defined in [`geometry/convolution/__init__.py`](https://github.com/tensorflow/gr
 
 [`graph_convolution`](../../tfg/geometry/convolution/graph_convolution.md) module: This module implements various graph convolutions in TensorFlow.
 
-[`utils`](../../tfg/geometry/convolution/utils.md) module: This module implements various sparse data utilities for graphs and meshes.
-
