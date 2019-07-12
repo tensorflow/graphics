@@ -13,7 +13,8 @@
 # limitations under the License.
 # Convolutions and related tools for tf-graphics.
 
-# google internal)
+# google internal library 4)
+# google internal library 2
 
 licenses(["notice"])  # Apache 2.0
 
@@ -23,6 +24,7 @@ py_library(
     name = "convolution",
     srcs = ["__init__.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":graph_convolution",
         ":utils",
@@ -34,6 +36,7 @@ py_library(
     name = "utils",
     srcs = ["utils.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/util:export_api",
@@ -45,6 +48,7 @@ py_library(
     name = "graph_convolution",
     srcs = ["graph_convolution.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":utils",
         # google internal,
@@ -57,6 +61,7 @@ py_library(
     name = "graph_pooling",
     srcs = ["graph_pooling.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":utils",
         # google internal,
@@ -68,6 +73,12 @@ py_test(
     name = "utils_test",
     srcs = ["tests/utils_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":utils",
         # google internal,
@@ -79,10 +90,16 @@ py_test(
     name = "graph_convolution_test",
     srcs = ["tests/graph_convolution_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":graph_convolution",
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -95,6 +112,12 @@ py_test(
         "tests/utils_test.py",
     ],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":graph_pooling",
         ":utils",

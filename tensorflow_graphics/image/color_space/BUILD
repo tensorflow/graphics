@@ -13,7 +13,8 @@
 # limitations under the License.
 # Color space utils for tf-graphics.
 
-# google internal)
+# google internal library 4)
+# google internal library 2
 
 licenses(["notice"])  # Apache 2.0
 
@@ -23,6 +24,7 @@ py_library(
     name = "color_space",
     srcs = ["__init__.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":constants",
         ":linear_rgb",
@@ -35,6 +37,7 @@ py_library(
     name = "constants",
     srcs = ["constants.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [],
 )
 
@@ -42,6 +45,7 @@ py_library(
     name = "linear_rgb",
     srcs = ["linear_rgb.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":constants",
         # google internal,
@@ -55,11 +59,17 @@ py_test(
     name = "linear_rgb_test",
     srcs = ["tests/linear_rgb_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":linear_rgb",
         ":srgb",
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -69,6 +79,7 @@ py_library(
     name = "srgb",
     srcs = ["srgb.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":constants",
         # google internal,
@@ -82,11 +93,17 @@ py_test(
     name = "srgb_test",
     srcs = ["tests/srgb_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":linear_rgb",
         ":srgb",
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],

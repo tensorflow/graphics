@@ -13,7 +13,8 @@
 # limitations under the License.
 # Camera functionalities for tf-graphics.
 
-# google internal)
+# google internal library 4)
+# google internal library 2
 
 licenses(["notice"])  # Apache 2.0
 
@@ -23,6 +24,7 @@ py_library(
     name = "perspective",
     srcs = ["perspective.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/util:export_api",
@@ -35,6 +37,7 @@ py_library(
     name = "orthographic",
     srcs = ["orthographic.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/util:export_api",
@@ -46,6 +49,7 @@ py_library(
     name = "quadratic_radial_distortion",
     srcs = ["quadratic_radial_distortion.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/util:asserts",
@@ -58,6 +62,7 @@ py_library(
     name = "camera",
     srcs = ["__init__.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":orthographic",
         ":perspective",
@@ -70,10 +75,16 @@ py_test(
     name = "perspective_test",
     srcs = ["tests/perspective_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":perspective",
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -83,10 +94,16 @@ py_test(
     name = "orthographic_test",
     srcs = ["tests/orthographic_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":orthographic",
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -96,10 +113,16 @@ py_test(
     name = "quadratic_radial_distortion_test",
     srcs = ["tests/quadratic_radial_distortion_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":quadratic_radial_distortion",
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],

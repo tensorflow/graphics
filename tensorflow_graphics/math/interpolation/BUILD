@@ -13,7 +13,8 @@
 # limitations under the License.
 # Interpolation functionalities for tf-graphics.
 
-# google internal)
+# google internal library 4)
+# google internal library 2
 
 licenses(["notice"])  # Apache 2.0
 
@@ -25,6 +26,7 @@ py_library(
         "__init__.py",
     ],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
         ":bspline",
@@ -38,6 +40,7 @@ py_library(
     name = "slerp",
     srcs = ["slerp.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/math:vector",
@@ -52,6 +55,7 @@ py_library(
     name = "bspline",
     srcs = ["bspline.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/util:asserts",
@@ -64,6 +68,7 @@ py_library(
     name = "weighted",
     srcs = ["weighted.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/math:vector",
@@ -78,10 +83,16 @@ py_test(
     name = "slerp_test",
     srcs = ["tests/slerp_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":slerp",
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -91,10 +102,16 @@ py_test(
     name = "bspline_test",
     srcs = ["tests/bspline_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":bspline",
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -104,10 +121,16 @@ py_test(
     name = "weighted_test",
     srcs = ["tests/weighted_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":weighted",
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],

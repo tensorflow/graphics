@@ -13,8 +13,8 @@
 # limitations under the License.
 # Tensorflow-Graphics, a library for differentiable computer graphics and geometry.
 
-# google internal
-# google internal
+# google internal library 5
+# google internal library 3
 
 licenses(["notice"])  # Apache 2.0
 
@@ -29,6 +29,7 @@ py_library(
         "version.py",
     ],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
         "//tensorflow_graphics/geometry",

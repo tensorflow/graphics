@@ -13,7 +13,7 @@
 # limitations under the License.
 # Convolutions and related tools for tf-graphics.
 
-# google internal)
+# google internal library 4)
 
 licenses(["notice"])  # Apache 2.0
 
@@ -25,6 +25,7 @@ py_library(
         "__init__.py",
     ],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
         "//tensorflow_graphics/nn/layer",

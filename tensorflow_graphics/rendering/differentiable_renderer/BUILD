@@ -13,7 +13,8 @@
 # limitations under the License.
 # Differentiable Rasterizer functionalities for tf-graphics.
 
-# google internal)
+# google internal library 4)
+# google internal library 2
 
 licenses(["notice"])  # Apache 2.0
 
@@ -23,6 +24,7 @@ py_library(
     name = "rasterizer",
     srcs = ["rasterizer.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/rendering/camera:orthographic",
@@ -34,6 +36,7 @@ py_library(
     name = "differentiable_renderer",
     srcs = ["__init__.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":rasterizer",
         "//tensorflow_graphics/util:export_api",
@@ -44,11 +47,17 @@ py_test(
     name = "rasterizer_test",
     srcs = ["tests/rasterizer_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":rasterizer",
         # package dep
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],

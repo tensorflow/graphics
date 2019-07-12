@@ -13,7 +13,8 @@
 # limitations under the License.
 # Reflectance functionalities for tf-graphics.
 
-# google internal)
+# google internal library 4)
+# google internal library 2
 
 licenses(["notice"])  # Apache 2.0
 
@@ -23,6 +24,7 @@ py_library(
     name = "blinn_phong",
     srcs = ["blinn_phong.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/math:vector",
@@ -37,6 +39,7 @@ py_library(
     name = "lambertian",
     srcs = ["lambertian.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/math:vector",
@@ -50,6 +53,7 @@ py_library(
     name = "phong",
     srcs = ["phong.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/math:vector",
@@ -63,6 +67,7 @@ py_library(
     name = "reflectance",
     srcs = ["__init__.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":blinn_phong",
         ":lambertian",
@@ -75,11 +80,17 @@ py_test(
     name = "blinn_phong_test",
     srcs = ["tests/blinn_phong_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":blinn_phong",
         # package dep
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -89,11 +100,17 @@ py_test(
     name = "lambertian_test",
     srcs = ["tests/lambertian_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":lambertian",
         # package dep
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -103,11 +120,17 @@ py_test(
     name = "phong_test",
     srcs = ["tests/phong_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":phong",
         # package dep
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],

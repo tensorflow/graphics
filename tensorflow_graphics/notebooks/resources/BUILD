@@ -13,7 +13,7 @@
 # limitations under the License.
 # Colab resources for tf-graphics.
 
-# google internal)
+# google internal library 4)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -25,6 +25,7 @@ py_library(
         "__init__.py",
     ],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
         ":tfg_simplified_logo",
@@ -38,8 +39,10 @@ py_library(
         "tfg_simplified_logo.py",
     ],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
+        # google internal import 1
     ],
 )
 
@@ -49,7 +52,9 @@ py_library(
         "triangulated_stripe.py",
     ],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
+        # google internal import 1
     ],
 )

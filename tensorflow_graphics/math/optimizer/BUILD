@@ -13,7 +13,8 @@
 # limitations under the License.
 # Optimizer functionalities for tf-graphics.
 
-# google internal)
+# google internal library 4)
+# google internal library 2
 
 licenses(["notice"])  # Apache 2.0
 
@@ -25,6 +26,7 @@ py_library(
         "__init__.py",
     ],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
         ":levenberg_marquardt",
@@ -36,8 +38,9 @@ py_library(
     name = "levenberg_marquardt",
     srcs = ["levenberg_marquardt.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:export_api",
     ],
@@ -48,10 +51,16 @@ py_test(
     timeout = "long",
     srcs = ["tests/levenberg_marquardt_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":levenberg_marquardt",
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],

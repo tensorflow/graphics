@@ -13,7 +13,8 @@
 # limitations under the License.
 # Geometric transformation functionalities for tf-graphics.
 
-# google internal)
+# google internal library 4)
+# google internal library 2
 
 licenses(["notice"])  # Apache 2.0
 
@@ -23,6 +24,7 @@ py_library(
     name = "quaternion",
     srcs = ["quaternion.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":rotation_matrix_3d",
         # google internal,
@@ -38,6 +40,7 @@ py_library(
     name = "axis_angle",
     srcs = ["axis_angle.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":quaternion",
         ":rotation_matrix_3d",
@@ -54,6 +57,7 @@ py_library(
     name = "rotation_matrix_common",
     srcs = ["rotation_matrix_common.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/util:export_api",
@@ -65,6 +69,7 @@ py_library(
     name = "rotation_matrix_3d",
     srcs = ["rotation_matrix_3d.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":rotation_matrix_common",
         # package dep,
@@ -80,6 +85,7 @@ py_library(
     name = "rotation_matrix_2d",
     srcs = ["rotation_matrix_2d.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":rotation_matrix_common",
         # google internal,
@@ -92,6 +98,7 @@ py_library(
     name = "euler",
     srcs = ["euler.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":quaternion",
         ":rotation_matrix_3d",
@@ -107,6 +114,7 @@ py_library(
     name = "transformation",
     srcs = ["__init__.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":axis_angle",
         ":euler",
@@ -122,8 +130,9 @@ py_library(
     name = "test_data",
     srcs = ["tests/test_data.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
-
+        # google internal import 1
         # google internal,
     ],
 )
@@ -132,6 +141,7 @@ py_library(
     name = "test_helpers",
     srcs = ["tests/test_helpers.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":axis_angle",
         ":quaternion",
@@ -146,6 +156,12 @@ py_test(
     timeout = "long",
     srcs = ["tests/quaternion_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":axis_angle",
         ":quaternion",
@@ -154,7 +170,7 @@ py_test(
         ":test_helpers",
         # package dep
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -164,6 +180,12 @@ py_test(
     name = "axis_angle_test",
     srcs = ["tests/axis_angle_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":axis_angle",
         ":quaternion",
@@ -171,7 +193,7 @@ py_test(
         ":test_helpers",
         # package dep
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -181,6 +203,12 @@ py_test(
     name = "rotation_matrix_common_test",
     srcs = ["tests/rotation_matrix_common_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":rotation_matrix_common",
         # package dep
@@ -195,6 +223,12 @@ py_test(
     srcs = ["tests/rotation_matrix_3d_test.py"],
     shard_count = 3,
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":axis_angle",
         ":quaternion",
@@ -203,7 +237,7 @@ py_test(
         ":test_helpers",
         # package dep
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -213,13 +247,19 @@ py_test(
     name = "rotation_matrix_2d_test",
     srcs = ["tests/rotation_matrix_2d_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":rotation_matrix_2d",
         ":test_data",
         ":test_helpers",
         # package dep
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -229,6 +269,12 @@ py_test(
     name = "euler_test",
     srcs = ["tests/euler_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":axis_angle",
         ":euler",
@@ -238,7 +284,7 @@ py_test(
         ":test_helpers",
         # package dep
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/util:test_case",
     ],

@@ -13,7 +13,8 @@
 # limitations under the License.
 # Fitting energies for tf-graphics.
 
-# google internal)
+# google internal library 4)
+# google internal library 2
 
 licenses(["notice"])  # Apache 2.0
 
@@ -23,6 +24,7 @@ py_library(
     name = "as_conformal_as_possible",
     srcs = ["as_conformal_as_possible.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         # google internal,
         "//tensorflow_graphics/geometry/transformation:quaternion",
@@ -36,6 +38,7 @@ py_library(
     name = "deformation_energy",
     srcs = ["__init__.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
     deps = [
         ":as_conformal_as_possible",
         "//tensorflow_graphics/util:export_api",
@@ -46,11 +49,17 @@ py_test(
     name = "as_conformal_as_possible_test",
     srcs = ["tests/as_conformal_as_possible_test.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
     deps = [
         ":as_conformal_as_possible",
         # package dep
         # package dep
-
+        # google internal import 1
         # google internal,
         "//tensorflow_graphics/geometry/transformation:quaternion",
         "//tensorflow_graphics/util:test_case",
