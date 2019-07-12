@@ -33,24 +33,6 @@ toc:
           path: /graphics/api_docs/python/tfg/geometry/convolution/graph_convolution/edge_convolution_template
         - title: feature_steered_convolution
           path: /graphics/api_docs/python/tfg/geometry/convolution/graph_convolution/feature_steered_convolution
-      - title: utils
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils
-        - title: check_valid_graph_convolution_input
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/check_valid_graph_convolution_input
-        - title: check_valid_graph_pooling_input
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/check_valid_graph_pooling_input
-        - title: check_valid_graph_unpooling_input
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/check_valid_graph_unpooling_input
-        - title: convert_to_block_diag_2d
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/convert_to_block_diag_2d
-        - title: flatten_batch_to_2d
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/flatten_batch_to_2d
-        - title: partition_sums_2d
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/partition_sums_2d
-        - title: unflatten_2d_to_batch
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/unflatten_2d_to_batch
     - title: deformation_energy
       section:
       - title: Overview
@@ -85,14 +67,6 @@ toc:
             path: /graphics/api_docs/python/tfg/geometry/representation/mesh/normals/gather_faces
           - title: vertex_normals
             path: /graphics/api_docs/python/tfg/geometry/representation/mesh/normals/vertex_normals
-        - title: utils
-          section:
-          - title: Overview
-            path: /graphics/api_docs/python/tfg/geometry/representation/mesh/utils
-          - title: extract_unique_edges_from_triangular_mesh
-            path: /graphics/api_docs/python/tfg/geometry/representation/mesh/utils/extract_unique_edges_from_triangular_mesh
-          - title: get_degree_based_edge_weights
-            path: /graphics/api_docs/python/tfg/geometry/representation/mesh/utils/get_degree_based_edge_weights
       - title: point
         section:
         - title: Overview
