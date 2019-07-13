@@ -13,8 +13,8 @@
 # limitations under the License.
 # Image utils for tf-graphics.
 
-# google internal library 4)
-# google internal library 2
+# google internal package dependency 8)
+# google internal package dependency 5
 
 licenses(["notice"])  # Apache 2.0
 
@@ -38,8 +38,8 @@ py_library(
     srcs_version = "PY2AND3",
     # google internal rule 1
     deps = [
-        # google internal import 1
-        # google internal,
+        # google internal package dependency 6
+        # google internal package dependency 1,
         "//tensorflow_graphics/util:export_api",
         "//tensorflow_graphics/util:shape",
     ],
@@ -58,9 +58,9 @@ py_test(
     # google internal rule 6
     deps = [
         ":pyramid",
-        # package dep
-        # google internal import 1
-        # google internal,
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
         "//tensorflow_graphics/util:test_case",
     ],
 )

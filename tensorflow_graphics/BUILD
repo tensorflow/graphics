@@ -13,8 +13,8 @@
 # limitations under the License.
 # Tensorflow-Graphics, a library for differentiable computer graphics and geometry.
 
-# google internal library 5
-# google internal library 3
+# google internal package dependency 9
+# google internal package dependency 7
 
 licenses(["notice"])  # Apache 2.0
 

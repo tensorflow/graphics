@@ -13,7 +13,7 @@
 # limitations under the License.
 # Rendering utils for tf-graphics.
 
-# google internal library 4)
+# google internal package dependency 8)
 
 licenses(["notice"])  # Apache 2.0
 

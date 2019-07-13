@@ -13,7 +13,7 @@
 # limitations under the License.
 # Colab resources for tf-graphics.
 
-# google internal library 4)
+# google internal package dependency 8)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -42,7 +42,7 @@ py_library(
     # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
-        # google internal import 1
+        # google internal package dependency 6
     ],
 )
 
@@ -55,6 +55,6 @@ py_library(
     # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
-        # google internal import 1
+        # google internal package dependency 6
     ],
 )

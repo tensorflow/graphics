@@ -13,8 +13,8 @@
 # limitations under the License.
 # Utility functionalities for tf-graphics.
 
-# google internal library 4)
-# google internal library 2
+# google internal package dependency 8)
+# google internal package dependency 5
 
 licenses(["notice"])  # Apache 2.0
 
@@ -36,10 +36,10 @@ py_library(
     # google internal rule 1
     deps = [
         ":tfg_flags",
-        # package dep,
-        # package dep
-        # google internal import 1
-        # google internal,
+        # google internal package dependency 4,
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
     ],
 )
 
@@ -49,7 +49,7 @@ py_library(
     srcs_version = "PY2AND3",
     # google internal rule 1
     deps = [
-        # package dep,
+        # google internal package dependency 4,
     ],
 )
 
@@ -59,9 +59,9 @@ py_library(
     srcs_version = "PY2AND3",
     # google internal rule 1
     deps = [
-        # package dep,
-        # google internal import 1
-        # google internal,
+        # google internal package dependency 4,
+        # google internal package dependency 6
+        # google internal package dependency 1,
         "//tensorflow_graphics/util:tfg_flags",
     ],
 )
@@ -73,8 +73,8 @@ py_library(
     # google internal rule 1
     deps = [
         ":asserts",
-        # google internal import 1
-        # google internal,
+        # google internal package dependency 6
+        # google internal package dependency 1,
     ],
 )
 
@@ -113,10 +113,10 @@ py_test(
     deps = [
         ":asserts",
         ":test_case",
-        # package dep
-        # package dep
-        # google internal import 1
-        # google internal,
+        # google internal package dependency 3
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
     ],
 )
 
@@ -150,9 +150,9 @@ py_test(
         ":asserts",
         ":safe_ops",
         ":test_case",
-        # package dep
-        # google internal import 1
-        # google internal,
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
     ],
 )
 
@@ -169,7 +169,7 @@ py_test(
     deps = [
         ":shape",
         ":test_case",
-        # package dep
-        # google internal,
+        # google internal package dependency 2
+        # google internal package dependency 1,
     ],
 )
