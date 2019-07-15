@@ -99,7 +99,7 @@ advised to write code that takes dependency on them.
   <table>
     <tr>
       <th style="text-align:center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/6dof_alignment.ipynb">Object pose estimation</a></th>
-      <th style="text-align:center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/intrinsics_optimization.ipynb">Camera intrisic optimization</a></th>
+      <th style="text-align:center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/intrinsics_optimization.ipynb">Camera intrinsics optimization</a></th>
     </tr>
     <tr>
       <td align="center">
