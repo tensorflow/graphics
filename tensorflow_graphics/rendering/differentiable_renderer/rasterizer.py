@@ -88,7 +88,7 @@ def rasterizer_barycentric_coordinates(triangle_vertices_2d, triangle_vertices_a
     triangle_vertices_2d: A tensor of shape `[A1, ..., An, 3, 2], where the last
       two dimensions represents the x, y coordinate for each vertex of a 2D
       triangle.
-    triangle_vertices_attributes: A tensor of shape `[A1, ..., An, 3, 2], where the last three dimensions represents the vertex attributes 
+    triangle_vertices_attributes: A tensor of shape `[A1, ..., An, 3, 2], where the last three dimensions represents the vertex attributes
     pixels: A tensor of shape `[A1, ..., An, N, 2]`,where N represents the
       number of pixels, and the last dimension represents the x, y coordinates
       of each pixel.
