@@ -164,7 +164,7 @@ class RasterizerTest(test_case.TestCase):
       ("index must have a rank of 0", ((1,), (128, 128, 8), (10, 3), (10, 3), (7, 3)),
        (tf.int32, tf.float32, tf.float32, tf.float32, tf.int32)),
       ("result_tensor must have exactly 8 dimensions in axis -1",
-       ((), (128, 128, 1), (10, 3), (10, 3), 
+       ((), (128, 128, 1), (10, 3), (10, 3),
         (7, 3)), (tf.int32, tf.float32, tf.float32, tf.float32, tf.int32)),
       ("vertices must have exactly 3 dimensions in axis -1", ((), (128, 128, 8),
                                                               (10, 1), (10, 3), (7, 3)),
