@@ -170,7 +170,7 @@ class RasterizerTest(test_case.TestCase):
                                                               (10, 1), (10, 3), (7, 3)),
        (tf.int32, tf.float32, tf.float32, tf.float32, tf.int32)),
       ("triangles must have exactly 3 dimensions in axis -1",
-       ((), (128, 128, 8), (10, 3), (10, 3)
+       ((), (128, 128, 8), (10, 3), (10, 3),
         (7, 1)), (tf.int32, tf.float32, tf.float32, tf.float32, tf.int32)),
   )
   def test_rasterizer_rasterize_triangle_exception_raised(
