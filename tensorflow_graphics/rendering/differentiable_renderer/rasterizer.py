@@ -66,7 +66,7 @@ def _edge_function(edge_point_1, edge_point_2, point_2d):
   return (p2y - p1y) * (p3x - p1x) - (p2x - p1x) * (p3y - p1y)
 
 
-def rasterizer_barycentric_coordinates(triangle_vertices_2d, pixels, name=None):
+def rasterizer_barycentric_coordinates(triangle_vertices_2d, triangle_vertices_attributes, pixels, name=None):
   """Compute the barycentric coordinates of pixels for 2D triangle vertices.
 
   Barycentric coordinates of a point p represented as coefficients
@@ -88,6 +88,7 @@ def rasterizer_barycentric_coordinates(triangle_vertices_2d, pixels, name=None):
     triangle_vertices_2d: A tensor of shape `[A1, ..., An, 3, 2], where the last
       two dimensions represents the x, y coordinate for each vertex of a 2D
       triangle.
+    triangle_vertices_attributes: A tensor of shape `[A1, ..., An, 3, 2], where the last three dimensions represents the vertex attributes 
     pixels: A tensor of shape `[A1, ..., An, N, 2]`,where N represents the
       number of pixels, and the last dimension represents the x, y coordinates
       of each pixel.
@@ -98,6 +99,8 @@ def rasterizer_barycentric_coordinates(triangle_vertices_2d, pixels, name=None):
     barycentric_coordinates: A float tensor of shape `[A1, ..., An, N, 3]`,
       where N is the number of pixels in pixels. This tensor represents the
       barycentric coordinates.
+    interpolated_attributes: A float tensor of shape `[A1, ..., An, N, 3]`,
+    where N is the number of pixels in pixels. This tensor represents the interpolated vertex attributes.
     valid: A boolean tensor of shape `[A1, ..., An, N], where N is the number
      of pixels. This tensor is `True` where pixel is inside the triangle, and
      `False` otherwise.
@@ -131,8 +134,9 @@ def rasterizer_barycentric_coordinates(triangle_vertices_2d, pixels, name=None):
     barycentric_coordinates = tf.stack([w0, w1, w2], axis=-1) / tf.expand_dims(
         area, axis=-1)
     valid = tf.logical_and(tf.logical_and(w0 >= 0, w1 >= 0), w2 >= 0)
+    interpolated_attributes = tf.matmul(barycentric_coordinates, triangle_vertices_attributes)
 
-    return barycentric_coordinates, valid
+    return barycentric_coordinates, interpolated_attributes, valid
 
 
 def rasterizer_bounding_box(triangle_vertices_2d,
@@ -194,6 +198,7 @@ def rasterizer_bounding_box(triangle_vertices_2d,
 def rasterizer_rasterize_triangle(index,
                                   result_tensor,
                                   vertices,
+                                  attributes,
                                   triangles,
                                   project_function=orthographic.project,
                                   name=None):
@@ -212,6 +217,7 @@ def rasterizer_rasterize_triangle(index,
       coordinate maps.
     vertices: A tensor of shape `[M, 3]`, where M is the number of vertices, the
       last dimension represents the x, y, z coordinates of each vertex.
+    attributes: A tensor of shape `[M, 3]`, where M is the number of vertices, the last dimension represents the attributes of each vertex.
     triangles: An integer tensor of shape `[N, 3]`, where N is the number of
       triangles in the mesh, and the last dimension represents the indices of
       each vertex in the triangle.
@@ -229,6 +235,7 @@ def rasterizer_rasterize_triangle(index,
     index = tf.convert_to_tensor(value=index, dtype=tf.int32)
     result_tensor = tf.convert_to_tensor(value=result_tensor)
     vertices = tf.convert_to_tensor(value=vertices, dtype=result_tensor.dtype)
+    attributes = tf.convert_to_tensor(value=attributes, dtype=tf.float32)
     triangles = tf.convert_to_tensor(value=triangles, dtype=tf.int32)
 
     shape.check_static(tensor=index, tensor_name="index", has_rank=0)
@@ -236,10 +243,15 @@ def rasterizer_rasterize_triangle(index,
         tensor=result_tensor,
         tensor_name="result_tensor",
         has_rank=3,
-        has_dim_equals=(-1, 5))
+        has_dim_equals=(-1, 8))
     shape.check_static(
         tensor=vertices,
         tensor_name="vertices",
+        has_dim_equals=(-1, 3),
+        has_rank=2)
+    shape.check_static(
+        tensor=attributes,
+        tensor_name="attributes",
         has_dim_equals=(-1, 3),
         has_rank=2)
     shape.check_static(
@@ -251,6 +263,7 @@ def rasterizer_rasterize_triangle(index,
     # Select triangle.
     vertices_indices = triangles[index]
     triangle_vertices_3d = tf.gather(vertices, vertices_indices, axis=-2)
+    attributes_vertices_3d = tf.gather(attributes, vertices_indices, axis=-2)
 
     # Project triangle vertices onto 2D image plane.
     triangle_2d = project_function(triangle_vertices_3d)
@@ -272,8 +285,8 @@ def rasterizer_rasterize_triangle(index,
     indices = tf.cast(indices, tf.int32)
 
     # Compute the barycentric coordinates.
-    barycentric_coordinates, valid = rasterizer_barycentric_coordinates(
-        triangle_2d, pixels)
+    barycentric_coordinates, interpolated_attributes, valid = rasterizer_barycentric_coordinates(
+        triangle_2d, attributes_vertices_3d, pixels)
 
     # Compute updated mask according to depth buffer.
     vertices_z = triangle_vertices_3d[..., 2]
@@ -290,7 +303,10 @@ def rasterizer_rasterize_triangle(index,
                                     result_tensor.dtype) * tf.ones_like(z)
     barycentric_coordinates = tf.boolean_mask(
         tensor=barycentric_coordinates, mask=mask)
-    update = tf.concat([z, triangle_index_update, barycentric_coordinates],
+    interpolated_attributes = tf.boolean_mask(
+        tensor=interpolated_attributes, mask=mask)
+
+    update = tf.concat([z, triangle_index_update, barycentric_coordinates, interpolated_attributes],
                        axis=-1)
 
     return tf.compat.v1.scatter_nd_update(
@@ -298,6 +314,7 @@ def rasterizer_rasterize_triangle(index,
 
 
 def _rasterize_mesh(vertices,
+                    attributes,
                     triangles,
                     image_width,
                     image_height,
@@ -315,6 +332,7 @@ def _rasterize_mesh(vertices,
   Args:
     vertices: A tensor of shape `[M, 3]`, where M is the number of vertices, the
       last dimension represents the x, y, z coordinates of each vertex.
+    attributes: A tensor of shape `[M, 3]`, where M is the number of vertices, the last dimension represents the attributes of each vertex.
     triangles: A tensor of shape `[N, 3]`, where N is the number of triangles in
       the mesh, and the last dimension represents the indices of each vertex in
       the triangle.
@@ -330,10 +348,11 @@ def _rasterize_mesh(vertices,
   Returns:
     A tensor of shape `[image_height, image_width, 5]`, where for the last
       dimension, the first channel represents the rasterized depth map, the
-      second second represents the triangle index map, and the third represents
-      the barycentric coordinate maps.
+      second second represents the triangle index map, the third represents
+      the barycentric coordinate maps and the fourth represents the interpolated attributes map
   """
   vertices = tf.convert_to_tensor(value=vertices, dtype=output_dtype)
+  attributes = tf.convert_to_tensor(value=attributes, dtype=tf.float32)
   triangles = tf.convert_to_tensor(value=triangles, dtype=tf.int32)
   image_width = tf.convert_to_tensor(value=image_width, dtype=tf.int32)
   image_height = tf.convert_to_tensor(value=image_height, dtype=tf.int32)
@@ -342,6 +361,11 @@ def _rasterize_mesh(vertices,
   shape.check_static(
       tensor=vertices,
       tensor_name="vertices",
+      has_dim_equals=(-1, 3),
+      has_rank=2)
+  shape.check_static(
+      tensor=attributes,
+      tensor_name="attributes",
       has_dim_equals=(-1, 3),
       has_rank=2)
   shape.check_static(
@@ -361,6 +385,7 @@ def _rasterize_mesh(vertices,
   result_tensor = tf.concat([
       max_depth * tf.ones((image_height, image_width, 1)),
       -1.0 * tf.ones((image_height, image_width, 1)),
+      -1.0 * tf.ones((image_height, image_width, 3)),
       -1.0 * tf.ones((image_height, image_width, 3))
   ], axis=-1)
 
@@ -368,7 +393,7 @@ def _rasterize_mesh(vertices,
 
   def body(i, r):
     return (i + 1,
-            rasterizer_rasterize_triangle(i, r, vertices, triangles,
+            rasterizer_rasterize_triangle(i, r, vertices, attributes, triangles,
                                           project_function))
 
   updates = tf.while_loop(
@@ -378,6 +403,7 @@ def _rasterize_mesh(vertices,
 
 
 def rasterizer_rasterize(vertices,
+                         attributes,
                          triangles,
                          image_width,
                          image_height,
@@ -401,6 +427,9 @@ def rasterizer_rasterize(vertices,
       shape `[M, 3]` with length B, where B is the batch size, M is the number
       of vertices, and the last dimension of the tensors represent the x, y, z
       coordinates of each vertex.
+    attributes: A tensor of shape `[A1, ..., An, M, 3]` or a list of tensors of
+      shape `[M, 3]` with length B, where B is the batch size, M is the number
+      of vertices, and the last dimension of the tensors represent the attributes of each vertex.
     triangles: A tensor of shape `[A1, ..., An, N, 3]` or a list of tensors of
       shape `[N, 3]` with length B, where B is the batch size, N is the number
       of triangles, and the last dimension of the tensors represents the indices
@@ -425,11 +454,12 @@ def rasterizer_rasterize(vertices,
     barycentric_coord_map: a tensor of shape
       `[A1, ..., An, image_height, image_weith,3]`, which represents the
       barycentric coordinate maps.
+    interpolated_attributes: a tensor of shape `[A1, ..., An, image_height, image_weith,3]`, which represents the interpolated attributes map
 
   """
   with tf.compat.v1.name_scope(
       name, "rasterizer_rasterize",
-      [vertices, triangles, image_width, image_height, max_depth]):
+      [vertices, attributes, triangles, image_width, image_height, max_depth]):
 
     image_width = tf.convert_to_tensor(value=image_width, dtype=tf.int32)
     image_height = tf.convert_to_tensor(value=image_height, dtype=tf.int32)
@@ -446,11 +476,17 @@ def rasterizer_rasterize(vertices,
       batch_size = len(vertices)
     else:
       vertices = tf.convert_to_tensor(value=vertices, dtype=output_dtype)
+      attributes = tf.convert_to_tensor(value=attributes, dtype=tf.float32)
       triangles = tf.convert_to_tensor(value=triangles, dtype=tf.int32)
 
       shape.check_static(
           tensor=vertices,
           tensor_name="vertices",
+          has_rank_greater_than=1,
+          has_dim_equals=(-1, 3))
+      shape.check_static(
+          tensor=attributes,
+          tensor_name="attributes",
           has_rank_greater_than=1,
           has_dim_equals=(-1, 3))
       shape.check_static(
@@ -463,30 +499,33 @@ def rasterizer_rasterize(vertices,
           last_axes=(-3, -3),
           broadcast_compatible=False)
       if vertices.shape.ndims == 2:
-        result_tensor = _rasterize_mesh(vertices, triangles, image_width,
+        result_tensor = _rasterize_mesh(vertices, attributes, triangles, image_width,
                                         image_height, max_depth, output_dtype,
                                         project_function)
         depth_maps = result_tensor[..., 0]
         triangle_index_map = tf.cast(result_tensor[..., 1], dtype=tf.int32)
-        barycentric_coordinates = result_tensor[..., 2:]
-        return depth_maps, triangle_index_map, barycentric_coordinates
+        barycentric_coordinates = result_tensor[..., 2:5]
+        interpolated_attributes = result_tensor[..., 5:]
+        return depth_maps, triangle_index_map, barycentric_coordinates, interpolated_attributes
       else:
         vertices_shape = vertices.shape.as_list()
+        attributes_shape = attributes.shape.as_list()
         triangles_shape = triangles.shape.as_list()
         batch_shape = vertices_shape[:-2]
         vertices = tf.reshape(vertices, [-1] + vertices_shape[-2:])
+        attributes = tf.reshape(attributes, [-1] + attributes_shape[-2:])
         triangles = tf.reshape(triangles, [-1] + triangles_shape[-2:])
         batch_size = vertices.shape[0]
 
     batch_index = 0
-    result = tf.zeros([batch_size, image_height, image_width, 5],
+    result = tf.zeros([batch_size, image_height, image_width, 8],
                       dtype=output_dtype)
 
     cond = lambda i, r: tf.less(i, batch_size)
 
     def update_result(i, r):
       update = [
-          _rasterize_mesh(vertices[i], triangles[i], image_width, image_height,
+          _rasterize_mesh(vertices[i], attributes[i], triangles[i], image_width, image_height,
                           max_depth, output_dtype, project_function)
       ]
       return tf.compat.v1.scatter_nd_update(tf.Variable(r), [[i]], update)
@@ -504,6 +543,7 @@ def rasterizer_rasterize(vertices,
 
       depth_maps = new_result_tensor[..., 0]
       triangle_index_map = tf.cast(new_result_tensor[..., 1], dtype=tf.int32)
-      barycentric_coordinates = new_result_tensor[..., 2:]
+      barycentric_coordinates = new_result_tensor[..., 2:5]
+      interpolated_attributes = new_result_tensor[..., 5:]
 
-    return depth_maps, triangle_index_map, barycentric_coordinates
+    return depth_maps, triangle_index_map, barycentric_coordinates, interpolated_attributes
