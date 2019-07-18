@@ -19,6 +19,6 @@ description: >
   TensorFlow Graphics is a library of differentiable graphics Layers for TensorFlow.
 use_site_branding: true
 hide_from_products_list: true
-content_license: cc3-apache2
+content_license: cc-apache
 buganizer_id: 487329
 include: /_project_included.yaml
