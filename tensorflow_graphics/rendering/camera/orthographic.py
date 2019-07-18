@@ -63,7 +63,8 @@ def project(point_3d, name=None):
     shape.check_static(
         tensor=point_3d, tensor_name="point_3d", has_dim_equals=(-1, 3))
 
-    return point_3d[..., :2]
+    point_xy, _ = tf.compat.v1.split(point_3d, (2, 1), axis=-1)
+    return point_xy
 
 
 def ray(point_2d, name=None):
@@ -99,12 +100,9 @@ def ray(point_2d, name=None):
     shape.check_static(
         tensor=point_2d, tensor_name="point_2d", has_dim_equals=(-1, 2))
 
-    zeros = tf.zeros_like(point_2d)
     ones = tf.ones_like(point_2d[..., :1])
-    zeros = tf.zeros_like(point_2d)
-    # The multiplication of point_2d by zeros is necessary for getting
-    # gradients.
-    return tf.concat((point_2d * zeros, ones), axis=-1)
+    # point_2d is multiplied by zero to ensure it has defined gradients.
+    return tf.concat((point_2d * 0.0, ones), axis=-1)
 
 
 def unproject(point_2d, depth, name=None):

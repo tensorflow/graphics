@@ -38,7 +38,7 @@ def _rotation_2d_x(angle):
   Returns:
     The 2d rotation matrix.
   """
-  angle = np.asscalar(angle)
+  angle = angle.item()
   return np.array(((np.cos(angle), -np.sin(angle)),
                    (np.sin(angle), np.cos(angle))))  # pyformat: disable
 
@@ -91,7 +91,7 @@ def _rotation_3d_x(angle):
   Returns:
     The 3d rotation matrix.
   """
-  angle = np.asscalar(angle)
+  angle = angle.item()
   return np.array(((1., 0., 0.),
                    (0., np.cos(angle), -np.sin(angle)),
                    (0., np.sin(angle), np.cos(angle))))  # pyformat: disable
@@ -106,7 +106,7 @@ def _rotation_3d_y(angle):
   Returns:
     The 3d rotation matrix.
   """
-  angle = np.asscalar(angle)
+  angle = angle.item()
   return np.array(((np.cos(angle), 0., np.sin(angle)),
                    (0., 1., 0.),
                    (-np.sin(angle), 0., np.cos(angle))))  # pyformat: disable
@@ -121,7 +121,7 @@ def _rotation_3d_z(angle):
   Returns:
     The 3d rotation matrix.
   """
-  angle = np.asscalar(angle)
+  angle = angle.item()
   return np.array(((np.cos(angle), -np.sin(angle), 0.),
                    (np.sin(angle), np.cos(angle), 0.),
                    (0., 0., 1.)))  # pyformat: disable

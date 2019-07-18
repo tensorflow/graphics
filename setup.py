@@ -31,6 +31,7 @@ INSTALL_PACKAGES = [
     'numpy >= 1.15.4',
     'scipy >= 1.1.0',
     'six >= 1.11.0',
+    'setuptools >= 41.0.0',
 ]
 
 if '--compute_platform' in sys.argv:
