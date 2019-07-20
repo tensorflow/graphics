@@ -16,7 +16,7 @@ breadcrumb_name: Graphics
 home_url: /graphics/
 parent_project_metadata_path: /_project.yaml
 description: >
-  TensorFlow Graphics is a library of differentiable graphics Layers for TensorFlow.
+  TensorFlow Graphics is a library of graphics layers for TensorFlow.
 use_site_branding: true
 hide_from_products_list: true
 content_license: cc-apache
