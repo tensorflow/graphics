@@ -65,7 +65,7 @@ TEST_PACKAGES = [
 EXTRA_PACKAGES = {
     'test': TEST_PACKAGES,
     'tf': ['tf-nightly'],
-    # 'tf-gpu': ['tf-nightly-gpu'],
+    'tf-gpu': ['tf-nightly-gpu'],
 }
 
 setup(
