@@ -288,11 +288,14 @@ class MeshViewer extends THREE.EventDispatcher {
       geometry.vertices.push(p);
     });
 
-    colors.forEach(function (color) {
-      const c = new THREE.Color(
-          color[0] / 255., color[1] / 255., color[2] / 255.);
-      geometry.colors.push(c);
-    });
+    if (colors && colors.length == points.length) {
+      colors.forEach(function (color) {
+        const c = new THREE.Color(
+            color[0] / 255., color[1] / 255., color[2] / 255.);
+        geometry.colors.push(c);
+      });
+    }
+
 
     var material = new THREE[pc_config.material.cls](pc_config.material);
     var mesh = new THREE.Points(geometry, material);
