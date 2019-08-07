@@ -26,9 +26,24 @@ py_library(
     srcs_version = "PY2AND3",
     # google internal rule 1
     deps = [
+        ":matting",
         ":pyramid",
         "//tensorflow_graphics/image/color_space",
         "//tensorflow_graphics/util:export_api",
+    ],
+)
+
+py_library(
+    name = "matting",
+    srcs = ["matting.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    deps = [
+        # google internal package dependency 6
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:asserts",
+        "//tensorflow_graphics/util:export_api",
+        "//tensorflow_graphics/util:shape",
     ],
 )
 
@@ -42,6 +57,25 @@ py_library(
         # google internal package dependency 1,
         "//tensorflow_graphics/util:export_api",
         "//tensorflow_graphics/util:shape",
+    ],
+)
+
+py_test(
+    name = "matting_test",
+    srcs = ["tests/matting_test.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
+    deps = [
+        ":matting",
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:test_case",
     ],
 )
 
