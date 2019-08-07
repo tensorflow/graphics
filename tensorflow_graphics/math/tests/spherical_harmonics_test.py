@@ -169,7 +169,10 @@ class SphericalHarmonicsTest(test_case.TestCase):
     l_init = np.random.randint(5, 10, size=tensor_shape)
     m_init = np.random.randint(0, 4, size=tensor_shape)
     x_init = np.random.uniform(-1.0, 1.0, size=tensor_shape)
-    x = tf.convert_to_tensor(value=x_init)
+
+    # Wrap this in identity because some assert_* ops look at the constant
+    # tensor value and mark it as unfeedable.
+    x = tf.identity(tf.convert_to_tensor(value=x_init))
 
     y = spherical_harmonics.evaluate_legendre_polynomial(l_init, m_init, x)
 
@@ -420,8 +423,11 @@ class SphericalHarmonicsTest(test_case.TestCase):
     theta_init = np.expand_dims(theta_init, axis=-1)
     phi_init = np.random.uniform(0.0, 2.0 * np.pi, size=tensor_shape)
     phi_init = np.expand_dims(phi_init, axis=-1)
-    theta = tf.convert_to_tensor(value=theta_init)
-    phi = tf.convert_to_tensor(value=phi_init)
+
+    # Wrap these in identities because some assert_* ops look at the constant
+    # tensor value and mark it as unfeedable.
+    theta = tf.identity(tf.convert_to_tensor(value=theta_init))
+    phi = tf.identity(tf.convert_to_tensor(value=phi_init))
 
     y = spherical_harmonics.evaluate_spherical_harmonics(
         l_init, m_init, theta, phi)
@@ -438,8 +444,10 @@ class SphericalHarmonicsTest(test_case.TestCase):
     phi_init = np.random.uniform(0.0, 2.0 * np.pi, size=tensor_shape + [1])
     zonal_coeffs = tf.convert_to_tensor(
         value=np.random.uniform(-1.0, 1.0, size=[3]), dtype=dtype)
-    theta = tf.convert_to_tensor(value=theta_init)
-    phi = tf.convert_to_tensor(value=phi_init)
+    # Wrap these in identities because some assert_* ops look at the constant
+    # tensor value and mark it as unfeedable.
+    theta = tf.identity(tf.convert_to_tensor(value=theta_init))
+    phi = tf.identity(tf.convert_to_tensor(value=phi_init))
 
     y = spherical_harmonics.rotate_zonal_harmonics(zonal_coeffs, theta, phi)
 

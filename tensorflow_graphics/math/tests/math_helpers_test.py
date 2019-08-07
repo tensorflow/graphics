@@ -151,7 +151,11 @@ class MathTest(test_case.TestCase):
     """Tests the Jacobian of square_to_spherical_coordinates."""
     epsilon = 1e-3
     point_2d_init = np.random.uniform(epsilon, 1.0 - epsilon, size=(10, 2))
-    point_2d = tf.convert_to_tensor(value=point_2d_init, dtype=tf.float64)
+
+    # Wrap this in identity because some assert_* ops look at the constant
+    # tensor value and mark it as unfeedable.
+    point_2d = tf.identity(tf.convert_to_tensor(value=point_2d_init,
+                                                dtype=tf.float64))
 
     y = math_helpers.square_to_spherical_coordinates(point_2d)
 

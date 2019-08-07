@@ -140,9 +140,12 @@ class WeightedTest(test_case.TestCase):
     """Tests whether jacobian is correct."""
     points_np, weights_np, indices_np = self._get_tensors_from_shapes(
         num_points, dim_points, num_outputs, num_pts_to_interpolate)
-    points = tf.convert_to_tensor(value=points_np)
-    weights = tf.convert_to_tensor(value=weights_np)
-    indices = tf.convert_to_tensor(value=indices_np)
+
+    # Wrap these in identities because some assert_* ops look at the constant
+    # tensor value and mark it as unfeedable.
+    points = tf.identity(tf.convert_to_tensor(value=points_np))
+    weights = tf.identity(tf.convert_to_tensor(value=weights_np))
+    indices = tf.identity(tf.convert_to_tensor(value=indices_np))
 
     y = weighted.interpolate(
         points=points, weights=weights, indices=indices, normalize=True)

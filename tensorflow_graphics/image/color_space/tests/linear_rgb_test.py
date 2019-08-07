@@ -51,7 +51,9 @@ class LinearRGBTest(test_case.TestCase):
     tensor_size = np.random.randint(3)
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
     srgb_random_init = np.random.uniform(size=tensor_shape + [3])
-    srgb_random = tf.convert_to_tensor(value=srgb_random_init)
+    # Wrap this in identity because some assert_* ops look at the constant
+    # tensor value and mark it as unfeedable.
+    srgb_random = tf.identity(tf.convert_to_tensor(value=srgb_random_init))
     linear_random = linear_rgb.from_srgb(srgb_random)
     self.assert_jacobian_is_correct(srgb_random, srgb_random_init,
                                     linear_random)
@@ -60,7 +62,9 @@ class LinearRGBTest(test_case.TestCase):
       (0.05, 0.06, 1.)),), (np.array((0.01, 0.04, 0.06)),))
   def test_from_srgb_jacobian_preset(self, inputs_init):
     """Tests the Jacobian of the from_srgb function for preset inputs."""
-    inputs_tensor = tf.convert_to_tensor(value=inputs_init)
+    # Wrap this in identity because some assert_* ops look at the constant
+    # tensor value and mark it as unfeedable.
+    inputs_tensor = tf.identity(tf.convert_to_tensor(value=inputs_init))
     outputs = linear_rgb.from_srgb(inputs_tensor)
     self.assert_jacobian_is_correct(inputs_tensor, inputs_init, outputs)
 

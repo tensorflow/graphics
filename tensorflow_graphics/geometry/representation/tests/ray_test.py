@@ -50,10 +50,14 @@ class RayTest(test_case.TestCase):
     self.endpoints_values = points_expanded_values + 0.5 * direction
     self.weights_values = np.ones((batch_size, num_keypoints, num_cameras))
 
-    self.points = tf.convert_to_tensor(value=self.points_values)
-    self.startpoints = tf.convert_to_tensor(value=self.startpoints_values)
-    self.endpoints = tf.convert_to_tensor(value=self.endpoints_values)
-    self.weights = tf.convert_to_tensor(value=self.weights_values)
+    # Wrap these with identies because some assert_* ops look at the constant
+    # tensor values and mark these as unfeedable.
+    self.points = tf.identity(tf.convert_to_tensor(value=self.points_values))
+    self.startpoints = tf.identity(tf.convert_to_tensor(
+        value=self.startpoints_values))
+    self.endpoints = tf.identity(tf.convert_to_tensor(
+        value=self.endpoints_values))
+    self.weights = tf.identity(tf.convert_to_tensor(value=self.weights_values))
 
   @parameterized.parameters(
       ("Not all batch dimensions are identical.", (4, 3), (5, 3), (4,)),

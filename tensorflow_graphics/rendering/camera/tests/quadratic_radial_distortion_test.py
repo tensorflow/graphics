@@ -277,8 +277,10 @@ class QuadraticRadialDistortionTest(test_case.TestCase):
     squared_radii = _get_random_radii().astype(np.float64) * 0.5
     distortion_coefficients = _get_random_coefficient().astype(np.float64) * 0.5
     distortion_coefficients -= 0.25
-    squared_radii_tensor = tf.convert_to_tensor(
-        value=squared_radii, dtype=tf.float64)
+    # Wrap this in identity because some assert_* ops look at the constant
+    # tensor value and mark it as unfeedable.
+    squared_radii_tensor = tf.identity(tf.convert_to_tensor(
+        value=squared_radii, dtype=tf.float64))
 
     distortion, _ = distortion_function(squared_radii_tensor,
                                         distortion_coefficients)

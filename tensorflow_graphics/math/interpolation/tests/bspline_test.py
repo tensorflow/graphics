@@ -177,7 +177,9 @@ class BSplineTest(test_case.TestCase):
     positions_init = np.random.random_sample((10, 1))
     scale = num_knots if cyclical else num_knots - degree
     positions_init *= scale
-    positions = tf.convert_to_tensor(value=positions_init)
+    # Wrap this in identity because some assert_* ops look at the constant
+    # tensor value and mark it as unfeedable.
+    positions = tf.identity(tf.convert_to_tensor(value=positions_init))
 
     weights = bspline.knot_weights(
         positions=positions,
