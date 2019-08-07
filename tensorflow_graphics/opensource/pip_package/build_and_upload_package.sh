@@ -18,7 +18,7 @@
 # build_and_upload_package.sh my_pypi_username my_pypi_password
 
 rm -rf build/ dist/
-python setup.py sdist bdist_wheel --universal
+python setup.py --compute_platform cpu sdist bdist_wheel --universal
 twine upload dist/* -u $1 -p $2
 
 rm -rf build/ dist/

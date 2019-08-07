@@ -26,6 +26,8 @@ version_path = os.path.join(os.path.dirname(__file__), 'tensorflow_graphics')
 sys.path.append(version_path)
 from version import __version__  # pylint: disable=g-import-not-at-top
 
+tensorflow_version = '1.13.1'
+
 INSTALL_PACKAGES = [
     'absl-py >= 0.6.1',
     'numpy >= 1.15.4',
@@ -40,17 +42,19 @@ if '--compute_platform' in sys.argv:
   sys.argv.remove('--compute_platform')
   sys.argv.pop(compute_platform_idx)
 else:
-  compute_platform = 'cpu'
+  compute_platform = 'none'
 
-if compute_platform not in ('cpu', 'gpu'):
-  sys.exit('Supported compute platforms are cpu or gpu')
+if compute_platform not in ('none', 'cpu', 'gpu'):
+  sys.exit('Supported compute platforms are none, cpu, or gpu')
 
 if compute_platform == 'cpu':
-  INSTALL_PACKAGES.append('tensorflow >= 1.13.1')
+  INSTALL_PACKAGES.append('tensorflow >= ' + tensorflow_version)
   package_name = 'tensorflow-graphics'
-else:
-  INSTALL_PACKAGES.append('tensorflow-gpu >= 1.13.1')
+elif compute_platform == 'gpu':
+  INSTALL_PACKAGES.append('tensorflow-gpu >= ' + tensorflow_version)
   package_name = 'tensorflow-graphics-gpu'
+else:
+  package_name = 'tensorflow-graphics'
 
 SETUP_PACKAGES = [
     'pytest-runner',
@@ -64,8 +68,10 @@ TEST_PACKAGES = [
 
 EXTRA_PACKAGES = {
     'test': TEST_PACKAGES,
-    'tf': ['tf-nightly'],
-    'tf-gpu': ['tf-nightly-gpu'],
+    'tf': ['tensorflow >= ' + tensorflow_version],
+    'tf-gpu': ['tensorflow-gpu >= ' + tensorflow_version],
+    'tf-nightly': ['tf-nightly'],
+    'tf-nightly-gpu': ['tf-nightly-gpu'],
 }
 
 setup(

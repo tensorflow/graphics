@@ -14,5 +14,5 @@
 # limitations under the License.
 
 # This script should be run from the root of the tensorflow_graphics repository.
-python setup.py sdist bdist_wheel --universal
+python setup.py --compute_platform cpu sdist bdist_wheel --universal
 
