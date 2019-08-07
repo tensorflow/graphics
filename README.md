@@ -195,8 +195,11 @@ If you use TensorFlow Graphics in your research, please reference it as:
        year = {2019}
     }
 
+### Contact
+Want to reach out? E-mail us at tf-graphics-contact@google.com!
+
 ### Contributors - in alphabetical order
-- Sofien Bouaziz
+- Sofien Bouaziz (sofien@google.com)
 - Jay Busch
 - Forrester Cole
 - Ambrus Csaszar
@@ -208,6 +211,6 @@ If you use TensorFlow Graphics in your research, please reference it as:
 - Pavel Pidlypenskyi
 - Avneesh Sud
 - Anastasia Tkach
-- Julien Valentin
+- Julien Valentin (julienvalentin@google.com)
 - He Wang
 - Yinda Zhang
