@@ -27,6 +27,7 @@ py_library(
     # google internal rule 1
     deps = [
         ":graph_convolution",
+        ":graph_pooling",
         ":utils",
         "//tensorflow_graphics/util:export_api",
     ],
