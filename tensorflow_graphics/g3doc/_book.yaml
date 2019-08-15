@@ -30,6 +30,8 @@ upper_tabs:
         path: /graphics/overview
       - title: Install
         path: /graphics/install
+      - title: Contributing
+        path: /graphics/contributing
       - title: Debug
         path: /graphics/debug_mode
       - title: TensorBoard
