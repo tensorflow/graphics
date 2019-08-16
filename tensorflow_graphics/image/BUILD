@@ -41,6 +41,7 @@ py_library(
     deps = [
         # google internal package dependency 6
         # google internal package dependency 1,
+        "//tensorflow_graphics/math:vector",
         "//tensorflow_graphics/util:asserts",
         "//tensorflow_graphics/util:export_api",
         "//tensorflow_graphics/util:shape",
@@ -62,6 +63,7 @@ py_library(
 
 py_test(
     name = "matting_test",
+    timeout = "long",
     srcs = ["tests/matting_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
@@ -75,6 +77,8 @@ py_test(
         # google internal package dependency 2
         # google internal package dependency 6
         # google internal package dependency 1,
+        "//tensorflow_graphics/util:asserts",
+        "//tensorflow_graphics/util:shape",
         "//tensorflow_graphics/util:test_case",
     ],
 )
