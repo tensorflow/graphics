@@ -32,6 +32,9 @@ class MeshViewer extends THREE.EventDispatcher {
     /** @type {!Object} Contains width and height of the canvas. */
     this._canvasSize = null;
     this._runColor = runColor;
+    /** @type {!Object} Describes what layers must be rendered in addition
+      to a mesh or a point cloud layers. */
+    this._layersConfig = null;
   }
 
   // TODO(b/130030314) replace with some thirdparty library call.
@@ -72,6 +75,33 @@ class MeshViewer extends THREE.EventDispatcher {
       }
     }
     return mergedConfig;
+  }
+
+  /**
+   * Creates additional layers to render on top of a mesh or a point cloud
+   * layers.
+   * @private
+   */
+  _createLayers() {
+    if (!this._layersConfig || !this._scene || !this._lastMesh) return;
+    if (this._layersConfig.showBoundingBox) {
+      var box = new THREE.BoxHelper(this._lastMesh, "rgb(0, 0, 255)");
+      this._scene.add(box);
+    }
+    if (this._layersConfig.showAxes) {
+      var axesHelper = new THREE.AxesHelper(5);
+      this._scene.add(axesHelper);
+    }
+  }
+
+  /**
+   * Sets layers config.
+   * @param {!Object} layersConfig Config object describing what layers should
+   *  be rendered.
+   */
+  setLayersConfig(layersConfig) {
+    this._layersConfig = this._applyDefaults(
+      layersConfig, this._layersConfig || {});
   }
 
   /**
@@ -214,6 +244,7 @@ class MeshViewer extends THREE.EventDispatcher {
     this._clearScene();
     this._createLights(this._scene, config);
     this._createGeometry(currentStep, config);
+    this._createLayers();
     this.draw();
   }
 
@@ -295,7 +326,6 @@ class MeshViewer extends THREE.EventDispatcher {
         geometry.colors.push(c);
       });
     }
-
 
     var material = new THREE[pc_config.material.cls](pc_config.material);
     var mesh = new THREE.Points(geometry, material);
