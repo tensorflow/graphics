@@ -5,6 +5,12 @@
 
 # tfg.rendering.reflectance.lambertian.brdf
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/lambertian.py">View
+source</a>
+
 Evaluates the brdf of a Lambertian surface.
 
 ``` python
@@ -19,8 +25,6 @@ tfg.rendering.reflectance.lambertian.brdf(
 
 
 
-Defined in [`rendering/reflectance/lambertian.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/lambertian.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
@@ -28,12 +32,10 @@ Defined in [`rendering/reflectance/lambertian.py`](https://github.com/tensorflow
 In the following, A1 to An are optional batch dimensions, which must be
 broadcast compatible.
 
-
 #### Note:
 
 The gradient of this function is not smooth when the dot product of the
 normal with any light is 0.0.
-
 
 #### Args:
 
@@ -52,7 +54,6 @@ normal with any light is 0.0.
 
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
   the amount of reflected light in any outgoing direction.
-
 
 #### Raises:
 

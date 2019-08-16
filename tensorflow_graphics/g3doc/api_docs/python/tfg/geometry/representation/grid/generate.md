@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.grid.generate
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/grid.py">View
+source</a>
+
 Generates a M-D uniform axis-aligned grid.
 
 ``` python
@@ -18,8 +24,6 @@ tfg.geometry.representation.grid.generate(
 
 
 
-Defined in [`geometry/representation/grid.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/grid.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Warning:
@@ -27,11 +31,9 @@ Defined in [`geometry/representation/grid.py`](https://github.com/tensorflow/gra
 This op is not differentiable. Indeed, the gradient of tf.linspace and
 tf.meshgrid are currently not defined.
 
-
 #### Note:
 
 In the following, `B` is an optional batch dimension.
-
 
 #### Args:
 
@@ -50,7 +52,6 @@ A tensor of shape `[nums[0], ..., nums[M-1], M]` containing an M-D uniform
   grid or a tensor of shape [B, nums[0], ..., nums[M-1], M]` containing B
   M-D uniform grids. Please refer to the example below for more details.
 
-
 #### Raises:
 
 * <b>`ValueError`</b>: If the shape of `starts`, `stops`, or 'nums' is not supported.
@@ -59,7 +60,7 @@ A tensor of shape `[nums[0], ..., nums[M-1], M]` containing an M-D uniform
 #### Examples:
 
 ```python
-generate((-1.0, -2.0), (1.0, 2.0), (3, 5))
+print(generate((-1.0, -2.0), (1.0, 2.0), (3, 5)))
 >>> [[[-1. -2.]
       [-1. -1.]
       [-1.  0.]
@@ -76,6 +77,7 @@ generate((-1.0, -2.0), (1.0, 2.0), (3, 5))
       [ 1.  1.]
       [ 1.  2.]]]
 ```
-Generates a 3x5 2d grid from -1.0 to 1.0 with 3 subdivisions for the x
-axis and from -2.0 to 2.0 with 5 subdivisions for the y axis. This lead to a
-tensor of shape (3, 5, 2).
+
+Generates a 3x5 2d grid from -1.0 to 1.0 with 3 subdivisions for the x axis and
+from -2.0 to 2.0 with 5 subdivisions for the y axis. This lead to a tensor of
+shape (3, 5, 2).

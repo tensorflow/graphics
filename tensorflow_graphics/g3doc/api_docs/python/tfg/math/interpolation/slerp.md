@@ -5,11 +5,13 @@
 
 # Module: tfg.math.interpolation.slerp
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
+source</a>
+
 Tensorflow.graphics slerp interpolation module.
-
-
-
-Defined in [`math/interpolation/slerp.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py).
 
 <!-- Placeholder for "Used in" -->
 

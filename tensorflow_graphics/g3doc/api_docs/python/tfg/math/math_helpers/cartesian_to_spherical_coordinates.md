@@ -5,6 +5,12 @@
 
 # tfg.math.math_helpers.cartesian_to_spherical_coordinates
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/math_helpers.py">View
+source</a>
+
 Function to transform Cartesian coordinates to spherical coordinates.
 
 ``` python
@@ -14,16 +20,11 @@ tfg.math.math_helpers.cartesian_to_spherical_coordinates(
 )
 ```
 
-
-
-Defined in [`math/math_helpers.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/math_helpers.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -35,5 +36,5 @@ In the following, A1 to An are optional batch dimensions.
 #### Returns:
 
 A tensor of shape `[A1, ..., An, 3]`. The last dimensions contains
-(r,theta,phi), where r is the sphere radius, theta the polar angle and phi
-the azimuthal angle.
+(r,theta,phi), where r is the sphere radius, theta the polar angle and phi the
+azimuthal angle.

@@ -5,6 +5,12 @@
 
 # tfg.rendering.camera.orthographic.unproject
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py">View
+source</a>
+
 Unprojects a 2d point in 3d.
 
 ``` python
@@ -16,8 +22,6 @@ tfg.rendering.camera.orthographic.unproject(
 ```
 
 
-
-Defined in [`rendering/camera/orthographic.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -34,7 +38,6 @@ $$
 
 In the following, A1 to An are optional batch dimensions.
 
-
 #### Args:
 
 * <b>`point_2d`</b>: A tensor of shape `[A1, ..., An, 2]`, where the last dimension
@@ -48,7 +51,6 @@ In the following, A1 to An are optional batch dimensions.
 
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
 a 3d point.
-
 
 #### Raises:
 

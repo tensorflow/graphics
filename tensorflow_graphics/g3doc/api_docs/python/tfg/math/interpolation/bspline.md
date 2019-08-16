@@ -5,11 +5,13 @@
 
 # Module: tfg.math.interpolation.bspline
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/bspline.py">View
+source</a>
+
 Tensorflow.graphics B-spline interpolation module.
-
-
-
-Defined in [`math/interpolation/bspline.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/bspline.py).
 
 <!-- Placeholder for "Used in" -->
 

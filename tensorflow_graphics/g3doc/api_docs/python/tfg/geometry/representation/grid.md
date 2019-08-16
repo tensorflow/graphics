@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.representation.grid
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/grid.py">View
+source</a>
+
 Tensorflow grid utility functions.
-
-
-
-Defined in [`geometry/representation/grid.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/grid.py).
 
 <!-- Placeholder for "Used in" -->
 

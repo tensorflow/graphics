@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.mesh.normals.vertex_normals
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py">View
+source</a>
+
 Computes vertex normals from a mesh.
 
 ``` python
@@ -18,8 +24,6 @@ tfg.geometry.representation.mesh.normals.vertex_normals(
 
 
 
-Defined in [`geometry/representation/mesh/normals.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py).
-
 <!-- Placeholder for "Used in" -->
 
 This function computes vertex normals as the weighted sum of the adjacent
@@ -31,7 +35,6 @@ normals.
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -50,7 +53,6 @@ A tensor of shape `[A1, ..., An, V, 3]` containing vertex normals. If
 vertices and indices have different batch dimensions, this function
 broadcasts them into the same batch dimensions and the output batch
 dimensions are the broadcasted.
-
 
 #### Raises:
 

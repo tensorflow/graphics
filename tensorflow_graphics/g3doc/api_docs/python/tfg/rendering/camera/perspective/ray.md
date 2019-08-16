@@ -5,6 +5,12 @@
 
 # tfg.rendering.camera.perspective.ray
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py">View
+source</a>
+
 Computes the 3d ray for a 2d point (the z component of the ray is 1).
 
 ``` python
@@ -17,8 +23,6 @@ tfg.rendering.camera.perspective.ray(
 ```
 
 
-
-Defined in [`rendering/camera/perspective.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -39,7 +43,6 @@ point. The camera optical center is assumed to be at \\((0, 0, 0)\\).
 In the following, A1 to An are optional batch dimensions that must be
 broadcast compatible.
 
-
 #### Args:
 
 * <b>`point_2d`</b>: A tensor of shape `[A1, ..., An, 2]`, where the last dimension
@@ -55,7 +58,6 @@ broadcast compatible.
 
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
 a 3d ray.
-
 
 #### Raises:
 

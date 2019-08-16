@@ -5,11 +5,13 @@
 
 # Module: tfg.image.color_space.srgb
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/color_space/srgb.py">View
+source</a>
+
 This module implements Tensorflow sRGB color space utility functions.
-
-
-
-Defined in [`image/color_space/srgb.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/color_space/srgb.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -18,7 +20,5 @@ More details about sRGB can be found on [this page.]
 
 ## Functions
 
-[`from_linear(...)`](../../../tfg/image/color_space/srgb/from_linear.md): Converts linear colors to sRGB colors.
-
-[`to_linear(...)`](../../../tfg/image/color_space/srgb/to_linear.md): Converts sRGB colors to linear colors.
-
+[`from_linear_rgb(...)`](../../../tfg/image/color_space/srgb/from_linear_rgb.md):
+Converts linear RGB to sRGB colors.

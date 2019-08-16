@@ -5,6 +5,12 @@
 
 # tfg.rendering.camera.perspective.project
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py">View
+source</a>
+
 Projects a 3d point onto the 2d camera plane.
 
 ``` python
@@ -17,8 +23,6 @@ tfg.rendering.camera.perspective.project(
 ```
 
 
-
-Defined in [`rendering/camera/perspective.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -39,7 +43,6 @@ point.
 In the following, A1 to An are optional batch dimensions that must be
 broadcast compatible.
 
-
 #### Args:
 
 * <b>`point_3d`</b>: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
@@ -55,7 +58,6 @@ broadcast compatible.
 
 A tensor of shape `[A1, ..., An, 2]`, where the last dimension represents
 a 2d point.
-
 
 #### Raises:
 

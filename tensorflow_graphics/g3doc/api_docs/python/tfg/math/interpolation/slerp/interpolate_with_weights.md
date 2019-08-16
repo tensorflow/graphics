@@ -5,6 +5,12 @@
 
 # tfg.math.interpolation.slerp.interpolate_with_weights
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
+source</a>
+
 Interpolates vectors by taking their weighted sum.
 
 ``` python
@@ -19,8 +25,6 @@ tfg.math.interpolation.slerp.interpolate_with_weights(
 
 
 
-Defined in [`math/interpolation/slerp.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py).
-
 <!-- Placeholder for "Used in" -->
 
 Interpolation for all variants of slerp is a simple weighted sum over inputs.
@@ -29,7 +33,6 @@ Therefore this function simply returns weight1 * vector1 + weight2 * vector2.
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 

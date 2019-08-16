@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.transformation.axis_angle
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/axis_angle.py">View
+source</a>
+
 This module implements axis-angle functionalities.
-
-
-
-Defined in [`geometry/transformation/axis_angle.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/axis_angle.py).
 
 <!-- Placeholder for "Used in" -->
 

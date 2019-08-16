@@ -3,29 +3,24 @@
 <meta itemprop="path" content="Stable" />
 <meta itemprop="property" content="QUATERNION"/>
 <meta itemprop="property" content="VECTOR"/>
-<meta itemprop="property" content="__members__"/>
 </div>
 
 # tfg.math.interpolation.slerp.InterpolationType
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
+source</a>
+
 ## Class `InterpolationType`
 
 Defines interpolation methods for slerp module.
-
-
-
-
-
-Defined in [`math/interpolation/slerp.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py).
 
 <!-- Placeholder for "Used in" -->
 
 
 ## Class Members
 
-<h3 id="QUATERNION"><code>QUATERNION</code></h3>
-
-<h3 id="VECTOR"><code>VECTOR</code></h3>
-
-<h3 id="__members__"><code>__members__</code></h3>
-
+*   `QUATERNION` <a id="QUATERNION"></a>
+*   `VECTOR` <a id="VECTOR"></a>

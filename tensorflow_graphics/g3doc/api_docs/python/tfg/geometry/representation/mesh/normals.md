@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.representation.mesh.normals
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py">View
+source</a>
+
 Tensorflow utility functions to compute normals on meshes.
-
-
-
-Defined in [`geometry/representation/mesh/normals.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py).
 
 <!-- Placeholder for "Used in" -->
 

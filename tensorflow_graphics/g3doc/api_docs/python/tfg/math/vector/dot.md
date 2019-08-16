@@ -5,6 +5,12 @@
 
 # tfg.math.vector.dot
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/vector.py">View
+source</a>
+
 Computes the dot product between two tensors along an axis.
 
 ``` python
@@ -17,17 +23,12 @@ tfg.math.vector.dot(
 )
 ```
 
-
-
-Defined in [`math/vector.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/vector.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions, which should be
 broadcast compatible.
-
 
 #### Args:
 

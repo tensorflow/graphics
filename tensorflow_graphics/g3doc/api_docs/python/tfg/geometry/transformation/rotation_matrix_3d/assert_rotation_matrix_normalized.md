@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.rotation_matrix_3d.assert_rotation_matrix_normalized
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_3d.py">View
+source</a>
+
 Checks whether a matrix is a rotation matrix.
 
 ``` python
@@ -17,14 +23,11 @@ tfg.geometry.transformation.rotation_matrix_3d.assert_rotation_matrix_normalized
 
 
 
-Defined in [`geometry/transformation/rotation_matrix_3d.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_3d.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -38,7 +41,6 @@ In the following, A1 to An are optional batch dimensions.
 #### Returns:
 
 The input matrix, with dependence on the assertion operator in the graph.
-
 
 #### Raises:
 

@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.mesh.normals.gather_faces
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py">View
+source</a>
+
 Gather corresponding vertices for each face.
 
 ``` python
@@ -17,14 +23,11 @@ tfg.geometry.representation.mesh.normals.gather_faces(
 
 
 
-Defined in [`geometry/representation/mesh/normals.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -41,7 +44,6 @@ In the following, A1 to An are optional batch dimensions.
 
 A tensor of shape `[A1, ..., An, F, M, D]` containing the vertices of each
 face.
-
 
 #### Raises:
 

@@ -5,11 +5,13 @@
 
 # Module: tfg.rendering.reflectance.blinn_phong
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/blinn_phong.py">View
+source</a>
+
 This module implements the Blinn-Phong specular reflectance.
-
-
-
-Defined in [`rendering/reflectance/blinn_phong.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/blinn_phong.py).
 
 <!-- Placeholder for "Used in" -->
 

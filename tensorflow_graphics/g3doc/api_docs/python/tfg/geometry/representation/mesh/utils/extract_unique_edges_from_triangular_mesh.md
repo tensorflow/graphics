@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.mesh.utils.extract_unique_edges_from_triangular_mesh
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/utils.py">View
+source</a>
+
 Extracts all the unique edges using the faces of a mesh.
 
 ``` python
@@ -15,8 +21,6 @@ tfg.geometry.representation.mesh.utils.extract_unique_edges_from_triangular_mesh
 ```
 
 
-
-Defined in [`geometry/representation/mesh/utils.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/utils.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -45,8 +49,6 @@ For eg: given faces = [[0, 1, 2], [0, 1, 3]], then
   for directed_edges = True, one valid output is
     [[0, 1], [0, 2], [0, 3], [1, 0], [1, 2], [1, 3],
      [2, 0], [2, 1], [3, 0], [3, 1]]
-
-
 
 #### Raises:
 

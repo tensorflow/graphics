@@ -5,11 +5,13 @@
 
 # Module: tfg.rendering
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/__init__.py">View
+source</a>
+
 Rendering module.
-
-
-
-Defined in [`rendering/__init__.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/__init__.py).
 
 <!-- Placeholder for "Used in" -->
 

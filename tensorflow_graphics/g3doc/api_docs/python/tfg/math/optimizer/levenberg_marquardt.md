@@ -5,11 +5,13 @@
 
 # Module: tfg.math.optimizer.levenberg_marquardt
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/optimizer/levenberg_marquardt.py">View
+source</a>
+
 This module implements a Levenberg-Marquardt optimizer.
-
-
-
-Defined in [`math/optimizer/levenberg_marquardt.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/optimizer/levenberg_marquardt.py).
 
 <!-- Placeholder for "Used in" -->
 

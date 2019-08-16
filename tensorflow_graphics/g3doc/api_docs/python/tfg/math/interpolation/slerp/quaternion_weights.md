@@ -5,6 +5,12 @@
 
 # tfg.math.interpolation.slerp.quaternion_weights
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
+source</a>
+
 Calculates slerp weights for two normalized quaternions.
 
 ``` python
@@ -19,8 +25,6 @@ tfg.math.interpolation.slerp.quaternion_weights(
 
 
 
-Defined in [`math/interpolation/slerp.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py).
-
 <!-- Placeholder for "Used in" -->
 
 Given a percent and two normalized quaternions, this function returns the
@@ -34,7 +38,6 @@ the inputs are normalized, and whether Inf or Nan values are produced.
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -58,5 +61,5 @@ In the following, A1 to An are optional batch dimensions.
 
 #### Returns:
 
-Two tensors of shape `[A1, ... , An, 1]` each, which are the two slerp
-  weights for each quaternion.
+Two tensors of shape `[A1, ... , An, 1]` each, which are the two slerp weights
+for each quaternion.

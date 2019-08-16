@@ -5,6 +5,12 @@
 
 # tfg.image.pyramid.split
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/pyramid.py">View
+source</a>
+
 Generates the different levels of the pyramid.
 
 ``` python
@@ -16,8 +22,6 @@ tfg.image.pyramid.split(
 ```
 
 
-
-Defined in [`image/pyramid.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/pyramid.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -34,7 +38,6 @@ Defined in [`image/pyramid.py`](https://github.com/tensorflow/graphics/blob/mast
 
 A list containing `num_levels` tensors of shape `[B, H_i, W_i, C]`, where
 `H_i` and `W_i` are the height and width of the image for the level i.
-
 
 #### Raises:
 

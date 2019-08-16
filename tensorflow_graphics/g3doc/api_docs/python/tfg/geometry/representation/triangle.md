@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.representation.triangle
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/triangle.py">View
+source</a>
+
 Tensorflow triangle utility functions.
-
-
-
-Defined in [`geometry/representation/triangle.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/triangle.py).
 
 <!-- Placeholder for "Used in" -->
 

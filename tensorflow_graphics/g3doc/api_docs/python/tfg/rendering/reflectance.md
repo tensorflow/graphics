@@ -5,11 +5,13 @@
 
 # Module: tfg.rendering.reflectance
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/__init__.py">View
+source</a>
+
 Reflectance module.
-
-
-
-Defined in [`rendering/reflectance/__init__.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/__init__.py).
 
 <!-- Placeholder for "Used in" -->
 

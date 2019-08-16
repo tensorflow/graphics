@@ -5,16 +5,21 @@
 
 # Module: tfg.nn.layer.graph_convolution
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/layer/graph_convolution.py">View
+source</a>
+
 This module implements graph convolutions layers.
-
-
-
-Defined in [`nn/layer/graph_convolution.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/layer/graph_convolution.py).
 
 <!-- Placeholder for "Used in" -->
 
 
 ## Classes
+
+[`class DynamicGraphConvolutionKerasLayer`](../../../tfg/nn/layer/graph_convolution/DynamicGraphConvolutionKerasLayer.md):
+A keras layer for dynamic graph convolutions.
 
 [`class FeatureSteeredConvolutionKerasLayer`](../../../tfg/nn/layer/graph_convolution/FeatureSteeredConvolutionKerasLayer.md): Wraps the function `feature_steered_convolution` as a Keras layer.
 

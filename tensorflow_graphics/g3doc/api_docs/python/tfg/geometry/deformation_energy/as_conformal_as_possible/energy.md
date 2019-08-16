@@ -5,6 +5,12 @@
 
 # tfg.geometry.deformation_energy.as_conformal_as_possible.energy
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/deformation_energy/as_conformal_as_possible.py">View
+source</a>
+
 Estimates an As Conformal As Possible (ACAP) fitting energy.
 
 ``` python
@@ -22,8 +28,6 @@ tfg.geometry.deformation_energy.as_conformal_as_possible.energy(
 ```
 
 
-
-Defined in [`geometry/deformation_energy/as_conformal_as_possible.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/deformation_energy/as_conformal_as_possible.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -47,11 +51,9 @@ In the description of the arguments, V corresponds to
   the number of vertices in the mesh, and E to the number of edges in this
   mesh.
 
-
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -85,7 +87,6 @@ When aggregate_loss is `True`, returns a tensor of shape `[A1, ..., An]`
 containing the ACAP energies. When aggregate_loss is `False`, returns a
 tensor of shape `[A1, ..., An, 2*E]` containing each term of the summation
 described in the equation 7 of [2].
-
 
 #### Raises:
 

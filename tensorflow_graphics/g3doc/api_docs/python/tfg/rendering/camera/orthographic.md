@@ -5,11 +5,13 @@
 
 # Module: tfg.rendering.camera.orthographic
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py">View
+source</a>
+
 This module implements orthographic camera functionalities.
-
-
-
-Defined in [`rendering/camera/orthographic.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py).
 
 <!-- Placeholder for "Used in" -->
 

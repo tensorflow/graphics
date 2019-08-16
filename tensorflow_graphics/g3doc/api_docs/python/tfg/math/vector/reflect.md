@@ -5,6 +5,12 @@
 
 # tfg.math.vector.reflect
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/vector.py">View
+source</a>
+
 Computes the reflection direction for an incident vector.
 
 ``` python
@@ -18,8 +24,6 @@ tfg.math.vector.reflect(
 
 
 
-Defined in [`math/vector.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/vector.py).
-
 <!-- Placeholder for "Used in" -->
 
 For an incident vector \\(\mathbf{v}\\) and normal $$\mathbf{n}$$ this
@@ -30,7 +34,6 @@ function computes the reflected vector as
 
 In the following, A1 to An are optional batch dimensions, which should be
 broadcast compatible.
-
 
 #### Args:
 

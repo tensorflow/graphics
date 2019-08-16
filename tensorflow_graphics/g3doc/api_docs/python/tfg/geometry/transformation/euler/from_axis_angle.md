@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.euler.from_axis_angle
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/euler.py">View
+source</a>
+
 Converts axis-angle to Euler angles.
 
 ``` python
@@ -15,16 +21,11 @@ tfg.geometry.transformation.euler.from_axis_angle(
 )
 ```
 
-
-
-Defined in [`geometry/transformation/euler.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/euler.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -37,5 +38,5 @@ In the following, A1 to An are optional batch dimensions.
 
 #### Returns:
 
-A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
-the three Euler angles.
+A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents the
+three Euler angles.

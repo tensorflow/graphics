@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.axis_angle.from_rotation_matrix
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/axis_angle.py">View
+source</a>
+
 Converts a rotation matrix to an axis-angle representation.
 
 ``` python
@@ -16,8 +22,6 @@ tfg.geometry.transformation.axis_angle.from_rotation_matrix(
 
 
 
-Defined in [`geometry/transformation/axis_angle.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/axis_angle.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
@@ -28,11 +32,9 @@ faster, we first transform the rotation matrix to a quaternion, and finally
 perform the conversion from that quaternion to the corresponding axis-angle
 representation.
 
-
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -46,7 +48,6 @@ In the following, A1 to An are optional batch dimensions.
 A tuple of two tensors, respectively of shape `[A1, ..., An, 3]` and
 `[A1, ..., An, 1]`, where the first tensor represents the axis, and the
 second represents the angle. The resulting axis is a normalized vector.
-
 
 #### Raises:
 

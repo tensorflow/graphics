@@ -7,6 +7,7 @@
 <meta itemprop="property" content="input"/>
 <meta itemprop="property" content="input_mask"/>
 <meta itemprop="property" content="input_shape"/>
+<meta itemprop="property" content="input_spec"/>
 <meta itemprop="property" content="losses"/>
 <meta itemprop="property" content="metrics"/>
 <meta itemprop="property" content="name"/>
@@ -17,6 +18,7 @@
 <meta itemprop="property" content="output_mask"/>
 <meta itemprop="property" content="output_shape"/>
 <meta itemprop="property" content="submodules"/>
+<meta itemprop="property" content="trainable"/>
 <meta itemprop="property" content="trainable_variables"/>
 <meta itemprop="property" content="trainable_weights"/>
 <meta itemprop="property" content="updates"/>
@@ -24,7 +26,6 @@
 <meta itemprop="property" content="weights"/>
 <meta itemprop="property" content="__call__"/>
 <meta itemprop="property" content="__init__"/>
-<meta itemprop="property" content="apply"/>
 <meta itemprop="property" content="build"/>
 <meta itemprop="property" content="compute_mask"/>
 <meta itemprop="property" content="compute_output_shape"/>
@@ -46,20 +47,23 @@
 
 # tfg.nn.layer.graph_convolution.FeatureSteeredConvolutionKerasLayer
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/layer/graph_convolution.py">View
+source</a>
+
 ## Class `FeatureSteeredConvolutionKerasLayer`
 
 Wraps the function `feature_steered_convolution` as a Keras layer.
-
-
-
-
-
-Defined in [`nn/layer/graph_convolution.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/layer/graph_convolution.py).
 
 <!-- Placeholder for "Used in" -->
 
 
 <h2 id="__init__"><code>__init__</code></h2>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/layer/graph_convolution.py">View
+source</a>
 
 ``` python
 __init__(
@@ -98,11 +102,7 @@ Optional regularizer function for the output of this layer.
 
 <h3 id="dtype"><code>dtype</code></h3>
 
-
-
 <h3 id="dynamic"><code>dynamic</code></h3>
-
-
 
 <h3 id="input"><code>input</code></h3>
 
@@ -115,14 +115,8 @@ i.e. if it is connected to one incoming layer.
 
 Input tensor or list of input tensors.
 
-
 #### Raises:
 
-* <b>`AttributeError`</b>: if the layer is connected to
-more than one incoming layers.
-
-
-#### Raises:
 
 * <b>`RuntimeError`</b>: If called in Eager mode.
 * <b>`AttributeError`</b>: If no inbound nodes are found.
@@ -138,7 +132,6 @@ i.e. if it is connected to one incoming layer.
 
 Input mask tensor (potentially None) or list of input
 mask tensors.
-
 
 #### Raises:
 
@@ -158,11 +151,12 @@ have the same shape.
 Input shape, as an integer shape tuple
 (or list of shape tuples, one tuple per input tensor).
 
-
 #### Raises:
 
 * <b>`AttributeError`</b>: if the layer has no defined input_shape.
 * <b>`RuntimeError`</b>: if called in Eager mode.
+
+<h3 id="input_spec"><code>input_spec</code></h3>
 
 <h3 id="losses"><code>losses</code></h3>
 
@@ -178,11 +172,7 @@ A list of tensors.
 
 <h3 id="metrics"><code>metrics</code></h3>
 
-
-
 <h3 id="name"><code>name</code></h3>
-
-
 
 <h3 id="name_scope"><code>name_scope</code></h3>
 
@@ -190,11 +180,7 @@ Returns a `tf.name_scope` instance for this class.
 
 <h3 id="non_trainable_variables"><code>non_trainable_variables</code></h3>
 
-
-
 <h3 id="non_trainable_weights"><code>non_trainable_weights</code></h3>
-
-
 
 <h3 id="output"><code>output</code></h3>
 
@@ -206,7 +192,6 @@ i.e. if it is connected to one incoming layer.
 #### Returns:
 
 Output tensor or list of output tensors.
-
 
 #### Raises:
 
@@ -226,7 +211,6 @@ i.e. if it is connected to one incoming layer.
 Output mask tensor (potentially None) or list of output
 mask tensors.
 
-
 #### Raises:
 
 * <b>`AttributeError`</b>: if the layer is connected to
@@ -244,7 +228,6 @@ or if all outputs have the same shape.
 Output shape, as an integer shape tuple
 (or list of shape tuples, one tuple per output tensor).
 
-
 #### Raises:
 
 * <b>`AttributeError`</b>: if the layer has no defined output shape.
@@ -257,30 +240,28 @@ Sequence of all sub-modules.
 Submodules are modules which are properties of this module, or found as
 properties of modules which are properties of this module (and so on).
 
->>> a = tf.Module()
->>> b = tf.Module()
->>> c = tf.Module()
->>> a.b = b
->>> b.c = c
->>> assert list(a.submodules) == [b, c]
->>> assert list(b.submodules) == [c]
->>> assert list(c.submodules) == []
+```
+a = tf.Module()
+b = tf.Module()
+c = tf.Module()
+a.b = b
+b.c = c
+assert list(a.submodules) == [b, c]
+assert list(b.submodules) == [c]
+assert list(c.submodules) == []
+```
 
 #### Returns:
 
 A sequence of all submodules.
 
+<h3 id="trainable"><code>trainable</code></h3>
+
 <h3 id="trainable_variables"><code>trainable_variables</code></h3>
-
-
 
 <h3 id="trainable_weights"><code>trainable_weights</code></h3>
 
-
-
 <h3 id="updates"><code>updates</code></h3>
-
-
 
 <h3 id="variables"><code>variables</code></h3>
 
@@ -299,8 +280,6 @@ Returns the list of all layer variables/weights.
 #### Returns:
 
 A list of variables.
-
-
 
 ## Methods
 
@@ -327,7 +306,6 @@ Wraps `call`, applying pre- and post-processing steps.
 
 Output tensor(s).
 
-
 #### Note:
 
 - The following optional keyword arguments are reserved for specific uses:
@@ -340,37 +318,14 @@ Output tensor(s).
   a layer that generated a corresponding mask, i.e. if it came from
   a Keras layer with masking support.
 
-
 #### Raises:
 
 * <b>`ValueError`</b>: if the layer's `call` method returns None (an invalid value).
 
-<h3 id="apply"><code>apply</code></h3>
-
-``` python
-apply(
-    inputs,
-    *args,
-    **kwargs
-)
-```
-
-Apply the layer on a input.
-
-This is an alias of `self.__call__`.
-
-#### Arguments:
-
-* <b>`inputs`</b>: Input tensor(s).
-* <b>`*args`</b>: additional positional arguments to be passed to `self.call`.
-* <b>`**kwargs`</b>: additional keyword arguments to be passed to `self.call`.
-
-
-#### Returns:
-
-Output tensor(s).
-
 <h3 id="build"><code>build</code></h3>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/layer/graph_convolution.py">View
+source</a>
 
 ``` python
 build(input_shape)
@@ -408,8 +363,9 @@ compute_output_shape(input_shape)
 
 Computes the output shape of the layer.
 
-Assumes that the layer will be built
-to match that input shape provided.
+If the layer has not been built, this method will call `build` on the layer.
+This assumes that the layer will later be used with inputs that match the input
+shape provided here.
 
 #### Arguments:
 
@@ -434,7 +390,6 @@ Count the total number of scalars composing the weights.
 #### Returns:
 
 An integer count.
-
 
 #### Raises:
 
@@ -508,7 +463,6 @@ Retrieves the input tensor(s) of a layer at a given node.
 
 A tensor (or list of tensors if the layer has multiple inputs).
 
-
 #### Raises:
 
 * <b>`RuntimeError`</b>: If called in Eager mode.
@@ -555,7 +509,6 @@ Retrieves the input shape(s) of a layer at a given node.
 A shape tuple
 (or list of shape tuples if the layer has multiple inputs).
 
-
 #### Raises:
 
 * <b>`RuntimeError`</b>: If called in Eager mode.
@@ -596,7 +549,6 @@ Retrieves the output tensor(s) of a layer at a given node.
 #### Returns:
 
 A tensor (or list of tensors if the layer has multiple outputs).
-
 
 #### Raises:
 
@@ -643,7 +595,6 @@ Retrieves the output shape(s) of a layer at a given node.
 
 A shape tuple
 (or list of shape tuples if the layer has multiple outputs).
-
 
 #### Raises:
 
@@ -711,21 +662,25 @@ with_name_scope(
 
 Decorator to automatically enter the module name scope.
 
->>> class MyModule(tf.Module):
-...   @tf.Module.with_name_scope
-...   def __call__(self, x):
-...     if not hasattr(self, 'w'):
-...       self.w = tf.Variable(tf.random.normal([x.shape[1], 64]))
-...     return tf.matmul(x, self.w)
+```
+class MyModule(tf.Module):
+  @tf.Module.with_name_scope
+  def __call__(self, x):
+    if not hasattr(self, 'w'):
+      self.w = tf.Variable(tf.random.normal([x.shape[1], 64]))
+    return tf.matmul(x, self.w)
+```
 
 Using the above module would produce `tf.Variable`s and `tf.Tensor`s whose
 names included the module name:
 
->>> mod = MyModule()
->>> mod(tf.ones([8, 32]))
-<tf.Tensor: ...>
->>> mod.w
-<tf.Variable ...'my_module/w:0'>
+```
+mod = MyModule()
+mod(tf.ones([8, 32]))
+# ==> <tf.Tensor: ...>
+mod.w
+# ==> <tf.Variable ...'my_module/w:0'>
+```
 
 #### Args:
 
@@ -735,6 +690,3 @@ names included the module name:
 #### Returns:
 
 The original method wrapped such that it enters the module's name scope.
-
-
-

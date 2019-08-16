@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.deformation_energy
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/deformation_energy/__init__.py">View
+source</a>
+
 Deformation energies module.
-
-
-
-Defined in [`geometry/deformation_energy/__init__.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/deformation_energy/__init__.py).
 
 <!-- Placeholder for "Used in" -->
 

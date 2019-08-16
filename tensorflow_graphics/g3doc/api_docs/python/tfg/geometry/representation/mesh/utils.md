@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.representation.mesh.utils
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/utils.py">View
+source</a>
+
 This module implements utility functions for meshes.
-
-
-
-Defined in [`geometry/representation/mesh/utils.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/utils.py).
 
 <!-- Placeholder for "Used in" -->
 

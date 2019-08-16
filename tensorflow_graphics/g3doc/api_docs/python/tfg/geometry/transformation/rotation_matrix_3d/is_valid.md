@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.rotation_matrix_3d.is_valid
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_3d.py">View
+source</a>
+
 Determines if a matrix is a valid rotation matrix.
 
 ``` python
@@ -15,16 +21,11 @@ tfg.geometry.transformation.rotation_matrix_3d.is_valid(
 )
 ```
 
-
-
-Defined in [`geometry/transformation/rotation_matrix_3d.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_3d.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -36,5 +37,5 @@ In the following, A1 to An are optional batch dimensions.
 
 #### Returns:
 
-A tensor of type `bool` and shape `[A1, ..., An, 1]` where False indicates
-that the input is not a valid rotation matrix.
+A tensor of type `bool` and shape `[A1, ..., An, 1]` where False indicates that
+the input is not a valid rotation matrix.

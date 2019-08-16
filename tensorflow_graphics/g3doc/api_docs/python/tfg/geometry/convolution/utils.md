@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.convolution.utils
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/convolution/utils.py">View
+source</a>
+
 This module implements various sparse data utilities for graphs and meshes.
-
-
-
-Defined in [`geometry/convolution/utils.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/convolution/utils.py).
 
 <!-- Placeholder for "Used in" -->
 

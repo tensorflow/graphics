@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.ray.triangulate
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/ray.py">View
+source</a>
+
 Triangulates 3d points by miminizing the sum of squared distances to rays.
 
 ``` python
@@ -18,8 +24,6 @@ tfg.geometry.representation.ray.triangulate(
 
 
 
-Defined in [`geometry/representation/ray.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/ray.py).
-
 <!-- Placeholder for "Used in" -->
 
 The rays are defined by their start points and endpoints. At least two rays
@@ -30,7 +34,6 @@ minimized in a closed form.
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -51,7 +54,6 @@ In the following, A1 to An are optional batch dimensions.
 #### Returns:
 
 A tensor of triangulated points with shape `[A1, ..., An, 3]`.
-
 
 #### Raises:
 

@@ -5,11 +5,13 @@
 
 # Module: tfg.math
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/__init__.py">View
+source</a>
+
 Math module.
-
-
-
-Defined in [`math/__init__.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/__init__.py).
 
 <!-- Placeholder for "Used in" -->
 

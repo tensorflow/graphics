@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.point.distance_to_ray
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/point.py">View
+source</a>
+
 Computes the distance from a M-d point to a M-d ray.
 
 ``` python
@@ -19,15 +25,12 @@ tfg.geometry.representation.point.distance_to_ray(
 
 
 
-Defined in [`geometry/representation/point.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/point.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions, which must be
 broadcast compatible.
-
 
 #### Args:
 
@@ -44,7 +47,6 @@ broadcast compatible.
 
 A tensor of shape `[A1, ..., An, 1]` containing the distance from each point
 to the corresponding ray.
-
 
 #### Raises:
 

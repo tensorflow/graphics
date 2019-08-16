@@ -5,11 +5,13 @@
 
 # Module: tfg.math.vector
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/vector.py">View
+source</a>
+
 Tensorflow vector utility functions.
-
-
-
-Defined in [`math/vector.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/vector.py).
 
 <!-- Placeholder for "Used in" -->
 

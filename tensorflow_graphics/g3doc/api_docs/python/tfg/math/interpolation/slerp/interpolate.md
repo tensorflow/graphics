@@ -5,6 +5,12 @@
 
 # tfg.math.interpolation.slerp.interpolate
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
+source</a>
+
 Applies slerp to vectors or quaternions.
 
 ``` python
@@ -19,8 +25,6 @@ tfg.math.interpolation.slerp.interpolate(
 ```
 
 
-
-Defined in [`math/interpolation/slerp.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -45,7 +49,6 @@ Defined in [`math/interpolation/slerp.py`](https://github.com/tensorflow/graphic
 
 A tensor of shape [A1, ... , An, M]` which stores the result of the
 interpolation.
-
 
 #### Raises:
 

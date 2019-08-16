@@ -5,11 +5,13 @@
 
 # Module: tfg.rendering.reflectance.phong
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/phong.py">View
+source</a>
+
 This module implements phong specular reflectance.
-
-
-
-Defined in [`rendering/reflectance/phong.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/phong.py).
 
 <!-- Placeholder for "Used in" -->
 

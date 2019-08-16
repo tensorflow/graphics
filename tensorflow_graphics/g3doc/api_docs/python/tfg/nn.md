@@ -5,11 +5,13 @@
 
 # Module: tfg.nn
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/__init__.py">View
+source</a>
+
 Neural Network module.
-
-
-
-Defined in [`nn/__init__.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/__init__.py).
 
 <!-- Placeholder for "Used in" -->
 

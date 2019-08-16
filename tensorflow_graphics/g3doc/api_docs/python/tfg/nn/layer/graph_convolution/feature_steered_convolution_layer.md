@@ -5,6 +5,12 @@
 
 # tfg.nn.layer.graph_convolution.feature_steered_convolution_layer
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/layer/graph_convolution.py">View
+source</a>
+
 Wraps the function `feature_steered_convolution` as a TensorFlow layer.
 
 ``` python
@@ -23,8 +29,6 @@ tfg.nn.layer.graph_convolution.feature_steered_convolution_layer(
 
 
 
-Defined in [`nn/layer/graph_convolution.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/layer/graph_convolution.py).
-
 <!-- Placeholder for "Used in" -->
 
 The shorthands used below are
@@ -34,7 +38,6 @@ The shorthands used below are
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 

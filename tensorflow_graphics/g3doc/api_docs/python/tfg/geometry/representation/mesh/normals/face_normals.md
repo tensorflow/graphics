@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.mesh.normals.face_normals
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py">View
+source</a>
+
 Computes face normals for meshes.
 
 ``` python
@@ -18,8 +24,6 @@ tfg.geometry.representation.mesh.normals.face_normals(
 
 
 
-Defined in [`geometry/representation/mesh/normals.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py).
-
 <!-- Placeholder for "Used in" -->
 
 This function supports planar convex polygon faces. Note that for
@@ -29,7 +33,6 @@ face to calculate the face normal.
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -45,7 +48,6 @@ In the following, A1 to An are optional batch dimensions.
 #### Returns:
 
 A tensor of shape `[A1, ..., An, 3]` containing the face normals.
-
 
 #### Raises:
 

@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.quaternion.from_axis_angle
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
+source</a>
+
 Converts an axis-angle representation to a quaternion.
 
 ``` python
@@ -17,14 +23,11 @@ tfg.geometry.transformation.quaternion.from_axis_angle(
 
 
 
-Defined in [`geometry/transformation/quaternion.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -39,7 +42,6 @@ In the following, A1 to An are optional batch dimensions.
 
 A tensor of shape `[A1, ..., An, 4]`, where the last dimension represents
 a normalized quaternion.
-
 
 #### Raises:
 

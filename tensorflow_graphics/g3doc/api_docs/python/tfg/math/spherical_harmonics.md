@@ -5,11 +5,13 @@
 
 # Module: tfg.math.spherical_harmonics
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View
+source</a>
+
 This module implements routines required for spherical harmonics lighting.
-
-
-
-Defined in [`math/spherical_harmonics.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py).
 
 <!-- Placeholder for "Used in" -->
 

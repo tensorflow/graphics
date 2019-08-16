@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.transformation.quaternion
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
+source</a>
+
 This module implements TensorFlow quaternion utility functions.
-
-
-
-Defined in [`geometry/transformation/quaternion.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py).
 
 <!-- Placeholder for "Used in" -->
 

@@ -5,22 +5,23 @@
 
 # tfg.math.math_helpers.factorial
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/math_helpers.py">View
+source</a>
+
 Computes the factorial of `n`.
 
 ``` python
 tfg.math.math_helpers.factorial(n)
 ```
 
-
-
-Defined in [`math/math_helpers.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/math_helpers.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 

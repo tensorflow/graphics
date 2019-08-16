@@ -33,6 +33,16 @@ toc:
           path: /graphics/api_docs/python/tfg/geometry/convolution/graph_convolution/edge_convolution_template
         - title: feature_steered_convolution
           path: /graphics/api_docs/python/tfg/geometry/convolution/graph_convolution/feature_steered_convolution
+      - title: graph_pooling
+        section:
+        - title: Overview
+          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling
+        - title: pool
+          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling/pool
+        - title: unpool
+          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling/unpool
+        - title: upsample_transposed_convolution
+          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling/upsample_transposed_convolution
       - title: utils
         section:
         - title: Overview
@@ -229,14 +239,30 @@ toc:
       section:
       - title: Overview
         path: /graphics/api_docs/python/tfg/image/color_space
+      - title: constants
+        section:
+        - title: Overview
+          path: /graphics/api_docs/python/tfg/image/color_space/constants
+      - title: linear_rgb
+        section:
+        - title: Overview
+          path: /graphics/api_docs/python/tfg/image/color_space/linear_rgb
+        - title: from_srgb
+          path: /graphics/api_docs/python/tfg/image/color_space/linear_rgb/from_srgb
       - title: srgb
         section:
         - title: Overview
           path: /graphics/api_docs/python/tfg/image/color_space/srgb
-        - title: from_linear
-          path: /graphics/api_docs/python/tfg/image/color_space/srgb/from_linear
-        - title: to_linear
-          path: /graphics/api_docs/python/tfg/image/color_space/srgb/to_linear
+        - title: from_linear_rgb
+          path: /graphics/api_docs/python/tfg/image/color_space/srgb/from_linear_rgb
+    - title: matting
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/image/matting
+      - title: laplacian_weights
+        path: /graphics/api_docs/python/tfg/image/matting/laplacian_weights
+      - title: loss
+        path: /graphics/api_docs/python/tfg/image/matting/loss
     - title: pyramid
       section:
       - title: Overview
@@ -353,6 +379,8 @@ toc:
         section:
         - title: Overview
           path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution
+        - title: DynamicGraphConvolutionKerasLayer
+          path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution/DynamicGraphConvolutionKerasLayer
         - title: FeatureSteeredConvolutionKerasLayer
           path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution/FeatureSteeredConvolutionKerasLayer
         - title: feature_steered_convolution_layer

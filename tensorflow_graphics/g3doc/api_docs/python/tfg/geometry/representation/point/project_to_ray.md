@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.point.project_to_ray
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/point.py">View
+source</a>
+
 Computes the projection of a M-d point on a M-d ray.
 
 ``` python
@@ -18,15 +24,12 @@ tfg.geometry.representation.point.project_to_ray(
 
 
 
-Defined in [`geometry/representation/point.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/point.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions, which must be
 broadcast compatible.
-
 
 #### Args:
 
@@ -40,7 +43,6 @@ broadcast compatible.
 #### Returns:
 
 A tensor of shape `[A1, ..., An, M]` containing the projected point.
-
 
 #### Raises:
 

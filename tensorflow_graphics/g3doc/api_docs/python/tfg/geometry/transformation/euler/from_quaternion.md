@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.euler.from_quaternion
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/euler.py">View
+source</a>
+
 Converts quaternions to Euler angles.
 
 ``` python
@@ -15,8 +21,6 @@ tfg.geometry.transformation.euler.from_quaternion(
 ```
 
 
-
-Defined in [`geometry/transformation/euler.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/euler.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -29,5 +33,5 @@ Defined in [`geometry/transformation/euler.py`](https://github.com/tensorflow/gr
 
 #### Returns:
 
-A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
-the three Euler angles.
+A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents the
+three Euler angles.

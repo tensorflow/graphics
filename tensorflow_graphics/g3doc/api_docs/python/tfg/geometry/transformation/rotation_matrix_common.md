@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.transformation.rotation_matrix_common
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_common.py">View
+source</a>
+
 This module contains routines shared for rotation matrices.
-
-
-
-Defined in [`geometry/transformation/rotation_matrix_common.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_common.py).
 
 <!-- Placeholder for "Used in" -->
 

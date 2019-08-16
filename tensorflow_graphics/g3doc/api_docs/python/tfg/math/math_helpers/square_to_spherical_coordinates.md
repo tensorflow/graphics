@@ -5,6 +5,12 @@
 
 # tfg.math.math_helpers.square_to_spherical_coordinates
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/math_helpers.py">View
+source</a>
+
 Maps points from a unit square to a unit sphere.
 
 ``` python
@@ -16,14 +22,11 @@ tfg.math.math_helpers.square_to_spherical_coordinates(
 
 
 
-Defined in [`math/math_helpers.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/math_helpers.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -36,7 +39,6 @@ In the following, A1 to An are optional batch dimensions.
 
 A tensor of shape `[A1, ..., An, 2]` with [..., 0] having values in
 [0.0, pi] and [..., 1] with values in [0.0, 2pi].
-
 
 #### Raises:
 

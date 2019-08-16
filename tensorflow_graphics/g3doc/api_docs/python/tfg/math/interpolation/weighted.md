@@ -5,11 +5,13 @@
 
 # Module: tfg.math.interpolation.weighted
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/weighted.py">View
+source</a>
+
 This module implements weighted interpolation for point sets.
-
-
-
-Defined in [`math/interpolation/weighted.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/weighted.py).
 
 <!-- Placeholder for "Used in" -->
 

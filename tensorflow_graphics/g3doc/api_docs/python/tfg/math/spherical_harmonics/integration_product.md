@@ -5,6 +5,12 @@
 
 # tfg.math.spherical_harmonics.integration_product
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View
+source</a>
+
 Computes the integral of harmonics1.harmonics2 over the sphere.
 
 ``` python
@@ -18,14 +24,11 @@ tfg.math.spherical_harmonics.integration_product(
 
 
 
-Defined in [`math/spherical_harmonics.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -42,7 +45,6 @@ In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An]` containing scalar values resulting from
 integrating the product of the spherical harmonics `harmonics1` and
 `harmonics2`.
-
 
 #### Raises:
 

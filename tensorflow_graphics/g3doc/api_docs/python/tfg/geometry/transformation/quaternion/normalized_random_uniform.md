@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.quaternion.normalized_random_uniform
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
+source</a>
+
 Random normalized quaternion following a uniform distribution law on SO(3).
 
 ``` python
@@ -15,8 +21,6 @@ tfg.geometry.transformation.quaternion.normalized_random_uniform(
 ```
 
 
-
-Defined in [`geometry/transformation/quaternion.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py).
 
 <!-- Placeholder for "Used in" -->
 

@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.rotation_matrix_3d.from_axis_angle
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_3d.py">View
+source</a>
+
 Convert an axis-angle representation to a rotation matrix.
 
 ``` python
@@ -17,15 +23,12 @@ tfg.geometry.transformation.rotation_matrix_3d.from_axis_angle(
 
 
 
-Defined in [`geometry/transformation/rotation_matrix_3d.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_3d.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions, which must be
 broadcast compatible.
-
 
 #### Args:
 
@@ -41,7 +44,6 @@ broadcast compatible.
 
 A tensor of shape `[A1, ..., An, 3, 3]`, where the last two dimensions
 represents a 3d rotation matrix.
-
 
 #### Raises:
 

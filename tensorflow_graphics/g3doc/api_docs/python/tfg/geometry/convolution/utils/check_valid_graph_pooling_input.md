@@ -5,6 +5,12 @@
 
 # tfg.geometry.convolution.utils.check_valid_graph_pooling_input
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/convolution/utils.py">View
+source</a>
+
 Checks that the inputs are valid for graph pooling.
 
 ``` python
@@ -17,22 +23,18 @@ tfg.geometry.convolution.utils.check_valid_graph_pooling_input(
 
 
 
-Defined in [`geometry/convolution/utils.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/convolution/utils.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
 
-
 #### Args:
 
-* <b>`data`</b>: A `float` tensor with shape `[A1, ..., An, V1, C]`.
-* <b>`pool_map`</b>: A SparseTensor with the same type as `data` and with shape
-  `[A1, ..., An, V2, V1]`.
-* <b>`sizes`</b>: An `int` tensor of shape `[A1, ..., An, 2]`. Can be `None`.
-
+*   <b>`data`</b>: A `float` tensor with shape `[A1, ..., An, V1, C]`.
+*   <b>`pool_map`</b>: A SparseTensor with the same type as `data` and with
+    shape `[A1, ..., An, V2, V1]`.
+*   <b>`sizes`</b>: An `int` tensor of shape `[A1, ..., An, 2]`. Can be `None`.
 
 #### Raises:
 

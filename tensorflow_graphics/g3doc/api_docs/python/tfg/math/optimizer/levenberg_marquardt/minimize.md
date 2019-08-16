@@ -5,6 +5,12 @@
 
 # tfg.math.optimizer.levenberg_marquardt.minimize
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/optimizer/levenberg_marquardt.py">View
+source</a>
+
 Minimizes a set of residuals in the least-squares sense.
 
 ``` python
@@ -20,8 +26,6 @@ tfg.math.optimizer.levenberg_marquardt.minimize(
 ```
 
 
-
-Defined in [`math/optimizer/levenberg_marquardt.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/optimizer/levenberg_marquardt.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -51,7 +55,6 @@ Defined in [`math/optimizer/levenberg_marquardt.py`](https://github.com/tensorfl
 The value of the objective function and variables attained at the final
 iteration of the minimization procedure.
 
-
 #### Raises:
 
 * <b>`ValueError`</b>: If max_iterations is not at least 1.
@@ -62,7 +65,6 @@ is increased automatically.
 
 
 #### Examples:
-
 
 ```python
 x = tf.constant(np.random.random_sample(size=(1,2)), dtype=tf.float32)

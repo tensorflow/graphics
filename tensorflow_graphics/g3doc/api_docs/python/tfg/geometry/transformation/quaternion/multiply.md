@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.quaternion.multiply
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
+source</a>
+
 Multiplies two quaternions.
 
 ``` python
@@ -17,14 +23,11 @@ tfg.geometry.transformation.quaternion.multiply(
 
 
 
-Defined in [`geometry/transformation/quaternion.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -38,7 +41,6 @@ In the following, A1 to An are optional batch dimensions.
 #### Returns:
 
 A tensor of shape `[A1, ..., An, 4]` representing quaternions.
-
 
 #### Raises:
 

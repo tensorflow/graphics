@@ -5,6 +5,12 @@
 
 # tfg.image.pyramid.merge
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/pyramid.py">View
+source</a>
+
 Merges the different levels of the pyramid back to an image.
 
 ``` python
@@ -15,8 +21,6 @@ tfg.image.pyramid.merge(
 ```
 
 
-
-Defined in [`image/pyramid.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/pyramid.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -33,7 +37,6 @@ Defined in [`image/pyramid.py`](https://github.com/tensorflow/graphics/blob/mast
 A tensor of shape `[B, H, W, C]`, where `B` is the batch size, `H`
 the height of the image, `W` the width of the image, and `C` the number of
 channels of the image.
-
 
 #### Raises:
 

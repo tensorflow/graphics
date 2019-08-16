@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.deformation_energy.as_conformal_as_possible
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/deformation_energy/as_conformal_as_possible.py">View
+source</a>
+
 This module implements TensorFlow As Rigid As Possible utility functions.
-
-
-
-Defined in [`geometry/deformation_energy/as_conformal_as_possible.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/deformation_energy/as_conformal_as_possible.py).
 
 <!-- Placeholder for "Used in" -->
 

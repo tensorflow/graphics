@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.ray.intersection_ray_sphere
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/ray.py">View
+source</a>
+
 Finds positions and surface normals where the sphere and the ray intersect.
 
 ``` python
@@ -19,14 +25,11 @@ tfg.geometry.representation.ray.intersection_ray_sphere(
 
 
 
-Defined in [`geometry/representation/ray.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/ray.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -46,7 +49,6 @@ intersections, and a tensor of shape `[2, A1, ..., An, 3]` the associated
 surface normals at that point. Both tensors contain NaNs when there is no
 intersections. The first dimension of the returned tensor provides access to
 the first and second intersections of the ray with the sphere.
-
 
 #### Raises:
 

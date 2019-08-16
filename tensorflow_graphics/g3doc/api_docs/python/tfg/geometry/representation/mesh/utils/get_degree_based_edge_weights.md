@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.mesh.utils.get_degree_based_edge_weights
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/utils.py">View
+source</a>
+
 Computes vertex degree based weights for edges of a mesh.
 
 ``` python
@@ -15,8 +21,6 @@ tfg.geometry.representation.mesh.utils.get_degree_based_edge_weights(
 ```
 
 
-
-Defined in [`geometry/representation/mesh/utils.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/utils.py).
 
 <!-- Placeholder for "Used in" -->
 

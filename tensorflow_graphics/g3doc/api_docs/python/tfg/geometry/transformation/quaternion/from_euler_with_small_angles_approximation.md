@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.quaternion.from_euler_with_small_angles_approximation
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
+source</a>
+
 Converts small Euler angles to quaternions.
 
 ``` python
@@ -15,8 +21,6 @@ tfg.geometry.transformation.quaternion.from_euler_with_small_angles_approximatio
 ```
 
 
-
-Defined in [`geometry/transformation/quaternion.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -29,11 +33,9 @@ In the current implementation, the smallness of the angles is not verified.
 
 Uses the z-y-x rotation convention (Tait-Bryan angles).
 
-
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -48,7 +50,6 @@ In the following, A1 to An are optional batch dimensions.
 
 A tensor of shape `[A1, ..., An, 4]`, where the last dimension represents
 a normalized quaternion.
-
 
 #### Raises:
 

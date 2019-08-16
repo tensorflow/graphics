@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.quaternion.between_two_vectors_3d
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
+source</a>
+
 Computes quaternion over the shortest arc between two vectors.
 
 ``` python
@@ -17,8 +23,6 @@ tfg.geometry.transformation.quaternion.between_two_vectors_3d(
 
 
 
-Defined in [`geometry/transformation/quaternion.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py).
-
 <!-- Placeholder for "Used in" -->
 
 Result quaternion describes shortest geodesic rotation from
@@ -27,7 +31,6 @@ vector1 to vector2.
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -43,7 +46,6 @@ In the following, A1 to An are optional batch dimensions.
 
 A tensor of shape `[A1, ..., An, 4]`, where the last dimension represents
 a normalized quaternion.
-
 
 #### Raises:
 

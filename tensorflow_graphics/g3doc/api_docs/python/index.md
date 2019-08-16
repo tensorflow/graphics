@@ -2,12 +2,18 @@
 
 # All symbols in tensorflow_graphics
 
+## Primary symbols
+
 *   <a href="./tfg.md"><code>tfg</code></a>
 *   <a href="./tfg/geometry.md"><code>tfg.geometry</code></a>
 *   <a href="./tfg/geometry/convolution.md"><code>tfg.geometry.convolution</code></a>
 *   <a href="./tfg/geometry/convolution/graph_convolution.md"><code>tfg.geometry.convolution.graph_convolution</code></a>
 *   <a href="./tfg/geometry/convolution/graph_convolution/edge_convolution_template.md"><code>tfg.geometry.convolution.graph_convolution.edge_convolution_template</code></a>
 *   <a href="./tfg/geometry/convolution/graph_convolution/feature_steered_convolution.md"><code>tfg.geometry.convolution.graph_convolution.feature_steered_convolution</code></a>
+*   <a href="./tfg/geometry/convolution/graph_pooling.md"><code>tfg.geometry.convolution.graph_pooling</code></a>
+*   <a href="./tfg/geometry/convolution/graph_pooling/pool.md"><code>tfg.geometry.convolution.graph_pooling.pool</code></a>
+*   <a href="./tfg/geometry/convolution/graph_pooling/unpool.md"><code>tfg.geometry.convolution.graph_pooling.unpool</code></a>
+*   <a href="./tfg/geometry/convolution/graph_pooling/upsample_transposed_convolution.md"><code>tfg.geometry.convolution.graph_pooling.upsample_transposed_convolution</code></a>
 *   <a href="./tfg/geometry/convolution/utils.md"><code>tfg.geometry.convolution.utils</code></a>
 *   <a href="./tfg/geometry/convolution/utils/check_valid_graph_convolution_input.md"><code>tfg.geometry.convolution.utils.check_valid_graph_convolution_input</code></a>
 *   <a href="./tfg/geometry/convolution/utils/check_valid_graph_pooling_input.md"><code>tfg.geometry.convolution.utils.check_valid_graph_pooling_input</code></a>
@@ -86,9 +92,14 @@
 *   <a href="./tfg/geometry/transformation/rotation_matrix_common/is_valid.md"><code>tfg.geometry.transformation.rotation_matrix_common.is_valid</code></a>
 *   <a href="./tfg/image.md"><code>tfg.image</code></a>
 *   <a href="./tfg/image/color_space.md"><code>tfg.image.color_space</code></a>
+*   <a href="./tfg/image/color_space/constants.md"><code>tfg.image.color_space.constants</code></a>
+*   <a href="./tfg/image/color_space/linear_rgb.md"><code>tfg.image.color_space.linear_rgb</code></a>
+*   <a href="./tfg/image/color_space/linear_rgb/from_srgb.md"><code>tfg.image.color_space.linear_rgb.from_srgb</code></a>
 *   <a href="./tfg/image/color_space/srgb.md"><code>tfg.image.color_space.srgb</code></a>
-*   <a href="./tfg/image/color_space/srgb/from_linear.md"><code>tfg.image.color_space.srgb.from_linear</code></a>
-*   <a href="./tfg/image/color_space/srgb/to_linear.md"><code>tfg.image.color_space.srgb.to_linear</code></a>
+*   <a href="./tfg/image/color_space/srgb/from_linear_rgb.md"><code>tfg.image.color_space.srgb.from_linear_rgb</code></a>
+*   <a href="./tfg/image/matting.md"><code>tfg.image.matting</code></a>
+*   <a href="./tfg/image/matting/laplacian_weights.md"><code>tfg.image.matting.laplacian_weights</code></a>
+*   <a href="./tfg/image/matting/loss.md"><code>tfg.image.matting.loss</code></a>
 *   <a href="./tfg/image/pyramid.md"><code>tfg.image.pyramid</code></a>
 *   <a href="./tfg/image/pyramid/downsample.md"><code>tfg.image.pyramid.downsample</code></a>
 *   <a href="./tfg/image/pyramid/merge.md"><code>tfg.image.pyramid.merge</code></a>
@@ -133,6 +144,7 @@
 *   <a href="./tfg/nn.md"><code>tfg.nn</code></a>
 *   <a href="./tfg/nn/layer.md"><code>tfg.nn.layer</code></a>
 *   <a href="./tfg/nn/layer/graph_convolution.md"><code>tfg.nn.layer.graph_convolution</code></a>
+*   <a href="./tfg/nn/layer/graph_convolution/DynamicGraphConvolutionKerasLayer.md"><code>tfg.nn.layer.graph_convolution.DynamicGraphConvolutionKerasLayer</code></a>
 *   <a href="./tfg/nn/layer/graph_convolution/FeatureSteeredConvolutionKerasLayer.md"><code>tfg.nn.layer.graph_convolution.FeatureSteeredConvolutionKerasLayer</code></a>
 *   <a href="./tfg/nn/layer/graph_convolution/feature_steered_convolution_layer.md"><code>tfg.nn.layer.graph_convolution.feature_steered_convolution_layer</code></a>
 *   <a href="./tfg/rendering.md"><code>tfg.rendering</code></a>
@@ -154,4 +166,5 @@
 *   <a href="./tfg/rendering/reflectance/lambertian/brdf.md"><code>tfg.rendering.reflectance.lambertian.brdf</code></a>
 *   <a href="./tfg/rendering/reflectance/phong.md"><code>tfg.rendering.reflectance.phong</code></a>
 *   <a href="./tfg/rendering/reflectance/phong/brdf.md"><code>tfg.rendering.reflectance.phong.brdf</code></a>
-    <!-- mdlint on -->
+
+<!-- mdlint on -->

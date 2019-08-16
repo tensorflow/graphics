@@ -5,6 +5,12 @@
 
 # tfg.geometry.convolution.utils.check_valid_graph_convolution_input
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/convolution/utils.py">View
+source</a>
+
 Checks that the inputs are valid for graph convolution ops.
 
 ``` python
@@ -17,14 +23,11 @@ tfg.geometry.convolution.utils.check_valid_graph_convolution_input(
 
 
 
-Defined in [`geometry/convolution/utils.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/convolution/utils.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 

@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.transformation.rotation_matrix_2d
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_2d.py">View
+source</a>
+
 This module implements 2d rotation matrix functionalities.
-
-
-
-Defined in [`geometry/transformation/rotation_matrix_2d.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_2d.py).
 
 <!-- Placeholder for "Used in" -->
 

@@ -5,11 +5,13 @@
 
 # Module: tfg.rendering.camera.perspective
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py">View
+source</a>
+
 This module implements perspective camera functionalities.
-
-
-
-Defined in [`rendering/camera/perspective.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py).
 
 <!-- Placeholder for "Used in" -->
 

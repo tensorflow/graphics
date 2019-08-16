@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.axis_angle.is_normalized
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/axis_angle.py">View
+source</a>
+
 Determines if the axis-angle is normalized or not.
 
 ``` python
@@ -16,16 +22,11 @@ tfg.geometry.transformation.axis_angle.is_normalized(
 )
 ```
 
-
-
-Defined in [`geometry/transformation/axis_angle.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/axis_angle.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -39,5 +40,5 @@ In the following, A1 to An are optional batch dimensions.
 
 #### Returns:
 
-A tensor of shape `[A1, ..., An, 1]`, where False indicates that the axis is
-not normalized.
+A tensor of shape `[A1, ..., An, 1]`, where False indicates that the axis is not
+normalized.

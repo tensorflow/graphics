@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.transformation.euler
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/euler.py">View
+source</a>
+
 This modules implements Euler angles functionalities.
-
-
-
-Defined in [`geometry/transformation/euler.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/euler.py).
 
 <!-- Placeholder for "Used in" -->
 

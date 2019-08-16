@@ -5,6 +5,12 @@
 
 # tfg.rendering.camera.orthographic.project
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py">View
+source</a>
+
 Projects a 3d point onto the 2d camera plane.
 
 ``` python
@@ -15,8 +21,6 @@ tfg.rendering.camera.orthographic.project(
 ```
 
 
-
-Defined in [`rendering/camera/orthographic.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -33,7 +37,6 @@ $$
 
 In the following, A1 to An are optional batch dimensions.
 
-
 #### Args:
 
 * <b>`point_3d`</b>: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
@@ -45,7 +48,6 @@ In the following, A1 to An are optional batch dimensions.
 
 A tensor of shape `[A1, ..., An, 2]`, where the last dimension represents
 a 2d point.
-
 
 #### Raises:
 

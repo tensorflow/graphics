@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.transformation.rotation_matrix_3d
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_3d.py">View
+source</a>
+
 This module implements TensorFlow 3d rotation matrix utility functions.
-
-
-
-Defined in [`geometry/transformation/rotation_matrix_3d.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_3d.py).
 
 <!-- Placeholder for "Used in" -->
 

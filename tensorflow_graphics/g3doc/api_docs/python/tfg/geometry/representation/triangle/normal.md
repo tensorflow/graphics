@@ -5,6 +5,12 @@
 
 # tfg.geometry.representation.triangle.normal
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/triangle.py">View
+source</a>
+
 Computes face normals (triangles).
 
 ``` python
@@ -20,15 +26,12 @@ tfg.geometry.representation.triangle.normal(
 
 
 
-Defined in [`geometry/representation/triangle.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/triangle.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions, which must be
 broadcast compatible.
-
 
 #### Args:
 
@@ -48,7 +51,6 @@ broadcast compatible.
 
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
   a normalized vector.
-
 
 #### Raises:
 

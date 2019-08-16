@@ -5,6 +5,12 @@
 
 # tfg.math.interpolation.bspline.interpolate
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/bspline.py">View
+source</a>
+
 Applies B-spline interpolation to input control points (knots).
 
 ``` python
@@ -17,16 +23,11 @@ tfg.math.interpolation.bspline.interpolate(
 )
 ```
 
-
-
-Defined in [`math/interpolation/bspline.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/bspline.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An, and B1 to Bk are optional batch dimensions.
-
 
 #### Args:
 

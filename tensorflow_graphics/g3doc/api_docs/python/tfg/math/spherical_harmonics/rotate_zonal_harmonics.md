@@ -5,6 +5,12 @@
 
 # tfg.math.spherical_harmonics.rotate_zonal_harmonics
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View
+source</a>
+
 Rotates zonal harmonics.
 
 ``` python
@@ -18,14 +24,11 @@ tfg.math.spherical_harmonics.rotate_zonal_harmonics(
 
 
 
-Defined in [`math/spherical_harmonics.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -40,7 +43,6 @@ In the following, A1 to An are optional batch dimensions.
 
 A tensor of shape `[A1, ..., An, C*C]` storing coefficients of the rotated
 harmonics.
-
 
 #### Raises:
 

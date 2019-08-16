@@ -5,11 +5,13 @@
 
 # Module: tfg.geometry.representation.point
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/point.py">View
+source</a>
+
 Tensorflow point utility functions.
-
-
-
-Defined in [`geometry/representation/point.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/point.py).
 
 <!-- Placeholder for "Used in" -->
 

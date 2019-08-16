@@ -5,6 +5,12 @@
 
 # tfg.math.spherical_harmonics.evaluate_legendre_polynomial
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View
+source</a>
+
 Evaluates the Legendre polynomial of degree l and order m at x.
 
 ``` python
@@ -17,8 +23,6 @@ tfg.math.spherical_harmonics.evaluate_legendre_polynomial(
 
 
 
-Defined in [`math/spherical_harmonics.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
@@ -26,11 +30,9 @@ Defined in [`math/spherical_harmonics.py`](https://github.com/tensorflow/graphic
 This function is implementing the algorithm described in p. 10 of `Spherical
 Harmonic Lighting: The Gritty Details`.
 
-
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 

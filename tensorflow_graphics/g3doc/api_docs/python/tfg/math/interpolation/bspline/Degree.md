@@ -6,35 +6,26 @@
 <meta itemprop="property" content="LINEAR"/>
 <meta itemprop="property" content="QUADRATIC"/>
 <meta itemprop="property" content="QUARTIC"/>
-<meta itemprop="property" content="__members__"/>
 </div>
 
 # tfg.math.interpolation.bspline.Degree
+
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/bspline.py">View
+source</a>
 
 ## Class `Degree`
 
 Defines valid degrees for B-spline interpolation.
 
-
-
-
-
-Defined in [`math/interpolation/bspline.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/bspline.py).
-
 <!-- Placeholder for "Used in" -->
-
 
 ## Class Members
 
-<h3 id="CONSTANT"><code>CONSTANT</code></h3>
-
-<h3 id="CUBIC"><code>CUBIC</code></h3>
-
-<h3 id="LINEAR"><code>LINEAR</code></h3>
-
-<h3 id="QUADRATIC"><code>QUADRATIC</code></h3>
-
-<h3 id="QUARTIC"><code>QUARTIC</code></h3>
-
-<h3 id="__members__"><code>__members__</code></h3>
-
+*   `CONSTANT = <Degree.CONSTANT: 0>` <a id="CONSTANT"></a>
+*   `CUBIC = <Degree.CUBIC: 3>` <a id="CUBIC"></a>
+*   `LINEAR = <Degree.LINEAR: 1>` <a id="LINEAR"></a>
+*   `QUADRATIC = <Degree.QUADRATIC: 2>` <a id="QUADRATIC"></a>
+*   `QUARTIC = <Degree.QUARTIC: 4>` <a id="QUARTIC"></a>

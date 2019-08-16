@@ -5,6 +5,12 @@
 
 # tfg.geometry.transformation.rotation_matrix_3d.from_euler
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_3d.py">View
+source</a>
+
 Convert an Euler angle representation to a rotation matrix.
 
 ``` python
@@ -16,8 +22,6 @@ tfg.geometry.transformation.rotation_matrix_3d.from_euler(
 
 
 
-Defined in [`geometry/transformation/rotation_matrix_3d.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_3d.py).
-
 <!-- Placeholder for "Used in" -->
 
 The resulting matrix is $$\mathbf{R} = \mathbf{R}_z\mathbf{R}_y\mathbf{R}_x$$.
@@ -25,7 +29,6 @@ The resulting matrix is $$\mathbf{R} = \mathbf{R}_z\mathbf{R}_y\mathbf{R}_x$$.
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -40,7 +43,6 @@ In the following, A1 to An are optional batch dimensions.
 
 A tensor of shape `[A1, ..., An, 3, 3]`, where the last two dimensions
 represent a 3d rotation matrix.
-
 
 #### Raises:
 

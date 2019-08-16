@@ -5,6 +5,12 @@
 
 # tfg.math.interpolation.slerp.vector_weights
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
+source</a>
+
 Spherical linear interpolation (slerp) between two unnormalized vectors.
 
 ``` python
@@ -19,8 +25,6 @@ tfg.math.interpolation.slerp.vector_weights(
 
 
 
-Defined in [`math/interpolation/slerp.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py).
-
 <!-- Placeholder for "Used in" -->
 
 This function applies geometric slerp to unnormalized vectors by first
@@ -30,7 +34,6 @@ input vectors are exactly anti-parallel.
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
-
 
 #### Args:
 
@@ -53,5 +56,5 @@ In the following, A1 to An are optional batch dimensions.
 
 #### Returns:
 
-Two tensors of shape `[A1, ... , An, 1]`, representing interpolation weights
-for each input vector.
+Two tensors of shape `[A1, ... , An, 1]`, representing interpolation weights for
+each input vector.

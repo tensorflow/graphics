@@ -5,6 +5,12 @@
 
 # tfg.rendering.reflectance.phong.brdf
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/phong.py">View
+source</a>
+
 Evaluates the specular brdf of the Phong model.
 
 ``` python
@@ -21,8 +27,6 @@ tfg.rendering.reflectance.phong.brdf(
 
 
 
-Defined in [`rendering/reflectance/phong.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/phong.py).
-
 <!-- Placeholder for "Used in" -->
 
 #### Note:
@@ -30,12 +34,10 @@ Defined in [`rendering/reflectance/phong.py`](https://github.com/tensorflow/grap
 In the following, A1 to An are optional batch dimensions, which must be
 broadcast compatible.
 
-
 #### Note:
 
 The gradient of this function is not smooth when the dot product of the
 normal with any light is 0.0.
-
 
 #### Args:
 
@@ -60,7 +62,6 @@ normal with any light is 0.0.
 
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
   the amount of light reflected in the outgoing light direction.
-
 
 #### Raises:
 

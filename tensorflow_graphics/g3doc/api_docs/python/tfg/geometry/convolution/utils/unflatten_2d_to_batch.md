@@ -5,6 +5,12 @@
 
 # tfg.geometry.convolution.utils.unflatten_2d_to_batch
 
+<table class="tfo-notebook-buttons tfo-api" align="left">
+</table>
+
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/convolution/utils.py">View
+source</a>
+
 Reshapes a 2d Tensor into a batch of 2d Tensors.
 
 ``` python
@@ -17,8 +23,6 @@ tfg.geometry.convolution.utils.unflatten_2d_to_batch(
 ```
 
 
-
-Defined in [`geometry/convolution/utils.py`](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/convolution/utils.py).
 
 <!-- Placeholder for "Used in" -->
 
@@ -71,15 +75,14 @@ print(output)
       [0., 0.]]]
 ```
 
-
 #### Args:
 
-* <b>`data`</b>: A tensor with shape `[D1, D2]`.
-* <b>`sizes`</b>: An `int` tensor with shape `[A1, ..., An]`.
-* <b>`max_rows`</b>: An `int` specifying the maximum number of rows in the
-  unflattened output. `max_rows >= max(sizes)`.
-* <b>`name`</b>: A name for this op. Defaults to `utils_unflatten_2d_to_batch`.
-
+*   <b>`data`</b>: A tensor with shape `[D1, D2]`.
+*   <b>`sizes`</b>: An `int` tensor with shape `[A1, ..., An]`.
+*   <b>`max_rows`</b>: An `int` specifying the maximum number of rows in the
+    unflattened output. `max_rows >= max(sizes)`.
+*   <b>`name`</b>: A name for this op. Defaults to
+    'utils_unflatten_2d_to_batch'.
 
 #### Returns:
 
