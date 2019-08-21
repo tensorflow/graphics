@@ -75,8 +75,9 @@ def _build_pyramid(image, sampler, num_levels):
     num_levels: The number of levels.
 
   Returns:
-    A list containing `num_levels` tensors of shape `[B, H_i, W_i, C]`, where
-    `H_i` and `W_i` are the height and width of the image for the level i.
+    A list containing `num_levels` + 1 (original image and the levels of the
+    pyramid) tensors of shape `[B, H_i, W_i, C]`, where `H_i` and `W_i` are
+    the height and width of the image for the level i.
   """
   kernel = _binomial_kernel(tf.shape(input=image)[3], dtype=image.dtype)
   levels = [image]
@@ -149,9 +150,9 @@ def downsample(image, num_levels, name=None):
     name: A name for this op that defaults to "pyramid_downsample".
 
   Returns:
-    A list containing `num_levels` tensors of shape `[B, H_i, W_i, C]`, where
-    `H_i` and `W_i` are the height and width of the downsampled image for the
-    level i.
+    A list containing `num_levels` + 1 (original image and the downsampled images)
+    tensors of shape `[B, H_i, W_i, C]`, where `H_i` and `W_i` are the height and
+    width of the downsampled image for the level i.
 
   Raises:
     ValueError: If the shape of `image` is not supported.
@@ -238,9 +239,9 @@ def upsample(image, num_levels, name=None):
     name: A name for this op that defaults to "pyramid_upsample".
 
   Returns:
-    A list containing `num_levels` tensors of shape `[B, H_i, W_i, C]`, where
-    `H_i` and `W_i` are the height and width of the upsampled image for the
-    level i.
+    A list containing `num_levels` + 1 (original image and the upsampled images)
+    tensors of shape `[B, H_i, W_i, C]`, where `H_i` and `W_i` are the height and
+    width of the upsampled image for the level i.
 
   Raises:
     ValueError: If the shape of `image` is not supported.
