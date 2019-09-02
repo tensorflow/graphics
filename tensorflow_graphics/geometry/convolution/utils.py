@@ -456,13 +456,15 @@ def convert_to_block_diag_2d(data,
     return block_diag
 
 
-def partition_sums_2d(data, group_ids, row_weights=None, name=None):
+def partition_sums_2d(
+    data, group_ids, row_weights=None,  is_sorted=False, name=None):
   """Sum over subsets of rows in a 2-D tensor.
 
   Args:
     data: 2-D tensor with shape `[D1, D2]`.
     group_ids: 1-D `int` tensor with shape `[D1]`.
     row_weights: 1-D tensor with shape `[D1]`. Can be `None`.
+    is_sorted: if True, group_ids are known to be sorted.
     name: A name for this op. Defaults to 'utils_partition_sums_2d'.
 
   Returns:
@@ -481,27 +483,29 @@ def partition_sums_2d(data, group_ids, row_weights=None, name=None):
       raise TypeError("'group_ids' must be an integer tensor.")
     elif group_ids.dtype != tf.int64:
       group_ids = tf.cast(group_ids, dtype=tf.int64)
-    if row_weights is None:
-      row_weights = tf.ones_like(group_ids, dtype=data.dtype)
-    else:
-      row_weights = tf.convert_to_tensor(value=row_weights)
-
-    if row_weights.dtype != data.dtype:
-      raise TypeError("'data' and 'row_weights' must have the same type.")
+    
     shape.check_static(tensor=data, tensor_name="data", has_rank=2)
     shape.check_static(tensor=group_ids, tensor_name="group_ids", has_rank=1)
-    shape.check_static(
+
+    if row_weights is None:
+      shape.compare_dimensions(
+        tensors=(data, group_ids),
+        tensor_names=("data", "group_ids"),
+        axes=0)
+    else:
+      row_weights = tf.convert_to_tensor(value=row_weights)
+      shape.check_static(
         tensor=row_weights, tensor_name="row_weights", has_rank=1)
-    shape.compare_dimensions(
+      if row_weights.dtype != data.dtype:
+        raise TypeError("'data' and 'row_weights' must have the same type.")
+      shape.compare_dimensions(
         tensors=(data, group_ids, row_weights),
         tensor_names=("data", "group_ids", "row_weights"),
         axes=0)
-
-    num_rows = tf.size(input=group_ids, out_type=tf.int64)
-    sparse_indices = tf.stack((group_ids, tf.range(num_rows)), axis=1)
-    out_shape = (tf.reduce_max(input_tensor=group_ids) + 1, num_rows)
-    sparse = tf.SparseTensor(sparse_indices, row_weights, dense_shape=out_shape)
-    return tf.sparse.sparse_dense_matmul(sparse, data)
+      data = data * tf.expand_dims(row_weights, axis=-1)      
+    
+    return tf.math.unsorted_segment_sum(
+      data, group_ids, tf.reduce_max(group_ids) + 1) 
 
 
 # API contains all public functions and classes.

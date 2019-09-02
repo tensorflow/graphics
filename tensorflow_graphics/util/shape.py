@@ -367,9 +367,9 @@ def compare_dimensions(tensors, axes, tensor_names=None):
     tensor_names = _give_default_names(tensors, 'tensor')
   if not tf.executing_eagerly():
     dimensions = [
-        int(tensor.shape[axis]) if tensor.shape[axis].value is not None else 1
-        for tensor, axis in zip(tensors, axes)
-    ]
+        1 if dim is None else dim for dim in
+        (tf.compat.v1.dimension_value(tensor.shape[axis])
+         for tensor, axis in zip(tensors, axes))]
   else:
     # In eager mode tensor.shape[axis].value doesn't exist if v2 behavior is
     # enabled. Therefore we can use tf.shape() to return the shape as a tensor.

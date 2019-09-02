@@ -32,6 +32,7 @@ def feature_steered_convolution(data,
                                 var_c,
                                 var_w,
                                 var_b,
+                                ordered=False,
                                 name=None):
   #  pyformat: disable
   """Implements the Feature Steered graph convolution.
@@ -81,6 +82,8 @@ def feature_steered_convolution(data,
     var_c: A 1-D tensor with shape `[W]`.
     var_w: A 3-D tensor with shape `[W, C, D]`.
     var_b: A 1-D tensor with shape `[D]`.
+    ordered: if True, neighbors is assumed to be ordered in the canonical,
+        row-major ordering, e.g. via `tf.sparse.reorder`
     name: A name for this op. Defaults to
       `graph_convolution_feature_steered_convolution`.
 
@@ -146,8 +149,12 @@ def feature_steered_convolution(data,
     for q_m, w_m in zip(q_m_list, w_m_list):
       # Compute `y_i_m = sum_{j in neighborhood(i)} q_m(x_i, x_j) * w_m * x_j`.
       q_m = tf.expand_dims(q_m, axis=-1)
-      p_sum = utils.partition_sums_2d(q_m * x_sep, adjacency_ind_0,
-                                      adjacency.values)
+      terms = q_m * x_sep * tf.expand_dims(adjacency.values, axis=-1)
+      if ordered:
+        p_sum = tf.math.segment_sum(terms, adjacency_ind_0)
+      else:
+        p_sum = tf.math.unsorted_segment_sum(
+            terms, adjacency_ind_0, tf.reduce_max(adjacency_ind_0) + 1)
       y_i_m.append(tf.matmul(p_sum, w_m))
     y_out = tf.add_n(inputs=y_i_m) + tf.reshape(var_b, [1, -1])
     if data_ndims > 2:
@@ -161,6 +168,7 @@ def edge_convolution_template(data,
                               edge_function,
                               reduction,
                               edge_function_kwargs,
+                              ordered=False,
                               name=None):
   #  pyformat: disable
   r"""A template for edge convolutions.
@@ -219,7 +227,9 @@ def edge_convolution_template(data,
         in the equation above. For 'max' the reduction is a max over features in
         which case the weights $$w_{ij}$$ are ignored.
     edge_function_kwargs: A dict containing any additional keyword arguments to
-      be passed to `edge_function`.
+        be passed to `edge_function`.
+    ordered: if True, neighbors is assumed to be ordered in the canonical,
+        row-major ordering, e.g. via `tf.sparse.reorder`
     name: A name for this op. Defaults to
       `graph_convolution_edge_convolution_template`.
 
@@ -262,17 +272,29 @@ def edge_convolution_template(data,
                                   **edge_function_kwargs)
 
     if reduction == "weighted":
-      features = utils.partition_sums_2d(edge_features, adjacency_ind_0,
-                                         adjacency.values)
+      edge_features = tf.expand_dims(adjacency.values, axis=-1) * edge_features
+      if ordered:
+        features = tf.math.segment_sum(edge_features, adjacency_ind_0)
+      else:
+        features = tf.math.unsorted_segment_sum(
+            data=edge_features,
+            segment_ids=adjacency_ind_0,
+            num_segments=tf.reduce_max(adjacency_ind_0) + 1)
     elif reduction == "max":
-      features = tf.math.segment_max(data=edge_features,
-                                     segment_ids=adjacency_ind_0)
-      features.set_shape(features.shape.merge_with(
-          (tf.compat.v1.dimension_value(x_flat.shape[0]),
-           tf.compat.v1.dimension_value(edge_features.shape[-1]))))
+      if ordered:
+        features = tf.math.segment_max(
+          edge_features, adjacency_ind_0)
+      else:
+        features = tf.math.unsorted_segment_max(
+            data=edge_features,
+            segment_ids=adjacency_ind_0,
+            num_segments=tf.reduce_max(adjacency_ind_0) + 1)
     else:
       raise ValueError("The reduction method must be 'weighted' or 'max'")
 
+    features.set_shape(features.shape.merge_with(
+          (tf.compat.v1.dimension_value(x_flat.shape[0]),
+           tf.compat.v1.dimension_value(edge_features.shape[-1]))))
     if data_ndims > 2:
       features = unflatten(features)
     return features

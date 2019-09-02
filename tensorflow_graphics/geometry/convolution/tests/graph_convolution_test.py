@@ -27,23 +27,38 @@ import tensorflow_graphics.geometry.convolution.graph_convolution as gc
 from tensorflow_graphics.util import test_case
 
 
-def _dense_to_sparse(data):
+def _shuffle_sparse(st):
+  indices = st.indices
+  values = st.values
+  order = tf.range(tf.shape(indices, out_type=tf.int64)[-2])
+  order = tf.random.shuffle(order)
+  indices = tf.gather(indices, order, axis=-2)
+  values = tf.gather(values, order, axis=0)
+  return tf.SparseTensor(indices, values, st.shape)
+
+
+def _dense_to_sparse(data, ordered=True):
   """Convert a numpy array to a tf.SparseTensor."""
   indices = np.where(data)
-  return tf.SparseTensor(
+  st = tf.SparseTensor(
       np.stack(indices, axis=-1), data[indices], dense_shape=data.shape)
+  if not ordered:
+    st = _shuffle_sparse(st)
+  return st
 
 
-def _dummy_data(batch_size, num_vertices, num_channels):
+def _dummy_data(batch_size, num_vertices, num_channels, ordered=True):
   """Create inputs for feature_steered_convolution."""
   if batch_size > 0:
     data = np.zeros(
         shape=(batch_size, num_vertices, num_channels), dtype=np.float32)
     neighbors = _dense_to_sparse(
-        np.tile(np.eye(num_vertices, dtype=np.float32), (batch_size, 1, 1)))
+        np.tile(np.eye(num_vertices, dtype=np.float32), (batch_size, 1, 1)),
+        ordered=ordered)
   else:
     data = np.zeros(shape=(num_vertices, num_channels), dtype=np.float32)
-    neighbors = _dense_to_sparse(np.eye(num_vertices, dtype=np.float32))
+    neighbors = _dense_to_sparse(
+        np.eye(num_vertices, dtype=np.float32), ordered=ordered)
   return data, neighbors
 
 
@@ -64,7 +79,8 @@ def _random_data(batch_size,
                  only_self_edges,
                  data_type=np.float32,
                  neighbors_type=np.float32,
-                 sizes_type=np.int32):
+                 sizes_type=np.int32,
+                 ordered=True):
   """Create random inputs for feature_steered_convolution."""
 
   def _random_data_2d(padding):
@@ -94,15 +110,15 @@ def _random_data(batch_size,
     neighbors = np.stack([i[1] for i in list_2d], 0).astype(neighbors_type)
     if padding:
       sizes = np.stack([i[2] for i in list_2d], 0).astype(sizes_type)
-      return data, _dense_to_sparse(neighbors), sizes
+      return data, _dense_to_sparse(neighbors, ordered=ordered), sizes
     else:
-      return data, _dense_to_sparse(neighbors)
+      return data, _dense_to_sparse(neighbors, ordered=ordered)
   else:
     if padding:
       raise ValueError("Padding only allowed with batched data.")
     data, neighbors = _random_data_2d(padding=False)
     return data.astype(data_type), _dense_to_sparse(
-        neighbors.astype(neighbors_type))
+        neighbors.astype(neighbors_type), ordered=ordered)
 
 
 def _random_variables(in_channels,
@@ -358,21 +374,26 @@ class GraphConvolutionTestFeatureSteeredConvolutionTests(test_case.TestCase):
     self.assertAllClose(y, expected)
 
   @parameterized.parameters(
-      (1, 5, 1, 1, 1),
-      (2, 6, 3, 6, 5),
-      (5, 15, 6, 12, 8),
+      (1, 5, 1, 1, 1, True),
+      (2, 6, 3, 6, 5, True),
+      (5, 15, 6, 12, 8, True),
+      (1, 5, 1, 1, 1, False),
+      (2, 6, 3, 6, 5, False),
+      (5, 15, 6, 12, 8, False),
   )
   def test_feature_steered_convolution_padding_random(self, batch_size,
                                                       num_vertices, in_channels,
                                                       out_channels,
-                                                      num_weight_matrices):
+                                                      num_weight_matrices,
+                                                      ordered):
     """Test mixed topology batches (random vertices and neighbors)."""
     data, neighbors, sizes = _random_data(
         batch_size,
         num_vertices,
         in_channels,
         padding=True,
-        only_self_edges=False)
+        only_self_edges=False,
+        ordered=ordered)
     u, v, c, w, b = _random_variables(in_channels, out_channels,
                                       num_weight_matrices)
 
@@ -509,7 +530,7 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
     """A callable for `edge_convolution_template`."""
     return neighbor_features
 
-  def _circular_2d_data(self, num_vertices, include_normals=False):
+  def _circular_2d_data(self, num_vertices, include_normals=False, ordered=True):
     """Create data for a circle graph."""
     # Vertices are points distributed uniformly on a circle, with each point
     # connected to its closest neighbor on either side.
@@ -520,7 +541,7 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
     eye = np.eye(num_vertices)
     neighbors = np.maximum(np.roll(eye, 1, axis=1), np.roll(eye, -1,
                                                             axis=1)) * 0.5
-    return data, _dense_to_sparse(neighbors)
+    return data, _dense_to_sparse(neighbors, ordered=ordered)
 
   def _edge_curvature_2d(self, vertex_features, neighbor_features):
     """A callable for `edge_convolution_template` that computes curvature."""
@@ -664,16 +685,35 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
       self.assertAllEqual(y_shape[:-1], data.shape[:-1])
 
   @parameterized.parameters(
-      (1, 10, 3, True, "weighted"),
-      (3, 6, 1, True, "weighted"),
-      (0, 10, 5, False, "weighted"),
-      (1, 10, 3, False, "max"),
-      (3, 6, 1, False, "max"),
-      (0, 10, 5, False, "max"),
+      (1, 10, 3, True, "weighted", True),
+      (3, 6, 1, True, "weighted", True),
+      (0, 10, 5, False, "weighted", True),
+      (1, 10, 3, False, "max", True),
+      (3, 6, 1, False, "max", True),
+      (0, 10, 5, False, "max", True),
+      (1, 10, 3, True, "weighted", True),
+      (3, 6, 1, True, "weighted", True),
+      (0, 10, 5, False, "weighted", True),
+      (1, 10, 3, False, "max", True),
+      (3, 6, 1, False, "max", True),
+      (0, 10, 5, False, "max", True),
+      (1, 10, 3, True, "weighted", False),
+      (3, 6, 1, True, "weighted", False),
+      (0, 10, 5, False, "weighted", False),
+      (1, 10, 3, False, "max", False),
+      (3, 6, 1, False, "max", False),
+      (0, 10, 5, False, "max", False),
+      (1, 10, 3, True, "weighted", False),
+      (3, 6, 1, True, "weighted", False),
+      (0, 10, 5, False, "weighted", False),
+      (1, 10, 3, False, "max", False),
+      (3, 6, 1, False, "max", False),
+      (0, 10, 5, False, "max", False),
   )
   def test_edge_convolution_template_jacobian_random(self, batch_size,
                                                      num_vertices, in_channels,
-                                                     padding, reduction):
+                                                     padding, reduction,
+                                                     ordered):
     """Test the jacobian for random input data."""
     random_data = _random_data(
         batch_size,
@@ -682,7 +722,8 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
         padding,
         only_self_edges=False,
         data_type=np.float64,
-        neighbors_type=np.float64)
+        neighbors_type=np.float64,
+        ordered=ordered)
     data_init = random_data[0]
     neighbors = random_data[1]
     sizes = None if not padding else random_data[2]
@@ -694,7 +735,8 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
         sizes=sizes,
         edge_function=self._pass_through,
         reduction=reduction,
-        edge_function_kwargs=dict())
+        edge_function_kwargs=dict(),
+        ordered=ordered)
 
     self.assert_jacobian_is_correct(data, data_init, y)
 
@@ -753,7 +795,8 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
 
     self.assert_jacobian_is_correct(data, data_init, y)
 
-  def test_edge_convolution_template_laplacian_smoothing(self):
+  @parameterized.parameters((True,), (False))
+  def test_edge_convolution_template_laplacian_smoothing(self, ordered):
     r"""Test the expected result with laplacian smoothing.
 
       Laplacian smoothing for meshes is defined as
@@ -780,7 +823,7 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
 
     with self.subTest(name="circular_2d"):
       num_vertices = 500
-      data, neighbors = self._circular_2d_data(num_vertices)
+      data, neighbors = self._circular_2d_data(num_vertices, ordered=ordered)
 
       data_smoothed = gc.edge_convolution_template(
           data=data,
@@ -794,7 +837,8 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
 
       self.assertAllClose(data, data_smoothed_normalized)
 
-  def test_edge_convolution_template_curvature(self):
+  @parameterized.parameters((True,), (False))
+  def test_edge_convolution_template_curvature(self, ordered):
     r"""Test the expected result with curvature.
 
       (Approximate) curvature for meshes is defined as
@@ -811,7 +855,8 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
     """
     # We can reuse `self._edge_curvature_2d` as the curvature functional.
     num_vertices = 500
-    data, neighbors = self._circular_2d_data(num_vertices, include_normals=True)
+    data, neighbors = self._circular_2d_data(
+        num_vertices, include_normals=True, ordered=ordered)
 
     data_curvature = gc.edge_convolution_template(
         data=data,
