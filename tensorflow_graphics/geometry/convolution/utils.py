@@ -457,7 +457,7 @@ def convert_to_block_diag_2d(data,
 
 
 def partition_sums_2d(
-    data, group_ids, row_weights=None,  is_sorted=False, name=None):
+    data, group_ids, row_weights=None, is_sorted=False, name=None):
   """Sum over subsets of rows in a 2-D tensor.
 
   Args:
@@ -483,7 +483,7 @@ def partition_sums_2d(
       raise TypeError("'group_ids' must be an integer tensor.")
     elif group_ids.dtype != tf.int64:
       group_ids = tf.cast(group_ids, dtype=tf.int64)
-    
+
     shape.check_static(tensor=data, tensor_name="data", has_rank=2)
     shape.check_static(tensor=group_ids, tensor_name="group_ids", has_rank=1)
 
@@ -502,10 +502,10 @@ def partition_sums_2d(
         tensors=(data, group_ids, row_weights),
         tensor_names=("data", "group_ids", "row_weights"),
         axes=0)
-      data = data * tf.expand_dims(row_weights, axis=-1)      
-    
+      data = data * tf.expand_dims(row_weights, axis=-1)
+
     return tf.math.unsorted_segment_sum(
-      data, group_ids, tf.reduce_max(group_ids) + 1) 
+      data, group_ids, tf.reduce_max(group_ids) + 1)
 
 
 # API contains all public functions and classes.
