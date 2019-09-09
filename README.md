@@ -198,13 +198,6 @@ environment.
     from the TensorFlow team and best articles from the community.
 *   [Youtube Channel](http://youtube.com/tensorflow/): Follow TensorFlow shows.
 
-## Contributing
-
-If you are interested to contribute to TensorFlow Graphics, please have a look
-at this
-[page](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/g3doc/contributing.md),
-which describes the current set of guidelines.
-
 ## References
 
 If you use TensorFlow Graphics in your research, please reference it as:
