@@ -146,6 +146,74 @@ class MathTest(test_case.TestCase):
     self.assert_jacobian_is_correct(near_tensor, near_init, y)
     self.assert_jacobian_is_correct(far_tensor, far_init, y)
 
+  def test_look_at_right_handed_preset(self):
+    """Tests that look_at_right_handed generates expected results.."""
+    camera_position = ((0.0, 0.0, 0.0), (0.1, 0.2, 0.3))
+    look_at = ((0.0, 0.0, 1.0), (0.4, 0.5, 0.6))
+    up_vector = ((0.0, 1.0, 0.0), (0.7, 0.8, 0.9))
+
+    pred = glm.look_at_right_handed(camera_position, look_at, up_vector)
+    gt = (((-1.0, 0.0, 0.0, 0.0), (0.0, 1.0, 0.0, 0.0), (0.0, 0.0, -1.0, 0.0),
+           (0.0, 0.0, 0.0, 1.0)),
+          ((4.08248186e-01, -8.16496551e-01, 4.08248395e-01, -2.98023224e-08),
+           (-7.07106888e-01, 1.19209290e-07, 7.07106769e-01, -1.41421378e-01),
+           (-5.77350318e-01, -5.77350318e-01, -5.77350318e-01,
+            3.46410215e-01), (0.0, 0.0, 0.0, 1.0)))
+    self.assertAllClose(pred, gt)
+
+  @parameterized.parameters(
+      ((3,), (3,), (3,)),
+      ((None, 3), (None, 3), (None, 3)),
+      ((None, 2, 3), (None, 2, 3), (None, 2, 3)),
+  )
+  def test_look_at_right_handed_exception_not_raised(self, *shapes):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(glm.look_at_right_handed, shapes)
+
+  @parameterized.parameters(
+      ("must have exactly 3 dimensions in axis -1", (2,), (3,), (3,)),
+      ("must have exactly 3 dimensions in axis -1", (3,), (2,), (3,)),
+      ("must have exactly 3 dimensions in axis -1", (3,), (3,), (1,)),
+      ("Not all batch dimensions are identical", (3,), (3, 3), (3, 3)),
+  )
+  def test_look_at_right_handed_exception_raised(self, error_msg, *shapes):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_raised(glm.look_at_right_handed, error_msg, shapes)
+
+  def test_look_at_right_handed_jacobian_preset(self):
+    """Tests the Jacobian of look_at_right_handed."""
+    camera_position_init = np.array(((0.0, 0.0, 0.0), (0.1, 0.2, 0.3)))
+    look_at_init = np.array(((0.0, 0.0, 1.0), (0.4, 0.5, 0.6)))
+    up_vector_init = np.array(((0.0, 1.0, 0.0), (0.7, 0.8, 0.9)))
+    camera_position_tensor = tf.convert_to_tensor(value=camera_position_init)
+    look_at_tensor = tf.convert_to_tensor(value=look_at_init)
+    up_vector_tensor = tf.convert_to_tensor(value=up_vector_init)
+    y = glm.look_at_right_handed(camera_position_tensor, look_at_tensor,
+                                 up_vector_tensor)
+
+    self.assert_jacobian_is_correct(camera_position_tensor,
+                                    camera_position_init, y)
+    self.assert_jacobian_is_correct(look_at_tensor, look_at_init, y)
+    self.assert_jacobian_is_correct(up_vector_tensor, up_vector_init, y)
+
+  def test_look_at_right_handed_jacobian_random(self):
+    """Tests the Jacobian of look_at_right_handed."""
+    tensor_size = np.random.randint(1, 3)
+    tensor_shape = np.random.randint(1, 5, size=(tensor_size)).tolist()
+    camera_position_init = np.random.uniform(size=tensor_shape + [3])
+    look_at_init = np.random.uniform(size=tensor_shape + [3])
+    up_vector_init = np.random.uniform(size=tensor_shape + [3])
+    camera_position_tensor = tf.convert_to_tensor(value=camera_position_init)
+    look_at_tensor = tf.convert_to_tensor(value=look_at_init)
+    up_vector_tensor = tf.convert_to_tensor(value=up_vector_init)
+    y = glm.look_at_right_handed(camera_position_tensor, look_at_tensor,
+                                 up_vector_tensor)
+
+    self.assert_jacobian_is_correct(camera_position_tensor,
+                                    camera_position_init, y)
+    self.assert_jacobian_is_correct(look_at_tensor, look_at_init, y)
+    self.assert_jacobian_is_correct(up_vector_tensor, up_vector_init, y)
+
 
 if __name__ == "__main__":
   test_case.main()

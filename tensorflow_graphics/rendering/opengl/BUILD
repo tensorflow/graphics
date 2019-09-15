@@ -41,6 +41,7 @@ py_library(
     # google internal rule 1
     deps = [
         # google internal package dependency 1,
+        "//tensorflow_graphics/math:vector",
         "//tensorflow_graphics/util:asserts",
         "//tensorflow_graphics/util:export_api",
         "//tensorflow_graphics/util:shape",
