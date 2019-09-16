@@ -214,6 +214,79 @@ class MathTest(test_case.TestCase):
     self.assert_jacobian_is_correct(look_at_tensor, look_at_init, y)
     self.assert_jacobian_is_correct(up_vector_tensor, up_vector_init, y)
 
+  def test_model_to_eye_preset(self):
+    """Tests that model_to_eye generates expected results.."""
+    point = ((2.0, 3.0, 4.0), (3.0, 4.0, 5.0))
+    camera_position = ((0.0, 0.0, 0.0), (0.1, 0.2, 0.3))
+    look_at = ((0.0, 0.0, 1.0), (0.4, 0.5, 0.6))
+    up_vector = ((0.0, 1.0, 0.0), (0.7, 0.8, 0.9))
+
+    pred = glm.model_to_eye(point, camera_position, look_at, up_vector)
+    gt = ((-2.0, 3.0, -4.0), (2.08616257e-07, 1.27279234, -6.58179379))
+    self.assertAllClose(pred, gt)
+
+  @parameterized.parameters(
+      ((3,), (3,), (3,), (3,)),
+      ((None, 3), (None, 3), (None, 3), (None, 3)),
+      ((3,), (None, 3), (None, 3), (None, 3)),
+      ((None, 2, 3), (None, 2, 3), (None, 2, 3), (None, 2, 3)),
+  )
+  def test_model_to_eye_exception_not_raised(self, *shapes):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(glm.model_to_eye, shapes)
+
+  @parameterized.parameters(
+      ("must have exactly 3 dimensions in axis -1", (2,), (3,), (3,), (3,)),
+      ("must have exactly 3 dimensions in axis -1", (3,), (2,), (3,), (3,)),
+      ("must have exactly 3 dimensions in axis -1", (3,), (3,), (2,), (3,)),
+      ("must have exactly 3 dimensions in axis -1", (3,), (3,), (3,), (2,)),
+      ("Not all batch dimensions are broadcast-compatible", (3,), (2, 3),
+       (3, 3), (3, 3)),
+  )
+  def test_model_to_eye_exception_raised(self, error_msg, *shapes):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_raised(glm.model_to_eye, error_msg, shapes)
+
+  def test_model_to_eye_jacobian_preset(self):
+    """Tests the Jacobian of model_to_eye."""
+    point_init = np.array(((2.0, 3.0, 4.0), (3.0, 4.0, 5.0)))
+    camera_position_init = np.array(((0.0, 0.0, 0.0), (0.1, 0.2, 0.3)))
+    look_at_init = np.array(((0.0, 0.0, 1.0), (0.4, 0.5, 0.6)))
+    up_vector_init = np.array(((0.0, 1.0, 0.0), (0.7, 0.8, 0.9)))
+    point_tensor = tf.convert_to_tensor(value=point_init)
+    camera_position_tensor = tf.convert_to_tensor(value=camera_position_init)
+    look_at_tensor = tf.convert_to_tensor(value=look_at_init)
+    up_vector_tensor = tf.convert_to_tensor(value=up_vector_init)
+    y = glm.model_to_eye(point_tensor, camera_position_tensor, look_at_tensor,
+                         up_vector_tensor)
+
+    self.assert_jacobian_is_correct(point_tensor, point_init, y)
+    self.assert_jacobian_is_correct(camera_position_tensor,
+                                    camera_position_init, y)
+    self.assert_jacobian_is_correct(look_at_tensor, look_at_init, y)
+    self.assert_jacobian_is_correct(up_vector_tensor, up_vector_init, y)
+
+  def test_model_to_eye_jacobian_random(self):
+    """Tests the Jacobian of model_to_eye."""
+    tensor_size = np.random.randint(1, 3)
+    tensor_shape = np.random.randint(1, 5, size=(tensor_size)).tolist()
+    point_init = np.random.uniform(size=tensor_shape + [3])
+    camera_position_init = np.random.uniform(size=tensor_shape + [3])
+    look_at_init = np.random.uniform(size=tensor_shape + [3])
+    up_vector_init = np.random.uniform(size=tensor_shape + [3])
+    point_tensor = tf.convert_to_tensor(value=point_init)
+    camera_position_tensor = tf.convert_to_tensor(value=camera_position_init)
+    look_at_tensor = tf.convert_to_tensor(value=look_at_init)
+    up_vector_tensor = tf.convert_to_tensor(value=up_vector_init)
+    y = glm.model_to_eye(point_tensor, camera_position_tensor, look_at_tensor,
+                         up_vector_tensor)
+
+    self.assert_jacobian_is_correct(point_tensor, point_init, y)
+    self.assert_jacobian_is_correct(camera_position_tensor,
+                                    camera_position_init, y)
+    self.assert_jacobian_is_correct(look_at_tensor, look_at_init, y)
+    self.assert_jacobian_is_correct(up_vector_tensor, up_vector_init, y)
+
 
 if __name__ == "__main__":
   test_case.main()

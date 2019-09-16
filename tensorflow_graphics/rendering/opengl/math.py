@@ -165,5 +165,66 @@ def look_at_right_handed(camera_position, look_at, up_vector, name=None):
     return tf.stack((x, y, z, w), axis=-2)
 
 
+def model_to_eye(point_model_space,
+                 camera_position,
+                 look_at,
+                 up_vector,
+                 name=None):
+  """Transforms points from model to eye coordinates.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions which must be
+    broadcast compatible.
+
+  Args:
+    point_model_space: A tensor of shape `[A1, ..., An, 3]`, where the last
+      dimension represents the 3D points in model space.
+    camera_position: A tensor of shape `[A1, ..., An, 3]`, where the last
+      dimension represents the 3D position of the camera.
+    look_at: A tensor of shape `[A1, ..., An, 3]`, with the last dimension
+      storing the position where the camera is looking at.
+    up_vector: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
+      defines the up vector of the camera.
+    name: A name for this op. Defaults to 'model_to_eye'.
+
+  Raises:
+    ValueError: if the all the inputs are not of the same shape, or if any input
+    of of an unsupported shape.
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 3]`, containing `point_model_space` in eye
+    coordinates.
+  """
+  with tf.compat.v1.name_scope(
+      name, "model_to_eye",
+      [point_model_space, camera_position, look_at, up_vector]):
+    point_model_space = tf.convert_to_tensor(value=point_model_space)
+    camera_position = tf.convert_to_tensor(value=camera_position)
+    look_at = tf.convert_to_tensor(value=look_at)
+    up_vector = tf.convert_to_tensor(value=up_vector)
+
+    shape.check_static(
+        tensor=point_model_space,
+        tensor_name="point_model_space",
+        has_dim_equals=(-1, 3))
+    shape.compare_batch_dimensions(
+        tensors=(point_model_space, camera_position, look_at, up_vector),
+        last_axes=-2,
+        tensor_names=("point_model_space", "camera_position", "look_at",
+                      "up_vector"),
+        broadcast_compatible=True)
+
+    model_to_eye_matrix = look_at_right_handed(camera_position, look_at,
+                                               up_vector)
+    batch_shape = tf.shape(input=point_model_space)[:-1]
+    one = tf.ones(
+        shape=tf.concat((batch_shape, (1,)), axis=-1),
+        dtype=point_model_space.dtype)
+    point_model_space = tf.concat((point_model_space, one), axis=-1)
+    point_model_space = tf.expand_dims(point_model_space, axis=-1)
+    res = tf.squeeze(tf.matmul(model_to_eye_matrix, point_model_space), axis=-1)
+    return res[..., :-1]
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
