@@ -391,6 +391,43 @@ class MathTest(test_case.TestCase):
     self.assert_jacobian_is_correct(near_tensor, near_init, y, atol=5e-06)
     self.assert_jacobian_is_correct(far_tensor, far_init, y, atol=5e-06)
 
+  def test_clip_to_ndc_preset(self):
+    """Tests that clip_to_ndc generates expected results."""
+    point = ((4.0, 8.0, 16.0, 2.0), (4.0, 8.0, 16.0, 1.0))
+    pred = glm.clip_to_ndc(point)
+    gt = ((2.0, 4.0, 8.0), (4.0, 8.0, 16.0))
+    self.assertAllClose(pred, gt)
+
+  @parameterized.parameters(
+      ((4,)),
+      ((None, 4),),
+      ((None, 5, 4),),
+  )
+  def test_clip_to_ndc_exception_not_raised(self, *shapes):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(glm.clip_to_ndc, shapes)
+
+  def test_clip_to_ndc_exception_raised(self):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_raised(
+        glm.clip_to_ndc, "must have exactly 4 dimensions in axis -1", ((2,),))
+
+  def test_clip_to_ndc_jacobian_preset(self):
+    """Tests the Jacobian of clip_to_ndc."""
+    point_init = np.array(((4.0, 8.0, 16.0, 2.0), (4.0, 8.0, 16.0, 1.0)))
+    point_tensor = tf.convert_to_tensor(value=point_init)
+    y = glm.clip_to_ndc(point_tensor)
+    self.assert_jacobian_is_correct(point_tensor, point_init, y)
+
+  def test_clip_to_ndc_jacobian_random(self):
+    """Tests the Jacobian of clip_to_ndc."""
+    tensor_size = np.random.randint(1, 3)
+    tensor_shape = np.random.randint(1, 5, size=(tensor_size)).tolist()
+    point_init = np.random.uniform(size=tensor_shape + [4])
+    point_tensor = tf.convert_to_tensor(value=point_init)
+    y = glm.clip_to_ndc(point_tensor)
+    self.assert_jacobian_is_correct(point_tensor, point_init, y)
+
 
 if __name__ == "__main__":
   test_case.main()

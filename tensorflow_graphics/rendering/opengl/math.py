@@ -302,5 +302,35 @@ def eye_to_clip(point_eye_space,
 
     return tf.squeeze(tf.matmul(perspective_matrix, point_eye_space), axis=-1)
 
+
+def clip_to_ndc(point_clip_space, name=None):
+  """Transforms points from clip to normalized device coordinates (ndc).
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    point_clip_space: A tensor of shape `[A1, ..., An, 4]`, where the last
+      dimension represents points in clip space.
+    name: A name for this op. Defaults to 'clip_to_ndc'.
+
+  Raises:
+    ValueError: If `point_clip_space` is not of size 4 in its last dimension.
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 3]`, containing `point_clip_space` in
+    normalized device coordinates.
+  """
+  with tf.compat.v1.name_scope(name, "clip_to_ndc", [point_clip_space]):
+    point_clip_space = tf.convert_to_tensor(value=point_clip_space)
+
+    shape.check_static(
+        tensor=point_clip_space,
+        tensor_name="point_clip_space",
+        has_dim_equals=(-1, 4))
+
+    w = point_clip_space[..., -1:]
+    return point_clip_space[..., :3] / w
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
