@@ -226,5 +226,81 @@ def model_to_eye(point_model_space,
     return res[..., :-1]
 
 
+def eye_to_clip(point_eye_space,
+                vertical_field_of_view,
+                aspect_ratio,
+                near,
+                far,
+                name=None):
+  """Transforms points from eye to clip space.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    point_eye_space: A tensor of shape `[A1, ..., An, 3]`, where the last
+      dimension represents the 3D points in eye coordinates.
+    vertical_field_of_view: A tensor of shape `[A1, ..., An, 1]`, where the last
+      dimension represents the vertical field of view of the frustum. Note that
+      values for `vertical_field_of_view` must be in the range ]0,pi[.
+    aspect_ratio: A tensor of shape `[A1, ..., An, 1]`, where the last dimension
+      stores the width over height ratio of the frustum. Note that values for
+      `aspect_ratio` must be non-negative.
+    near: A tensor of shape `[A1, ..., An, 1]`, where the last dimension
+      captures the distance between the viewer and the near clipping plane. Note
+      that values for `near` must be non-negative.
+    far: A tensor of shape `[A1, ..., An, 1]`, where the last dimension captures
+      the distance between the viewer and the far clipping plane. Note that
+      values for `far` must be non-negative.
+    name: A name for this op. Defaults to 'eye_to_clip'.
+
+  Raises:
+    ValueError: If any input is of an unsupported shape.
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 4]`, containing `point_eye_space` in
+    homogeneous clip coordinates.
+  """
+  with tf.compat.v1.name_scope(
+      name, "eye_to_clip",
+      [point_eye_space, vertical_field_of_view, aspect_ratio, near, far]):
+    point_eye_space = tf.convert_to_tensor(value=point_eye_space)
+    vertical_field_of_view = tf.convert_to_tensor(value=vertical_field_of_view)
+    aspect_ratio = tf.convert_to_tensor(value=aspect_ratio)
+    near = tf.convert_to_tensor(value=near)
+    far = tf.convert_to_tensor(value=far)
+
+    shape.check_static(
+        tensor=point_eye_space,
+        tensor_name="point_eye_space",
+        has_dim_equals=(-1, 3))
+    shape.check_static(
+        tensor=vertical_field_of_view,
+        tensor_name="vertical_field_of_view",
+        has_dim_equals=(-1, 1))
+    shape.check_static(
+        tensor=aspect_ratio, tensor_name="aspect_ratio", has_dim_equals=(-1, 1))
+    shape.check_static(tensor=near, tensor_name="near", has_dim_equals=(-1, 1))
+    shape.check_static(tensor=far, tensor_name="far", has_dim_equals=(-1, 1))
+    shape.compare_batch_dimensions(
+        tensors=(point_eye_space, vertical_field_of_view, aspect_ratio, near,
+                 far),
+        last_axes=-2,
+        tensor_names=("point_eye_space", "vertical_field_of_view",
+                      "aspect_ratio", "near", "far"),
+        broadcast_compatible=True)
+
+    perspective_matrix = perspective_right_handed(vertical_field_of_view,
+                                                  aspect_ratio, near, far)
+    perspective_matrix = tf.squeeze(perspective_matrix, axis=-3)
+    batch_shape = tf.shape(input=point_eye_space)[:-1]
+    one = tf.ones(
+        shape=tf.concat((batch_shape, (1,)), axis=-1),
+        dtype=point_eye_space.dtype)
+    point_eye_space = tf.concat((point_eye_space, one), axis=-1)
+    point_eye_space = tf.expand_dims(point_eye_space, axis=-1)
+
+    return tf.squeeze(tf.matmul(perspective_matrix, point_eye_space), axis=-1)
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()

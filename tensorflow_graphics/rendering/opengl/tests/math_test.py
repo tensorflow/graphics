@@ -287,6 +287,110 @@ class MathTest(test_case.TestCase):
     self.assert_jacobian_is_correct(look_at_tensor, look_at_init, y)
     self.assert_jacobian_is_correct(up_vector_tensor, up_vector_init, y)
 
+  def test_eye_to_clip_preset(self):
+    """Tests that eye_to_clip generates expected results."""
+    point = ((2.0, 3.0, 4.0), (3.0, 4.0, 5.0))
+    fov = ((60.0 * math.pi / 180.0,), (50.0 * math.pi / 180.0,))
+    aspect_ratio = ((1.5,), (1.6,))
+    near_plane = ((1.0,), (2.0,))
+    far_plane = ((10.0,), (11.0,))
+
+    pred = glm.eye_to_clip(point, fov, aspect_ratio, near_plane, far_plane)
+    gt = ((2.30940104, 5.19615173, -7.11111116, -4.0), (4.02095032, 8.57802773,
+                                                        -12.11111069, -5.0))
+    self.assertAllClose(pred, gt)
+
+  @parameterized.parameters(
+      ((3,), (1,), (1,), (1,), (1,)),
+      ((None, 3), (None, 1), (None, 1), (None, 1), (None, 1)),
+      ((None, 5, 3), (None, 5, 1), (None, 5, 1), (None, 5, 1), (None, 5, 1)),
+  )
+  def test_eye_to_clip_exception_not_raised(self, *shapes):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(glm.eye_to_clip, shapes)
+
+  @parameterized.parameters(
+      ("must have exactly 3 dimensions in axis -1", (2,), (1,), (1,), (1,),
+       (1,)),
+      ("must have exactly 1 dimensions in axis -1", (3,), (2,), (1,), (1,),
+       (1,)),
+      ("must have exactly 1 dimensions in axis -1", (3,), (1,), (2,), (1,),
+       (1,)),
+      ("must have exactly 1 dimensions in axis -1", (3,), (1,), (1,), (2,),
+       (1,)),
+      ("must have exactly 1 dimensions in axis -1", (3,), (1,), (1,), (1,),
+       (2,)),
+      ("Not all batch dimensions are broadcast-compatible", (3, 3), (2, 1),
+       (1,), (1,), (1,)),
+  )
+  def test_eye_to_clip_exception_raised(self, error_msg, *shapes):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_raised(glm.eye_to_clip, error_msg, shapes)
+
+  def test_eye_to_clip_jacobian_preset(self):
+    """Tests the Jacobian of eye_to_clip."""
+    point_init = np.array(((2.0, 3.0, 4.0), (3.0, 4.0, 5.0)))
+    vertical_field_of_view_init = np.array(
+        ((60.0 * math.pi / 180.0,), (50.0 * math.pi / 180.0,)))
+    aspect_ratio_init = np.array(((1.5,), (1.6,)))
+    near_init = np.array(((1.0,), (2.0,)))
+    far_init = np.array(((10.0,), (11.0,)))
+
+    point_tensor = tf.convert_to_tensor(value=point_init)
+    vertical_field_of_view_tensor = tf.identity(
+        tf.convert_to_tensor(value=vertical_field_of_view_init))
+    aspect_ratio_tensor = tf.identity(
+        tf.convert_to_tensor(value=aspect_ratio_init))
+    near_tensor = tf.identity(tf.convert_to_tensor(value=near_init))
+    far_tensor = tf.identity(tf.convert_to_tensor(value=far_init))
+    y = glm.eye_to_clip(point_tensor, vertical_field_of_view_tensor,
+                        aspect_ratio_tensor, near_tensor, far_tensor)
+
+    self.assert_jacobian_is_correct(point_tensor, point_init, y)
+    self.assert_jacobian_is_correct(
+        vertical_field_of_view_tensor,
+        vertical_field_of_view_init,
+        y,
+        atol=1e-5)
+    self.assert_jacobian_is_correct(
+        aspect_ratio_tensor, aspect_ratio_init, y, atol=1e-5)
+    self.assert_jacobian_is_correct(near_tensor, near_init, y, atol=1e-5)
+    self.assert_jacobian_is_correct(far_tensor, far_init, y, atol=1e-5)
+
+  def test_eye_to_clip_jacobian_random(self):
+    """Tests the Jacobian of eye_to_clip."""
+    tensor_size = np.random.randint(1, 3)
+    tensor_shape = np.random.randint(1, 5, size=(tensor_size)).tolist()
+    point_init = np.random.uniform(size=tensor_shape + [3])
+    eps = np.finfo(np.float64).eps
+    vertical_field_of_view_init = np.random.uniform(
+        eps, math.pi - eps, size=tensor_shape + [1])
+    aspect_ratio_init = np.random.uniform(eps, 100.0, size=tensor_shape + [1])
+    near_init = np.random.uniform(eps, 100.0, size=tensor_shape + [1])
+    far_init = near_init + np.random.uniform(eps, 10.0, size=tensor_shape + [1])
+
+    point_tensor = tf.convert_to_tensor(value=point_init)
+    vertical_field_of_view_tensor = tf.identity(
+        tf.convert_to_tensor(value=vertical_field_of_view_init))
+    aspect_ratio_tensor = tf.identity(
+        tf.convert_to_tensor(value=aspect_ratio_init))
+    near_tensor = tf.identity(tf.convert_to_tensor(value=near_init))
+    far_tensor = tf.identity(tf.convert_to_tensor(value=far_init))
+
+    y = glm.eye_to_clip(point_tensor, vertical_field_of_view_tensor,
+                        aspect_ratio_tensor, near_tensor, far_tensor)
+
+    self.assert_jacobian_is_correct(point_tensor, point_init, y, atol=5e-06)
+    self.assert_jacobian_is_correct(
+        vertical_field_of_view_tensor,
+        vertical_field_of_view_init,
+        y,
+        atol=5e-06)
+    self.assert_jacobian_is_correct(
+        aspect_ratio_tensor, aspect_ratio_init, y, atol=5e-06)
+    self.assert_jacobian_is_correct(near_tensor, near_init, y, atol=5e-06)
+    self.assert_jacobian_is_correct(far_tensor, far_init, y, atol=5e-06)
+
 
 if __name__ == "__main__":
   test_case.main()
