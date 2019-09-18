@@ -70,8 +70,8 @@ EXTRA_PACKAGES = {
     'test': TEST_PACKAGES,
     'tf': ['tensorflow >= ' + tensorflow_version],
     'tf-gpu': ['tensorflow-gpu >= ' + tensorflow_version],
-    'tf-nightly': ['tf-nightly'],
-    'tf-nightly-gpu': ['tf-nightly-gpu'],
+    'tf-nightly': ['tf-nightly-2.0-preview'],
+    'tf-nightly-gpu': ['tf-nightly-gpu-2.0-preview'],
 }
 
 setup(
