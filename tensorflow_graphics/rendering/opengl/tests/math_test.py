@@ -428,6 +428,165 @@ class MathTest(test_case.TestCase):
     y = glm.clip_to_ndc(point_tensor)
     self.assert_jacobian_is_correct(point_tensor, point_init, y)
 
+  def test_ndc_to_screen_preset(self):
+    """Tests that ndc_to_screen generates expected results."""
+    point = ((1.1, 2.2, 3.3), (5.1, 5.2, 5.3))
+    lower_left_corner = ((6.4, 4.8), (0.0, 0.0))
+    screen_dimensions = ((640.0, 480.0), (300.0, 400.0))
+    near = ((1.0,), (11.0,))
+    far = ((10.0,), (100.0,))
+    pred = glm.ndc_to_screen(point, lower_left_corner, screen_dimensions, near,
+                             far)
+    gt = ((678.40002441, 772.79998779, 20.34999847), (915.0, 1240.0,
+                                                      291.3500061))
+    self.assertAllClose(pred, gt)
+
+  @parameterized.parameters(
+      ((3,), (2,), (2,), (1,), (1,)),
+      ((None, 3), (None, 2), (None, 2), (None, 1), (None, 1)),
+      ((None, 5, 3), (None, 5, 2), (None, 5, 2), (None, 5, 1), (None, 5, 1)),
+  )
+  def test_ndc_to_screen_exception_not_raised(self, *shapes):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(glm.ndc_to_screen, shapes)
+
+  @parameterized.parameters(
+      ("must have exactly 3 dimensions in axis -1", (2,), (2,), (2,), (1,),
+       (1,)),
+      ("must have exactly 2 dimensions in axis -1", (3,), (1,), (2,), (1,),
+       (1,)),
+      ("must have exactly 2 dimensions in axis -1", (3,), (2,), (3,), (1,),
+       (1,)),
+      ("must have exactly 1 dimensions in axis -1", (3,), (2,), (2,), (2,),
+       (1,)),
+      ("must have exactly 1 dimensions in axis -1", (3,), (2,), (2,), (1,),
+       (3,)),
+      ("Not all batch dimensions are identical", (1, 3), (2,), (2,), (1,),
+       (1,)),
+  )
+  def test_ndc_to_screen_exception_raised(self, error_msg, *shapes):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_raised(glm.ndc_to_screen, error_msg, shapes)
+
+  def test_ndc_to_screen_exception_near_raised(self):
+    """Tests that an exception is raised when `near` is not strictly positive."""
+
+    point = np.random.uniform(size=(3,))
+    lower_left_corner = np.random.uniform(size=(2,))
+    screen_dimensions = np.random.uniform(1.0, 2.0, size=(2,))
+    near = np.random.uniform(-1.0, 0.0, size=(1,))
+    far = np.random.uniform(1.0, 2.0, size=(1,))
+
+    with self.subTest("negative_near"):
+      with self.assertRaises(tf.errors.InvalidArgumentError):
+        self.evaluate(
+            glm.ndc_to_screen(point, lower_left_corner, screen_dimensions, near,
+                              far))
+
+    with self.subTest("zero_near"):
+      with self.assertRaises(tf.errors.InvalidArgumentError):
+        self.evaluate(
+            glm.ndc_to_screen(point, lower_left_corner, screen_dimensions,
+                              np.array((0.0,)), far))
+
+  def test_ndc_to_screen_exception_far_raised(self):
+    """Tests that an exception is raised if `far` is not greater than `near`."""
+    point = np.random.uniform(size=(3,))
+    lower_left_corner = np.random.uniform(size=(2,))
+    screen_dimensions = np.random.uniform(1.0, 2.0, size=(2,))
+    near = np.random.uniform(1.0, 10.0, size=(1,))
+    far = near + np.random.uniform(-1.0, 0.0, size=(1,))
+
+    with self.assertRaises(tf.errors.InvalidArgumentError):
+      self.evaluate(
+          glm.ndc_to_screen(point, lower_left_corner, screen_dimensions, near,
+                            far))
+
+  def test_ndc_to_screen_exception_screen_dimensions_raised(self):
+    """Tests that an exception is raised when `screen_dimensions` is not strictly positive."""
+    point = np.random.uniform(size=(3,))
+    lower_left_corner = np.random.uniform(size=(2,))
+    screen_dimensions = np.random.uniform(-1.0, 0.0, size=(2,))
+    near = np.random.uniform(1.0, 10.0, size=(1,))
+    far = near + np.random.uniform(0.1, 1.0, size=(1,))
+
+    with self.subTest("negative_screen_dimensions"):
+      with self.assertRaises(tf.errors.InvalidArgumentError):
+        self.evaluate(
+            glm.ndc_to_screen(point, lower_left_corner, screen_dimensions, near,
+                              far))
+
+    with self.subTest("zero_screen_dimensions"):
+      with self.assertRaises(tf.errors.InvalidArgumentError):
+        self.evaluate(
+            glm.ndc_to_screen(point, lower_left_corner, np.array((0.0, 0.0)),
+                              near, far))
+
+  def test_ndc_to_screen_jacobian_preset(self):
+    """Tests the Jacobian of ndc_to_screen."""
+    point_init = np.array(((1.1, 2.2, 3.3), (5.1, 5.2, 5.3)))
+    lower_left_corner_init = np.array(((6.4, 4.8), (0.0, 0.0)))
+    screen_dimensions_init = np.array(((640.0, 480.0), (300.0, 400.0)))
+    near_init = np.array(((1.0,), (11.0,)))
+    far_init = np.array(((10.0,), (100.0,)))
+
+    point_tensor = tf.convert_to_tensor(value=point_init)
+    lower_left_corner_tensor = tf.convert_to_tensor(
+        value=lower_left_corner_init)
+    screen_dimensions_tensor = tf.identity(
+        tf.convert_to_tensor(value=screen_dimensions_init))
+    near_tensor = tf.identity(tf.convert_to_tensor(value=near_init))
+    far_tensor = tf.identity(tf.convert_to_tensor(value=far_init))
+
+    y = glm.ndc_to_screen(point_tensor, lower_left_corner_tensor,
+                          screen_dimensions_tensor, near_tensor, far_tensor)
+    with self.subTest(name="jacobian_point"):
+      self.assert_jacobian_is_correct(point_tensor, point_init, y)
+    with self.subTest(name="jacobian_lower_left_corner"):
+      self.assert_jacobian_is_correct(lower_left_corner_tensor,
+                                      lower_left_corner_init, y)
+    with self.subTest(name="jacobian_screen_dimensions"):
+      self.assert_jacobian_is_correct(screen_dimensions_tensor,
+                                      screen_dimensions_init, y)
+    with self.subTest(name="jacobian_near"):
+      self.assert_jacobian_is_correct(near_tensor, near_init, y)
+    with self.subTest(name="jacobian_far"):
+      self.assert_jacobian_is_correct(far_tensor, far_init, y)
+
+  def test_ndc_to_screen_jacobian_random(self):
+    """Tests the Jacobian of ndc_to_screen."""
+    tensor_size = np.random.randint(1, 3)
+    tensor_shape = np.random.randint(1, 5, size=(tensor_size)).tolist()
+    point_init = np.random.uniform(size=tensor_shape + [3])
+    lower_left_corner_init = np.random.uniform(size=tensor_shape + [2])
+    screen_dimensions_init = np.random.uniform(
+        1.0, 1000.0, size=tensor_shape + [2])
+    near_init = np.random.uniform(1.0, 10.0, size=tensor_shape + [1])
+    far_init = near_init + np.random.uniform(0.1, 1.0, size=(1,))
+
+    point_tensor = tf.convert_to_tensor(value=point_init)
+    lower_left_corner_tensor = tf.convert_to_tensor(
+        value=lower_left_corner_init)
+    screen_dimensions_tensor = tf.identity(
+        tf.convert_to_tensor(value=screen_dimensions_init))
+    near_tensor = tf.identity(tf.convert_to_tensor(value=near_init))
+    far_tensor = tf.identity(tf.convert_to_tensor(value=far_init))
+
+    y = glm.ndc_to_screen(point_tensor, lower_left_corner_tensor,
+                          screen_dimensions_tensor, near_tensor, far_tensor)
+    with self.subTest(name="jacobian_point"):
+      self.assert_jacobian_is_correct(point_tensor, point_init, y)
+    with self.subTest(name="jacobian_lower_left_corner"):
+      self.assert_jacobian_is_correct(lower_left_corner_tensor,
+                                      lower_left_corner_init, y)
+    with self.subTest(name="jacobian_screen_dimensions"):
+      self.assert_jacobian_is_correct(screen_dimensions_tensor,
+                                      screen_dimensions_init, y)
+    with self.subTest(name="jacobian_near"):
+      self.assert_jacobian_is_correct(near_tensor, near_init, y)
+    with self.subTest(name="jacobian_far"):
+      self.assert_jacobian_is_correct(far_tensor, far_init, y)
+
 
 if __name__ == "__main__":
   test_case.main()

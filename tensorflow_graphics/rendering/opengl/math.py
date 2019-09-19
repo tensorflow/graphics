@@ -332,5 +332,85 @@ def clip_to_ndc(point_clip_space, name=None):
     w = point_clip_space[..., -1:]
     return point_clip_space[..., :3] / w
 
+
+def ndc_to_screen(point_ndc_space,
+                  lower_left_corner,
+                  screen_dimensions,
+                  near,
+                  far,
+                  name=None):
+  """Transforms points from normalized device coordinates to screen coordinates.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    point_ndc_space: A tensor of shape `[A1, ..., An, 3]`, where the last
+      dimension represents points in normalized device coordinates.
+    lower_left_corner: A tensor of shape `[A1, ..., An, 2]`, where the last
+      dimension captures the position (in pixels) of the lower left corner of
+      the screen.
+    screen_dimensions: A tensor of shape `[A1, ..., An, 2]`, where the last
+      dimension is expressed in pixels and captures the width and the height (in
+      pixels) of the screen.
+    near:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
+      captures the distance between the viewer and the near clipping plane. Note
+      that values for `near` must be non-negative.
+    far:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
+      captures the distance between the viewer and the far clipping plane. Note
+      that values for `far` must be greater than those of `near`.
+    name: A name for this op. Defaults to 'ndc_to_screen'.
+
+  Raises:
+    InvalidArgumentError: if any input contains data not in the specified range
+      of valid values.
+    ValueError: If any input is of an unsupported shape.
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 2]`, containing `point_ndc_space` in
+    screen coordinates (pixels).
+  """
+  with tf.compat.v1.name_scope(
+      name, "ndc_to_screen",
+      [point_ndc_space, lower_left_corner, screen_dimensions, near, far]):
+    point_ndc_space = tf.convert_to_tensor(value=point_ndc_space)
+    lower_left_corner = tf.convert_to_tensor(value=lower_left_corner)
+    screen_dimensions = tf.convert_to_tensor(value=screen_dimensions)
+    near = tf.convert_to_tensor(value=near)
+    far = tf.convert_to_tensor(value=far)
+
+    shape.check_static(
+        tensor=point_ndc_space,
+        tensor_name="point_ndc_space",
+        has_dim_equals=(-1, 3))
+    shape.check_static(
+        tensor=lower_left_corner,
+        tensor_name="lower_left_corner",
+        has_dim_equals=(-1, 2))
+    shape.check_static(
+        tensor=screen_dimensions,
+        tensor_name="screen_dimensions",
+        has_dim_equals=(-1, 2))
+    shape.check_static(tensor=near, tensor_name="near", has_dim_equals=(-1, 1))
+    shape.check_static(tensor=far, tensor_name="far", has_dim_equals=(-1, 1))
+    shape.compare_batch_dimensions(
+        tensors=(point_ndc_space, lower_left_corner, screen_dimensions, near,
+                 far),
+        last_axes=-2,
+        tensor_names=("point_ndc_space", "lower_left_corner",
+                      "screen_dimensions", "near", "far"),
+        broadcast_compatible=False)
+
+    screen_dimensions = asserts.assert_all_above(
+        screen_dimensions, 0.0, open_bound=True)
+    near = asserts.assert_all_above(near, 0.0, open_bound=True)
+    far = asserts.assert_all_above(far, near, open_bound=True)
+
+    ndc_to_screen_factor = tf.concat(
+        (screen_dimensions, far - near), axis=-1) / 2.0
+    screen_center = tf.concat(
+        (lower_left_corner + screen_dimensions / 2.0, (near + far) / 2.0),
+        axis=-1)
+    return ndc_to_screen_factor * point_ndc_space + screen_center
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
