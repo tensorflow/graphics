@@ -37,17 +37,17 @@ def perspective_right_handed(vertical_field_of_view,
     In the following, A1 to An are optional batch dimensions.
 
   Args:
-    vertical_field_of_view: A tensor of shape `[A1, ..., An, C]`, where the last
+    vertical_field_of_view: A tensor of shape `[A1, ..., An, 1]`, where the last
       dimension represents the vertical field of view of the frustum expressed
       in radians. Note that values for `vertical_field_of_view` must be in the
       range (0,pi).
-    aspect_ratio: A tensor of shape `[A1, ..., An, C]`, where the last dimension
+    aspect_ratio: A tensor of shape `[A1, ..., An, 1]`, where the last dimension
       stores the width over height ratio of the frustum. Note that values for
       `aspect_ratio` must be non-negative.
-    near:  A tensor of shape `[A1, ..., An, C]`, where the last dimension
+    near:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
       captures the distance between the viewer and the near clipping plane. Note
       that values for `near` must be non-negative.
-    far:  A tensor of shape `[A1, ..., An, C]`, where the last dimension
+    far:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
       captures the distance between the viewer and the far clipping plane. Note
       that values for `far` must be greater than those of `near`.
     name: A name for this op. Defaults to 'perspective_rh'.
@@ -69,9 +69,17 @@ def perspective_right_handed(vertical_field_of_view,
     near = tf.convert_to_tensor(value=near)
     far = tf.convert_to_tensor(value=far)
 
+    shape.check_static(
+        tensor=vertical_field_of_view,
+        tensor_name="vertical_field_of_view",
+        has_dim_equals=(-1, 1))
+    shape.check_static(
+        tensor=aspect_ratio, tensor_name="aspect_ratio", has_dim_equals=(-1, 1))
+    shape.check_static(tensor=near, tensor_name="near", has_dim_equals=(-1, 1))
+    shape.check_static(tensor=far, tensor_name="far", has_dim_equals=(-1, 1))
     shape.compare_batch_dimensions(
         tensors=(vertical_field_of_view, aspect_ratio, near, far),
-        last_axes=-1,
+        last_axes=-2,
         tensor_names=("vertical_field_of_view", "aspect_ratio", "near", "far"),
         broadcast_compatible=False)
 
@@ -85,18 +93,17 @@ def perspective_right_handed(vertical_field_of_view,
         vertical_field_of_view * 0.5)
     zero = tf.zeros_like(inverse_tan_half_vertical_field_of_view)
     one = tf.ones_like(inverse_tan_half_vertical_field_of_view)
-
-    x = tf.stack((inverse_tan_half_vertical_field_of_view / aspect_ratio, zero,
-                  zero, zero),
-                 axis=-1)
-    y = tf.stack((zero, inverse_tan_half_vertical_field_of_view, zero, zero),
-                 axis=-1)
+    x = tf.concat((inverse_tan_half_vertical_field_of_view / aspect_ratio, zero,
+                   zero, zero),
+                  axis=-1)
+    y = tf.concat((zero, inverse_tan_half_vertical_field_of_view, zero, zero),
+                  axis=-1)
     near_minus_far = near - far
-    z = tf.stack(
+    z = tf.concat(
         (zero, zero,
          (far + near) / near_minus_far, 2.0 * far * near / near_minus_far),
         axis=-1)
-    w = tf.stack((zero, zero, -one, zero), axis=-1)
+    w = tf.concat((zero, zero, -one, zero), axis=-1)
     return tf.stack((x, y, z, w), axis=-2)
 
 
@@ -208,10 +215,9 @@ def model_to_eye(point_model_space,
         tensor_name="point_model_space",
         has_dim_equals=(-1, 3))
     shape.compare_batch_dimensions(
-        tensors=(point_model_space, camera_position, look_at, up_vector),
+        tensors=(point_model_space, camera_position),
         last_axes=-2,
-        tensor_names=("point_model_space", "camera_position", "look_at",
-                      "up_vector"),
+        tensor_names=("point_model_space", "camera_position"),
         broadcast_compatible=True)
 
     model_to_eye_matrix = look_at_right_handed(camera_position, look_at,
@@ -235,7 +241,8 @@ def eye_to_clip(point_eye_space,
   """Transforms points from eye to clip space.
 
   Note:
-    In the following, A1 to An are optional batch dimensions.
+    In the following, A1 to An are optional batch dimensions which must be
+    broadcast compatible.
 
   Args:
     point_eye_space: A tensor of shape `[A1, ..., An, 3]`, where the last
@@ -292,7 +299,6 @@ def eye_to_clip(point_eye_space,
 
     perspective_matrix = perspective_right_handed(vertical_field_of_view,
                                                   aspect_ratio, near, far)
-    perspective_matrix = tf.squeeze(perspective_matrix, axis=-3)
     batch_shape = tf.shape(input=point_eye_space)[:-1]
     one = tf.ones(
         shape=tf.concat((batch_shape, (1,)), axis=-1),
@@ -342,7 +348,8 @@ def ndc_to_screen(point_ndc_space,
   """Transforms points from normalized device coordinates to screen coordinates.
 
   Note:
-    In the following, A1 to An are optional batch dimensions.
+    In the following, A1 to An are optional batch dimensions which must be
+    broadcast compatible between `point_ndc_space` and the other variables.
 
   Args:
     point_ndc_space: A tensor of shape `[A1, ..., An, 3]`, where the last
@@ -393,13 +400,17 @@ def ndc_to_screen(point_ndc_space,
         has_dim_equals=(-1, 2))
     shape.check_static(tensor=near, tensor_name="near", has_dim_equals=(-1, 1))
     shape.check_static(tensor=far, tensor_name="far", has_dim_equals=(-1, 1))
+
     shape.compare_batch_dimensions(
-        tensors=(point_ndc_space, lower_left_corner, screen_dimensions, near,
-                 far),
+        tensors=(lower_left_corner, screen_dimensions, near, far),
         last_axes=-2,
-        tensor_names=("point_ndc_space", "lower_left_corner",
-                      "screen_dimensions", "near", "far"),
+        tensor_names=("lower_left_corner", "screen_dimensions", "near", "far"),
         broadcast_compatible=False)
+    shape.compare_batch_dimensions(
+        tensors=(point_ndc_space, near),
+        last_axes=-2,
+        tensor_names=("point_ndc_space", "near"),
+        broadcast_compatible=True)
 
     screen_dimensions = asserts.assert_all_above(
         screen_dimensions, 0.0, open_bound=True)
@@ -412,5 +423,105 @@ def ndc_to_screen(point_ndc_space,
         (lower_left_corner + screen_dimensions / 2.0, (near + far) / 2.0),
         axis=-1)
     return ndc_to_screen_factor * point_ndc_space + screen_center
+
+
+def model_to_screen(point_model_space,
+                    camera_position,
+                    look_at,
+                    up_vector,
+                    vertical_field_of_view,
+                    screen_dimensions,
+                    near,
+                    far,
+                    lower_left_corner,
+                    name=None):
+  """Transforms points from model to screen coordinates.
+
+  Note:
+    Please refer to http://www.songho.ca/opengl/gl_transform.html for an
+    in-depth review of this pipeline.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions which must be
+    broadcast compatible.
+
+  Args:
+    point_model_space: A tensor of shape `[A1, ..., An, 3]`, where the last
+      dimension represents the 3D points in model space.
+    camera_position: A tensor of shape `[A1, ..., An, 3]`, where the last
+      dimension represents the 3D position of the camera.
+    look_at: A tensor of shape `[A1, ..., An, 3]`, with the last dimension
+      storing the position where the camera is looking at.
+    up_vector: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
+      defines the up vector of the camera.
+    vertical_field_of_view: A tensor of shape `[A1, ..., An, 1]`, where the last
+      dimension represents the vertical field of view of the frustum. Note that
+      values for `vertical_field_of_view` must be in the range ]0,pi[.
+    screen_dimensions: A tensor of shape `[A1, ..., An, 2]`, where the last
+      dimension is expressed in pixels and captures the width and the height (in
+      pixels) of the screen.
+    near:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
+      captures the distance between the viewer and the near clipping plane. Note
+      that values for `near` must be non-negative.
+    far:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
+      captures the distance between the viewer and the far clipping plane. Note
+      that values for `far` must be greater than those of `near`.
+    lower_left_corner: A tensor of shape `[A1, ..., An, 2]`, where the last
+      dimension captures the position (in pixels) of the lower left corner of
+      the screen.
+    name: A name for this op. Defaults to 'model_to_screen'.
+
+  Raises:
+    InvalidArgumentError: if any input contains data not in the specified range
+      of valid values.
+    ValueError: If any input is of an unsupported shape.
+
+  Returns:
+  A tuple of two tensors, respectively of shape `[A1, ..., An, 2]` and
+    `[A1, ..., An, 1]`, where the first tensor containing the projection of
+    `point_model_space` in screen coordinates (pixels), and the second
+    represents the 'w' component of `point_model_space` in clip space.
+  """
+  with tf.compat.v1.name_scope(name, "model_to_screen", [
+      point_model_space, camera_position, look_at, up_vector,
+      vertical_field_of_view, screen_dimensions, near, far, lower_left_corner
+  ]):
+    point_model_space = tf.convert_to_tensor(value=point_model_space)
+    screen_dimensions = tf.convert_to_tensor(value=screen_dimensions)
+    shape.check_static(
+        tensor=point_model_space,
+        tensor_name="point_model_space",
+        has_dim_equals=(-1, 3))
+    shape.check_static(
+        tensor=screen_dimensions,
+        tensor_name="screen_dimensions",
+        has_dim_equals=(-1, 2))
+
+    model_to_eye_matrix = look_at_right_handed(camera_position, look_at,
+                                               up_vector)
+    perspective_matrix = perspective_right_handed(
+        vertical_field_of_view,
+        screen_dimensions[..., 0:1] / screen_dimensions[..., 1:2], near, far)
+    model_to_clip_matrix = tf.matmul(perspective_matrix, model_to_eye_matrix)
+
+    shape.compare_batch_dimensions(
+        tensors=(point_model_space, model_to_clip_matrix),
+        last_axes=(-2, -3),
+        tensor_names=("point_model_space", "model_to_clip_matrix"),
+        broadcast_compatible=True)
+
+    batch_shape = tf.shape(input=point_model_space)[:-1]
+    one = tf.ones(
+        shape=tf.concat((batch_shape, (1,)), axis=-1),
+        dtype=point_model_space.dtype)
+    point_model_space = tf.concat((point_model_space, one), axis=-1)
+    point_model_space = tf.expand_dims(point_model_space, axis=-1)
+    point_clip_space = tf.squeeze(
+        tf.matmul(model_to_clip_matrix, point_model_space), axis=-1)
+    point_ndc_space = clip_to_ndc(point_clip_space)
+    point_screen_space = ndc_to_screen(point_ndc_space, lower_left_corner,
+                                       screen_dimensions, near, far)
+    return point_screen_space, point_clip_space[..., 3:4]
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
