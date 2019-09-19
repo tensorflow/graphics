@@ -820,6 +820,222 @@ class MathTest(test_case.TestCase):
       self.assert_jacobian_is_correct(lower_left_corner_tensor,
                                       lower_left_corner_init, y_projection)
 
+  def test_perspective_correct_interpolation_preset(self):
+    """Tests that perspective_correct_interpolation generates expected results."""
+    vertices = np.tile(((-0.2857143, 0.2857143, 5.0),
+                        (0.2857143, 0.2857143, 0.5), (0.0, -0.2857143, 1.0)),
+                       (2, 1, 1))
+    attributes = np.tile((((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))),
+                         (2, 1, 1))
+    pixel_position = np.array(((125.5, 375.5), (250.5, 250.5)))
+    camera_position = np.tile((0.0, 0.0, 0.0), (2, 3, 1))
+    look_at = np.tile((0.0, 0.0, 1.0), (2, 3, 1))
+    up_vector = np.tile((0.0, 1.0, 0.0), (2, 3, 1))
+    vertical_field_of_view = np.tile((1.0471975511965976,), (2, 3, 1))
+    screen_dimensions = np.tile((501.0, 501.0), (2, 3, 1))
+    near = np.tile((0.01,), (2, 3, 1))
+    far = np.tile((10.0,), (2, 3, 1))
+    lower_left_corner = np.tile((0.0, 0.0), (2, 3, 1))
+
+    pred = glm.perspective_correct_interpolation(
+        vertices, attributes, pixel_position, camera_position, look_at,
+        up_vector, vertical_field_of_view, screen_dimensions, near, far,
+        lower_left_corner)
+    gt = ((0.051941, 0.84417719, 0.10388184), (0.25, 0.25, 0.5))
+    self.assertAllClose(pred, gt)
+
+  @parameterized.parameters(
+      ((500, 400, 3, 3), (3, 7), (2,), (3,), (3,), (3,), (1,), (2,), (1,), (1,),
+       (2,)),
+      ((3, 3), (3, 7), (2,), (3,), (3,), (3,), (1,), (2,), (1,), (1,), (2,)),
+      ((None, 3, 3), (None, 3, 7), (None, 2), (None, 3), (None, 3), (None, 3),
+       (None, 1), (None, 2), (None, 1), (None, 1), (None, 2)),
+  )
+  def test_perspective_correct_interpolation_not_raised(self, *shapes):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(glm.perspective_correct_interpolation,
+                                        shapes)
+
+  @parameterized.parameters(
+      ("point_model_space must have exactly 3 dimensions in axis -1", (1.0,),
+       (1.0, 1.0), (1.0,), (2.0,), (0.0, 0.0), (3, 2), (3, 7), (2,), (3,), (3,),
+       (3,)),
+      ("must have exactly 3 dimensions in axis -2", (1.0,), (1.0, 1.0), (1.0,),
+       (2.0,), (0.0, 0.0), (2, 3), (3, 7), (2,), (3,), (3,), (3,)),
+      ("attribute must have exactly 3 dimensions in axis -2", (1.0,),
+       (1.0, 1.0), (1.0,), (2.0,), (0.0, 0.0), (3, 3), (2, 7), (2,), (3,), (3,),
+       (3,)),
+      ("must have exactly 2 dimensions in axis -1", (1.0,), (1.0, 1.0), (1.0,),
+       (2.0,), (0.0, 0.0), (3, 3), (3, 7), (1,), (3,), (3,), (3,)),
+      ("camera_position must have exactly 3 dimensions in axis -1", (1.0,),
+       (1.0, 1.0), (1.0,), (2.0,), (0.0, 0.0), (3, 3), (3, 7), (2,), (4,), (3,),
+       (3,)),
+      ("look_at must have exactly 3 dimensions in axis -1", (1.0,), (1.0, 1.0),
+       (1.0,), (2.0,), (0.0, 0.0), (3, 3), (3, 7), (2,), (3,), (1,), (3,)),
+      ("up_vector must have exactly 3 dimensions in axis -1", (1.0,),
+       (1.0, 1.0), (1.0,), (2.0,), (0.0, 0.0), (3, 3), (3, 7), (2,), (3,), (3,),
+       (2,)),
+      ("vertical_field_of_view must have exactly 1 dimensions in axis -1",
+       (1.0, 1.0), (1.0, 1.0), (1.0,), (2.0,), (0.0, 0.0), (3, 3), (3, 7), (2,),
+       (3,), (3,), (3,)),
+      ("screen_dimensions must have exactly 2 dimensions in axis -1", (1.0,),
+       (1.0,), (1.0,), (2.0,), (0.0, 0.0), (3, 3), (3, 7), (2,), (3,), (3,),
+       (3,)),
+      ("near must have exactly 1 dimensions in axis -1", (1.0,), (1.0, 1.0),
+       (1.0, 1.0), (2.0,), (0.0, 0.0), (3, 3), (3, 7), (2,), (3,), (3,), (3,)),
+      ("far must have exactly 1 dimensions in axis -1", (1.0,), (1.0, 1.0),
+       (1.0,), (2.0, 2.0), (0.0, 0.0), (3, 3), (3, 7), (2,), (3,), (3,), (3,)),
+      ("lower_left_corner must have exactly 2 dimensions in axis -1", (1.0,),
+       (1.0, 1.0), (1.0,), (2.0,), (0.0,), (3, 3), (3, 7), (2,), (3,), (3,),
+       (3,)),
+  )
+  def test_perspective_correct_interpolation_exception_raised(
+      self, error_msg, vertical_field_of_view, screen_dimensions, near, far,
+      lower_left_corner, *shapes):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_raised(
+        func=glm.perspective_correct_interpolation,
+        error_msg=error_msg,
+        shapes=shapes,
+        vertical_field_of_view=vertical_field_of_view,
+        screen_dimensions=screen_dimensions,
+        near=near,
+        far=far,
+        lower_left_corner=lower_left_corner)
+
+  def test_perspective_correct_interpolation_jacobian_preset(self):
+    """Tests the Jacobian of perspective_correct_interpolation."""
+    vertices_init = np.tile(
+        ((-0.2857143, 0.2857143, 5.0), (0.2857143, 0.2857143, 0.5),
+         (0.0, -0.2857143, 1.0)), (2, 1, 1))
+    attributes_init = np.tile(
+        (((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))), (2, 1, 1))
+    pixel_position_init = np.array(((125.5, 375.5), (250.5, 250.5)))
+    camera_position_init = np.tile((0.0, 0.0, 0.0), (2, 3, 1))
+    look_at_init = np.tile((0.0, 0.0, 1.0), (2, 3, 1))
+    up_vector_init = np.tile((0.0, 1.0, 0.0), (2, 3, 1))
+    vertical_field_of_view_init = np.tile((1.0471975511965976,), (2, 3, 1))
+    screen_dimensions_init = np.tile((501.0, 501.0), (2, 3, 1))
+    near_init = np.tile((0.01,), (2, 3, 1))
+    far_init = np.tile((10.0,), (2, 3, 1))
+    lower_left_corner_init = np.tile((0.0, 0.0), (2, 3, 1))
+
+    vertices_tensor = tf.convert_to_tensor(value=vertices_init)
+    attributes_tensor = tf.convert_to_tensor(value=attributes_init)
+    pixel_position_tensor = tf.convert_to_tensor(value=pixel_position_init)
+    camera_position_tensor = tf.convert_to_tensor(value=camera_position_init)
+    look_at_tensor = tf.convert_to_tensor(value=look_at_init)
+    up_vector_tensor = tf.convert_to_tensor(value=up_vector_init)
+    vertical_field_of_view_tensor = tf.identity(
+        tf.convert_to_tensor(value=vertical_field_of_view_init))
+    screen_dimensions_tensor = tf.identity(
+        tf.convert_to_tensor(value=screen_dimensions_init))
+    near_tensor = tf.identity(tf.convert_to_tensor(value=near_init))
+    far_tensor = tf.identity(tf.convert_to_tensor(value=far_init))
+    lower_left_corner_tensor = tf.convert_to_tensor(
+        value=lower_left_corner_init)
+
+    y = glm.perspective_correct_interpolation(
+        vertices_tensor, attributes_tensor, pixel_position_tensor,
+        camera_position_tensor, look_at_tensor, up_vector_tensor,
+        vertical_field_of_view_tensor, screen_dimensions_tensor, near_tensor,
+        far_tensor, lower_left_corner_tensor)
+    with self.subTest(name="jacobian_vertices"):
+      self.assert_jacobian_is_correct(vertices_tensor, vertices_init, y)
+    with self.subTest(name="jacobian_attributes"):
+      self.assert_jacobian_is_correct(attributes_tensor, attributes_init, y)
+    with self.subTest(name="jacobian_pixel_potision"):
+      self.assert_jacobian_is_correct(pixel_position_tensor,
+                                      pixel_position_init, y)
+    with self.subTest(name="jacobian_camera_position"):
+      self.assert_jacobian_is_correct(camera_position_tensor,
+                                      camera_position_init, y)
+    with self.subTest(name="jacobian_look_at"):
+      self.assert_jacobian_is_correct(look_at_tensor, look_at_init, y)
+    with self.subTest(name="jacobian_up_vector"):
+      self.assert_jacobian_is_correct(up_vector_tensor, up_vector_init, y)
+    with self.subTest(name="jacobian_vertical_field_of_view"):
+      self.assert_jacobian_is_correct(vertical_field_of_view_tensor,
+                                      vertical_field_of_view_init, y)
+    with self.subTest(name="jacobian_screen_dimensions"):
+      self.assert_jacobian_is_correct(screen_dimensions_tensor,
+                                      screen_dimensions_init, y)
+    with self.subTest(name="jacobian_near"):
+      self.assert_jacobian_is_correct(near_tensor, near_init, y)
+    with self.subTest(name="jacobian_far"):
+      self.assert_jacobian_is_correct(far_tensor, far_init, y)
+    with self.subTest(name="jacobian_lower_left_corner"):
+      self.assert_jacobian_is_correct(lower_left_corner_tensor,
+                                      lower_left_corner_init, y)
+
+  def test_perspective_correct_interpolation_jacobian_random(self):
+    """Tests the Jacobian of perspective_correct_interpolation."""
+    tensor_size = np.random.randint(1, 3)
+    tensor_shape = np.random.randint(1, 5, size=(tensor_size)).tolist()
+    vertices_init = np.random.uniform(size=tensor_shape + [3, 3])
+    num_attributes = np.random.randint(1, 10)
+    attributes_init = np.random.uniform(size=tensor_shape + [3, num_attributes])
+    pixel_position_init = np.random.uniform(size=tensor_shape + [2])
+    camera_position_init = np.random.uniform(size=tensor_shape + [3, 3])
+    look_at_init = np.random.uniform(size=tensor_shape + [3, 3])
+    up_vector_init = np.random.uniform(size=tensor_shape + [3, 3])
+    vertical_field_of_view_init = np.random.uniform(
+        0.1, 1.0, size=tensor_shape + [3, 1])
+    screen_dimensions_init = np.random.uniform(
+        1.0, 10.0, size=tensor_shape + [3, 2])
+    near_init = np.random.uniform(1.0, 10.0, size=tensor_shape + [3, 1])
+    far_init = near_init + np.random.uniform(
+        0.1, 1.0, size=tensor_shape + [3, 1])
+    lower_left_corner_init = np.random.uniform(size=tensor_shape + [3, 2])
+
+    vertices_tensor = tf.convert_to_tensor(value=vertices_init)
+    attributes_tensor = tf.convert_to_tensor(value=attributes_init)
+    pixel_position_tensor = tf.convert_to_tensor(value=pixel_position_init)
+    camera_position_tensor = tf.convert_to_tensor(value=camera_position_init)
+    look_at_tensor = tf.convert_to_tensor(value=look_at_init)
+    up_vector_tensor = tf.convert_to_tensor(value=up_vector_init)
+    vertical_field_of_view_tensor = tf.identity(
+        tf.convert_to_tensor(value=vertical_field_of_view_init))
+    screen_dimensions_tensor = tf.identity(
+        tf.convert_to_tensor(value=screen_dimensions_init))
+    near_tensor = tf.identity(tf.convert_to_tensor(value=near_init))
+    far_tensor = tf.identity(tf.convert_to_tensor(value=far_init))
+    lower_left_corner_tensor = tf.convert_to_tensor(
+        value=lower_left_corner_init)
+
+    y = glm.perspective_correct_interpolation(
+        vertices_tensor, attributes_tensor, pixel_position_tensor,
+        camera_position_tensor, look_at_tensor, up_vector_tensor,
+        vertical_field_of_view_tensor, screen_dimensions_tensor, near_tensor,
+        far_tensor, lower_left_corner_tensor)
+    with self.subTest(name="jacobian_vertices"):
+      self.assert_jacobian_is_correct(vertices_tensor, vertices_init, y)
+    with self.subTest(name="jacobian_attributes"):
+      self.assert_jacobian_is_correct(attributes_tensor, attributes_init, y)
+    with self.subTest(name="jacobian_pixel_potision"):
+      self.assert_jacobian_is_correct(pixel_position_tensor,
+                                      pixel_position_init, y)
+    with self.subTest(name="jacobian_camera_position"):
+      self.assert_jacobian_is_correct(camera_position_tensor,
+                                      camera_position_init, y)
+    with self.subTest(name="jacobian_look_at"):
+      self.assert_jacobian_is_correct(look_at_tensor, look_at_init, y)
+    with self.subTest(name="jacobian_up_vector"):
+      self.assert_jacobian_is_correct(up_vector_tensor, up_vector_init, y)
+    with self.subTest(name="jacobian_vertical_field_of_view"):
+      self.assert_jacobian_is_correct(vertical_field_of_view_tensor,
+                                      vertical_field_of_view_init, y)
+    with self.subTest(name="jacobian_screen_dimensions"):
+      self.assert_jacobian_is_correct(screen_dimensions_tensor,
+                                      screen_dimensions_init, y)
+    with self.subTest(name="jacobian_near"):
+      self.assert_jacobian_is_correct(near_tensor, near_init, y)
+    with self.subTest(name="jacobian_far"):
+      self.assert_jacobian_is_correct(far_tensor, far_init, y)
+    with self.subTest(name="jacobian_lower_left_corner"):
+      self.assert_jacobian_is_correct(lower_left_corner_tensor,
+                                      lower_left_corner_init, y)
+
 
 if __name__ == "__main__":
   test_case.main()

@@ -21,6 +21,7 @@ import math
 import tensorflow as tf
 
 from tensorflow_graphics.math import vector
+from tensorflow_graphics.rendering import rasterizer
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
@@ -93,18 +94,16 @@ def perspective_right_handed(vertical_field_of_view,
         vertical_field_of_view * 0.5)
     zero = tf.zeros_like(inverse_tan_half_vertical_field_of_view)
     one = tf.ones_like(inverse_tan_half_vertical_field_of_view)
-    x = tf.concat((inverse_tan_half_vertical_field_of_view / aspect_ratio, zero,
-                   zero, zero),
-                  axis=-1)
-    y = tf.concat((zero, inverse_tan_half_vertical_field_of_view, zero, zero),
-                  axis=-1)
     near_minus_far = near - far
-    z = tf.concat(
-        (zero, zero,
-         (far + near) / near_minus_far, 2.0 * far * near / near_minus_far),
+    matrix = tf.concat(
+        (inverse_tan_half_vertical_field_of_view / aspect_ratio, zero, zero,
+         zero, zero, inverse_tan_half_vertical_field_of_view, zero, zero, zero,
+         zero, (far + near) / near_minus_far, 2.0 * far * near / near_minus_far,
+         zero, zero, -one, zero),
         axis=-1)
-    w = tf.concat((zero, zero, -one, zero), axis=-1)
-    return tf.stack((x, y, z, w), axis=-2)
+    matrix_shape = tf.shape(input=matrix)
+    output_shape = tf.concat((matrix_shape[:-1], (4, 4)), axis=-1)
+    return tf.reshape(matrix, shape=output_shape)
 
 
 def look_at_right_handed(camera_position, look_at, up_vector, name=None):
@@ -162,14 +161,15 @@ def look_at_right_handed(camera_position, look_at, up_vector, name=None):
     one = tf.ones(
         shape=tf.concat((batch_shape, (1,)), axis=-1),
         dtype=horizontal_axis.dtype)
-    x = tf.concat(
-        (horizontal_axis, -vector.dot(horizontal_axis, camera_position)),
+
+    matrix = tf.concat(
+        (horizontal_axis, -vector.dot(horizontal_axis, camera_position),
+         vertical_axis, -vector.dot(vertical_axis, camera_position), -z_axis,
+         vector.dot(z_axis, camera_position), zeros, one),
         axis=-1)
-    y = tf.concat((vertical_axis, -vector.dot(vertical_axis, camera_position)),
-                  axis=-1)
-    z = tf.concat((-z_axis, vector.dot(z_axis, camera_position)), axis=-1)
-    w = tf.concat((zeros, one), axis=-1)
-    return tf.stack((x, y, z, w), axis=-2)
+    matrix_shape = tf.shape(input=matrix)
+    output_shape = tf.concat((matrix_shape[:-1], (4, 4)), axis=-1)
+    return tf.reshape(matrix, shape=output_shape)
 
 
 def model_to_eye(point_model_space,
@@ -497,31 +497,98 @@ def model_to_screen(point_model_space,
         tensor_name="screen_dimensions",
         has_dim_equals=(-1, 2))
 
-    model_to_eye_matrix = look_at_right_handed(camera_position, look_at,
-                                               up_vector)
-    perspective_matrix = perspective_right_handed(
-        vertical_field_of_view,
+    point_eye_space = model_to_eye(point_model_space, camera_position, look_at,
+                                   up_vector)
+    point_clip_space = eye_to_clip(
+        point_eye_space, vertical_field_of_view,
         screen_dimensions[..., 0:1] / screen_dimensions[..., 1:2], near, far)
-    model_to_clip_matrix = tf.matmul(perspective_matrix, model_to_eye_matrix)
-
-    shape.compare_batch_dimensions(
-        tensors=(point_model_space, model_to_clip_matrix),
-        last_axes=(-2, -3),
-        tensor_names=("point_model_space", "model_to_clip_matrix"),
-        broadcast_compatible=True)
-
-    batch_shape = tf.shape(input=point_model_space)[:-1]
-    one = tf.ones(
-        shape=tf.concat((batch_shape, (1,)), axis=-1),
-        dtype=point_model_space.dtype)
-    point_model_space = tf.concat((point_model_space, one), axis=-1)
-    point_model_space = tf.expand_dims(point_model_space, axis=-1)
-    point_clip_space = tf.squeeze(
-        tf.matmul(model_to_clip_matrix, point_model_space), axis=-1)
     point_ndc_space = clip_to_ndc(point_clip_space)
     point_screen_space = ndc_to_screen(point_ndc_space, lower_left_corner,
                                        screen_dimensions, near, far)
     return point_screen_space, point_clip_space[..., 3:4]
+
+
+def perspective_correct_interpolation(triangle_vertices_model_space,
+                                      attribute,
+                                      pixel_position,
+                                      camera_position,
+                                      look_at,
+                                      up_vector,
+                                      vertical_field_of_view,
+                                      screen_dimensions,
+                                      near,
+                                      far,
+                                      lower_left_corner,
+                                      name=None):
+  """Returns perspective corrected interpolation of attributes over triangles.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    triangle_vertices_model_space: A tensor of shape `[A1, ..., An, 3, 3]`,
+      where the last dimension represents the vertices of a triangle in model
+      space.
+    attribute: A tensor of shape `[A1, ..., An, 3, B]`, where the last dimension
+      stores a per-vertex `B`-dimensional attribute.
+    pixel_position: A tensor of shape `[A1, ..., An, 2]`, where the last
+      dimension stores the position (in pixels) where the interpolation is
+      requested.
+    camera_position: A tensor of shape `[A1, ..., An, 3]`, where the last
+      dimension represents the 3D position of the camera.
+    look_at: A tensor of shape `[A1, ..., An, 3, 3]`, with the last dimension
+      storing the position where the camera is looking at.
+    up_vector: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
+      defines the up vector of the camera.
+    vertical_field_of_view: A tensor of shape `[A1, ..., An, 1]`, where the last
+      dimension represents the vertical field of view of the frustum. Note that
+      values for `vertical_field_of_view` must be in the range ]0,pi[.
+    screen_dimensions: A tensor of shape `[A1, ..., An, 2]`, where the last
+      dimension is expressed in pixels and captures the width and the height (in
+      pixels) of the screen.
+    near:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
+      captures the distance between the viewer and the near clipping plane. Note
+      that values for `near` must be non-negative.
+    far:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
+      captures the distance between the viewer and the far clipping plane. Note
+      that values for `far` must be greater than those of `near`.
+    lower_left_corner: A tensor of shape `[A1, ..., An, 2]`, where the last
+      dimension captures the position (in pixels) of the lower left corner of
+      the screen.
+    name: A name for this op. Defaults to 'perspective_correct_interpolation'.
+
+  Raises:
+    InvalidArgumentError: if any input contains data not in the specified range
+      of valid values.
+    ValueError: If any input is of an unsupported shape.
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 2]`, containing the projection of
+    `point_model_space` in screen coordinates (pixels).
+  """
+  with tf.compat.v1.name_scope(name, "perspective_correct_interpolation", [
+      triangle_vertices_model_space, attribute, pixel_position, camera_position,
+      look_at, up_vector, vertical_field_of_view, screen_dimensions, near, far,
+      lower_left_corner
+  ]):
+    attribute = tf.convert_to_tensor(value=attribute)
+    shape.check_static(
+        tensor=attribute, tensor_name="attribute", has_dim_equals=(-2, 3))
+
+    vertices_screen, vertices_w = model_to_screen(
+        triangle_vertices_model_space, camera_position, look_at, up_vector,
+        vertical_field_of_view, screen_dimensions, near, far, lower_left_corner)
+    vertices_w = tf.squeeze(vertices_w, axis=-1)
+    pixel_position = tf.expand_dims(pixel_position, axis=-2)
+    barycentric_coordinates, _ = rasterizer.get_barycentric_coordinates(
+        vertices_screen[..., :2], pixel_position)
+    barycentric_coordinates = tf.squeeze(barycentric_coordinates, axis=-2)
+    coeffs = barycentric_coordinates / vertices_w
+    denominator = tf.reduce_sum(input_tensor=coeffs, axis=-1, keepdims=True)
+    numerator = tf.reduce_sum(
+        input_tensor=tf.expand_dims(coeffs, axis=-1) * attribute, axis=-1)
+    return numerator / denominator
+
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
