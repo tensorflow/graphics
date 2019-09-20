@@ -34,6 +34,53 @@ py_library(
     ],
 )
 
+cc_library(
+    name = "egl_offscreen_context",
+    srcs = ["egl_offscreen_context.cc"],
+    hdrs = ["egl_offscreen_context.h"],
+    deps = [
+        ":gl_macros",
+        "//third_party/GL:EGL_headers",
+        "//third_party/GL/util:egl_util",
+        "//third_party/tensorflow/core:lib",
+    ],
+)
+
+cc_test(
+    name = "egl_offscreen_context_test",
+    srcs = ["tests/egl_offscreen_context_test.cc"],
+    tags = [
+        "nomsan",  # Un-initialized values in libEGL.
+        "requires-gpu-sm35",
+    ],
+    deps = [
+        ":egl_offscreen_context",
+        ":gl_native_libs",
+        "//testing/base/public:gunit_main",
+        "//third_party/GL:GLES3_headers",
+    ],
+)
+
+cc_library(
+    name = "gl_macros",
+    hdrs = ["gl_macros.h"],
+    deps = [
+        "//third_party/GL:EGL_headers",
+        "//third_party/GL:GLES3_headers",
+        "//third_party/absl/strings",
+    ],
+)
+
+cc_library(
+    name = "gl_native_libs",
+    deps = [
+        "//third_party/GL/native:EGL",  # buildcleaner: keep
+        "//third_party/GL/native:GLESv3",  # buildcleaner: keep
+        "//third_party/GL/native:nvidia_egl_device_isolation_mitigation",  # buildcleaner: keep
+    ],
+    alwayslink = 1,
+)
+
 py_library(
     name = "math",
     srcs = ["math.py"],
