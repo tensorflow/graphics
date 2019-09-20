@@ -19,7 +19,6 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
@@ -505,4 +504,4 @@ def partition_sums_2d(data, group_ids, row_weights=None, name=None):
 
 
 # API contains all public functions and classes.
-__all__ = export_api.get_functions_and_classes()
+__all__ = []

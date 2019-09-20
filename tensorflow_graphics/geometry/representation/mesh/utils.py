@@ -19,8 +19,6 @@ from __future__ import print_function
 
 import numpy as np
 
-from tensorflow_graphics.util import export_api
-
 
 def extract_unique_edges_from_triangular_mesh(faces, directed_edges=False):
   """Extracts all the unique edges using the faces of a mesh.
@@ -31,10 +29,9 @@ def extract_unique_edges_from_triangular_mesh(faces, directed_edges=False):
       vertex in the mesh.
     directed_edges: A boolean flag, whether to treat an edge as directed or
       undirected.  If (i, j) is an edge in the mesh and directed_edges is True,
-      then both (i, j) and (j, i) are returned in the list of edges.
-      If (i, j) is an edge in the mesh and directed_edges is False,
-      then one of (i, j) or (j, i) is returned.
-
+      then both (i, j) and (j, i) are returned in the list of edges. If (i, j)
+      is an edge in the mesh and directed_edges is False, then one of (i, j) or
+      (j, i) is returned.
 
   Returns:
     A numpy.ndarray of shape [E, 2], where E is the number of edges in
@@ -64,8 +61,7 @@ def extract_unique_edges_from_triangular_mesh(faces, directed_edges=False):
   if faces_shape[1] != 3:
     raise ValueError(
         "'faces' must have exactly 3 dimensions in the last axis, but it has {}"
-        " dimensions and is of shape {}."
-        .format(faces_shape[1], faces_shape))
+        " dimensions and is of shape {}.".format(faces_shape[1], faces_shape))
   edges = np.concatenate([faces[:, 0:2], faces[:, 1:3], faces[:, [2, 0]]],
                          axis=0)
   if directed_edges:
@@ -86,8 +82,8 @@ def get_degree_based_edge_weights(edges, dtype=np.float32):
   $$
 
   Args:
-    edges: A numpy.ndarray of shape [E, 2],
-      where E is the number of directed edges in the mesh.
+    edges: A numpy.ndarray of shape [E, 2], where E is the number of directed
+      edges in the mesh.
     dtype: A numpy float data type. The output weights are of data type dtype.
 
   Returns:
@@ -111,8 +107,7 @@ def get_degree_based_edge_weights(edges, dtype=np.float32):
   if edges_shape[1] != 2:
     raise ValueError(
         "'edges' must have exactly 2 dimensions in the last axis, but it has {}"
-        " dimensions and is of shape {}."
-        .format(edges_shape[1], edges_shape))
+        " dimensions and is of shape {}.".format(edges_shape[1], edges_shape))
   degree = np.bincount(edges[:, 0])
   rep_degree = degree[edges[:, 0]]
   weights = 1.0 / rep_degree.astype(dtype)
@@ -120,4 +115,4 @@ def get_degree_based_edge_weights(edges, dtype=np.float32):
 
 
 # API contains all public functions and classes.
-__all__ = export_api.get_functions_and_classes()
+__all__ = []

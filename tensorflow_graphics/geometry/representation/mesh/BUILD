@@ -55,7 +55,6 @@ py_library(
     # google internal rule 1
     deps = [
         # google internal package dependency 6
-        "//tensorflow_graphics/util:export_api",
     ],
 )
 

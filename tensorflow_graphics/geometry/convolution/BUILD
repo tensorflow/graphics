@@ -40,7 +40,6 @@ py_library(
     # google internal rule 1
     deps = [
         # google internal package dependency 1,
-        "//tensorflow_graphics/util:export_api",
         "//tensorflow_graphics/util:shape",
     ],
 )
