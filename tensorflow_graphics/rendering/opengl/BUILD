@@ -51,6 +51,7 @@ py_library(
 
 py_test(
     name = "math_test",
+    timeout = "long",
     srcs = ["tests/math_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
