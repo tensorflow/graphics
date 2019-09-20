@@ -81,6 +81,33 @@ cc_library(
     alwayslink = 1,
 )
 
+cc_library(
+    name = "gl_utils",
+    srcs = ["gl_utils.cc"],
+    hdrs = ["gl_utils.h"],
+    deps = [
+        ":gl_macros",
+        "//third_party/GL:GLES3_headers",
+        "//third_party/tensorflow/core:lib",
+    ],
+)
+
+cc_test(
+    name = "gl_utils_test",
+    srcs = ["tests/gl_utils_test.cc"],
+    tags = [
+        "nomsan",  # Un-initialized values in libEGL.
+        "requires-gpu-sm35",
+    ],
+    deps = [
+        ":egl_offscreen_context",
+        ":gl_native_libs",
+        ":gl_utils",
+        "//testing/base/public:gunit_main",
+        "//third_party/GL:GLES3_headers",
+    ],
+)
+
 py_library(
     name = "math",
     srcs = ["math.py"],
