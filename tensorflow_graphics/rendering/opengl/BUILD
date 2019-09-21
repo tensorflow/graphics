@@ -56,8 +56,8 @@ cc_test(
     deps = [
         ":egl_offscreen_context",
         ":gl_native_libs",
-        "//testing/base/public:gunit_main",
         "//third_party/GL:GLES3_headers",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 
@@ -67,7 +67,7 @@ cc_library(
     deps = [
         "//third_party/GL:EGL_headers",
         "//third_party/GL:GLES3_headers",
-        "//third_party/absl/strings",
+        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -88,8 +88,8 @@ cc_library(
     deps = [
         ":gl_macros",
         "//third_party/GL:GLES3_headers",
-        "//third_party/absl/types:span",
         "//third_party/tensorflow/core:lib",
+        "@com_google_absl//absl/types:span",
     ],
 )
 
@@ -104,9 +104,9 @@ cc_test(
         ":egl_offscreen_context",
         ":gl_native_libs",
         ":gl_utils",
-        "//testing/base/public:gunit_main",
         "//third_party/GL:GLES3_headers",
-        "//third_party/absl/types:span",
+        "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 

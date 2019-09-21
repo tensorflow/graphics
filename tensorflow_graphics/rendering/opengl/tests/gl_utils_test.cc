@@ -18,7 +18,7 @@ limitations under the License.
 #include <string>
 
 #include "testing/base/public/gmock.h"
-#include "testing/base/public/gunit.h"
+#include "gtest/gtest.h"
 #include "GL/gl/include/GLES3/gl32.h"
 #include "absl/types/span.h"
 #include "tensorflow_graphics/rendering/opengl/egl_offscreen_context.h"
