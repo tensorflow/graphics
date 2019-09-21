@@ -144,3 +144,20 @@ py_test(
         "//tensorflow_graphics/util:test_case",
     ],
 )
+
+cc_library(
+    name = "thread_safe_resource_pool",
+    hdrs = ["thread_safe_resource_pool.h"],
+    deps = [
+        "@com_google_absl//absl/synchronization",
+    ],
+)
+
+cc_test(
+    name = "thread_safe_resource_pool_test",
+    srcs = ["tests/thread_safe_resource_pool_test.cc"],
+    deps = [
+        ":thread_safe_resource_pool",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
