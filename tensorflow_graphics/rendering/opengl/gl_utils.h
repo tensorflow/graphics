@@ -17,12 +17,13 @@ limitations under the License.
 
 #include <iostream>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <typeinfo>
 #include <vector>
 
-#include "absl/types/span.h"
 #include "GL/gl/include/GLES3/gl32.h"
+#include "absl/types/span.h"
 #include "tensorflow_graphics/rendering/opengl/gl_macros.h"
 #include "tensorflow/core/lib/gtl/cleanup.h"
 
@@ -127,8 +128,7 @@ class RenderTargets {
   static bool CreateValidInternalFormat(
       GLenum internalformat, GLsizei width, GLsizei height,
       std::unique_ptr<RenderTargets<T>>* render_targets);
-  bool ReadPixelsValidPixelType(absl::Span<T> buffer,
-                                GLenum pixel_type) const;
+  bool ReadPixelsValidPixelType(absl::Span<T> buffer, GLenum pixel_type) const;
 
   GLsizei width_;
   GLsizei height_;
@@ -265,6 +265,44 @@ bool RenderTargets<T>::ReadPixelsValidPixelType(absl::Span<T> buffer,
 
   RETURN_FALSE_IF_GL_ERROR(
       glReadPixels(0, 0, width_, height_, GL_RGBA, pixel_type, &buffer[0]));
+  return true;
+}
+
+// Class for creating and uploading data to storage buffers.
+class ShaderStorageBuffer {
+ public:
+  ~ShaderStorageBuffer();
+  bool BindBufferBase(GLuint index) const;
+  static bool Create(
+      std::unique_ptr<ShaderStorageBuffer>* shader_storage_buffer);
+
+  // Uploads data to the buffer.
+  template <typename T>
+  bool Upload(absl::Span<T> data) const;
+
+ private:
+  ShaderStorageBuffer() = delete;
+  ShaderStorageBuffer(GLuint buffer);
+  ShaderStorageBuffer(const ShaderStorageBuffer&) = delete;
+  ShaderStorageBuffer(ShaderStorageBuffer&&) = delete;
+  ShaderStorageBuffer& operator=(const ShaderStorageBuffer&) = delete;
+  ShaderStorageBuffer& operator=(ShaderStorageBuffer&&) = delete;
+
+  GLuint buffer_;
+};
+
+template <typename T>
+bool ShaderStorageBuffer::Upload(absl::Span<T> data) const {
+  // Bind the buffer to the read/write storage for shaders.
+  RETURN_FALSE_IF_GL_ERROR(glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer_));
+  auto bind_cleanup = tensorflow::gtl::MakeCleanup(
+      []() { glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); });
+  // Create a new data store for the bound buffer and initializes it with the
+  // input data.
+  RETURN_FALSE_IF_GL_ERROR(glBufferData(GL_SHADER_STORAGE_BUFFER,
+                                        data.size() * sizeof(T), data.data(),
+                                        GL_DYNAMIC_COPY));
+  // bind_cleanup is not released, leading the buffer to be unbound.
   return true;
 }
 

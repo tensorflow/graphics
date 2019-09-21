@@ -109,4 +109,26 @@ bool Program::Create(const std::vector<std::pair<std::string, GLenum>>& shaders,
 
 GLuint Program::GetHandle() const { return program_handle_; }
 
+ShaderStorageBuffer::ShaderStorageBuffer(GLuint buffer)
+    : buffer_(buffer) {}
+
+ShaderStorageBuffer::~ShaderStorageBuffer() { glDeleteBuffers(1, &buffer_); }
+
+bool ShaderStorageBuffer::Create(
+    std::unique_ptr<ShaderStorageBuffer>* shader_storage_buffer) {
+  GLuint buffer;
+
+  // Generate one buffer object.
+  RETURN_FALSE_IF_GL_ERROR(glGenBuffers(1, &buffer));
+  *shader_storage_buffer =
+      std::unique_ptr<ShaderStorageBuffer>(new ShaderStorageBuffer(buffer));
+  return true;
+}
+
+bool ShaderStorageBuffer::BindBufferBase(GLuint index) const {
+  RETURN_FALSE_IF_GL_ERROR(
+      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer_));
+  return true;
+}
+
 }  // namespace gl_utils

@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "testing/base/public/gmock.h"
 #include "testing/base/public/gunit.h"
-#include "absl/types/span.h"
 #include "GL/gl/include/GLES3/gl32.h"
+#include "absl/types/span.h"
 #include "tensorflow_graphics/rendering/opengl/egl_offscreen_context.h"
 
 namespace {
@@ -36,8 +36,8 @@ TEST(GLUtilsTest, TestCompileInvalidShader) {
       "#version 430\n"
       "void main() { syntax_error }\n";
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(1, 1, &context));
-  EXPECT_TRUE(context->MakeCurrent());
+  ASSERT_TRUE(EGLOffscreenContext::Create(1, 1, &context));
+  ASSERT_TRUE(context->MakeCurrent());
 
   std::vector<std::pair<std::string, GLenum>> shaders;
   shaders.push_back(
@@ -46,15 +46,15 @@ TEST(GLUtilsTest, TestCompileInvalidShader) {
   EXPECT_TRUE(context->Release());
 }
 
-TEST(GLUtilsTest, TestCompileValidShaderType) {
+TEST(GLUtilsTest, TestCompileInvalidShaderType) {
   std::unique_ptr<EGLOffscreenContext> context;
   std::unique_ptr<gl_utils::Program> program;
   const std::string kInvalidShaderCode =
       "#version 430\n"
       "void main() { syntax_error }\n";
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(1, 1, &context));
-  EXPECT_TRUE(context->MakeCurrent());
+  ASSERT_TRUE(EGLOffscreenContext::Create(1, 1, &context));
+  ASSERT_TRUE(context->MakeCurrent());
 
   std::vector<std::pair<std::string, GLenum>> shaders;
   shaders.push_back(std::pair<std::string, GLenum>(kEmptyShaderCode, 0));
@@ -66,8 +66,8 @@ TEST(GLUtilsTest, TestCreateProgram) {
   std::unique_ptr<EGLOffscreenContext> context;
   std::unique_ptr<gl_utils::Program> program;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(1, 1, &context));
-  EXPECT_TRUE(context->MakeCurrent());
+  ASSERT_TRUE(EGLOffscreenContext::Create(1, 1, &context));
+  ASSERT_TRUE(context->MakeCurrent());
 
   std::vector<std::pair<std::string, GLenum>> shaders;
   shaders.push_back(
@@ -94,8 +94,8 @@ TYPED_TEST(RenderTargetsInterfaceTest, TestRenderClear) {
 
   if (typeid(TypeParam) == typeid(float)) max_gl_value = 1.0f;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(kWidth, kHeight, &context));
-  EXPECT_TRUE(context->MakeCurrent());
+  ASSERT_TRUE(EGLOffscreenContext::Create(kWidth, kHeight, &context));
+  ASSERT_TRUE(context->MakeCurrent());
 
   std::unique_ptr<gl_utils::RenderTargets<TypeParam>> render_targets;
   EXPECT_TRUE(gl_utils::RenderTargets<TypeParam>::Create(kWidth, kHeight,
@@ -107,10 +107,10 @@ TYPED_TEST(RenderTargetsInterfaceTest, TestRenderClear) {
   EXPECT_TRUE(render_targets->ReadPixels(absl::MakeSpan(pixels)));
 
   for (int index = 0; index < kWidth * kHeight; ++index) {
-    ASSERT_EQ(pixels[index * 4], TypeParam(kRed * max_gl_value));
-    ASSERT_EQ(pixels[index * 4 + 1], TypeParam(kGreen * max_gl_value));
-    ASSERT_EQ(pixels[index * 4 + 2], TypeParam(kBlue * max_gl_value));
-    ASSERT_EQ(pixels[index * 4 + 3], TypeParam(kAlpha * max_gl_value));
+    EXPECT_EQ(pixels[index * 4], TypeParam(kRed * max_gl_value));
+    EXPECT_EQ(pixels[index * 4 + 1], TypeParam(kGreen * max_gl_value));
+    EXPECT_EQ(pixels[index * 4 + 2], TypeParam(kBlue * max_gl_value));
+    EXPECT_EQ(pixels[index * 4 + 3], TypeParam(kAlpha * max_gl_value));
   }
   EXPECT_TRUE(context->Release());
 }
@@ -120,13 +120,30 @@ TYPED_TEST(RenderTargetsInterfaceTest, TestReadFails) {
   const int kWidth = 10;
   const int kHeight = 5;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(kWidth, kHeight, &context));
-  EXPECT_TRUE(context->MakeCurrent());
+  ASSERT_TRUE(EGLOffscreenContext::Create(kWidth, kHeight, &context));
+  ASSERT_TRUE(context->MakeCurrent());
   std::unique_ptr<gl_utils::RenderTargets<TypeParam>> render_targets;
   EXPECT_TRUE(gl_utils::RenderTargets<TypeParam>::Create(kWidth, kHeight,
                                                          &render_targets));
   std::vector<TypeParam> pixels(kWidth * kHeight * 3);
   EXPECT_FALSE(render_targets->ReadPixels(absl::MakeSpan(pixels)));
+}
+
+TEST(GLUtilsTest, TestShaderStorageBuffer) {
+  std::unique_ptr<gl_utils::ShaderStorageBuffer> shader_storage_buffer;
+
+  EXPECT_TRUE(gl_utils::ShaderStorageBuffer::Create(&shader_storage_buffer));
+  std::vector<float> data{1.0f, 2.0f};
+  EXPECT_TRUE(shader_storage_buffer->Upload(absl::MakeSpan(data)));
+}
+
+TEST(GLUtilsTest, TestBindShaderStorageBuffer) {
+  std::unique_ptr<gl_utils::ShaderStorageBuffer> shader_storage_buffer;
+
+  std::vector<float> data{1.0f, 2.0f};
+  EXPECT_TRUE(gl_utils::ShaderStorageBuffer::Create(&shader_storage_buffer));
+  EXPECT_TRUE(shader_storage_buffer->Upload(absl::MakeSpan(data)));
+  EXPECT_TRUE(shader_storage_buffer->BindBufferBase(0));
 }
 
 }  // namespace
