@@ -88,6 +88,7 @@ cc_library(
     deps = [
         ":gl_macros",
         "//third_party/GL:GLES3_headers",
+        "//third_party/absl/types:span",
         "//third_party/tensorflow/core:lib",
     ],
 )
@@ -105,6 +106,7 @@ cc_test(
         ":gl_utils",
         "//testing/base/public:gunit_main",
         "//third_party/GL:GLES3_headers",
+        "//third_party/absl/types:span",
     ],
 )
 

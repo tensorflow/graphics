@@ -15,13 +15,16 @@ limitations under the License.
 #ifndef THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_GL_UTILS_H_
 #define THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_GL_UTILS_H_
 
+#include <iostream>
 #include <memory>
 #include <string>
 #include <typeinfo>
 #include <vector>
 
+#include "absl/types/span.h"
 #include "GL/gl/include/GLES3/gl32.h"
 #include "tensorflow_graphics/rendering/opengl/gl_macros.h"
+#include "tensorflow/core/lib/gtl/cleanup.h"
 
 namespace gl_utils {
 
@@ -71,6 +74,199 @@ class Program {
 
   GLuint program_handle_;
 };
+
+// Class that creates a frame buffer to which a depth render buffer, and a color
+// render and bound to. The template type correspond to the data type stored in
+// the color render buffer. The supported template types are float and uint8.
+template <typename T>
+class RenderTargets {
+ public:
+  ~RenderTargets();
+
+  // Creates a depth render buffer and a color render buffer. After
+  // creation, these two render buffers are attached to the frame buffer.
+  //
+  // Arguments:
+  // * width: width of the rendering buffers; must be smaller than
+  // GL_MAX_RENDERBUFFER_SIZE.
+  // * height: height of the rendering buffers; must be smaller than
+  // GL_MAX_RENDERBUFFER_SIZE.
+  // * render_targets: a valid and usable instance of this class.
+  //
+  // Returns:
+  //   A boolean set to false if any error occured during the process, and set
+  //   to true otherwise.
+  static bool Create(GLsizei width, GLsizei height,
+                     std::unique_ptr<RenderTargets<T>>* render_targets);
+
+  // Returns the height of the internal render buffers.
+  GLsizei GetHeight() const;
+
+  // Returns the width of the internal render buffers.
+  GLsizei GetWidth() const;
+
+  // Reads pixels from the frame buffer.
+  //
+  // Arguments:
+  // * buffer: the buffer where the read pixels are written to. Note that the
+  // size of this buffer must be equal to 4 * width * height.
+  //
+  // Returns:
+  //   A boolean set to false if any error occured during the process, and set
+  //   to true otherwise.
+  bool ReadPixels(absl::Span<T> buffer) const;
+
+ private:
+  RenderTargets() = delete;
+  RenderTargets(GLsizei width, GLsizei height, GLuint color_buffer,
+                GLuint depth_buffer, GLuint frame_buffer);
+  RenderTargets(const RenderTargets&) = delete;
+  RenderTargets(RenderTargets&&) = delete;
+  RenderTargets& operator=(const RenderTargets&) = delete;
+  RenderTargets& operator=(RenderTargets&&) = delete;
+  static bool CreateValidInternalFormat(
+      GLenum internalformat, GLsizei width, GLsizei height,
+      std::unique_ptr<RenderTargets<T>>* render_targets);
+  bool ReadPixelsValidPixelType(absl::Span<T> buffer,
+                                GLenum pixel_type) const;
+
+  GLsizei width_;
+  GLsizei height_;
+  GLuint color_buffer_;
+  GLuint depth_buffer_;
+  GLuint frame_buffer_;
+};
+
+template <typename T>
+RenderTargets<T>::RenderTargets(GLsizei width, GLsizei height,
+                                GLuint color_buffer, GLuint depth_buffer,
+                                GLuint frame_buffer)
+    : width_(width),
+      height_(height),
+      color_buffer_(color_buffer),
+      depth_buffer_(depth_buffer),
+      frame_buffer_(frame_buffer) {}
+
+template <typename T>
+RenderTargets<T>::~RenderTargets() {
+  glDeleteRenderbuffers(1, &color_buffer_);
+  glDeleteRenderbuffers(1, &depth_buffer_);
+  glDeleteFramebuffers(1, &frame_buffer_);
+}
+
+template <typename T>
+bool RenderTargets<T>::Create(
+    GLsizei width, GLsizei height,
+    std::unique_ptr<RenderTargets<T>>* render_targets) {
+  std::cerr << "Unsupported type " << typeid(T).name() << std::endl;
+  return false;
+}
+
+template <>
+inline bool RenderTargets<uint8>::Create(
+    GLsizei width, GLsizei height,
+    std::unique_ptr<RenderTargets<uint8>>* render_targets) {
+  return CreateValidInternalFormat(GL_RGBA8, width, height, render_targets);
+}
+
+template <>
+inline bool RenderTargets<float>::Create(
+    GLsizei width, GLsizei height,
+    std::unique_ptr<RenderTargets<float>>* render_targets) {
+  return CreateValidInternalFormat(GL_RGBA32F, width, height, render_targets);
+}
+
+template <typename T>
+bool RenderTargets<T>::CreateValidInternalFormat(
+    GLenum internalformat, GLsizei width, GLsizei height,
+    std::unique_ptr<RenderTargets>* render_targets) {
+  GLuint color_buffer;
+  GLuint depth_buffer;
+  GLuint frame_buffer;
+
+  // Generate one render buffer for color.
+  RETURN_FALSE_IF_GL_ERROR(glGenRenderbuffers(1, &color_buffer));
+  auto gen_color_cleanup = tensorflow::gtl::MakeCleanup(
+      [color_buffer]() { glDeleteFramebuffers(1, &color_buffer); });
+  // Bind the color buffer.
+  RETURN_FALSE_IF_GL_ERROR(glBindRenderbuffer(GL_RENDERBUFFER, color_buffer));
+  // Define the data storage, format, and dimensions of a render buffer
+  // object's image.
+  RETURN_FALSE_IF_GL_ERROR(
+      glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height));
+
+  // Generate one render buffer for depth.
+  RETURN_FALSE_IF_GL_ERROR(glGenRenderbuffers(1, &depth_buffer));
+  auto gen_depth_cleanup = tensorflow::gtl::MakeCleanup(
+      [depth_buffer]() { glDeleteFramebuffers(1, &depth_buffer); });
+  // Bind the depth buffer.
+  RETURN_FALSE_IF_GL_ERROR(glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer));
+  // Defines the data storage, format, and dimensions of a render buffer
+  // object's image.
+  RETURN_FALSE_IF_GL_ERROR(glRenderbufferStorage(
+      GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height));
+
+  // Generate one frame buffer.
+  RETURN_FALSE_IF_GL_ERROR(glGenFramebuffers(1, &frame_buffer));
+  auto gen_frame_cleanup = tensorflow::gtl::MakeCleanup(
+      [frame_buffer]() { glDeleteFramebuffers(1, &frame_buffer); });
+  // Bind the frame buffer to both read and draw frame buffer targets.
+  RETURN_FALSE_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer));
+  // Attach the color buffer to the frame buffer.
+  RETURN_FALSE_IF_GL_ERROR(glFramebufferRenderbuffer(
+      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color_buffer));
+  // Attach the depth buffer to the frame buffer.
+  RETURN_FALSE_IF_GL_ERROR(glFramebufferRenderbuffer(
+      GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer));
+
+  *render_targets = std::unique_ptr<RenderTargets<T>>(new RenderTargets(
+      width, height, color_buffer, depth_buffer, frame_buffer));
+
+  // Release all Cleanup objects.
+  gen_color_cleanup.release();
+  gen_depth_cleanup.release();
+  gen_frame_cleanup.release();
+  return true;
+}
+
+template <typename T>
+GLsizei RenderTargets<T>::GetHeight() const {
+  return height_;
+}
+
+template <typename T>
+GLsizei RenderTargets<T>::GetWidth() const {
+  return width_;
+}
+
+template <typename T>
+bool RenderTargets<T>::ReadPixels(absl::Span<T> buffer) const {
+  std::cerr << "Unsupported type " << typeid(T).name() << std::endl;
+  return false;
+}
+
+template <>
+inline bool RenderTargets<float>::ReadPixels(absl::Span<float> buffer) const {
+  return ReadPixelsValidPixelType(buffer, GL_FLOAT);
+}
+
+template <>
+inline bool RenderTargets<uint8>::ReadPixels(absl::Span<uint8> buffer) const {
+  return ReadPixelsValidPixelType(buffer, GL_UNSIGNED_BYTE);
+}
+
+template <typename T>
+bool RenderTargets<T>::ReadPixelsValidPixelType(absl::Span<T> buffer,
+                                                GLenum pixel_type) const {
+  if (buffer.size() != width_ * height_ * 4) {
+    std::cerr << "Buffer size is not equal to width * height * 4" << std::endl;
+    return false;
+  }
+
+  RETURN_FALSE_IF_GL_ERROR(
+      glReadPixels(0, 0, width_, height_, GL_RGBA, pixel_type, &buffer[0]));
+  return true;
+}
 
 }  // namespace gl_utils
 
