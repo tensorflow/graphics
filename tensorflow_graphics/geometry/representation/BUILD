@@ -98,7 +98,7 @@ py_test(
     srcs = ["tests/point_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5
@@ -118,7 +118,7 @@ py_test(
     srcs = ["tests/triangle_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5
@@ -138,7 +138,7 @@ py_test(
     srcs = ["tests/grid_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5
@@ -157,7 +157,7 @@ py_test(
     srcs = ["tests/ray_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5

@@ -60,7 +60,7 @@ py_test(
     srcs = ["tests/linear_rgb_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5
@@ -94,7 +94,7 @@ py_test(
     srcs = ["tests/srgb_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5

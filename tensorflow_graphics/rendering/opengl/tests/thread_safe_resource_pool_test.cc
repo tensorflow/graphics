@@ -19,6 +19,7 @@ limitations under the License.
 #include <thread>
 
 #include "gtest/gtest.h"
+#include "tensorflow/core/lib/core/status.h"
 
 namespace {
 
@@ -42,9 +43,10 @@ class DummyClass {
 
 int DummyClass::counter_ = 0;
 
-static bool dummy_resource_creator(std::unique_ptr<DummyClass> *resource) {
+static tensorflow::Status dummy_resource_creator(
+    std::unique_ptr<DummyClass> *resource) {
   *resource = std::unique_ptr<DummyClass>(new DummyClass());
-  return true;
+  return tensorflow::Status::OK();
 }
 
 TEST(ThreadSafeResourcePoolTest, TestSingleThread) {
@@ -55,13 +57,13 @@ TEST(ThreadSafeResourcePoolTest, TestSingleThread) {
                                              kPoolSize));
   {
     std::unique_ptr<DummyClass> local_resource;
-    EXPECT_TRUE(resource_pool->AcquireResource(&local_resource));
+    TF_CHECK_OK(resource_pool->AcquireResource(&local_resource));
     EXPECT_EQ(local_resource->GetValue(), kDummyIncrements);
     local_resource->SetValue(1);
     EXPECT_EQ(local_resource->GetValue(), 1);
   }
   std::unique_ptr<DummyClass> resource;
-  EXPECT_TRUE(resource_pool->AcquireResource(&resource));
+  TF_CHECK_OK(resource_pool->AcquireResource(&resource));
   EXPECT_EQ(resource->GetValue(), 2 * kDummyIncrements);
 }
 
@@ -76,15 +78,15 @@ TEST(ThreadSafeResourcePoolTest, TestPoolSize) {
   {
     std::unique_ptr<DummyClass> local_resource_1;
     std::unique_ptr<DummyClass> local_resource_2;
-    EXPECT_TRUE(resource_pool->AcquireResource(&local_resource_1));
+    TF_CHECK_OK(resource_pool->AcquireResource(&local_resource_1));
     local_resource_1->SetValue(1);
-    EXPECT_TRUE(resource_pool->AcquireResource(&local_resource_2));
+    TF_CHECK_OK(resource_pool->AcquireResource(&local_resource_2));
     local_resource_2->SetValue(2);
-    EXPECT_TRUE(resource_pool->ReturnResource(local_resource_1));
-    EXPECT_TRUE(resource_pool->ReturnResource(local_resource_2));
+    TF_CHECK_OK(resource_pool->ReturnResource(local_resource_1));
+    TF_CHECK_OK(resource_pool->ReturnResource(local_resource_2));
   }
   std::unique_ptr<DummyClass> resource;
-  EXPECT_TRUE(resource_pool->AcquireResource(&resource));
+  TF_CHECK_OK(resource_pool->AcquireResource(&resource));
   EXPECT_EQ(resource->GetValue(), 1);
 }
 
@@ -109,23 +111,26 @@ TEST(ThreadSafeResourcePoolTest, TestMultiThread) {
   for (int i = 0; i < kNumThreads; ++i) {
     threads[i].join();
     EXPECT_EQ(local_resources[i]->GetValue() % kDummyIncrements, 0);
-    resource_pool->ReturnResource(local_resources[i]);
+    TF_CHECK_OK(resource_pool->ReturnResource(local_resources[i]));
   }
 
   // Check that we can re-acquire a previously created resource.
-  resource_pool->AcquireResource(&local_resources[0]);
+  TF_CHECK_OK(resource_pool->AcquireResource(&local_resources[0]));
   EXPECT_TRUE(local_resources[0]->GetValue() <= kNumThreads * kDummyIncrements);
 }
 
 TEST(ThreadSafeResourcePoolTest, TestInvalidResourceCreator) {
   constexpr int kPoolSize = 1;
-  std::function<bool(std::unique_ptr<DummyClass> *)> bad_resource_creator =
-      [](std::unique_ptr<DummyClass> *) { return true; };
+  std::function<tensorflow::Status(std::unique_ptr<DummyClass> *)>
+      bad_resource_creator = [](std::unique_ptr<DummyClass> *) {
+        return tensorflow::Status::OK();
+      };
   auto resource_pool = std::unique_ptr<ThreadSafeResourcePool<DummyClass>>(
       new ThreadSafeResourcePool<DummyClass>(bad_resource_creator, kPoolSize));
   std::unique_ptr<DummyClass> resource;
 
-  EXPECT_FALSE(resource_pool->AcquireResource(&resource));
+  EXPECT_NE(resource_pool->AcquireResource(&resource),
+            tensorflow::Status::OK());
 }
 
 TEST(ThreadSafeResourcePoolTest, TestReturnEmptyResource) {
@@ -135,7 +140,7 @@ TEST(ThreadSafeResourcePoolTest, TestReturnEmptyResource) {
                                              kPoolSize));
   std::unique_ptr<DummyClass> resource;
 
-  EXPECT_FALSE(resource_pool->ReturnResource(resource));
+  EXPECT_NE(resource_pool->ReturnResource(resource), tensorflow::Status::OK());
 }
 
 }  // namespace

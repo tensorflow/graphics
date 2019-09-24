@@ -157,7 +157,7 @@ py_test(
     srcs = ["tests/quaternion_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5
@@ -181,7 +181,7 @@ py_test(
     srcs = ["tests/axis_angle_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5
@@ -204,7 +204,7 @@ py_test(
     srcs = ["tests/rotation_matrix_common_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5
@@ -224,7 +224,7 @@ py_test(
     shard_count = 3,
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5
@@ -248,7 +248,7 @@ py_test(
     srcs = ["tests/rotation_matrix_2d_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5
@@ -270,7 +270,7 @@ py_test(
     srcs = ["tests/euler_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-    # google internal rule 2
+    # google internal rule 4
     # google internal rule 3
     # google internal rule 4
     # google internal rule 5

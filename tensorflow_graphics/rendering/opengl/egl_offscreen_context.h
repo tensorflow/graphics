@@ -19,6 +19,8 @@ limitations under the License.
 
 #include <memory>
 
+#include "tensorflow/core/lib/core/status.h"
+
 // EGL is an interface between OpenGL ES and the windowing system of the native
 // platform. The following class provides functionality to manage an EGL
 // off-screen contexts.
@@ -34,9 +36,9 @@ class EGLOffscreenContext {
   // valid offscreen context.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  static bool Create(
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  static tensorflow::Status Create(
       std::unique_ptr<EGLOffscreenContext>* egl_offscreen_context);
 
   // Creates an EGL display, pixel buffer surface, and context that can be used
@@ -57,9 +59,9 @@ class EGLOffscreenContext {
   // valid offscreen context.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  static bool Create(
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  static tensorflow::Status Create(
       const int pixel_buffer_width, const int pixel_buffer_height,
       const EGLenum rendering_api, const EGLint* configuration_attributes,
       const EGLint* context_attributes,
@@ -70,17 +72,17 @@ class EGLOffscreenContext {
   // thread.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  bool MakeCurrent() const;
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  tensorflow::Status MakeCurrent() const;
 
   // Un-binds the current EGL rendering context from the current rendering
   // thread and from the pixel buffer surface.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  bool Release();
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  tensorflow::Status Release();
 
  private:
   EGLOffscreenContext() = delete;
