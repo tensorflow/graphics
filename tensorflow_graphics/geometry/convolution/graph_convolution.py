@@ -65,6 +65,17 @@ def _prepare_feature_steered_args(
   return x_flat, adjacency, var_u, var_v, var_c, var_w, var_b, unflatten
 
 
+def _sum_reducer(term_fn):
+  def f(acc, args):
+    term = term_fn(*args)
+    # the following is needed because foldl doesn't expose shape_invariants
+    # and partition_sums_2d doesn't set size.
+    if acc.shape[0] is not None:
+      term.set_shape((acc.shape[0], acc.shape[1]))
+    return acc + term
+  return f
+
+
 def feature_steered_convolution_v1(data,
                                    neighbors,
                                    sizes,
@@ -142,8 +153,9 @@ def feature_steered_convolution_v1(data,
       return p_sum
 
     if memory_efficient:
+
       y_out = tf.foldl(
-          lambda acc, args: acc + get_mth_term(*args),
+          _sum_reducer(get_mth_term),
           (tf.transpose(weights_q, (1, 0)), var_w),
           tf.tile(tf.expand_dims(var_b, axis=0), (tf.shape(x_flat)[0], 1)))
     else:
@@ -327,7 +339,7 @@ def feature_steered_convolution_v3(data,
 
     if memory_efficient:
       y_flat = tf.foldl(
-          lambda acc, args: acc + get_mth_term(*args),
+          _sum_reducer(get_mth_term),
           (var_w, tf.transpose(e_uc, (1, 0)), tf.transpose(e_v, (1, 0))),
           tf.tile(tf.expand_dims(var_b, axis=0), (tf.shape(e_uc)[0], 1)))
     else:
