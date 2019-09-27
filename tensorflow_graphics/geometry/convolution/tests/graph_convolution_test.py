@@ -64,19 +64,24 @@ def _random_data(batch_size,
                  only_self_edges,
                  data_type=np.float32,
                  neighbors_type=np.float32,
-                 sizes_type=np.int32):
+                 sizes_type=np.int32,
+                 sparsity=0.25,
+                 random_state=None):
   """Create random inputs for feature_steered_convolution."""
+  if random_state is None:
+    random_state = np.random
 
   def _random_data_2d(padding):
-    size = num_vertices if not padding else np.random.randint(
+    size = num_vertices if not padding else random_state.randint(
         low=1, high=num_vertices + 1)
-    data = np.random.uniform(size=(size, num_channels)).astype(data_type)
+    data = random_state.uniform(size=(size, num_channels)).astype(data_type)
     if only_self_edges:
       neighbors = np.eye(size, dtype=neighbors_type)
     else:
-      random = np.random.uniform(size=(size, size)).astype(neighbors_type)
+      random = random_state.uniform(size=(size, size)).astype(neighbors_type)
       neighbors = np.maximum(
-          np.where(random > 0.75, np.ones_like(random), np.zeros_like(random)),
+          np.where(random < sparsity,
+                   np.ones_like(random), np.zeros_like(random)),
           np.eye(size, dtype=neighbors_type))
       neighbors = neighbors / np.sum(neighbors, axis=1, keepdims=True)
     if padding:
@@ -108,11 +113,14 @@ def _random_data(batch_size,
 def _random_variables(in_channels,
                       out_channels,
                       num_weight_matrices,
-                      dtype=np.float32):
+                      dtype=np.float32,
+                      random_state=None):
   """Create random variables for feature_steered_convolution."""
+  if random_state is None:
+    random_state = np.random
 
   def _random_constant(shape, dtype):
-    return tf.constant(np.random.uniform(size=shape).astype(dtype))
+    return tf.constant(random_state.uniform(size=shape).astype(dtype))
 
   var_u = _random_constant([in_channels, num_weight_matrices], dtype)
   var_v = _random_constant([in_channels, num_weight_matrices], dtype)

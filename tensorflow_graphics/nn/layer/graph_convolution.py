@@ -32,7 +32,8 @@ def feature_steered_convolution_layer(
     num_output_channels=None,
     initializer=tf.compat.v1.truncated_normal_initializer(stddev=0.1),
     name=None,
-    var_name=None):
+    var_name=None,
+    **kwargs):
   # pyformat: disable
   """Wraps the function `feature_steered_convolution` as a TensorFlow layer.
 
@@ -79,6 +80,7 @@ def feature_steered_convolution_layer(
       feature_steered_convolution().
     var_name: A (var_scope) name for the variables. Defaults to
       `graph_convolution_feature_steered_convolution_weights`.
+    **kwargs: passed to `feature_steered_convolution`
 
   Returns:
     Tensor with shape `[A1, ..., An, V, num_output_channels]`.
@@ -135,7 +137,8 @@ def feature_steered_convolution_layer(
         var_c=var_c,
         var_w=var_w,
         var_b=var_b,
-        name=name)
+        name=name,
+        **kwargs)
 
 
 class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
@@ -147,7 +150,8 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
                num_output_channels=None,
                initializer=None,
                name=None,
-               **kwargs):
+               impl_kwargs=None,
+               **layer_kwargs):
     """Initializes FeatureSteeredConvolutionKerasLayer.
 
     Args:
@@ -161,17 +165,31 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
       initializer: An initializer for the trainable variables. If `None`,
         defaults to `tf.compat.v1.truncated_normal_initializer(stddev=0.1)`.
       name: A name for this layer.
-      **kwargs: Additional keyword arguments passed to the base layer.
+      impl_kwargs: dict of addition keyword arguments passed to
+        `feature_steered_convolution`.
+      **layer_kwargs: Additional keyword arguments passed to the base layer.
     """
     super(FeatureSteeredConvolutionKerasLayer, self).__init__(
-        name=name, **kwargs)
+        name=name, **layer_kwargs)
     self._num_weight_matrices = num_weight_matrices
     self._num_output_channels = num_output_channels
     self._translation_invariant = translation_invariant
     if initializer is None:
       self._initializer = tf.compat.v1.truncated_normal_initializer(stddev=0.1)
     else:
-      self._initializer = initializer
+      self._initializer = tf.keras.initializers.get(initializer)
+    self._impl_kwargs = impl_kwargs
+
+  def get_config(self):
+    config = super(FeatureSteeredConvolutionKerasLayer, self).get_config()
+    config.update(dict(
+      num_weight_matrices=self._num_weight_matrices,
+      num_output_channels=self._num_output_channels,
+      translation_invariant=self._translation_invariant,
+      initializer=tf.keras.utils.serialize_keras_object(self._initializer),
+      impl_kwargs=self._impl_kwargs.copy(),
+    ))
+    return config
 
   def build(self, input_shape):
     """Initializes the trainable weights."""
@@ -265,7 +283,8 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
         var_v=self.var_v,
         var_c=self.var_c,
         var_w=self.var_w,
-        var_b=self.var_b)
+        var_b=self.var_b,
+        **(self._impl_kwargs or {}))
 
 
 class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
