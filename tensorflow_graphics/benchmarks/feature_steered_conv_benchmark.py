@@ -50,18 +50,22 @@ def main(args):
 
   # v1_p2d is the original implementation
   fast = dict(memory_efficient=False)
+  bad = dict(transform_data_first=FLAGS.in_channels <= FLAGS.out_channels)
   names, kwargs = zip(*(
       ('v1_p2d', dict(version='v1', segment_sum_impl='partition2d', **fast)),
+      ('v1_p2d_bad', dict(
+        version='v1', segment_sum_impl='partition2d', **fast, **bad)),
       ('v1_sorted', dict(version='v1', segment_sum_impl='sorted', **fast)),
       ('v1_unsorted', dict(version='v1', segment_sum_impl='unsorted', **fast)),
       ('v1_p2d_mem', dict(version='v1', segment_sum_impl='partition2d')),
       ('v1_sorted_mem', dict(version='v1', segment_sum_impl='sorted')),
       ('v1_unsorted_mem', dict(version='v1', segment_sum_impl='unsorted')),
-      ('v2_default', dict(version='v2')),  # will be same as one of the below
-      ('v2_first', dict(version='v2', transform_data_first=True)),
-      ('v2_last', dict(version='v2', transform_data_first=False)),
+      ('v2', dict(version='v2')),
+      ('v2_bad', dict(version='v2', **bad)),
       ('v3', dict(version='v3', **fast)),
       ('v3_mem', dict(version='v3')),
+      ('v3_bad', dict(version='v3', **bad, **fast)),
+      ('v3_mem_bad', dict(version='v3', **bad)),
   ))
   if FLAGS.mem_only:
     names, kwargs = zip(*(

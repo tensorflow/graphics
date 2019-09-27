@@ -75,6 +75,7 @@ def feature_steered_convolution_v1(data,
                                    var_b,
                                    memory_efficient=True,
                                    segment_sum_impl='partition2d',
+                                   transform_data_first=None,
                                    name=None):
   """Implements the Feature Steered graph convolution.
 
@@ -114,13 +115,19 @@ def feature_steered_convolution_v1(data,
     x_sep = tf.gather(x_flat, adjacency_ind_1)
     V = tf.shape(x_flat)[0]
 
+    W, C, D = var_w.shape
+    if transform_data_first is None:
+      transform_data_first = C > D
+
     def get_mth_term(q_m, w_m):
+      x = tf.matmul(x_sep, w_m) if transform_data_first else x_sep
+
       if segment_sum_impl == 'partition2d':
         q_m = tf.expand_dims(q_m, axis=-1)
-        p_sum = utils.partition_sums_2d(q_m * x_sep, adjacency_ind_0,
+        p_sum = utils.partition_sums_2d(q_m * x, adjacency_ind_0,
                                         adjacency.values)
       else:
-        args = (x_sep * tf.expand_dims(q_m * adjacency.values, axis=-1),
+        args = (x * tf.expand_dims(q_m * adjacency.values, axis=-1),
                 adjacency_ind_0)
         if segment_sum_impl == 'sorted':
           p_sum = tf.math.segment_sum(*args)
@@ -130,7 +137,9 @@ def feature_steered_convolution_v1(data,
           raise ValueError(
               'Invalid segment_sum_impl "{}" - must be one of "partition2d", '
               '"sorted", "unsorted"'.format(segment_sum_impl))
-      return tf.matmul(p_sum, w_m)
+      if not transform_data_first:
+        p_sum = tf.matmul(p_sum, w_m)
+      return p_sum
 
     if memory_efficient:
       y_out = tf.foldl(
@@ -177,11 +186,6 @@ def feature_steered_convolution_v2(data,
   a slightly slower more memory efficient implementation.
 
   For base arg/return descriptions, see See `feature_steered_convolution`.
-
-  Additional args:
-    transform_data_first: if True, performs transformation of features from
-      [V, C] -> [V, D, W] via `var_w` before other multiplications.
-      Defaults to `C > D`.
   """
   with tf.compat.v1.name_scope(
       name, "graph_convolution_feature_steered_convolution_v2",
@@ -261,6 +265,7 @@ def feature_steered_convolution_v3(data,
                                    var_w,
                                    var_b,
                                    memory_efficient=True,
+                                   transform_data_first=None,
                                    name=None):
   """Implements the Feature Steered graph convolution.
 
@@ -308,10 +313,17 @@ def feature_steered_convolution_v3(data,
     W, C, D = var_w.shape
     assert(C is not None and D is not None)
 
+    if transform_data_first is None:
+      transform_data_first = C > D
+
     def get_mth_term(wm, e_ucm, e_vm):
-      summed_ef = tf.sparse.sparse_dense_matmul(
-        weighted_adjacency, tf.expand_dims(e_vm, axis=-1) * x_flat)
-      return tf.matmul(tf.expand_dims(e_ucm, axis=-1) * summed_ef, wm)
+      x = tf.matmul(x_flat, wm) if transform_data_first else x_flat
+      ex = tf.expand_dims(e_vm, axis=-1) * x
+      summed_ex = tf.sparse.sparse_dense_matmul(weighted_adjacency, ex)
+      summed_qx = tf.expand_dims(e_ucm, axis=-1) * summed_ex
+      if not transform_data_first:
+        summed_qx = tf.matmul(summed_qx, wm)
+      return summed_qx
 
     if memory_efficient:
       y_flat = tf.foldl(
@@ -347,6 +359,7 @@ def feature_steered_convolution(data,
                                 var_c,
                                 var_w,
                                 var_b,
+                                transform_data_first=None,
                                 version='v1',
                                 name=None,
                                 **kwargs):
@@ -397,6 +410,11 @@ def feature_steered_convolution(data,
     var_c: A 1-D tensor with shape `[W]`.
     var_w: A 3-D tensor with shape `[W, C, D]`.
     var_b: A 1-D tensor with shape `[D]`.
+    transform_data_first: bool influencing the order of matrix operations.
+      Summations can essentially be written as N @ x @ w_m. This parameter
+      determines whether this is implemented as `N @ (x @ w_m)` or
+      `(N @ x) @ w_m`. Default is to do manipulations in the lower dimensional
+      space, so default value is `C > D`.
     version: string indicating implementation version, one of "v1", "v2", "v3".
       See `feature_steered_convolution_v1` / `feature_steered_convolution_v2`
         etc.
@@ -408,10 +426,6 @@ def feature_steered_convolution(data,
           `tf.math.unsorted_segment_sum`.
         memory_efficient (default True): for "v1", "v3", uses a more memory
           efficient implementation at the cost of slightly slower runtime.
-        transform_data_first: for "v2", if True transforms data from
-          [V, C] -> [V, D, W] before some transformations. This does not affect
-          the results (aside from floating point errors), but may result in
-          a performance difference. Defaults to `C > D`.
 
   Returns:
     Tensor with shape `[A1, ..., An, V, D]`.
@@ -433,6 +447,7 @@ def feature_steered_convolution(data,
     var_c,
     var_w,
     var_b,
+    transform_data_first=transform_data_first,
     name=name,
     **kwargs)
 

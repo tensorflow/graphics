@@ -209,9 +209,7 @@ def main(args):
       ('v1_p2d_mem', dict(version='v1', segment_sum_impl='partition2d')),
       ('v1_sorted_mem', dict(version='v1', segment_sum_impl='sorted')),
       ('v1_unsorted_mem', dict(version='v1', segment_sum_impl='unsorted')),
-      ('v2_default', dict(version='v2')),  # will be same as one of the below
-      # ('v2_first', dict(version='v2', transform_data_first=True)),
-      # ('v2_last', dict(version='v2', transform_data_first=False)),
+      ('v2', dict(version='v2')),  # will be same as one of the below
       ('v3', dict(version='v3', **fast)),
       ('v3_mem', dict(version='v3')),
   ))
@@ -229,7 +227,7 @@ def main(args):
   print('*************')
   print('** SUMMARY **')
   print('*************')
-  print('num_filters = {}'.format(num_filters))
+  print('{:15s}: {}'.format('num_filters', num_filters))
 
   times = np.array(times)
   # ti = np.argmin(times)
