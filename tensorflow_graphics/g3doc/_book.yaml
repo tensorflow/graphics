@@ -31,7 +31,8 @@ upper_tabs:
       - title: Install
         path: /graphics/install
       - title: Contributing
-        path: /graphics/contributing
+        path: https://github.com/tensorflow/graphics/blob/master/CONTRIBUTING.md
+        status: external
       - title: Debug
         path: /graphics/debug_mode
       - title: TensorBoard
