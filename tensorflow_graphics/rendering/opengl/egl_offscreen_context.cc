@@ -88,8 +88,8 @@ bool EGLOffscreenContext::Create(
 
   display = CreateInitializedEGLDisplay();
   if (display == EGL_NO_DISPLAY) return false;
-  auto initialize_cleanup = MakeCleanup(
-      [display]() { TerminateInitializedEGLDisplay(display); });
+  auto initialize_cleanup =
+      MakeCleanup([display]() { TerminateInitializedEGLDisplay(display); });
 
   // Set the current rendering API.
   EGLBoolean success;
@@ -118,10 +118,9 @@ bool EGLOffscreenContext::Create(
       pixel_buffer_surface = eglCreatePbufferSurface(
           display, frame_buffer_configuration, pixel_buffer_attributes));
   if (pixel_buffer_surface == EGL_NO_SURFACE) return false;
-  auto surface_cleanup =
-      MakeCleanup([display, pixel_buffer_surface]() {
-        eglDestroySurface(display, pixel_buffer_surface);
-      });
+  auto surface_cleanup = MakeCleanup([display, pixel_buffer_surface]() {
+    eglDestroySurface(display, pixel_buffer_surface);
+  });
 
   // Create the EGL rendering context.
   EGLContext context;

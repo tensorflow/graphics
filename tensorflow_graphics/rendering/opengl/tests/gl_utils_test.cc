@@ -119,9 +119,9 @@ TEST(ProgramTest, TestGetExistingResourceProperty) {
   EXPECT_TRUE(EGLOffscreenContext::Create(&context));
   EXPECT_TRUE(context->MakeCurrent());
 
-  std::vector<std::pair<std::string, GLenum>> shaders(2);
-  shaders[0] = std::make_pair(kEmptyShaderCode, GL_VERTEX_SHADER);
-  shaders[1] = std::make_pair(geometry_shader_code, GL_GEOMETRY_SHADER);
+  std::vector<std::pair<std::string, GLenum>> shaders{
+      std::make_pair(kEmptyShaderCode, GL_VERTEX_SHADER),
+      std::make_pair(geometry_shader_code, GL_GEOMETRY_SHADER)};
   EXPECT_TRUE(gl_utils::Program::Create(shaders, &program));
   EXPECT_TRUE(program->GetResourceProperty("view_projection_matrix", GL_UNIFORM,
                                            1, &kProperty, 1, &property_value));
@@ -158,7 +158,6 @@ TYPED_TEST(RenderTargetsInterfaceTest, TestRenderClear) {
   EXPECT_TRUE(render_targets->CopyPixelsInto(absl::MakeSpan(pixels)));
 
   for (int index = 0; index < kWidth * kHeight; ++index) {
-    std::cout << "index " << index << std::endl;
     ASSERT_EQ(pixels[index * 4], TypeParam(kRed * max_gl_value));
     ASSERT_EQ(pixels[index * 4 + 1], TypeParam(kGreen * max_gl_value));
     ASSERT_EQ(pixels[index * 4 + 2], TypeParam(kBlue * max_gl_value));

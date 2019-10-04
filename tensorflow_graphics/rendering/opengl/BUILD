@@ -182,7 +182,7 @@ cc_library(
     hdrs = ["rasterizer.h"],
     deps = [
         ":gl_utils",
-        "//third_party/tensorflow/core:lib",
+        "//tensorflow_graphics/util:cleanup",
     ],
 )
 
@@ -198,6 +198,32 @@ cc_test(
         ":gl_native_libs",
         ":rasterizer",
         "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "rasterizer_with_context",
+    hdrs = ["rasterizer_with_context.h"],
+    deps = [
+        ":egl_offscreen_context",
+        ":gl_utils",
+        ":rasterizer",
+        "//tensorflow_graphics/util:cleanup",
+    ],
+)
+
+cc_test(
+    name = "rasterizer_with_context_test",
+    srcs = ["tests/rasterizer_with_context_test.cc"],
+    tags = [
+        "nomsan",  # Un-initialized values in libEGL.
+        "requires-gpu-sm35",
+    ],
+    deps = [
+        ":gl_native_libs",
+        ":rasterizer_with_context",
+        ":thread_safe_resource_pool",
         "@com_google_googletest//:gtest_main",
     ],
 )

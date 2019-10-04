@@ -23,12 +23,12 @@ limitations under the License.
 
 namespace {
 
-const std::string empty_shader_code =
-    "#version 430\n"
+const std::string kEmptyShaderCode =
+    "#version 460\n"
     "void main() { }\n";
 
-const std::string fragment_shader_code =
-    "#version 420\n"
+const std::string kFragmentShaderCode =
+    "#version 460\n"
     "\n"
     "in layout(location = 0) vec3 position;\n"
     "in layout(location = 1) vec3 normal;\n"
@@ -41,8 +41,8 @@ const std::string fragment_shader_code =
     "  output_color = vec4(bar_coord, tri_id, position.z);\n"
     "}\n";
 
-const std::string geometry_shader_code =
-    "#version 430\n"
+const std::string kGeometryShaderCode =
+    "#version 460\n"
     "\n"
     "uniform mat4 view_projection_matrix;\n"
     "\n"
@@ -107,8 +107,8 @@ TEST(RasterizerTest, TestCreate) {
   EXPECT_TRUE(EGLOffscreenContext::Create(&context));
   EXPECT_TRUE(context->MakeCurrent());
   EXPECT_TRUE(
-      (Rasterizer<float>::Create(3, 2, empty_shader_code, empty_shader_code,
-                                 empty_shader_code, &rasterizer)));
+      (Rasterizer<float>::Create(3, 2, kEmptyShaderCode, kEmptyShaderCode,
+                                 kEmptyShaderCode, &rasterizer)));
 }
 
 TEST(RasterizerTest, TestSetShaderStorageBuffer) {
@@ -118,8 +118,8 @@ TEST(RasterizerTest, TestSetShaderStorageBuffer) {
   EXPECT_TRUE(EGLOffscreenContext::Create(&context));
   EXPECT_TRUE(context->MakeCurrent());
   EXPECT_TRUE(
-      (Rasterizer<float>::Create(3, 2, empty_shader_code, empty_shader_code,
-                                 empty_shader_code, &rasterizer)));
+      (Rasterizer<float>::Create(3, 2, kEmptyShaderCode, kEmptyShaderCode,
+                                 kEmptyShaderCode, &rasterizer)));
 
   // Fronto-parallel triangle at depth 1.
   std::array<const float, 9> geometry = {-1.0, 1.0, 1.0,  1.0, 1.0,
@@ -136,8 +136,8 @@ TEST(RasterizerTest, TestSetUniformMatrix) {
   EXPECT_TRUE(EGLOffscreenContext::Create(&context));
   EXPECT_TRUE(context->MakeCurrent());
   EXPECT_TRUE(
-      (Rasterizer<float>::Create(3, 2, empty_shader_code, geometry_shader_code,
-                                 fragment_shader_code, &rasterizer)));
+      (Rasterizer<float>::Create(3, 2, kEmptyShaderCode, kGeometryShaderCode,
+                                 kFragmentShaderCode, &rasterizer)));
 
   const std::string resource_name = "view_projection_matrix";
   const std::vector<float> resource_value(16);
@@ -148,7 +148,7 @@ TEST(RasterizerTest, TestSetUniformMatrix) {
 
 template <typename T>
 class RasterizerInterfaceTest : public ::testing::Test {};
-using valid_render_target_types = ::testing::Types<float, uint8>;
+using valid_render_target_types = ::testing::Types<float, unsigned char>;
 TYPED_TEST_CASE(RasterizerInterfaceTest, valid_render_target_types);
 
 TYPED_TEST(RasterizerInterfaceTest, TestRender) {
@@ -166,8 +166,8 @@ TYPED_TEST(RasterizerInterfaceTest, TestRender) {
   EXPECT_TRUE(EGLOffscreenContext::Create(&context));
   EXPECT_TRUE(context->MakeCurrent());
   EXPECT_TRUE((Rasterizer<TypeParam>::Create(
-      kWidth, kHeight, empty_shader_code, geometry_shader_code,
-      fragment_shader_code, &rasterizer)));
+      kWidth, kHeight, kEmptyShaderCode, kGeometryShaderCode,
+      kFragmentShaderCode, &rasterizer)));
   EXPECT_TRUE(rasterizer->SetUniformMatrix("view_projection_matrix", 4, 4,
                                            false, kViewProjectionMatrix));
 

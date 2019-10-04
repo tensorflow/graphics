@@ -34,8 +34,8 @@ bool Program::CompileShader(const std::string& shader_code,
     std::cerr << "Error while creating the shader object." << std::endl;
     return false;
   }
-  auto shader_cleanup = MakeCleanup(
-      [shader_idx]() { glDeleteShader(*shader_idx); });
+  auto shader_cleanup =
+      MakeCleanup([shader_idx]() { glDeleteShader(*shader_idx); });
 
   // Set the source code in the shader object.
   auto shader_code_c_str = shader_code.c_str();

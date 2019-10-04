@@ -20,12 +20,15 @@ limitations under the License.
 #include <unordered_map>
 
 #include "tensorflow_graphics/rendering/opengl/gl_utils.h"
-#include "tensorflow/core/lib/gtl/cleanup.h"
+#include "tensorflow_graphics/util/cleanup.h"
+
+template <typename T>
+class RasterizerWithContext;
 
 template <typename T>
 class Rasterizer {
  public:
-  ~Rasterizer();
+  virtual ~Rasterizer();
 
   // Creates a Rasterizer holding a valid OpenGL program and render buffers.
   //
@@ -82,7 +85,7 @@ class Rasterizer {
   // Returns:
   //   A boolean set to false if any error occured during the process, and set
   //   to true otherwise.
-  bool Render(int num_points, absl::Span<T> result);
+  virtual bool Render(int num_points, absl::Span<T> result);
 
   // Uploads data to a shader storage buffer.
   //
@@ -95,7 +98,7 @@ class Rasterizer {
   //   to true otherwise.
   template <typename S>
   bool SetShaderStorageBuffer(const std::string& name,
-                              absl::Span<const S> data);
+                                      absl::Span<const S> data);
 
   // Specifies the value of a uniform matrix.
   //
@@ -112,8 +115,9 @@ class Rasterizer {
   // Returns:
   //   A boolean set to false if any error occured during the process, and set
   //   to true otherwise.
-  bool SetUniformMatrix(const std::string& name, int num_columns, int num_rows,
-                        bool transpose, absl::Span<const float> matrix);
+  virtual bool SetUniformMatrix(const std::string& name, int num_columns,
+                                int num_rows, bool transpose,
+                                absl::Span<const float> matrix);
 
  private:
   Rasterizer() = delete;
@@ -124,6 +128,7 @@ class Rasterizer {
   Rasterizer(Rasterizer&&) = delete;
   Rasterizer& operator=(const Rasterizer&) = delete;
   Rasterizer& operator=(Rasterizer&&) = delete;
+  void Reset();
 
   std::unique_ptr<gl_utils::Program> program_;
   std::unique_ptr<gl_utils::RenderTargets<T>> render_targets_;
@@ -131,6 +136,8 @@ class Rasterizer {
                      std::unique_ptr<gl_utils::ShaderStorageBuffer>>
       shader_storage_buffers_;
   float clear_r_, clear_g_, clear_b_, clear_depth_;
+
+  friend class RasterizerWithContext<T>;
 };
 
 template <typename T>
@@ -205,12 +212,11 @@ bool Rasterizer<T>::Render(int num_points, absl::Span<T> result) {
   // Bind the program after the last call to SetUniform, since
   // SetUniform binds program 0.
   TFG_RETURN_FALSE_IF_ERROR(program_->Use());
-  auto program_cleanup =
-      tensorflow::gtl::MakeCleanup([this]() { program_->Detach(); });
+  auto program_cleanup = MakeCleanup([this]() { program_->Detach(); });
 
   TFG_RETURN_FALSE_IF_ERROR(render_targets_->BindFramebuffer());
-  auto framebuffer_cleanup = tensorflow::gtl::MakeCleanup(
-      [this]() { render_targets_->UnbindFrameBuffer(); });
+  auto framebuffer_cleanup =
+      MakeCleanup([this]() { render_targets_->UnbindFrameBuffer(); });
 
   TFG_RETURN_FALSE_IF_GL_ERROR(glViewport(0, 0, render_targets_->GetWidth(),
                                           render_targets_->GetHeight()));
@@ -224,6 +230,13 @@ bool Rasterizer<T>::Render(int num_points, absl::Span<T> result) {
 
   // The program and framebuffer and released here.
   return true;
+}
+
+template <typename T>
+void Rasterizer<T>::Reset() {
+  program_.reset();
+  render_targets_.reset();
+  for (auto&& buffer : shader_storage_buffers_) buffer.second.reset();
 }
 
 template <typename T>
@@ -287,8 +300,7 @@ bool Rasterizer<T>::SetUniformMatrix(const std::string& name, int num_columns,
       name, GL_UNIFORM, 1, &property, 1, &uniform_location));
 
   TFG_RETURN_FALSE_IF_ERROR(program_->Use());
-  auto program_cleanup =
-      tensorflow::gtl::MakeCleanup([this]() { program_->Detach(); });
+  auto program_cleanup = MakeCleanup([this]() { program_->Detach(); });
 
   // Specify the value of the uniform in the current program.
   TFG_RETURN_FALSE_IF_GL_ERROR(std::get<2>(type_info->second)(
