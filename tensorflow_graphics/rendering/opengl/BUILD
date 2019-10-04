@@ -35,12 +35,27 @@ py_library(
 )
 
 cc_library(
+    name = "EGL_headers",
+    hdrs = [
+        "EGL/egl.h",
+        "EGL/eglext.h",
+        "EGL/eglplatform.h",
+        "KHR/khrplatform.h",
+    ],
+    defines = ["USE_OZONE"],
+    features = [
+        "-parse_headers",
+    ],
+    includes = ["."],
+)
+
+cc_library(
     name = "egl_offscreen_context",
     srcs = ["egl_offscreen_context.cc"],
     hdrs = ["egl_offscreen_context.h"],
     deps = [
+        ":EGL_headers",
         ":gl_macros",
-        "//third_party/GL:EGL_headers",
         "//third_party/GL/util:egl_util",
         "//third_party/tensorflow/core:lib",
     ],
@@ -65,7 +80,7 @@ cc_library(
     name = "gl_macros",
     hdrs = ["gl_macros.h"],
     deps = [
-        "//third_party/GL:EGL_headers",
+        ":EGL_headers",
         "//third_party/GL:GLES3_headers",
         "@com_google_absl//absl/strings",
     ],
