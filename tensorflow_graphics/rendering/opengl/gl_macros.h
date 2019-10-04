@@ -17,7 +17,7 @@ limitations under the License.
 
 #include <iostream>
 
-#include "GL/gl/include/GLES3/gl32.h"
+#include <GLES3/gl32.h>
 #include "absl/strings/str_cat.h"
 
 #define RETURN_FALSE_IF_GL_ERROR(gl_statement)                        \
@@ -26,7 +26,7 @@ limitations under the License.
     auto error = glGetError();                                        \
     if (error != GL_NO_ERROR) {                                       \
       std::cerr << absl::StrCat("GL ERROR: 0x",                       \
-                                absl::Hex(error, ::absl::ZERO_PAD_4)) \
+                                absl::Hex(error, absl::kZeroPad4)) \
                 << std::endl;                                         \
       return false;                                                   \
     }                                                                 \
@@ -38,7 +38,7 @@ limitations under the License.
     auto error = eglGetError();                                       \
     if (error != EGL_SUCCESS) {                                       \
       std::cerr << absl::StrCat("EGL ERROR: 0x",                      \
-                                absl::Hex(error, ::absl::ZERO_PAD_4)) \
+                                absl::Hex(error, absl::kZeroPad4)) \
                 << std::endl;                                         \
       return false;                                                   \
     }                                                                 \

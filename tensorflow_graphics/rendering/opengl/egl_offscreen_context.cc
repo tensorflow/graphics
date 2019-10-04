@@ -18,7 +18,7 @@ limitations under the License.
 
 #include "tensorflow_graphics/rendering/opengl/egl_util.h"
 #include "tensorflow_graphics/rendering/opengl/gl_macros.h"
-#include "tensorflow/core/lib/gtl/cleanup.h"
+#include "tensorflow_graphics/util/cleanup.h"
 
 EGLOffscreenContext::EGLOffscreenContext(EGLContext context, EGLDisplay display,
                                          EGLSurface pixel_buffer_surface)
@@ -64,7 +64,7 @@ bool EGLOffscreenContext::Create(
   // Create an EGL display at device index 0.
   display = CreateInitializedEGLDisplay();
   if (display == EGL_NO_DISPLAY) return false;
-  auto initialize_cleanup = tensorflow::gtl::MakeCleanup(
+  auto initialize_cleanup = MakeCleanup(
       [display]() { TerminateInitializedEGLDisplay(display); });
 
   // Set the current rendering API.
@@ -92,7 +92,7 @@ bool EGLOffscreenContext::Create(
           display, frame_buffer_configuration, pixel_buffer_attributes));
   if (pixel_buffer_surface == EGL_NO_SURFACE) return false;
   auto surface_cleanup =
-      tensorflow::gtl::MakeCleanup([display, pixel_buffer_surface]() {
+      MakeCleanup([display, pixel_buffer_surface]() {
         eglDestroySurface(display, pixel_buffer_surface);
       });
 

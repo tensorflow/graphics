@@ -17,9 +17,8 @@ limitations under the License.
 #include <memory>
 #include <string>
 
-#include "testing/base/public/gmock.h"
 #include "gtest/gtest.h"
-#include "GL/gl/include/GLES3/gl32.h"
+#include <GLES3/gl32.h>
 #include "absl/types/span.h"
 #include "tensorflow_graphics/rendering/opengl/egl_offscreen_context.h"
 
@@ -79,7 +78,7 @@ TEST(GLUtilsTest, TestCreateProgram) {
 
 template <typename T>
 class RenderTargetsInterfaceTest : public ::testing::Test {};
-using valid_render_target_types = ::testing::Types<float, uint8>;
+using valid_render_target_types = ::testing::Types<float, unsigned char>;
 TYPED_TEST_CASE(RenderTargetsInterfaceTest, valid_render_target_types);
 
 TYPED_TEST(RenderTargetsInterfaceTest, TestRenderClear) {

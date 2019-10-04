@@ -22,10 +22,10 @@ limitations under the License.
 #include <typeinfo>
 #include <vector>
 
-#include "GL/gl/include/GLES3/gl32.h"
+#include <GLES3/gl32.h>
 #include "absl/types/span.h"
 #include "tensorflow_graphics/rendering/opengl/gl_macros.h"
-#include "tensorflow/core/lib/gtl/cleanup.h"
+#include "tensorflow_graphics/util/cleanup.h"
 
 namespace gl_utils {
 
@@ -70,7 +70,7 @@ class Program {
   // Returns:
   //   A boolean set to false if any error occured during the process, and set
   //   to true otherwise.
-  static bool CompileShader(const string& shader_code,
+  static bool CompileShader(const std::string& shader_code,
                             const GLenum& shader_type, GLuint* shader_idx);
 
   GLuint program_handle_;
@@ -78,7 +78,7 @@ class Program {
 
 // Class that creates a frame buffer to which a depth render buffer, and a color
 // render and bound to. The template type correspond to the data type stored in
-// the color render buffer. The supported template types are float and uint8.
+// the color render buffer. The supported template types are float and unsigned char.
 template <typename T>
 class RenderTargets {
  public:
@@ -163,9 +163,9 @@ bool RenderTargets<T>::Create(
 }
 
 template <>
-inline bool RenderTargets<uint8>::Create(
+inline bool RenderTargets<unsigned char>::Create(
     GLsizei width, GLsizei height,
-    std::unique_ptr<RenderTargets<uint8>>* render_targets) {
+    std::unique_ptr<RenderTargets<unsigned char>>* render_targets) {
   return CreateValidInternalFormat(GL_RGBA8, width, height, render_targets);
 }
 
@@ -186,7 +186,7 @@ bool RenderTargets<T>::CreateValidInternalFormat(
 
   // Generate one render buffer for color.
   RETURN_FALSE_IF_GL_ERROR(glGenRenderbuffers(1, &color_buffer));
-  auto gen_color_cleanup = tensorflow::gtl::MakeCleanup(
+  auto gen_color_cleanup = MakeCleanup(
       [color_buffer]() { glDeleteFramebuffers(1, &color_buffer); });
   // Bind the color buffer.
   RETURN_FALSE_IF_GL_ERROR(glBindRenderbuffer(GL_RENDERBUFFER, color_buffer));
@@ -197,7 +197,7 @@ bool RenderTargets<T>::CreateValidInternalFormat(
 
   // Generate one render buffer for depth.
   RETURN_FALSE_IF_GL_ERROR(glGenRenderbuffers(1, &depth_buffer));
-  auto gen_depth_cleanup = tensorflow::gtl::MakeCleanup(
+  auto gen_depth_cleanup = MakeCleanup(
       [depth_buffer]() { glDeleteFramebuffers(1, &depth_buffer); });
   // Bind the depth buffer.
   RETURN_FALSE_IF_GL_ERROR(glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer));
@@ -208,7 +208,7 @@ bool RenderTargets<T>::CreateValidInternalFormat(
 
   // Generate one frame buffer.
   RETURN_FALSE_IF_GL_ERROR(glGenFramebuffers(1, &frame_buffer));
-  auto gen_frame_cleanup = tensorflow::gtl::MakeCleanup(
+  auto gen_frame_cleanup = MakeCleanup(
       [frame_buffer]() { glDeleteFramebuffers(1, &frame_buffer); });
   // Bind the frame buffer to both read and draw frame buffer targets.
   RETURN_FALSE_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer));
@@ -251,14 +251,14 @@ inline bool RenderTargets<float>::ReadPixels(absl::Span<float> buffer) const {
 }
 
 template <>
-inline bool RenderTargets<uint8>::ReadPixels(absl::Span<uint8> buffer) const {
+inline bool RenderTargets<unsigned char>::ReadPixels(absl::Span<unsigned char> buffer) const {
   return ReadPixelsValidPixelType(buffer, GL_UNSIGNED_BYTE);
 }
 
 template <typename T>
 bool RenderTargets<T>::ReadPixelsValidPixelType(absl::Span<T> buffer,
                                                 GLenum pixel_type) const {
-  if (buffer.size() != width_ * height_ * 4) {
+  if (buffer.size() != size_t(width_ * height_ * 4)) {
     std::cerr << "Buffer size is not equal to width * height * 4" << std::endl;
     return false;
   }
@@ -295,7 +295,7 @@ template <typename T>
 bool ShaderStorageBuffer::Upload(absl::Span<T> data) const {
   // Bind the buffer to the read/write storage for shaders.
   RETURN_FALSE_IF_GL_ERROR(glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer_));
-  auto bind_cleanup = tensorflow::gtl::MakeCleanup(
+  auto bind_cleanup = MakeCleanup(
       []() { glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); });
   // Create a new data store for the bound buffer and initializes it with the
   // input data.

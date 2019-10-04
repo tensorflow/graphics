@@ -57,7 +57,7 @@ cc_library(
         ":EGL_headers",
         ":egl_util",
         ":gl_macros",
-        "//third_party/tensorflow/core:lib",
+        "//tensorflow_graphics/util:cleanup",
     ],
 )
 
@@ -71,7 +71,6 @@ cc_test(
     deps = [
         ":egl_offscreen_context",
         ":gl_native_libs",
-        "//third_party/GL:GLES3_headers",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -101,16 +100,15 @@ cc_library(
     hdrs = ["gl_macros.h"],
     deps = [
         ":EGL_headers",
-        "//third_party/GL:GLES3_headers",
         "@com_google_absl//absl/strings",
     ],
 )
 
 cc_library(
     name = "gl_native_libs",
-    deps = [
-        "//third_party/GL/native:EGL",  # buildcleaner: keep
-        "//third_party/GL/native:GLESv3",  # buildcleaner: keep
+    linkopts = [
+        "-lEGL",
+        "-lGLESv2",
     ],
     alwayslink = 1,
 )
@@ -121,8 +119,7 @@ cc_library(
     hdrs = ["gl_utils.h"],
     deps = [
         ":gl_macros",
-        "//third_party/GL:GLES3_headers",
-        "//third_party/tensorflow/core:lib",
+        "//tensorflow_graphics/util:cleanup",
         "@com_google_absl//absl/types:span",
     ],
 )
@@ -138,7 +135,6 @@ cc_test(
         ":egl_offscreen_context",
         ":gl_native_libs",
         ":gl_utils",
-        "//third_party/GL:GLES3_headers",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_main",
     ],

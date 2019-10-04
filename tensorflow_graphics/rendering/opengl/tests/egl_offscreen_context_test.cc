@@ -14,9 +14,8 @@ limitations under the License.
 ==============================================================================*/
 #include "tensorflow_graphics/rendering/opengl/egl_offscreen_context.h"
 
-#include "testing/base/public/gmock.h"
 #include "gtest/gtest.h"
-#include "GL/gl/include/GLES3/gl32.h"
+#include <GLES3/gl32.h>
 
 namespace {
 
@@ -52,7 +51,7 @@ TEST(EglOffscreenContextTest, TestRenderClear) {
   const float kAlpha = 1.0;
   const int kWidth = 10;
   const int kHeight = 5;
-  std::vector<uint8> pixels(kWidth * kHeight * 4);
+  std::vector<unsigned char> pixels(kWidth * kHeight * 4);
 
   EXPECT_TRUE(EGLOffscreenContext::Create(kWidth, kHeight, &context));
   EXPECT_TRUE(context->MakeCurrent());
@@ -63,10 +62,10 @@ TEST(EglOffscreenContextTest, TestRenderClear) {
   ASSERT_EQ(glGetError(), GL_NO_ERROR);
 
   for (int index = 0; index < kWidth * kHeight; ++index) {
-    ASSERT_EQ(pixels[index * 4], uint8(kRed * 255.0));
-    ASSERT_EQ(pixels[index * 4 + 1], uint8(kGreen * 255.0));
-    ASSERT_EQ(pixels[index * 4 + 2], uint8(kBlue * 255.0));
-    ASSERT_EQ(pixels[index * 4 + 3], uint8(kAlpha * 255.0));
+    ASSERT_EQ(pixels[index * 4], (unsigned char)(kRed * 255.0));
+    ASSERT_EQ(pixels[index * 4 + 1], (unsigned char)(kGreen * 255.0));
+    ASSERT_EQ(pixels[index * 4 + 2], (unsigned char)(kBlue * 255.0));
+    ASSERT_EQ(pixels[index * 4 + 3], (unsigned char)(kAlpha * 255.0));
   }
   EXPECT_TRUE(context->Release());
 }

@@ -17,7 +17,7 @@ limitations under the License.
 #include <memory>
 
 #include "tensorflow_graphics/rendering/opengl/gl_macros.h"
-#include "tensorflow/core/lib/gtl/cleanup.h"
+#include "tensorflow_graphics/util/cleanup.h"
 
 namespace gl_utils {
 
@@ -25,7 +25,7 @@ Program::Program(GLuint program_handle) : program_handle_(program_handle) {}
 
 Program::~Program() { glDeleteProgram(program_handle_); }
 
-bool Program::CompileShader(const string& shader_code,
+bool Program::CompileShader(const std::string& shader_code,
                             const GLenum& shader_type, GLuint* shader_idx) {
   // Create an empty shader object.
   RETURN_FALSE_IF_GL_ERROR(*shader_idx = glCreateShader(shader_type));
@@ -33,7 +33,7 @@ bool Program::CompileShader(const string& shader_code,
     std::cerr << "Error while creating the shader object." << std::endl;
     return false;
   }
-  auto shader_cleanup = tensorflow::gtl::MakeCleanup(
+  auto shader_cleanup = MakeCleanup(
       [shader_idx]() { glDeleteShader(*shader_idx); });
 
   // Set the source code in the shader object.
@@ -75,11 +75,11 @@ bool Program::Create(const std::vector<std::pair<std::string, GLenum>>& shaders,
     std::cerr << "Error while creating the program object." << std::endl;
     return false;
   }
-  auto program_cleanup = tensorflow::gtl::MakeCleanup(
+  auto program_cleanup = MakeCleanup(
       [program_handle]() { glDeleteProgram(program_handle); });
 
   // Compile and attach the input shaders to the program.
-  std::vector<tensorflow::gtl::Cleanup<std::function<void()>>> shader_cleanups;
+  std::vector<Cleanup<std::function<void()>>> shader_cleanups;
   for (auto shader : shaders) {
     GLuint shader_idx;
     if (CompileShader(shader.first, shader.second, &shader_idx) == false)
@@ -87,13 +87,13 @@ bool Program::Create(const std::vector<std::pair<std::string, GLenum>>& shaders,
     std::function<void()> compile_cleanup = [shader_idx]() {
       glDeleteShader(shader_idx);
     };
-    shader_cleanups.push_back(tensorflow::gtl::MakeCleanup(compile_cleanup));
+    shader_cleanups.push_back(MakeCleanup(compile_cleanup));
 
     RETURN_FALSE_IF_GL_ERROR(glAttachShader(program_handle, shader_idx));
     std::function<void()> attach_cleanup = [program_handle, shader_idx]() {
       glDetachShader(program_handle, shader_idx);
     };
-    shader_cleanups.push_back(tensorflow::gtl::MakeCleanup(attach_cleanup));
+    shader_cleanups.push_back(MakeCleanup(attach_cleanup));
   }
 
   // Link the program to the executable that will run on the programmable
