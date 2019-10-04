@@ -16,8 +16,8 @@ limitations under the License.
 
 #include <array>
 #include <memory>
+#include <thread>
 
-#include "pthread.h"  // NOLINT(build/include)
 #include "gtest/gtest.h"
 
 namespace {
@@ -33,6 +33,7 @@ class DummyClass {
 
   int GetValue() { return value_; }
   void SetValue(int value) { value_ = value; }
+  static void ResetCounter(){ counter_ = 0; }
 
  private:
   static int counter_;
@@ -47,11 +48,11 @@ static bool dummy_resource_creator(std::unique_ptr<DummyClass> *resource) {
 }
 
 TEST(ThreadSafeResourcePoolTest, TestSingleThread) {
+  DummyClass::ResetCounter();
   constexpr int kPoolSize = 1;
   auto resource_pool = std::unique_ptr<ThreadSafeResourcePool<DummyClass>>(
       new ThreadSafeResourcePool<DummyClass>(dummy_resource_creator,
                                              kPoolSize));
-
   {
     std::unique_ptr<DummyClass> local_resource;
     EXPECT_TRUE(resource_pool->AcquireResource(&local_resource));
@@ -66,6 +67,7 @@ TEST(ThreadSafeResourcePoolTest, TestSingleThread) {
 
 TEST(ThreadSafeResourcePoolTest, TestPoolSize) {
   // we can acquire resource, return it and find the expected state.
+  DummyClass::ResetCounter();
   constexpr int kPoolSize = 1;
   auto resource_pool = std::unique_ptr<ThreadSafeResourcePool<DummyClass>>(
       new ThreadSafeResourcePool<DummyClass>(dummy_resource_creator,
@@ -86,53 +88,28 @@ TEST(ThreadSafeResourcePoolTest, TestPoolSize) {
   EXPECT_EQ(resource->GetValue(), 1);
 }
 
-class MemberRoutineWrapper {
- public:
-  MemberRoutineWrapper(
-      std::shared_ptr<ThreadSafeResourcePool<DummyClass>> resource_pool,
-      std::unique_ptr<DummyClass> *resource)
-      : resource_pool_(resource_pool), resource_(resource) {}
-
-  void *wrapped_routine() {
-    resource_pool_->AcquireResource(resource_);
-    return nullptr;
-  }
-
-  std::shared_ptr<ThreadSafeResourcePool<DummyClass>> resource_pool_;
-  std::unique_ptr<DummyClass> *resource_;
-};
-
-void *StartMemberRoutineWrapper(void *instance) {
-  MemberRoutineWrapper *routine_wrapper =
-      reinterpret_cast<MemberRoutineWrapper *>(instance);
-  return routine_wrapper->wrapped_routine();
-}
-
 TEST(ThreadSafeResourcePoolTest, TestMultiThread) {
+  DummyClass::ResetCounter();
   constexpr int kPoolSize = 1;
   auto resource_pool = std::shared_ptr<ThreadSafeResourcePool<DummyClass>>(
       new ThreadSafeResourcePool<DummyClass>(dummy_resource_creator,
                                              kPoolSize));
-  constexpr int kNumThreads = 100;
-  std::array<pthread_t, kNumThreads> threads;
+  constexpr int kNumThreads = 50;
+  std::array<std::thread, kNumThreads> threads;
   std::array<std::unique_ptr<DummyClass>, kNumThreads> local_resources;
-  std::array<MemberRoutineWrapper *, kNumThreads> wrappers;
 
   // Launch all the threads.
   for (int i = 0; i < kNumThreads; ++i) {
-    wrappers[i] =
-        new MemberRoutineWrapper(resource_pool, &(local_resources[i]));
-    EXPECT_EQ(0, pthread_create(&threads[i], NULL, StartMemberRoutineWrapper,
-                                wrappers[i]));
+    threads[i] =
+        std::thread(&ThreadSafeResourcePool<DummyClass>::AcquireResource, resource_pool, &local_resources[i]);
   }
 
   // Wait for each thread to be done and check the value contained in the
   // resource.
   for (int i = 0; i < kNumThreads; ++i) {
-    pthread_join(threads[i], NULL);
+    threads[i].join();
     EXPECT_EQ(local_resources[i]->GetValue() % kDummyIncrements, 0);
     resource_pool->ReturnResource(local_resources[i]);
-    delete wrappers[i];
   }
 
   // Check that we can re-acquire a previously created resource.
