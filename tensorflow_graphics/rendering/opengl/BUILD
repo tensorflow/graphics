@@ -117,9 +117,11 @@ cc_library(
     name = "gl_utils",
     srcs = ["gl_utils.cc"],
     hdrs = ["gl_utils.h"],
+    visibility = ["//visibility:private"],
     deps = [
         ":gl_macros",
         "//tensorflow_graphics/util:cleanup",
+        "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
     ],
 )
@@ -172,6 +174,31 @@ py_test(
         # google internal package dependency 6
         # google internal package dependency 1,
         "//tensorflow_graphics/util:test_case",
+    ],
+)
+
+cc_library(
+    name = "rasterizer",
+    hdrs = ["rasterizer.h"],
+    deps = [
+        ":gl_utils",
+        "//third_party/tensorflow/core:lib",
+    ],
+)
+
+cc_test(
+    name = "rasterizer_test",
+    srcs = ["tests/rasterizer_test.cc"],
+    tags = [
+        "nomsan",  # Un-initialized values in libEGL.
+        "requires-gpu-sm35",
+    ],
+    deps = [
+        ":egl_offscreen_context",
+        ":gl_native_libs",
+        ":rasterizer",
+        "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 

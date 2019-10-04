@@ -52,23 +52,49 @@ EGLOffscreenContext::~EGLOffscreenContext() {
 }
 
 bool EGLOffscreenContext::Create(
-    const int pixel_buffer_width, const int pixel_buffer_height,
-    std::unique_ptr<EGLOffscreenContext>* egl_offscreen_context,
-    const EGLenum rendering_api, const EGLint* configuration_attributes,
-    const EGLint* context_attributes) {
-  EGLBoolean success;
-  EGLContext context;
-  EGLDisplay display;
-  EGLSurface pixel_buffer_surface;
+    std::unique_ptr<EGLOffscreenContext>* egl_offscreen_context) {
+  constexpr std::array kDefaultConfigurationAttributes = {
+      EGL_SURFACE_TYPE,
+      EGL_PBUFFER_BIT,
+      EGL_RENDERABLE_TYPE,
+      EGL_OPENGL_ES2_BIT,
+      EGL_BLUE_SIZE,
+      8,
+      EGL_GREEN_SIZE,
+      8,
+      EGL_RED_SIZE,
+      8,
+      EGL_DEPTH_SIZE,
+      24,
+      EGL_NONE  // The array must be terminated with that value.
+  };
+  constexpr std::array kDefaultContextAttributes = {
+      EGL_CONTEXT_CLIENT_VERSION,
+      2,
+      EGL_NONE,
+  };
 
+  return Create(0, 0, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
+                kDefaultContextAttributes.data(), egl_offscreen_context);
+}
+
+bool EGLOffscreenContext::Create(
+    const int pixel_buffer_width, const int pixel_buffer_height,
+    const EGLenum rendering_api, const EGLint* configuration_attributes,
+    const EGLint* context_attributes,
+    std::unique_ptr<EGLOffscreenContext>* egl_offscreen_context) {
   // Create an EGL display at device index 0.
+  EGLDisplay display;
+
   display = CreateInitializedEGLDisplay();
   if (display == EGL_NO_DISPLAY) return false;
   auto initialize_cleanup = MakeCleanup(
       [display]() { TerminateInitializedEGLDisplay(display); });
 
   // Set the current rendering API.
-  RETURN_FALSE_IF_EGL_ERROR(success = eglBindAPI(rendering_api));
+  EGLBoolean success;
+
+  TFG_RETURN_FALSE_IF_EGL_ERROR(success = eglBindAPI(rendering_api));
   if (success == false) return false;
 
   // Build a frame buffer configuration.
@@ -76,7 +102,7 @@ bool EGLOffscreenContext::Create(
   EGLint returned_num_configs;
   const EGLint kRequestedNumConfigs = 1;
 
-  RETURN_FALSE_IF_EGL_ERROR(
+  TFG_RETURN_FALSE_IF_EGL_ERROR(
       success = eglChooseConfig(display, configuration_attributes,
                                 &frame_buffer_configuration,
                                 kRequestedNumConfigs, &returned_num_configs));
@@ -86,8 +112,9 @@ bool EGLOffscreenContext::Create(
   EGLint pixel_buffer_attributes[] = {
       EGL_WIDTH, pixel_buffer_width, EGL_HEIGHT, pixel_buffer_height, EGL_NONE,
   };
+  EGLSurface pixel_buffer_surface;
 
-  RETURN_FALSE_IF_EGL_ERROR(
+  TFG_RETURN_FALSE_IF_EGL_ERROR(
       pixel_buffer_surface = eglCreatePbufferSurface(
           display, frame_buffer_configuration, pixel_buffer_attributes));
   if (pixel_buffer_surface == EGL_NO_SURFACE) return false;
@@ -97,7 +124,9 @@ bool EGLOffscreenContext::Create(
       });
 
   // Create the EGL rendering context.
-  RETURN_FALSE_IF_EGL_ERROR(
+  EGLContext context;
+
+  TFG_RETURN_FALSE_IF_EGL_ERROR(
       context = eglCreateContext(display, frame_buffer_configuration,
                                  EGL_NO_CONTEXT, context_attributes));
   if (context == EGL_NO_CONTEXT) return false;
@@ -110,14 +139,14 @@ bool EGLOffscreenContext::Create(
 }
 
 bool EGLOffscreenContext::MakeCurrent() const {
-  RETURN_FALSE_IF_EGL_ERROR(eglMakeCurrent(display_, pixel_buffer_surface_,
-                                           pixel_buffer_surface_, context_));
+  TFG_RETURN_FALSE_IF_EGL_ERROR(eglMakeCurrent(
+      display_, pixel_buffer_surface_, pixel_buffer_surface_, context_));
   return true;
 }
 
 bool EGLOffscreenContext::Release() {
   if (context_ != EGL_NO_CONTEXT && context_ == eglGetCurrentContext())
-    RETURN_FALSE_IF_EGL_ERROR(eglMakeCurrent(display_, EGL_NO_SURFACE,
-                                             EGL_NO_SURFACE, EGL_NO_CONTEXT));
+    TFG_RETURN_FALSE_IF_EGL_ERROR(eglMakeCurrent(
+        display_, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
   return true;
 }

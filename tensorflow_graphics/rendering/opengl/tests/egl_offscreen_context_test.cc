@@ -19,18 +19,46 @@ limitations under the License.
 
 namespace {
 
+static constexpr std::array kDefaultConfigurationAttributes = {
+    EGL_SURFACE_TYPE,
+    EGL_PBUFFER_BIT,
+    EGL_RENDERABLE_TYPE,
+    EGL_OPENGL_ES2_BIT,
+    EGL_BLUE_SIZE,
+    8,
+    EGL_GREEN_SIZE,
+    8,
+    EGL_RED_SIZE,
+    8,
+    EGL_DEPTH_SIZE,
+    24,
+    EGL_NONE  // The array must be terminated with that value.
+};
+
+static constexpr std::array kDefaultContextAttributes = {
+    EGL_CONTEXT_CLIENT_VERSION,
+    2,
+    EGL_NONE,
+};
+
 TEST(EglOffscreenContextTest, TestCreate) {
   std::unique_ptr<EGLOffscreenContext> context;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(800, 600, &context));
+  EXPECT_TRUE(EGLOffscreenContext::Create(
+      800, 600, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
+      kDefaultContextAttributes.data(), &context));
 }
 
 TEST(EglOffscreenContextTest, TestMakeCurrentWorks) {
   std::unique_ptr<EGLOffscreenContext> context1;
   std::unique_ptr<EGLOffscreenContext> context2;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(800, 600, &context1));
-  EXPECT_TRUE(EGLOffscreenContext::Create(400, 100, &context2));
+  EXPECT_TRUE(EGLOffscreenContext::Create(
+      800, 600, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
+      kDefaultContextAttributes.data(), &context1));
+  EXPECT_TRUE(EGLOffscreenContext::Create(
+      400, 100, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
+      kDefaultContextAttributes.data(), &context2));
   EXPECT_TRUE(context1->MakeCurrent());
   EXPECT_TRUE(context2->MakeCurrent());
 }
@@ -38,7 +66,9 @@ TEST(EglOffscreenContextTest, TestMakeCurrentWorks) {
 TEST(EglOffscreenContextTest, TestRelease) {
   std::unique_ptr<EGLOffscreenContext> context;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(800, 600, &context));
+  EXPECT_TRUE(EGLOffscreenContext::Create(
+      800, 600, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
+      kDefaultContextAttributes.data(), &context));
   EXPECT_TRUE(context->MakeCurrent());
   EXPECT_TRUE(context->Release());
 }
@@ -53,7 +83,9 @@ TEST(EglOffscreenContextTest, TestRenderClear) {
   const int kHeight = 5;
   std::vector<unsigned char> pixels(kWidth * kHeight * 4);
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(kWidth, kHeight, &context));
+  EXPECT_TRUE(EGLOffscreenContext::Create(
+      kWidth, kHeight, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
+      kDefaultContextAttributes.data(), &context));
   EXPECT_TRUE(context->MakeCurrent());
   glClearColor(kRed, kGreen, kBlue, kAlpha);
   glClear(GL_COLOR_BUFFER_BIT);

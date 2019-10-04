@@ -20,7 +20,12 @@ limitations under the License.
 #include <GLES3/gl32.h>
 #include "absl/strings/str_cat.h"
 
-#define RETURN_FALSE_IF_GL_ERROR(gl_statement)                        \
+#define TFG_RETURN_FALSE_IF_ERROR(status) \
+  do {                                    \
+    if ((status) == false) return false;  \
+  } while (false)
+
+#define TFG_RETURN_FALSE_IF_GL_ERROR(gl_statement)                    \
   do {                                                                \
     (gl_statement);                                                   \
     auto error = glGetError();                                        \
@@ -32,7 +37,7 @@ limitations under the License.
     }                                                                 \
   } while (false)
 
-#define RETURN_FALSE_IF_EGL_ERROR(egl_statement)                      \
+#define TFG_RETURN_FALSE_IF_EGL_ERROR(egl_statement)                  \
   do {                                                                \
     (egl_statement);                                                  \
     auto error = eglGetError();                                       \

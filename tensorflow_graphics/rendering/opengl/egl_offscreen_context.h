@@ -19,34 +19,25 @@ limitations under the License.
 
 #include <memory>
 
-static const EGLint kDefaultConfigurationAttributes[] = {
-    EGL_SURFACE_TYPE,
-    EGL_PBUFFER_BIT,
-    EGL_RENDERABLE_TYPE,
-    EGL_OPENGL_ES2_BIT,
-    EGL_BLUE_SIZE,
-    8,
-    EGL_GREEN_SIZE,
-    8,
-    EGL_RED_SIZE,
-    8,
-    EGL_DEPTH_SIZE,
-    24,
-    EGL_NONE  // The array must be terminated with that value.
-};
-
-static const EGLint kDefaultContextAttributes[] = {
-    EGL_CONTEXT_CLIENT_VERSION,
-    2,
-    EGL_NONE,
-};
-
 // EGL is an interface between OpenGL ES and the windowing system of the native
 // platform. The following class provides functionality to manage an EGL
 // off-screen contexts.
 class EGLOffscreenContext {
  public:
   ~EGLOffscreenContext();
+
+  // Creates an EGL display, pixel buffer surface, and context that can be used
+  // for rendering. These objects are created with default parameters
+  //
+  // Arguments:
+  // * egl_offscreen_context: if the method is successful, this object holds a
+  // valid offscreen context.
+  //
+  // Returns:
+  //   A boolean set to false if any error occured during the process, and set
+  //   to true otherwise.
+  static bool Create(
+      std::unique_ptr<EGLOffscreenContext>* egl_offscreen_context);
 
   // Creates an EGL display, pixel buffer surface, and context that can be used
   // for rendering.
@@ -62,16 +53,17 @@ class EGLOffscreenContext {
   // * rendering_api: defines the rendering API for the current thread. The
   //     available APIs are EGL_OPENGL_API, EGL_OPENGL_ES_API, and
   //     EGL_OPENVG_API.
+  // * egl_offscreen_context: if the method is successful, this object holds a
+  // valid offscreen context.
   //
   // Returns:
   //   A boolean set to false if any error occured during the process, and set
   //   to true otherwise.
   static bool Create(
       const int pixel_buffer_width, const int pixel_buffer_height,
-      std::unique_ptr<EGLOffscreenContext>* egl_offscreen_context,
-      const EGLenum rendering_api = EGL_OPENGL_API,
-      const EGLint* configuration_attributes = kDefaultConfigurationAttributes,
-      const EGLint* context_attributes = kDefaultContextAttributes);
+      const EGLenum rendering_api, const EGLint* configuration_attributes,
+      const EGLint* context_attributes,
+      std::unique_ptr<EGLOffscreenContext>* egl_offscreen_context);
 
   // Binds the EGL context to the current rendering thread and to the pixel
   // buffer surface. Note that this context must not be current in any other

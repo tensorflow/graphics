@@ -16,6 +16,7 @@ limitations under the License.
 
 #include <memory>
 
+#include "absl/strings/string_view.h"
 #include "tensorflow_graphics/rendering/opengl/gl_macros.h"
 #include "tensorflow_graphics/util/cleanup.h"
 
@@ -28,7 +29,7 @@ Program::~Program() { glDeleteProgram(program_handle_); }
 bool Program::CompileShader(const std::string& shader_code,
                             const GLenum& shader_type, GLuint* shader_idx) {
   // Create an empty shader object.
-  RETURN_FALSE_IF_GL_ERROR(*shader_idx = glCreateShader(shader_type));
+  TFG_RETURN_FALSE_IF_GL_ERROR(*shader_idx = glCreateShader(shader_type));
   if (*shader_idx == 0) {
     std::cerr << "Error while creating the shader object." << std::endl;
     return false;
@@ -38,24 +39,24 @@ bool Program::CompileShader(const std::string& shader_code,
 
   // Set the source code in the shader object.
   auto shader_code_c_str = shader_code.c_str();
-  RETURN_FALSE_IF_GL_ERROR(
+  TFG_RETURN_FALSE_IF_GL_ERROR(
       glShaderSource(*shader_idx, 1, &shader_code_c_str, nullptr));
 
   // Compile the shader.
-  RETURN_FALSE_IF_GL_ERROR(glCompileShader(*shader_idx));
+  TFG_RETURN_FALSE_IF_GL_ERROR(glCompileShader(*shader_idx));
 
   GLint compilation_status;
-  RETURN_FALSE_IF_GL_ERROR(
+  TFG_RETURN_FALSE_IF_GL_ERROR(
       glGetShaderiv(*shader_idx, GL_COMPILE_STATUS, &compilation_status));
   if (compilation_status != GL_TRUE) {
     GLsizei log_length;
-    RETURN_FALSE_IF_GL_ERROR(
+    TFG_RETURN_FALSE_IF_GL_ERROR(
         glGetShaderiv(*shader_idx, GL_INFO_LOG_LENGTH, &log_length));
 
     std::vector<char> info_log(log_length + 1);
-    RETURN_FALSE_IF_GL_ERROR(
+    TFG_RETURN_FALSE_IF_GL_ERROR(
         glGetShaderInfoLog(*shader_idx, log_length, nullptr, &info_log[0]));
-    RETURN_FALSE_IF_GL_ERROR(glDeleteShader(*shader_idx));
+    TFG_RETURN_FALSE_IF_GL_ERROR(glDeleteShader(*shader_idx));
 
     std::cerr << "Error while compiling the shader: "
               << std::string(&info_log[0]) << std::endl;
@@ -89,7 +90,7 @@ bool Program::Create(const std::vector<std::pair<std::string, GLenum>>& shaders,
     };
     shader_cleanups.push_back(MakeCleanup(compile_cleanup));
 
-    RETURN_FALSE_IF_GL_ERROR(glAttachShader(program_handle, shader_idx));
+    TFG_RETURN_FALSE_IF_GL_ERROR(glAttachShader(program_handle, shader_idx));
     std::function<void()> attach_cleanup = [program_handle, shader_idx]() {
       glDetachShader(program_handle, shader_idx);
     };
@@ -98,7 +99,7 @@ bool Program::Create(const std::vector<std::pair<std::string, GLenum>>& shaders,
 
   // Link the program to the executable that will run on the programmable
   // vertex/fragment processors.
-  RETURN_FALSE_IF_GL_ERROR(glLinkProgram(program_handle));
+  TFG_RETURN_FALSE_IF_GL_ERROR(glLinkProgram(program_handle));
   *program = std::unique_ptr<Program>(new Program(program_handle));
 
   program_cleanup.release();
@@ -107,10 +108,61 @@ bool Program::Create(const std::vector<std::pair<std::string, GLenum>>& shaders,
   return true;
 }
 
-GLuint Program::GetHandle() const { return program_handle_; }
+bool Program::GetProgramResourceIndex(GLenum program_interface,
+                                      absl::string_view resource_name,
+                                      GLuint* resource_index) const {
+  TFG_RETURN_FALSE_IF_GL_ERROR(*resource_index = glGetProgramResourceIndex(
+                                   program_handle_, program_interface,
+                                   resource_name.data()));
+  return true;
+}
 
-ShaderStorageBuffer::ShaderStorageBuffer(GLuint buffer)
-    : buffer_(buffer) {}
+bool Program::GetProgramResourceiv(GLenum program_interface,
+                                   GLuint resource_index, int num_properties,
+                                   const GLenum* properties,
+                                   int num_property_value, GLsizei* length,
+                                   GLint* property_value) const {
+  TFG_RETURN_FALSE_IF_GL_ERROR(glGetProgramResourceiv(
+      program_handle_, program_interface, resource_index, num_properties,
+      properties, num_property_value, length, property_value));
+  return true;
+}
+
+bool Program::GetResourceProperty(const std::string& resource_name,
+                                  GLenum program_interface, int num_properties,
+                                  const GLenum* properties,
+                                  int num_property_value,
+                                  GLint* property_value) {
+  if (num_property_value != num_properties) return false;
+
+  GLuint resource_index;
+  // Query the index of the named resource within the program.
+  TFG_RETURN_FALSE_IF_ERROR(GetProgramResourceIndex(
+      program_interface, resource_name, &resource_index));
+
+  // No resource is active under that name.
+  if (resource_index == GL_INVALID_INDEX) return false;
+
+  // Retrieve the value for the property.
+  GLsizei length;
+  TFG_RETURN_FALSE_IF_ERROR(GetProgramResourceiv(
+      program_interface, resource_index, num_properties, properties,
+      num_property_value, &length, property_value));
+  if (length != num_properties) return false;
+  return true;
+}
+
+bool Program::Use() const {
+  TFG_RETURN_FALSE_IF_GL_ERROR(glUseProgram(program_handle_));
+  return true;
+}
+
+bool Program::Detach() const {
+  TFG_RETURN_FALSE_IF_GL_ERROR(glUseProgram(0));
+  return true;
+}
+
+ShaderStorageBuffer::ShaderStorageBuffer(GLuint buffer) : buffer_(buffer) {}
 
 ShaderStorageBuffer::~ShaderStorageBuffer() { glDeleteBuffers(1, &buffer_); }
 
@@ -119,14 +171,14 @@ bool ShaderStorageBuffer::Create(
   GLuint buffer;
 
   // Generate one buffer object.
-  RETURN_FALSE_IF_GL_ERROR(glGenBuffers(1, &buffer));
+  TFG_RETURN_FALSE_IF_GL_ERROR(glGenBuffers(1, &buffer));
   *shader_storage_buffer =
       std::unique_ptr<ShaderStorageBuffer>(new ShaderStorageBuffer(buffer));
   return true;
 }
 
 bool ShaderStorageBuffer::BindBufferBase(GLuint index) const {
-  RETURN_FALSE_IF_GL_ERROR(
+  TFG_RETURN_FALSE_IF_GL_ERROR(
       glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer_));
   return true;
 }
