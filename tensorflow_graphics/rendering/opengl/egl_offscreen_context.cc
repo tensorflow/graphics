@@ -16,7 +16,7 @@ limitations under the License.
 
 #include <EGL/egl.h>
 
-#include "GL/util/egl_util.h"
+#include "tensorflow_graphics/rendering/opengl/egl_util.h"
 #include "tensorflow_graphics/rendering/opengl/gl_macros.h"
 #include "tensorflow/core/lib/gtl/cleanup.h"
 

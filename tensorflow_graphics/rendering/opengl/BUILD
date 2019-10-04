@@ -55,8 +55,8 @@ cc_library(
     hdrs = ["egl_offscreen_context.h"],
     deps = [
         ":EGL_headers",
+        ":egl_util",
         ":gl_macros",
-        "//third_party/GL/util:egl_util",
         "//third_party/tensorflow/core:lib",
     ],
 )
@@ -77,6 +77,26 @@ cc_test(
 )
 
 cc_library(
+    name = "egl_util",
+    srcs = ["egl_util.cc"],
+    hdrs = ["egl_util.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":EGL_headers",
+    ],
+)
+
+cc_test(
+    name = "egl_util_test",
+    srcs = ["egl_util_test.cc"],
+    deps = [
+        ":EGL_headers",
+        ":egl_util",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
     name = "gl_macros",
     hdrs = ["gl_macros.h"],
     deps = [
@@ -91,7 +111,6 @@ cc_library(
     deps = [
         "//third_party/GL/native:EGL",  # buildcleaner: keep
         "//third_party/GL/native:GLESv3",  # buildcleaner: keep
-        "//third_party/GL/native:nvidia_egl_device_isolation_mitigation",  # buildcleaner: keep
     ],
     alwayslink = 1,
 )
