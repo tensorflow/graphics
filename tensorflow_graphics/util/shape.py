@@ -367,7 +367,7 @@ def compare_dimensions(tensors, axes, tensor_names=None):
     tensor_names = _give_default_names(tensors, 'tensor')
   if not tf.executing_eagerly():
     dimensions = [
-        int(tensor.shape[axis]) if tensor.shape[axis].value is not None else 1
+        int(tensor.shape[axis]) if _get_dim(tensor,axis) is not None else 1
         for tensor, axis in zip(tensors, axes)
     ]
   else:
