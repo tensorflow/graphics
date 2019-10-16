@@ -16,9 +16,10 @@ limitations under the License.
 
 #include <vector>
 
-#include "testing/base/public/gmock.h"
 #include "gtest/gtest.h"
 #include "absl/types/span.h"
+#include "tensorflow/core/lib/core/status_test_util.h"
+
 #include "tensorflow_graphics/rendering/opengl/egl_offscreen_context.h"
 
 namespace {
@@ -104,9 +105,9 @@ TEST(RasterizerTest, TestCreate) {
   std::unique_ptr<EGLOffscreenContext> context;
   std::unique_ptr<Rasterizer<float>> rasterizer;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
-  EXPECT_TRUE(
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
+  TF_EXPECT_OK(
       (Rasterizer<float>::Create(3, 2, kEmptyShaderCode, kEmptyShaderCode,
                                  kEmptyShaderCode, &rasterizer)));
 }
@@ -115,9 +116,9 @@ TEST(RasterizerTest, TestSetShaderStorageBuffer) {
   std::unique_ptr<EGLOffscreenContext> context;
   std::unique_ptr<Rasterizer<float>> rasterizer;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
-  EXPECT_TRUE(
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
+  TF_ASSERT_OK(
       (Rasterizer<float>::Create(3, 2, kEmptyShaderCode, kEmptyShaderCode,
                                  kEmptyShaderCode, &rasterizer)));
 
@@ -125,7 +126,7 @@ TEST(RasterizerTest, TestSetShaderStorageBuffer) {
   std::array<const float, 9> geometry = {-1.0, 1.0, 1.0,  1.0, 1.0,
                                          1.0,  0.0, -1.0, 1.0};
   std::string buffer_name = "geometry";
-  EXPECT_TRUE(rasterizer->SetShaderStorageBuffer(buffer_name,
+  TF_EXPECT_OK(rasterizer->SetShaderStorageBuffer(buffer_name,
                                                  absl::MakeSpan(geometry)));
 }
 
@@ -133,16 +134,16 @@ TEST(RasterizerTest, TestSetUniformMatrix) {
   std::unique_ptr<EGLOffscreenContext> context;
   std::unique_ptr<Rasterizer<float>> rasterizer;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
-  EXPECT_TRUE(
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
+  TF_ASSERT_OK(
       (Rasterizer<float>::Create(3, 2, kEmptyShaderCode, kGeometryShaderCode,
                                  kFragmentShaderCode, &rasterizer)));
 
   const std::string resource_name = "view_projection_matrix";
   const std::vector<float> resource_value(16);
 
-  EXPECT_TRUE(
+  TF_EXPECT_OK(
       rasterizer->SetUniformMatrix(resource_name, 4, 4, false, resource_value));
 }
 
@@ -163,22 +164,22 @@ TYPED_TEST(RasterizerInterfaceTest, TestRender) {
 
   if (typeid(TypeParam) == typeid(float)) max_gl_value = 1.0f;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
-  EXPECT_TRUE((Rasterizer<TypeParam>::Create(
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
+  TF_ASSERT_OK((Rasterizer<TypeParam>::Create(
       kWidth, kHeight, kEmptyShaderCode, kGeometryShaderCode,
       kFragmentShaderCode, &rasterizer)));
-  EXPECT_TRUE(rasterizer->SetUniformMatrix("view_projection_matrix", 4, 4,
+  TF_ASSERT_OK(rasterizer->SetUniformMatrix("view_projection_matrix", 4, 4,
                                            false, kViewProjectionMatrix));
 
   std::vector<TypeParam> rendering_result(kWidth * kHeight * 4);
   for (float depth = 0.2; depth < 0.5; depth += 0.1) {
-    std::vector<const float> geometry = {-10.0, 10.0, depth, 10.0, 10.0,
-                                         depth, 0.0,  -10.0, depth};
-    EXPECT_TRUE(rasterizer->SetShaderStorageBuffer("triangular_mesh",
-                                                   absl::MakeSpan(geometry)));
+    std::vector<float> geometry = {-10.0, 10.0, depth, 10.0, 10.0,
+                                   depth, 0.0,  -10.0, depth};
+    TF_ASSERT_OK(rasterizer->SetShaderStorageBuffer(
+        "triangular_mesh", absl::MakeConstSpan(geometry)));
     const int kNumVertices = geometry.size() / 3;
-    EXPECT_TRUE(
+    TF_ASSERT_OK(
         rasterizer->Render(kNumVertices, absl::MakeSpan(rendering_result)));
 
     for (int i = 0; i < kWidth * kHeight; ++i) {

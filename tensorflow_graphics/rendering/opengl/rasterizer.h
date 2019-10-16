@@ -42,13 +42,13 @@ class Rasterizer {
   //   storing a ready to use rasterizer.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  static bool Create(const int width, const int height,
-                     const std::string& vertex_shader_source,
-                     const std::string& geometry_shader_source,
-                     const std::string& fragment_shader_source,
-                     std::unique_ptr<Rasterizer>* rasterizer);
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  static tensorflow::Status Create(const int width, const int height,
+                                   const std::string& vertex_shader_source,
+                                   const std::string& geometry_shader_source,
+                                   const std::string& fragment_shader_source,
+                                   std::unique_ptr<Rasterizer>* rasterizer);
 
   // Creates a Rasterizer holding a valid OpenGL program and render buffers.
   //
@@ -66,14 +66,15 @@ class Rasterizer {
   //   storing a ready to use rasterizer.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  static bool Create(const int width, const int height,
-                     const std::string& vertex_shader_source,
-                     const std::string& geometry_shader_source,
-                     const std::string& fragment_shader_source, float clear_r,
-                     float clear_g, float clear_b, float clear_depth,
-                     std::unique_ptr<Rasterizer>* rasterizer);
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  static tensorflow::Status Create(const int width, const int height,
+                                   const std::string& vertex_shader_source,
+                                   const std::string& geometry_shader_source,
+                                   const std::string& fragment_shader_source,
+                                   float clear_r, float clear_g, float clear_b,
+                                   float clear_depth,
+                                   std::unique_ptr<Rasterizer>* rasterizer);
 
   // Rasterizes the scenes.
   //
@@ -83,9 +84,9 @@ class Rasterizer {
   //   result.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  virtual bool Render(int num_points, absl::Span<T> result);
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  virtual tensorflow::Status Render(int num_points, absl::Span<T> result);
 
   // Uploads data to a shader storage buffer.
   //
@@ -94,11 +95,11 @@ class Rasterizer {
   // * data: data to upload to the shader storage buffer.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
   template <typename S>
-  bool SetShaderStorageBuffer(const std::string& name,
-                                      absl::Span<const S> data);
+  tensorflow::Status SetShaderStorageBuffer(const std::string& name,
+                                            absl::Span<const S> data);
 
   // Specifies the value of a uniform matrix.
   //
@@ -113,11 +114,12 @@ class Rasterizer {
   // * matrix: a buffer storing the matrix
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  virtual bool SetUniformMatrix(const std::string& name, int num_columns,
-                                int num_rows, bool transpose,
-                                absl::Span<const float> matrix);
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  virtual tensorflow::Status SetUniformMatrix(const std::string& name,
+                                              int num_columns, int num_rows,
+                                              bool transpose,
+                                              absl::Span<const float> matrix);
 
  private:
   Rasterizer() = delete;
@@ -156,23 +158,21 @@ template <typename T>
 Rasterizer<T>::~Rasterizer() {}
 
 template <typename T>
-bool Rasterizer<T>::Create(const int width, const int height,
-                           const std::string& vertex_shader_source,
-                           const std::string& geometry_shader_source,
-                           const std::string& fragment_shader_source,
-                           std::unique_ptr<Rasterizer>* rasterizer) {
+tensorflow::Status Rasterizer<T>::Create(
+    const int width, const int height, const std::string& vertex_shader_source,
+    const std::string& geometry_shader_source,
+    const std::string& fragment_shader_source,
+    std::unique_ptr<Rasterizer>* rasterizer) {
   return Create(width, height, vertex_shader_source, geometry_shader_source,
                 fragment_shader_source, 0.0, 0.0, 0.0, 1.0, rasterizer);
 }
 
 template <typename T>
-bool Rasterizer<T>::Create(const int width, const int height,
-                           const std::string& vertex_shader_source,
-                           const std::string& geometry_shader_source,
-                           const std::string& fragment_shader_source,
-                           float clear_r, float clear_g, float clear_b,
-                           float clear_depth,
-                           std::unique_ptr<Rasterizer>* rasterizer) {
+tensorflow::Status Rasterizer<T>::Create(
+    const int width, const int height, const std::string& vertex_shader_source,
+    const std::string& geometry_shader_source,
+    const std::string& fragment_shader_source, float clear_r, float clear_g,
+    float clear_b, float clear_depth, std::unique_ptr<Rasterizer>* rasterizer) {
   std::unique_ptr<gl_utils::Program> program;
   std::unique_ptr<gl_utils::RenderTargets<T>> render_targets;
   std::vector<std::pair<std::string, GLenum>> shaders = {
@@ -180,56 +180,56 @@ bool Rasterizer<T>::Create(const int width, const int height,
       {geometry_shader_source, GL_GEOMETRY_SHADER},
       {fragment_shader_source, GL_FRAGMENT_SHADER}};
 
-  TFG_RETURN_FALSE_IF_ERROR(gl_utils::Program::Create(shaders, &program));
-  TFG_RETURN_FALSE_IF_ERROR(
+  TF_RETURN_IF_ERROR(gl_utils::Program::Create(shaders, &program));
+  TF_RETURN_IF_ERROR(
       gl_utils::RenderTargets<T>::Create(width, height, &render_targets));
 
   *rasterizer = std::unique_ptr<Rasterizer>(
       new Rasterizer(std::move(program), std::move(render_targets), clear_r,
                      clear_g, clear_b, clear_depth));
-  return true;
+  return tensorflow::Status::OK();
 }
 
 template <typename T>
-bool Rasterizer<T>::Render(int num_points, absl::Span<T> result) {
+tensorflow::Status Rasterizer<T>::Render(int num_points, absl::Span<T> result) {
   const GLenum kProperty = GL_BUFFER_BINDING;
 
-  TFG_RETURN_FALSE_IF_GL_ERROR(glDisable(GL_BLEND));
-  TFG_RETURN_FALSE_IF_GL_ERROR(glEnable(GL_DEPTH_TEST));
-  TFG_RETURN_FALSE_IF_GL_ERROR(glDisable(GL_CULL_FACE));
+  TFG_RETURN_IF_GL_ERROR(glDisable(GL_BLEND));
+  TFG_RETURN_IF_GL_ERROR(glEnable(GL_DEPTH_TEST));
+  TFG_RETURN_IF_GL_ERROR(glDisable(GL_CULL_FACE));
 
   // Bind storage buffer to shader names
   for (const auto& buffer : shader_storage_buffers_) {
     const std::string& name = buffer.first;
     GLint slot;
     if (program_->GetResourceProperty(name, GL_SHADER_STORAGE_BLOCK, 1,
-                                      &kProperty, 1, &slot) == false)
+                                      &kProperty, 1,
+                                      &slot) != tensorflow::Status::OK())
       // Buffer not found in program, so do nothing.
       continue;
-    TFG_RETURN_FALSE_IF_ERROR(buffer.second->BindBufferBase(slot));
+    TF_RETURN_IF_ERROR(buffer.second->BindBufferBase(slot));
   }
 
   // Bind the program after the last call to SetUniform, since
   // SetUniform binds program 0.
-  TFG_RETURN_FALSE_IF_ERROR(program_->Use());
-  auto program_cleanup = MakeCleanup([this]() { program_->Detach(); });
+  TF_RETURN_IF_ERROR(program_->Use());
+  auto program_cleanup = MakeCleanup([this]() { return program_->Detach(); });
 
-  TFG_RETURN_FALSE_IF_ERROR(render_targets_->BindFramebuffer());
+  TF_RETURN_IF_ERROR(render_targets_->BindFramebuffer());
   auto framebuffer_cleanup =
-      MakeCleanup([this]() { render_targets_->UnbindFrameBuffer(); });
+      MakeCleanup([this]() { return render_targets_->UnbindFrameBuffer(); });
 
-  TFG_RETURN_FALSE_IF_GL_ERROR(glViewport(0, 0, render_targets_->GetWidth(),
-                                          render_targets_->GetHeight()));
-  TFG_RETURN_FALSE_IF_GL_ERROR(glClearColor(clear_r_, clear_g_, clear_b_, 1.0));
-  TFG_RETURN_FALSE_IF_GL_ERROR(glClearDepthf(clear_depth_));
-  TFG_RETURN_FALSE_IF_GL_ERROR(
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  TFG_RETURN_IF_GL_ERROR(glViewport(0, 0, render_targets_->GetWidth(),
+                                    render_targets_->GetHeight()));
+  TFG_RETURN_IF_GL_ERROR(glClearColor(clear_r_, clear_g_, clear_b_, 1.0));
+  TFG_RETURN_IF_GL_ERROR(glClearDepthf(clear_depth_));
+  TFG_RETURN_IF_GL_ERROR(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-  TFG_RETURN_FALSE_IF_GL_ERROR(glDrawArrays(GL_POINTS, 0, num_points));
-  TFG_RETURN_FALSE_IF_ERROR(render_targets_->CopyPixelsInto(result));
+  TFG_RETURN_IF_GL_ERROR(glDrawArrays(GL_POINTS, 0, num_points));
+  TF_RETURN_IF_ERROR(render_targets_->CopyPixelsInto(result));
 
   // The program and framebuffer and released here.
-  return true;
+  return tensorflow::Status::OK();
 }
 
 template <typename T>
@@ -241,27 +241,28 @@ void Rasterizer<T>::Reset() {
 
 template <typename T>
 template <typename S>
-bool Rasterizer<T>::SetShaderStorageBuffer(const std::string& name,
-                                           absl::Span<const S> data) {
+tensorflow::Status Rasterizer<T>::SetShaderStorageBuffer(
+    const std::string& name, absl::Span<const S> data) {
   // If the buffer does not exist, create it.
   if (shader_storage_buffers_.count(name) == 0) {
     std::unique_ptr<gl_utils::ShaderStorageBuffer> shader_storage_buffer;
-    TFG_RETURN_FALSE_IF_ERROR(
+    TF_RETURN_IF_ERROR(
         gl_utils::ShaderStorageBuffer::Create(&shader_storage_buffer));
     // Insert the buffer in the storage.
     shader_storage_buffers_[name] = std::move(shader_storage_buffer);
   }
   // Upload the data to the shader storage buffer.
-  TFG_RETURN_FALSE_IF_ERROR(shader_storage_buffers_.at(name)->Upload(data));
+  TF_RETURN_IF_ERROR(shader_storage_buffers_.at(name)->Upload(data));
 
-  return true;
+  return tensorflow::Status::OK();
 }
 
 template <typename T>
-bool Rasterizer<T>::SetUniformMatrix(const std::string& name, int num_columns,
-                                     int num_rows, bool transpose,
-                                     absl::Span<const float> matrix) {
-  if (num_rows * num_columns != matrix.size()) return false;
+tensorflow::Status Rasterizer<T>::SetUniformMatrix(
+    const std::string& name, int num_columns, int num_rows, bool transpose,
+    absl::Span<const float> matrix) {
+  if (size_t(num_rows * num_columns) != matrix.size())
+    return TFG_INTERNAL_ERROR("num_rows * num_columns != matrix.size()");
 
   typedef void (*setter_fn)(GLint location, GLsizei count, GLboolean transpose,
                             const GLfloat* value);
@@ -282,32 +283,34 @@ bool Rasterizer<T>::SetUniformMatrix(const std::string& name, int num_columns,
   GLint uniform_type;
   GLenum property = GL_TYPE;
 
-  TFG_RETURN_FALSE_IF_ERROR(program_->GetResourceProperty(
+  TF_RETURN_IF_ERROR(program_->GetResourceProperty(
       name, GL_UNIFORM, 1, &property, 1, &uniform_type));
 
   // Is a resource active under that name?
-  if (uniform_type == GL_INVALID_INDEX) return false;
+  if (uniform_type == GLint(GL_INVALID_INDEX))
+    return TFG_INTERNAL_ERROR("GL_INVALID_INDEX");
 
   auto type_info = type_mapping.find(uniform_type);
-  if (type_info == type_mapping.end() ||
-      std::get<0>(type_info->second) != num_columns ||
+  if (type_info == type_mapping.end())
+    return TFG_INTERNAL_ERROR("Unsupported type");
+  if (std::get<0>(type_info->second) != num_columns ||
       std::get<1>(type_info->second) != num_rows)
-    return false;
+    return TFG_INTERNAL_ERROR("Invalid dimensions");
 
   GLint uniform_location;
   property = GL_LOCATION;
-  TFG_RETURN_FALSE_IF_ERROR(program_->GetResourceProperty(
+  TF_RETURN_IF_ERROR(program_->GetResourceProperty(
       name, GL_UNIFORM, 1, &property, 1, &uniform_location));
 
-  TFG_RETURN_FALSE_IF_ERROR(program_->Use());
-  auto program_cleanup = MakeCleanup([this]() { program_->Detach(); });
+  TF_RETURN_IF_ERROR(program_->Use());
+  auto program_cleanup = MakeCleanup([this]() { return program_->Detach(); });
 
   // Specify the value of the uniform in the current program.
-  TFG_RETURN_FALSE_IF_GL_ERROR(std::get<2>(type_info->second)(
+  TFG_RETURN_IF_GL_ERROR(std::get<2>(type_info->second)(
       uniform_location, 1, transpose ? GL_TRUE : GL_FALSE, matrix.data()));
 
   // Cleanup the program; no program is active at this point.
-  return true;
+  return tensorflow::Status::OK();
 }
 
 #endif  // THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_TESTS_RASTERIZER_H_

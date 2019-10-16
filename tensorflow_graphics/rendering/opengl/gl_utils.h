@@ -15,6 +15,8 @@ limitations under the License.
 #ifndef THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_GL_UTILS_H_
 #define THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_GL_UTILS_H_
 
+#include <GLES3/gl32.h>
+
 #include <iostream>
 #include <memory>
 #include <ostream>
@@ -22,10 +24,10 @@ limitations under the License.
 #include <typeinfo>
 #include <vector>
 
-#include <GLES3/gl32.h>
 #include "absl/types/span.h"
-#include "tensorflow_graphics/rendering/opengl/gl_macros.h"
+#include "tensorflow_graphics/rendering/opengl/macros.h"
 #include "tensorflow_graphics/util/cleanup.h"
+#include "tensorflow/core/lib/core/status.h"
 
 namespace gl_utils {
 
@@ -46,10 +48,14 @@ class Program {
   //   a valid OpenGL program.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  static bool Create(const std::vector<std::pair<std::string, GLenum>>& shaders,
-                     std::unique_ptr<Program>* program);
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  static tensorflow::Status Create(
+      const std::vector<std::pair<std::string, GLenum>>& shaders,
+      std::unique_ptr<Program>* program);
+
+  // Sets the current rendering state to an invalid program object.
+  tensorflow::Status Detach() const;
 
   // Queries the value of properties within the progam.
   //
@@ -66,19 +72,19 @@ class Program {
   // * num_property_value: number of elements in 'property_value'.
   // * property_value: an array containing the value of the 'properties' in the
   //   resource 'resource_name'.
+  //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  bool GetResourceProperty(const std::string& resource_name,
-                           GLenum program_interface, int num_properties,
-                           const GLenum* properties, int num_property_value,
-                           GLint* property_value);
-
-  // Sets the current rendering state to an invalid program object.
-  bool Detach() const;
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  tensorflow::Status GetResourceProperty(const std::string& resource_name,
+                                         GLenum program_interface,
+                                         int num_properties,
+                                         const GLenum* properties,
+                                         int num_property_value,
+                                         GLint* property_value);
 
   // Installs the program as part of current rendering state.
-  bool Use() const;
+  tensorflow::Status Use() const;
 
  private:
   Program() = delete;
@@ -96,17 +102,18 @@ class Program {
   // * shader_idx: a handle containing the successfully compiled shader.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  static bool CompileShader(const std::string& shader_code,
-                            const GLenum& shader_type, GLuint* shader_idx);
-  bool GetProgramResourceIndex(GLenum program_interface,
-                               absl::string_view resource_name,
-                               GLuint* resource_index) const;
-  bool GetProgramResourceiv(GLenum program_interface, GLuint resource_index,
-                            int num_properties, const GLenum* properties,
-                            int num_property_value, GLsizei* length,
-                            GLint* property_value) const;
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  static tensorflow::Status CompileShader(const std::string& shader_code,
+                                          const GLenum& shader_type,
+                                          GLuint* shader_idx);
+  tensorflow::Status GetProgramResourceIndex(GLenum program_interface,
+                                             absl::string_view resource_name,
+                                             GLuint* resource_index) const;
+  tensorflow::Status GetProgramResourceiv(
+      GLenum program_interface, GLuint resource_index, int num_properties,
+      const GLenum* properties, int num_property_value, GLsizei* length,
+      GLint* property_value) const;
 
   GLuint program_handle_;
 };
@@ -120,7 +127,7 @@ class RenderTargets {
   ~RenderTargets();
 
   // Binds the framebuffer to GL_FRAMEBUFFER.
-  bool BindFramebuffer() const;
+  tensorflow::Status BindFramebuffer() const;
 
   // Creates a depth render buffer and a color render buffer. After
   // creation, these two render buffers are attached to the frame buffer.
@@ -133,10 +140,11 @@ class RenderTargets {
   // * render_targets: a valid and usable instance of this class.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  static bool Create(GLsizei width, GLsizei height,
-                     std::unique_ptr<RenderTargets<T>>* render_targets);
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  static tensorflow::Status Create(
+      GLsizei width, GLsizei height,
+      std::unique_ptr<RenderTargets<T>>* render_targets);
 
   // Returns the height of the internal render buffers.
   GLsizei GetHeight() const;
@@ -151,13 +159,13 @@ class RenderTargets {
   // size of this buffer must be equal to 4 * width * height.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  bool CopyPixelsInto(absl::Span<T> buffer) const;
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  tensorflow::Status CopyPixelsInto(absl::Span<T> buffer) const;
 
   // Breaks the existing binding between the framebuffer object and
   // GL_FRAMEBUFFER.
-  bool UnbindFrameBuffer() const;
+  tensorflow::Status UnbindFrameBuffer() const;
 
  private:
   RenderTargets() = delete;
@@ -168,11 +176,11 @@ class RenderTargets {
   RenderTargets(RenderTargets&&) = delete;
   RenderTargets& operator=(const RenderTargets&) = delete;
   RenderTargets& operator=(RenderTargets&&) = delete;
-  static bool CreateValidInternalFormat(
+  static tensorflow::Status CreateValidInternalFormat(
       GLenum internalformat, GLsizei width, GLsizei height,
       std::unique_ptr<RenderTargets<T>>* render_targets);
-  bool CopyPixelsIntoValidPixelType(GLenum pixel_type,
-                                    absl::Span<T> buffer) const;
+  tensorflow::Status CopyPixelsIntoValidPixelType(GLenum pixel_type,
+                                                  absl::Span<T> buffer) const;
 
   GLsizei width_;
   GLsizei height_;
@@ -200,36 +208,34 @@ RenderTargets<T>::~RenderTargets() {
 }
 
 template <typename T>
-bool RenderTargets<T>::BindFramebuffer() const {
-  TFG_RETURN_FALSE_IF_GL_ERROR(
-      glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_));
-  return true;
+tensorflow::Status RenderTargets<T>::BindFramebuffer() const {
+  TFG_RETURN_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_));
+  return tensorflow::Status::OK();
 }
 
 template <typename T>
-bool RenderTargets<T>::Create(
+tensorflow::Status RenderTargets<T>::Create(
     GLsizei width, GLsizei height,
     std::unique_ptr<RenderTargets<T>>* render_targets) {
-  std::cerr << "Unsupported type " << typeid(T).name() << std::endl;
-  return false;
+  return TFG_INTERNAL_ERROR("Unsupported type ", typeid(T).name());
 }
 
 template <>
-inline bool RenderTargets<unsigned char>::Create(
+inline tensorflow::Status RenderTargets<unsigned char>::Create(
     GLsizei width, GLsizei height,
     std::unique_ptr<RenderTargets<unsigned char>>* render_targets) {
   return CreateValidInternalFormat(GL_RGBA8, width, height, render_targets);
 }
 
 template <>
-inline bool RenderTargets<float>::Create(
+inline tensorflow::Status RenderTargets<float>::Create(
     GLsizei width, GLsizei height,
     std::unique_ptr<RenderTargets<float>>* render_targets) {
   return CreateValidInternalFormat(GL_RGBA32F, width, height, render_targets);
 }
 
 template <typename T>
-bool RenderTargets<T>::CreateValidInternalFormat(
+tensorflow::Status RenderTargets<T>::CreateValidInternalFormat(
     GLenum internalformat, GLsizei width, GLsizei height,
     std::unique_ptr<RenderTargets>* render_targets) {
   GLuint color_buffer;
@@ -237,40 +243,38 @@ bool RenderTargets<T>::CreateValidInternalFormat(
   GLuint frame_buffer;
 
   // Generate one render buffer for color.
-  TFG_RETURN_FALSE_IF_GL_ERROR(glGenRenderbuffers(1, &color_buffer));
-  auto gen_color_cleanup = MakeCleanup(
-      [color_buffer]() { glDeleteFramebuffers(1, &color_buffer); });
+  TFG_RETURN_IF_GL_ERROR(glGenRenderbuffers(1, &color_buffer));
+  auto gen_color_cleanup =
+      MakeCleanup([color_buffer]() { glDeleteFramebuffers(1, &color_buffer); });
   // Bind the color buffer.
-  TFG_RETURN_FALSE_IF_GL_ERROR(
-      glBindRenderbuffer(GL_RENDERBUFFER, color_buffer));
+  TFG_RETURN_IF_GL_ERROR(glBindRenderbuffer(GL_RENDERBUFFER, color_buffer));
   // Define the data storage, format, and dimensions of a render buffer
   // object's image.
-  TFG_RETURN_FALSE_IF_GL_ERROR(
+  TFG_RETURN_IF_GL_ERROR(
       glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height));
 
   // Generate one render buffer for depth.
-  TFG_RETURN_FALSE_IF_GL_ERROR(glGenRenderbuffers(1, &depth_buffer));
-  auto gen_depth_cleanup = MakeCleanup(
-      [depth_buffer]() { glDeleteFramebuffers(1, &depth_buffer); });
+  TFG_RETURN_IF_GL_ERROR(glGenRenderbuffers(1, &depth_buffer));
+  auto gen_depth_cleanup =
+      MakeCleanup([depth_buffer]() { glDeleteFramebuffers(1, &depth_buffer); });
   // Bind the depth buffer.
-  TFG_RETURN_FALSE_IF_GL_ERROR(
-      glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer));
+  TFG_RETURN_IF_GL_ERROR(glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer));
   // Defines the data storage, format, and dimensions of a render buffer
   // object's image.
-  TFG_RETURN_FALSE_IF_GL_ERROR(glRenderbufferStorage(
+  TFG_RETURN_IF_GL_ERROR(glRenderbufferStorage(
       GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height));
 
   // Generate one frame buffer.
-  TFG_RETURN_FALSE_IF_GL_ERROR(glGenFramebuffers(1, &frame_buffer));
-  auto gen_frame_cleanup = MakeCleanup(
-      [frame_buffer]() { glDeleteFramebuffers(1, &frame_buffer); });
+  TFG_RETURN_IF_GL_ERROR(glGenFramebuffers(1, &frame_buffer));
+  auto gen_frame_cleanup =
+      MakeCleanup([frame_buffer]() { glDeleteFramebuffers(1, &frame_buffer); });
   // Bind the frame buffer to both read and draw frame buffer targets.
-  TFG_RETURN_FALSE_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer));
+  TFG_RETURN_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer));
   // Attach the color buffer to the frame buffer.
-  TFG_RETURN_FALSE_IF_GL_ERROR(glFramebufferRenderbuffer(
+  TFG_RETURN_IF_GL_ERROR(glFramebufferRenderbuffer(
       GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color_buffer));
   // Attach the depth buffer to the frame buffer.
-  TFG_RETURN_FALSE_IF_GL_ERROR(glFramebufferRenderbuffer(
+  TFG_RETURN_IF_GL_ERROR(glFramebufferRenderbuffer(
       GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer));
 
   *render_targets = std::unique_ptr<RenderTargets<T>>(new RenderTargets(
@@ -280,7 +284,7 @@ bool RenderTargets<T>::CreateValidInternalFormat(
   gen_color_cleanup.release();
   gen_depth_cleanup.release();
   gen_frame_cleanup.release();
-  return true;
+  return tensorflow::Status::OK();
 }
 
 template <typename T>
@@ -294,53 +298,51 @@ GLsizei RenderTargets<T>::GetWidth() const {
 }
 
 template <typename T>
-bool RenderTargets<T>::CopyPixelsInto(absl::Span<T> buffer) const {
-  std::cerr << "Unsupported type " << typeid(T).name() << std::endl;
-  return false;
+tensorflow::Status RenderTargets<T>::CopyPixelsInto(
+    absl::Span<T> buffer) const {
+  return TFG_INTERNAL_ERROR("Unsupported type ", typeid(T).name());
 }
 
 template <>
-inline bool RenderTargets<float>::CopyPixelsInto(
+inline tensorflow::Status RenderTargets<float>::CopyPixelsInto(
     absl::Span<float> buffer) const {
   return CopyPixelsIntoValidPixelType(GL_FLOAT, buffer);
 }
 
 template <>
-inline bool RenderTargets<unsigned char>::CopyPixelsInto(
-    absl::Span<uint8> buffer) const {
+inline tensorflow::Status RenderTargets<unsigned char>::CopyPixelsInto(
+    absl::Span<unsigned char> buffer) const {
   return CopyPixelsIntoValidPixelType(GL_UNSIGNED_BYTE, buffer);
 }
 
 template <typename T>
-bool RenderTargets<T>::CopyPixelsIntoValidPixelType(
+tensorflow::Status RenderTargets<T>::CopyPixelsIntoValidPixelType(
     GLenum pixel_type, absl::Span<T> buffer) const {
-  if (buffer.size() != size_t(width_ * height_ * 4)) {
-    std::cerr << "Buffer size is not equal to width * height * 4" << std::endl;
-    return false;
-  }
+  if (buffer.size() != size_t(width_ * height_ * 4))
+    return TFG_INTERNAL_ERROR("Buffer size is not equal to width * height * 4");
 
-  TFG_RETURN_FALSE_IF_GL_ERROR(
+  TFG_RETURN_IF_GL_ERROR(
       glReadPixels(0, 0, width_, height_, GL_RGBA, pixel_type, buffer.data()));
-  return true;
+  return tensorflow::Status::OK();
 }
 
 template <typename T>
-bool RenderTargets<T>::UnbindFrameBuffer() const {
-  TFG_RETURN_FALSE_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-  return true;
+tensorflow::Status RenderTargets<T>::UnbindFrameBuffer() const {
+  TFG_RETURN_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+  return tensorflow::Status::OK();
 }
 
 // Class for creating and uploading data to storage buffers.
 class ShaderStorageBuffer {
  public:
   ~ShaderStorageBuffer();
-  bool BindBufferBase(GLuint index) const;
-  static bool Create(
+  tensorflow::Status BindBufferBase(GLuint index) const;
+  static tensorflow::Status Create(
       std::unique_ptr<ShaderStorageBuffer>* shader_storage_buffer);
 
   // Uploads data to the buffer.
   template <typename T>
-  bool Upload(absl::Span<T> data) const;
+  tensorflow::Status Upload(absl::Span<T> data) const;
 
  private:
   ShaderStorageBuffer() = delete;
@@ -354,18 +356,18 @@ class ShaderStorageBuffer {
 };
 
 template <typename T>
-bool ShaderStorageBuffer::Upload(absl::Span<T> data) const {
+tensorflow::Status ShaderStorageBuffer::Upload(absl::Span<T> data) const {
   // Bind the buffer to the read/write storage for shaders.
-  TFG_RETURN_FALSE_IF_GL_ERROR(glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer_));
-  auto bind_cleanup = MakeCleanup(
-      []() { glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); });
+  TFG_RETURN_IF_GL_ERROR(glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer_));
+  auto bind_cleanup =
+      MakeCleanup([]() { glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); });
   // Create a new data store for the bound buffer and initializes it with the
   // input data.
-  TFG_RETURN_FALSE_IF_GL_ERROR(glBufferData(GL_SHADER_STORAGE_BUFFER,
-                                            data.size() * sizeof(T),
-                                            data.data(), GL_DYNAMIC_COPY));
+  TFG_RETURN_IF_GL_ERROR(glBufferData(GL_SHADER_STORAGE_BUFFER,
+                                      data.size() * sizeof(T), data.data(),
+                                      GL_DYNAMIC_COPY));
   // bind_cleanup is not released, leading the buffer to be unbound.
-  return true;
+  return tensorflow::Status::OK();
 }
 
 }  // namespace gl_utils

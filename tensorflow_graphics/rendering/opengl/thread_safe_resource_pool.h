@@ -21,6 +21,8 @@ limitations under the License.
 #include <vector>
 
 #include "absl/synchronization/mutex.h"
+#include "tensorflow_graphics/rendering/opengl/macros.h"
+#include "tensorflow/core/lib/core/status.h"
 
 template <typename T>
 class ThreadSafeResourcePool
@@ -32,7 +34,7 @@ class ThreadSafeResourcePool
   // * maximum_pool_size: the maximum number of resources stored at once in the
   // pool.
   ThreadSafeResourcePool(
-      std::function<bool(std::unique_ptr<T>*)> resource_creator,
+      std::function<tensorflow::Status(std::unique_ptr<T>*)> resource_creator,
       unsigned int maximum_pool_size = 5);
 
   // Acquires a unique_ptr on a resource.
@@ -42,9 +44,9 @@ class ThreadSafeResourcePool
   // the acquired resource.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  bool AcquireResource(std::unique_ptr<T>* resource);
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  tensorflow::Status AcquireResource(std::unique_ptr<T>* resource);
 
   // Returns a resource to the pool. If the pool is full, the resource is
   // deleted.
@@ -53,20 +55,21 @@ class ThreadSafeResourcePool
   // * resource: the resource to return to the pool.
   //
   // Returns:
-  //   A boolean set to false if any error occured during the process, and set
-  //   to true otherwise.
-  bool ReturnResource(std::unique_ptr<T>& resource);
+  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   and an object of type tensorflow::errors otherwise.
+  tensorflow::Status ReturnResource(std::unique_ptr<T>& resource);
 
  private:
   unsigned int maximum_pool_size_;
   absl::Mutex mutex_;
-  std::function<bool(std::unique_ptr<T>*)> resource_creator_;
+  std::function<tensorflow::Status(std::unique_ptr<T>*)> resource_creator_;
   std::vector<std::unique_ptr<T>> resource_pool_;
 };
 
 template <typename T>
 ThreadSafeResourcePool<T>::ThreadSafeResourcePool(
-    const std::function<bool(std::unique_ptr<T>*)> resource_creator,
+    const std::function<tensorflow::Status(std::unique_ptr<T>*)>
+        resource_creator,
     const unsigned int maximum_pool_size)
     : maximum_pool_size_(maximum_pool_size),
       resource_creator_(resource_creator) {
@@ -74,40 +77,38 @@ ThreadSafeResourcePool<T>::ThreadSafeResourcePool(
 }
 
 template <typename T>
-bool ThreadSafeResourcePool<T>::AcquireResource(std::unique_ptr<T>* resource) {
+tensorflow::Status ThreadSafeResourcePool<T>::AcquireResource(
+    std::unique_ptr<T>* resource) {
   absl::MutexLock lock(&mutex_);
 
   // Creates a new resource or get it from the pool.
   if (resource_pool_.empty()) {
-    bool status = resource_creator_(resource);
-    if (status == false) return false;
+    TF_RETURN_IF_ERROR(resource_creator_(resource));
     if (resource->get() == nullptr) {
-      std::cerr << "The resource creator returned an empty resource."
-                << std::endl;
-      return false;
+      return TFG_INTERNAL_ERROR(
+          "The resource creator returned an empty resource.");
     }
   } else {
     *resource = std::move(resource_pool_.back());
     resource_pool_.pop_back();
   }
-  return true;
+  return tensorflow::Status::OK();
 }
 
 template <typename T>
-bool ThreadSafeResourcePool<T>::ReturnResource(std::unique_ptr<T>& resource) {
+tensorflow::Status ThreadSafeResourcePool<T>::ReturnResource(
+    std::unique_ptr<T>& resource) {
   absl::MutexLock lock(&mutex_);
 
-  if (resource.get() == nullptr) {
-    std::cerr << "Attempting to return an empty resource" << std::endl;
-    return false;
-  }
+  if (resource.get() == nullptr)
+    return TFG_INTERNAL_ERROR("Attempting to return an empty resource");
 
   // Adds the resource to the pool if not full, release it otherwise.
   if (resource_pool_.size() < maximum_pool_size_)
     resource_pool_.push_back(std::move(resource));
   else
     resource.reset();
-  return true;
+  return tensorflow::Status::OK();
 }
 
 #endif  // THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_THREAD_SAFE_RESOURCE_POOL_H_

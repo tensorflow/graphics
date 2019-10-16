@@ -14,12 +14,14 @@ limitations under the License.
 ==============================================================================*/
 #include "tensorflow_graphics/rendering/opengl/gl_utils.h"
 
+#include <GLES3/gl32.h>
 #include <memory>
 #include <string>
 
 #include "gtest/gtest.h"
-#include <GLES3/gl32.h>
 #include "absl/types/span.h"
+#include "tensorflow/core/lib/core/status_test_util.h"
+
 #include "tensorflow_graphics/rendering/opengl/egl_offscreen_context.h"
 
 namespace {
@@ -52,14 +54,15 @@ TEST(ProgramTest, TestCompileInvalidShader) {
       "uniform mat4 view_projection_matrix;\n"
       "void main() { syntax_error }\n";
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
 
   std::vector<std::pair<std::string, GLenum>> shaders;
   shaders.push_back(
       std::pair<std::string, GLenum>(kInvalidShaderCode, GL_VERTEX_SHADER));
-  EXPECT_FALSE(gl_utils::Program::Create(shaders, &program));
-  EXPECT_TRUE(context->Release());
+  EXPECT_NE(gl_utils::Program::Create(shaders, &program),
+            tensorflow::Status::OK());
+  TF_EXPECT_OK(context->Release());
 }
 
 TEST(ProgramTest, TestCompileInvalidShaderType) {
@@ -69,27 +72,28 @@ TEST(ProgramTest, TestCompileInvalidShaderType) {
       "#version 460\n"
       "void main() { syntax_error }\n";
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
 
   std::vector<std::pair<std::string, GLenum>> shaders;
   shaders.push_back(std::pair<std::string, GLenum>(kEmptyShaderCode, 0));
-  EXPECT_FALSE(gl_utils::Program::Create(shaders, &program));
-  EXPECT_TRUE(context->Release());
+  EXPECT_NE(gl_utils::Program::Create(shaders, &program),
+            tensorflow::Status::OK());
+  TF_EXPECT_OK(context->Release());
 }
 
 TEST(ProgramTest, TestCreateProgram) {
   std::unique_ptr<EGLOffscreenContext> context;
   std::unique_ptr<gl_utils::Program> program;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
 
   std::vector<std::pair<std::string, GLenum>> shaders;
   shaders.push_back(
       std::pair<std::string, GLenum>(kEmptyShaderCode, GL_VERTEX_SHADER));
-  EXPECT_TRUE(gl_utils::Program::Create(shaders, &program));
-  EXPECT_TRUE(context->Release());
+  TF_EXPECT_OK(gl_utils::Program::Create(shaders, &program));
+  TF_EXPECT_OK(context->Release());
 }
 
 TEST(ProgramTest, TestGetNonExistingResourceProperty) {
@@ -98,16 +102,17 @@ TEST(ProgramTest, TestGetNonExistingResourceProperty) {
   GLint property_value;
   const GLenum kProperty = GL_TYPE;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
 
   std::vector<std::pair<std::string, GLenum>> shaders;
   shaders.push_back(
       std::pair<std::string, GLenum>(kEmptyShaderCode, GL_VERTEX_SHADER));
-  EXPECT_TRUE(gl_utils::Program::Create(shaders, &program));
-  EXPECT_FALSE(program->GetResourceProperty("resource_name", GL_UNIFORM, 1,
-                                            &kProperty, 1, &property_value));
-  EXPECT_TRUE(context->Release());
+  TF_ASSERT_OK(gl_utils::Program::Create(shaders, &program));
+  EXPECT_NE(program->GetResourceProperty("resource_name", GL_UNIFORM, 1,
+                                         &kProperty, 1, &property_value),
+            tensorflow::Status::OK());
+  TF_EXPECT_OK(context->Release());
 }
 
 TEST(ProgramTest, TestGetExistingResourceProperty) {
@@ -116,16 +121,16 @@ TEST(ProgramTest, TestGetExistingResourceProperty) {
   GLint property_value;
   GLenum kProperty = GL_TYPE;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
 
   std::vector<std::pair<std::string, GLenum>> shaders{
       std::make_pair(kEmptyShaderCode, GL_VERTEX_SHADER),
       std::make_pair(geometry_shader_code, GL_GEOMETRY_SHADER)};
-  EXPECT_TRUE(gl_utils::Program::Create(shaders, &program));
-  EXPECT_TRUE(program->GetResourceProperty("view_projection_matrix", GL_UNIFORM,
+  TF_ASSERT_OK(gl_utils::Program::Create(shaders, &program));
+  TF_EXPECT_OK(program->GetResourceProperty("view_projection_matrix", GL_UNIFORM,
                                            1, &kProperty, 1, &property_value));
-  EXPECT_TRUE(context->Release());
+  TF_EXPECT_OK(context->Release());
 }
 
 template <typename T>
@@ -145,17 +150,17 @@ TYPED_TEST(RenderTargetsInterfaceTest, TestRenderClear) {
 
   if (typeid(TypeParam) == typeid(float)) max_gl_value = 1.0f;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
 
   std::unique_ptr<gl_utils::RenderTargets<TypeParam>> render_targets;
-  EXPECT_TRUE(gl_utils::RenderTargets<TypeParam>::Create(kWidth, kHeight,
+  TF_ASSERT_OK(gl_utils::RenderTargets<TypeParam>::Create(kWidth, kHeight,
                                                          &render_targets));
   glClearColor(kRed, kGreen, kBlue, kAlpha);
   glClear(GL_COLOR_BUFFER_BIT);
   ASSERT_EQ(glGetError(), GL_NO_ERROR);
   std::vector<TypeParam> pixels(kWidth * kHeight * 4);
-  EXPECT_TRUE(render_targets->CopyPixelsInto(absl::MakeSpan(pixels)));
+  TF_ASSERT_OK(render_targets->CopyPixelsInto(absl::MakeSpan(pixels)));
 
   for (int index = 0; index < kWidth * kHeight; ++index) {
     ASSERT_EQ(pixels[index * 4], TypeParam(kRed * max_gl_value));
@@ -163,7 +168,7 @@ TYPED_TEST(RenderTargetsInterfaceTest, TestRenderClear) {
     ASSERT_EQ(pixels[index * 4 + 2], TypeParam(kBlue * max_gl_value));
     ASSERT_EQ(pixels[index * 4 + 3], TypeParam(kAlpha * max_gl_value));
   }
-  EXPECT_TRUE(context->Release());
+  TF_EXPECT_OK(context->Release());
 }
 
 TYPED_TEST(RenderTargetsInterfaceTest, TestReadFails) {
@@ -171,30 +176,31 @@ TYPED_TEST(RenderTargetsInterfaceTest, TestReadFails) {
   const int kWidth = 10;
   const int kHeight = 5;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(&context));
-  EXPECT_TRUE(context->MakeCurrent());
+  TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
+  TF_ASSERT_OK(context->MakeCurrent());
   std::unique_ptr<gl_utils::RenderTargets<TypeParam>> render_targets;
-  EXPECT_TRUE(gl_utils::RenderTargets<TypeParam>::Create(kWidth, kHeight,
+  TF_ASSERT_OK(gl_utils::RenderTargets<TypeParam>::Create(kWidth, kHeight,
                                                          &render_targets));
   std::vector<TypeParam> pixels(kWidth * kHeight * 3);
-  EXPECT_FALSE(render_targets->CopyPixelsInto(absl::MakeSpan(pixels)));
+  EXPECT_NE(render_targets->CopyPixelsInto(absl::MakeSpan(pixels)),
+            tensorflow::Status::OK());
 }
 
 TEST(GLUtilsTest, TestShaderStorageBuffer) {
   std::unique_ptr<gl_utils::ShaderStorageBuffer> shader_storage_buffer;
 
-  EXPECT_TRUE(gl_utils::ShaderStorageBuffer::Create(&shader_storage_buffer));
+  TF_ASSERT_OK(gl_utils::ShaderStorageBuffer::Create(&shader_storage_buffer));
   std::vector<float> data{1.0f, 2.0f};
-  EXPECT_TRUE(shader_storage_buffer->Upload(absl::MakeSpan(data)));
+  TF_EXPECT_OK(shader_storage_buffer->Upload(absl::MakeSpan(data)));
 }
 
 TEST(GLUtilsTest, TestBindShaderStorageBuffer) {
   std::unique_ptr<gl_utils::ShaderStorageBuffer> shader_storage_buffer;
 
   std::vector<float> data{1.0f, 2.0f};
-  EXPECT_TRUE(gl_utils::ShaderStorageBuffer::Create(&shader_storage_buffer));
-  EXPECT_TRUE(shader_storage_buffer->Upload(absl::MakeSpan(data)));
-  EXPECT_TRUE(shader_storage_buffer->BindBufferBase(0));
+  TF_ASSERT_OK(gl_utils::ShaderStorageBuffer::Create(&shader_storage_buffer));
+  TF_ASSERT_OK(shader_storage_buffer->Upload(absl::MakeSpan(data)));
+  TF_EXPECT_OK(shader_storage_buffer->BindBufferBase(0));
 }
 
 }  // namespace

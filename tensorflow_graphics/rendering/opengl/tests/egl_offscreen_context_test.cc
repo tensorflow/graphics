@@ -14,12 +14,14 @@ limitations under the License.
 ==============================================================================*/
 #include "tensorflow_graphics/rendering/opengl/egl_offscreen_context.h"
 
-#include "gtest/gtest.h"
 #include <GLES3/gl32.h>
+#include "gtest/gtest.h"
+
+#include "tensorflow/core/lib/core/status_test_util.h"
 
 namespace {
 
-static constexpr std::array kDefaultConfigurationAttributes = {
+static constexpr std::array<int, 13> kDefaultConfigurationAttributes = {
     EGL_SURFACE_TYPE,
     EGL_PBUFFER_BIT,
     EGL_RENDERABLE_TYPE,
@@ -35,7 +37,7 @@ static constexpr std::array kDefaultConfigurationAttributes = {
     EGL_NONE  // The array must be terminated with that value.
 };
 
-static constexpr std::array kDefaultContextAttributes = {
+static constexpr std::array<int, 3> kDefaultContextAttributes = {
     EGL_CONTEXT_CLIENT_VERSION,
     2,
     EGL_NONE,
@@ -44,7 +46,7 @@ static constexpr std::array kDefaultContextAttributes = {
 TEST(EglOffscreenContextTest, TestCreate) {
   std::unique_ptr<EGLOffscreenContext> context;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(
+  TF_CHECK_OK(EGLOffscreenContext::Create(
       800, 600, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
       kDefaultContextAttributes.data(), &context));
 }
@@ -53,24 +55,24 @@ TEST(EglOffscreenContextTest, TestMakeCurrentWorks) {
   std::unique_ptr<EGLOffscreenContext> context1;
   std::unique_ptr<EGLOffscreenContext> context2;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(
+  TF_ASSERT_OK(EGLOffscreenContext::Create(
       800, 600, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
       kDefaultContextAttributes.data(), &context1));
-  EXPECT_TRUE(EGLOffscreenContext::Create(
+  TF_ASSERT_OK(EGLOffscreenContext::Create(
       400, 100, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
       kDefaultContextAttributes.data(), &context2));
-  EXPECT_TRUE(context1->MakeCurrent());
-  EXPECT_TRUE(context2->MakeCurrent());
+  TF_EXPECT_OK(context1->MakeCurrent());
+  TF_EXPECT_OK(context2->MakeCurrent());
 }
 
 TEST(EglOffscreenContextTest, TestRelease) {
   std::unique_ptr<EGLOffscreenContext> context;
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(
+  TF_ASSERT_OK(EGLOffscreenContext::Create(
       800, 600, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
       kDefaultContextAttributes.data(), &context));
-  EXPECT_TRUE(context->MakeCurrent());
-  EXPECT_TRUE(context->Release());
+  TF_ASSERT_OK(context->MakeCurrent());
+  TF_EXPECT_OK(context->Release());
 }
 
 TEST(EglOffscreenContextTest, TestRenderClear) {
@@ -83,10 +85,10 @@ TEST(EglOffscreenContextTest, TestRenderClear) {
   const int kHeight = 5;
   std::vector<unsigned char> pixels(kWidth * kHeight * 4);
 
-  EXPECT_TRUE(EGLOffscreenContext::Create(
+  TF_ASSERT_OK(EGLOffscreenContext::Create(
       kWidth, kHeight, EGL_OPENGL_API, kDefaultConfigurationAttributes.data(),
       kDefaultContextAttributes.data(), &context));
-  EXPECT_TRUE(context->MakeCurrent());
+  TF_ASSERT_OK(context->MakeCurrent());
   glClearColor(kRed, kGreen, kBlue, kAlpha);
   glClear(GL_COLOR_BUFFER_BIT);
   ASSERT_EQ(glGetError(), GL_NO_ERROR);
@@ -99,7 +101,7 @@ TEST(EglOffscreenContextTest, TestRenderClear) {
     ASSERT_EQ(pixels[index * 4 + 2], (unsigned char)(kBlue * 255.0));
     ASSERT_EQ(pixels[index * 4 + 3], (unsigned char)(kAlpha * 255.0));
   }
-  EXPECT_TRUE(context->Release());
+  TF_EXPECT_OK(context->Release());
 }
 
 }  // namespace
