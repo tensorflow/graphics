@@ -12,14 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#include "tensorflow_graphics/rendering/opengl/gl_utils.h"
+#include "tensorflow_graphics/rendering/opengl/gl_program.h"
 
-#include <memory>
-#include <string>
-
-#include "absl/strings/string_view.h"
 #include "tensorflow_graphics/rendering/opengl/macros.h"
 #include "tensorflow_graphics/util/cleanup.h"
+#include "tensorflow/core/lib/core/status.h"
 
 namespace gl_utils {
 
@@ -160,27 +157,6 @@ tensorflow::Status Program::GetResourceProperty(
 
 tensorflow::Status Program::Use() const {
   TFG_RETURN_IF_EGL_ERROR(glUseProgram(program_handle_));
-  return tensorflow::Status::OK();
-}
-
-ShaderStorageBuffer::ShaderStorageBuffer(GLuint buffer) : buffer_(buffer) {}
-
-ShaderStorageBuffer::~ShaderStorageBuffer() { glDeleteBuffers(1, &buffer_); }
-
-tensorflow::Status ShaderStorageBuffer::Create(
-    std::unique_ptr<ShaderStorageBuffer>* shader_storage_buffer) {
-  GLuint buffer;
-
-  // Generate one buffer object.
-  TFG_RETURN_IF_EGL_ERROR(glGenBuffers(1, &buffer));
-  *shader_storage_buffer =
-      std::unique_ptr<ShaderStorageBuffer>(new ShaderStorageBuffer(buffer));
-  return tensorflow::Status::OK();
-}
-
-tensorflow::Status ShaderStorageBuffer::BindBufferBase(GLuint index) const {
-  TFG_RETURN_IF_EGL_ERROR(
-      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer_));
   return tensorflow::Status::OK();
 }
 

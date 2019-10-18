@@ -119,6 +119,85 @@ cc_library(
     alwayslink = 1,
 )
 
+cc_library(
+    name = "gl_program",
+    srcs = ["gl_program.cc"],
+    hdrs = ["gl_program.h"],
+    deps = [
+        ":macros",
+        "//tensorflow_graphics/util:cleanup",
+        "//third_party/tensorflow/core:lib",
+    ],
+)
+
+cc_test(
+    name = "gl_program_test",
+    srcs = ["tests/gl_program_test.cc"],
+    tags = [
+        "nomsan",  # Un-initialized values in libEGL.
+        "requires-gpu-sm35",
+    ],
+    deps = [
+        ":egl_offscreen_context",
+        ":gl_native_libs",
+        ":gl_program",
+        "//third_party/tensorflow/core:test",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "gl_render_targets",
+    hdrs = ["gl_render_targets.h"],
+    deps = [
+        ":macros",
+        "//tensorflow_graphics/util:cleanup",
+        "//third_party/tensorflow/core:lib",
+    ],
+)
+
+cc_test(
+    name = "gl_render_targets_test",
+    srcs = ["tests/gl_render_targets_test.cc"],
+    tags = [
+        "nomsan",  # Un-initialized values in libEGL.
+        "requires-gpu-sm35",
+    ],
+    deps = [
+        ":egl_offscreen_context",
+        ":gl_native_libs",
+        ":gl_render_targets",
+        "//third_party/tensorflow/core:test",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "gl_shader_storage_buffer",
+    srcs = ["gl_shader_storage_buffer.cc"],
+    hdrs = ["gl_shader_storage_buffer.h"],
+    deps = [
+        ":macros",
+        "//tensorflow_graphics/util:cleanup",
+        "//third_party/tensorflow/core:lib",
+    ],
+)
+
+cc_test(
+    name = "gl_shader_storage_buffer_test",
+    srcs = ["tests/gl_shader_storage_buffer_test.cc"],
+    tags = [
+        "nomsan",  # Un-initialized values in libEGL.
+        "requires-gpu-sm35",
+    ],
+    deps = [
+        ":gl_native_libs",
+        ":gl_shader_storage_buffer",
+        "//third_party/tensorflow/core:test",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
 # This library provides stub implementation of the OpenGL libraries.
 cc_library(
     name = "gl_stub_libs",
@@ -127,36 +206,6 @@ cc_library(
         "//third_party/GL/stub:GLESv2",  # buildcleaner: keep
     ],
     alwayslink = 1,
-)
-
-cc_library(
-    name = "gl_utils",
-    srcs = ["gl_utils.cc"],
-    hdrs = ["gl_utils.h"],
-    deps = [
-        ":macros",
-        "//tensorflow_graphics/util:cleanup",
-        "//third_party/tensorflow/core:lib",
-        "@com_google_absl//absl/strings",
-        "@com_google_absl//absl/types:span",
-    ],
-)
-
-cc_test(
-    name = "gl_utils_test",
-    srcs = ["tests/gl_utils_test.cc"],
-    tags = [
-        "nomsan",  # Un-initialized values in libEGL.
-        "requires-gpu-sm35",
-    ],
-    deps = [
-        ":egl_offscreen_context",
-        ":gl_native_libs",
-        ":gl_utils",
-        "//third_party/tensorflow/core:test",
-        "@com_google_absl//absl/types:span",
-        "@com_google_googletest//:gtest_main",
-    ],
 )
 
 py_library(
@@ -198,7 +247,9 @@ cc_library(
     name = "rasterizer",
     hdrs = ["rasterizer.h"],
     deps = [
-        ":gl_utils",
+        ":gl_program",
+        ":gl_render_targets",
+        ":gl_shader_storage_buffer",
         "//tensorflow_graphics/util:cleanup",
         "//third_party/tensorflow/core:lib",
     ],
@@ -242,8 +293,11 @@ tf_custom_op_library(
         "egl_offscreen_context.h",
         "egl_util.cc",
         "egl_util.h",
-        "gl_utils.cc",
-        "gl_utils.h",
+        "gl_program.cc",
+        "gl_program.h",
+        "gl_render_targets.h",
+        "gl_shader_storage_buffer.cc",
+        "gl_shader_storage_buffer.h",
         "macros.h",
         "rasterizer.h",
         "rasterizer_op.cc",
@@ -307,7 +361,6 @@ cc_library(
     hdrs = ["rasterizer_with_context.h"],
     deps = [
         ":egl_offscreen_context",
-        ":gl_utils",
         ":rasterizer",
         "//tensorflow_graphics/util:cleanup",
         "//third_party/tensorflow/core:lib",
