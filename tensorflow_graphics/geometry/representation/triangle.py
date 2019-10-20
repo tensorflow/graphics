@@ -71,5 +71,44 @@ def normal(v0, v1, v2, clockwise=False, normalize=True, name=None):
     return normal_vector
 
 
+def area(v0, v1, v2, name=None):
+  """Computes triangle areas.
+
+    Note: Computed triangle area = 0.5 * | e1 x e2 | where e1 and e2 are edges
+      of triangle. A degenerate triangle will return 0 area, whereas the normal
+      for a degenerate triangle is not defined.
+
+
+    In the following, A1 to An are optional batch dimensions, which must be
+    broadcast compatible.
+
+  Args:
+    v0: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
+      represents the first vertex of a triangle.
+    v1: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
+      represents the second vertex of a triangle.
+    v2: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
+      represents the third vertex of a triangle.
+    name: A name for this op. Defaults to "triangle_area".
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 1]`, where the last dimension represents
+      a normalized vector.
+  """
+  with tf.compat.v1.name_scope(name, "triangle_area", [v0, v1, v2]):
+    v0 = tf.convert_to_tensor(value=v0)
+    v1 = tf.convert_to_tensor(value=v1)
+    v2 = tf.convert_to_tensor(value=v2)
+
+    shape.check_static(tensor=v0, tensor_name="v0", has_dim_equals=(-1, 3))
+    shape.check_static(tensor=v1, tensor_name="v1", has_dim_equals=(-1, 3))
+    shape.check_static(tensor=v2, tensor_name="v2", has_dim_equals=(-1, 3))
+    shape.compare_batch_dimensions(
+        tensors=(v0, v1, v2), last_axes=-2, broadcast_compatible=True)
+
+    normals = vector.cross(v1 - v0, v2 - v0, axis=-1)
+    return 0.5 * tf.linalg.norm(tensor=normals, axis=-1, keepdims=True)
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()

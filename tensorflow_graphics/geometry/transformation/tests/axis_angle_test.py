@@ -50,7 +50,7 @@ class AxisAngleTest(test_case.TestCase):
     """Test the Jacobian of the from_euler function.
 
     Note:
-      Preset angles are not tested as the gradient of tf.norm is NaN a 0.
+      Preset angles are not tested as the gradient of tf.norm is NaN at 0.
     """
     x_init = test_helpers.generate_random_test_euler_angles()
     x = tf.convert_to_tensor(value=x_init)
