@@ -56,24 +56,6 @@ elif compute_platform == 'gpu':
 else:
   package_name = 'tensorflow-graphics'
 
-SETUP_PACKAGES = [
-    'pytest-runner',
-]
-
-TEST_PACKAGES = [
-    'pytest',
-    'pytest-mock',
-    'python-coveralls',
-]
-
-EXTRA_PACKAGES = {
-    'test': TEST_PACKAGES,
-    'tf': ['tensorflow >= ' + tensorflow_version],
-    'tf-gpu': ['tensorflow-gpu >= ' + tensorflow_version],
-    'tf-nightly': ['tf-nightly-2.0-preview'],
-    'tf-nightly-gpu': ['tf-nightly-gpu-2.0-preview'],
-}
-
 setup(
     name=package_name,
     version=__version__,
@@ -85,13 +67,9 @@ setup(
     author='Google LLC',
     author_email='tf-graphics-eng@google.com',
     install_requires=INSTALL_PACKAGES,
-    setup_requires=SETUP_PACKAGES,
-    tests_require=TEST_PACKAGES,
-    extras_require=EXTRA_PACKAGES,
     packages=find_packages(),
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
