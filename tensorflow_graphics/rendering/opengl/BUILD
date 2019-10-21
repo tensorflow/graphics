@@ -148,6 +148,7 @@ cc_test(
 
 cc_library(
     name = "gl_render_targets",
+    srcs = ["gl_render_targets.cc"],
     hdrs = ["gl_render_targets.h"],
     deps = [
         ":macros",
@@ -167,6 +168,8 @@ cc_test(
         ":egl_offscreen_context",
         ":gl_native_libs",
         ":gl_render_targets",
+        ":macros",
+        "//third_party/tensorflow/core:lib",
         "//third_party/tensorflow/core:test",
         "@com_google_googletest//:gtest_main",
     ],
@@ -295,6 +298,7 @@ tf_custom_op_library(
         "egl_util.h",
         "gl_program.cc",
         "gl_program.h",
+        "gl_render_targets.cc",
         "gl_render_targets.h",
         "gl_shader_storage_buffer.cc",
         "gl_shader_storage_buffer.h",

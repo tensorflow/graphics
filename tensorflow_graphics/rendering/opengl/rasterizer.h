@@ -126,7 +126,7 @@ class Rasterizer {
  private:
   Rasterizer() = delete;
   Rasterizer(std::unique_ptr<gl_utils::Program>&& program,
-             std::unique_ptr<gl_utils::RenderTargets<T>>&& render_targets,
+             std::unique_ptr<gl_utils::RenderTargets>&& render_targets,
              float clear_r, float clear_g, float clear_b, float clear_depth);
   Rasterizer(const Rasterizer&) = delete;
   Rasterizer(Rasterizer&&) = delete;
@@ -135,7 +135,7 @@ class Rasterizer {
   void Reset();
 
   std::unique_ptr<gl_utils::Program> program_;
-  std::unique_ptr<gl_utils::RenderTargets<T>> render_targets_;
+  std::unique_ptr<gl_utils::RenderTargets> render_targets_;
   std::unordered_map<std::string,
                      std::unique_ptr<gl_utils::ShaderStorageBuffer>>
       shader_storage_buffers_;
@@ -147,7 +147,7 @@ class Rasterizer {
 template <typename T>
 Rasterizer<T>::Rasterizer(
     std::unique_ptr<gl_utils::Program>&& program,
-    std::unique_ptr<gl_utils::RenderTargets<T>>&& render_targets, float clear_r,
+    std::unique_ptr<gl_utils::RenderTargets>&& render_targets, float clear_r,
     float clear_g, float clear_b, float clear_depth)
     : program_(std::move(program)),
       render_targets_(std::move(render_targets)),
@@ -176,7 +176,7 @@ tensorflow::Status Rasterizer<T>::Create(
     const std::string& fragment_shader_source, float clear_r, float clear_g,
     float clear_b, float clear_depth, std::unique_ptr<Rasterizer>* rasterizer) {
   std::unique_ptr<gl_utils::Program> program;
-  std::unique_ptr<gl_utils::RenderTargets<T>> render_targets;
+  std::unique_ptr<gl_utils::RenderTargets> render_targets;
   std::vector<std::pair<std::string, GLenum>> shaders = {
       {vertex_shader_source, GL_VERTEX_SHADER},
       {geometry_shader_source, GL_GEOMETRY_SHADER},
@@ -184,7 +184,7 @@ tensorflow::Status Rasterizer<T>::Create(
 
   TF_RETURN_IF_ERROR(gl_utils::Program::Create(shaders, &program));
   TF_RETURN_IF_ERROR(
-      gl_utils::RenderTargets<T>::Create(width, height, &render_targets));
+      gl_utils::RenderTargets::Create<T>(width, height, &render_targets));
 
   *rasterizer = std::unique_ptr<Rasterizer>(
       new Rasterizer(std::move(program), std::move(render_targets), clear_r,

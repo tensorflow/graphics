@@ -24,10 +24,7 @@ limitations under the License.
 namespace gl_utils {
 
 // Class that creates a frame buffer to which a depth render buffer, and a color
-// render and bound to. The template type correspond to the data type stored in
-// the color render buffer. The supported template types are float and unsigned
-// char.
-template <typename T>
+// render and bound to.
 class RenderTargets {
  public:
   ~RenderTargets();
@@ -37,6 +34,11 @@ class RenderTargets {
 
   // Creates a depth render buffer and a color render buffer. After
   // creation, these two render buffers are attached to the frame buffer.
+  //
+  // Note: The template type correspond to the data type stored in
+  // the color render buffer. The supported template types are float and
+  // unsigned char, which lead the internal format of the renderbuffer to be
+  // GL_RGBA32F and GL_RGBA8 respectively.
   //
   // Arguments:
   // * width: width of the rendering buffers; must be smaller than
@@ -48,9 +50,10 @@ class RenderTargets {
   // Returns:
   //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
   //   and an object of type tensorflow::errors otherwise.
+  template <typename T>
   static tensorflow::Status Create(
       GLsizei width, GLsizei height,
-      std::unique_ptr<RenderTargets<T>>* render_targets);
+      std::unique_ptr<RenderTargets>* render_targets);
 
   // Returns the height of the internal render buffers.
   GLsizei GetHeight() const;
@@ -60,6 +63,10 @@ class RenderTargets {
 
   // Reads pixels from the frame buffer.
   //
+  // Note: if the type of T is not float, the buffer will contain values that
+  // are transformed according to the formulas described in
+  // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glReadPixels.xhtml.
+  //
   // Arguments:
   // * buffer: the buffer where the read pixels are written to. Note that the
   // size of this buffer must be equal to 4 * width * height.
@@ -67,6 +74,7 @@ class RenderTargets {
   // Returns:
   //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
   //   and an object of type tensorflow::errors otherwise.
+  template <typename T>
   tensorflow::Status CopyPixelsInto(absl::Span<T> buffer) const;
 
   // Breaks the existing binding between the framebuffer object and
@@ -84,7 +92,9 @@ class RenderTargets {
   RenderTargets& operator=(RenderTargets&&) = delete;
   static tensorflow::Status CreateValidInternalFormat(
       GLenum internalformat, GLsizei width, GLsizei height,
-      std::unique_ptr<RenderTargets<T>>* render_targets);
+      std::unique_ptr<RenderTargets>* render_targets);
+
+  template <typename T>
   tensorflow::Status CopyPixelsIntoValidPixelType(GLenum pixel_type,
                                                   absl::Span<T> buffer) const;
 
@@ -96,145 +106,51 @@ class RenderTargets {
 };
 
 template <typename T>
-RenderTargets<T>::RenderTargets(const GLsizei width, const GLsizei height,
-                                const GLuint color_buffer,
-                                const GLuint depth_buffer,
-                                const GLuint frame_buffer)
-    : width_(width),
-      height_(height),
-      color_buffer_(color_buffer),
-      depth_buffer_(depth_buffer),
-      frame_buffer_(frame_buffer) {}
-
-template <typename T>
-RenderTargets<T>::~RenderTargets() {
-  glDeleteRenderbuffers(1, &color_buffer_);
-  glDeleteRenderbuffers(1, &depth_buffer_);
-  glDeleteFramebuffers(1, &frame_buffer_);
-}
-
-template <typename T>
-tensorflow::Status RenderTargets<T>::BindFramebuffer() const {
-  TFG_RETURN_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_));
-  return tensorflow::Status::OK();
-}
-
-template <typename T>
-tensorflow::Status RenderTargets<T>::Create(
+tensorflow::Status RenderTargets::Create(
     GLsizei width, GLsizei height,
-    std::unique_ptr<RenderTargets<T>>* render_targets) {
+    std::unique_ptr<RenderTargets>* render_targets) {
   return TFG_INTERNAL_ERROR("Unsupported type ", typeid(T).name());
 }
 
 template <>
-inline tensorflow::Status RenderTargets<unsigned char>::Create(
+inline tensorflow::Status RenderTargets::Create<unsigned char>(
     GLsizei width, GLsizei height,
-    std::unique_ptr<RenderTargets<unsigned char>>* render_targets) {
+    std::unique_ptr<RenderTargets>* render_targets) {
   return CreateValidInternalFormat(GL_RGBA8, width, height, render_targets);
 }
 
 template <>
-inline tensorflow::Status RenderTargets<float>::Create(
+inline tensorflow::Status RenderTargets::Create<float>(
     GLsizei width, GLsizei height,
-    std::unique_ptr<RenderTargets<float>>* render_targets) {
+    std::unique_ptr<RenderTargets>* render_targets) {
   return CreateValidInternalFormat(GL_RGBA32F, width, height, render_targets);
 }
 
 template <typename T>
-tensorflow::Status RenderTargets<T>::CreateValidInternalFormat(
-    GLenum internalformat, GLsizei width, GLsizei height,
-    std::unique_ptr<RenderTargets>* render_targets) {
-  GLuint color_buffer;
-  GLuint depth_buffer;
-  GLuint frame_buffer;
-
-  // Generate one render buffer for color.
-  TFG_RETURN_IF_GL_ERROR(glGenRenderbuffers(1, &color_buffer));
-  auto gen_color_cleanup =
-      MakeCleanup([color_buffer]() { glDeleteFramebuffers(1, &color_buffer); });
-  // Bind the color buffer.
-  TFG_RETURN_IF_GL_ERROR(glBindRenderbuffer(GL_RENDERBUFFER, color_buffer));
-  // Define the data storage, format, and dimensions of a render buffer
-  // object's image.
-  TFG_RETURN_IF_GL_ERROR(
-      glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height));
-
-  // Generate one render buffer for depth.
-  TFG_RETURN_IF_GL_ERROR(glGenRenderbuffers(1, &depth_buffer));
-  auto gen_depth_cleanup =
-      MakeCleanup([depth_buffer]() { glDeleteFramebuffers(1, &depth_buffer); });
-  // Bind the depth buffer.
-  TFG_RETURN_IF_GL_ERROR(glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer));
-  // Defines the data storage, format, and dimensions of a render buffer
-  // object's image.
-  TFG_RETURN_IF_GL_ERROR(glRenderbufferStorage(
-      GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height));
-
-  // Generate one frame buffer.
-  TFG_RETURN_IF_GL_ERROR(glGenFramebuffers(1, &frame_buffer));
-  auto gen_frame_cleanup =
-      MakeCleanup([frame_buffer]() { glDeleteFramebuffers(1, &frame_buffer); });
-  // Bind the frame buffer to both read and draw frame buffer targets.
-  TFG_RETURN_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer));
-  // Attach the color buffer to the frame buffer.
-  TFG_RETURN_IF_GL_ERROR(glFramebufferRenderbuffer(
-      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, color_buffer));
-  // Attach the depth buffer to the frame buffer.
-  TFG_RETURN_IF_GL_ERROR(glFramebufferRenderbuffer(
-      GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer));
-
-  *render_targets = std::unique_ptr<RenderTargets<T>>(new RenderTargets(
-      width, height, color_buffer, depth_buffer, frame_buffer));
-
-  // Release all Cleanup objects.
-  gen_color_cleanup.release();
-  gen_depth_cleanup.release();
-  gen_frame_cleanup.release();
-  return tensorflow::Status::OK();
-}
-
-template <typename T>
-GLsizei RenderTargets<T>::GetHeight() const {
-  return height_;
-}
-
-template <typename T>
-GLsizei RenderTargets<T>::GetWidth() const {
-  return width_;
-}
-
-template <typename T>
-tensorflow::Status RenderTargets<T>::CopyPixelsInto(
-    absl::Span<T> buffer) const {
+tensorflow::Status RenderTargets::CopyPixelsInto(absl::Span<T> buffer) const {
   return TFG_INTERNAL_ERROR("Unsupported type ", typeid(T).name());
 }
 
 template <>
-inline tensorflow::Status RenderTargets<float>::CopyPixelsInto(
+inline tensorflow::Status RenderTargets::CopyPixelsInto<float>(
     absl::Span<float> buffer) const {
   return CopyPixelsIntoValidPixelType(GL_FLOAT, buffer);
 }
 
 template <>
-inline tensorflow::Status RenderTargets<unsigned char>::CopyPixelsInto(
+inline tensorflow::Status RenderTargets::CopyPixelsInto<unsigned char>(
     absl::Span<unsigned char> buffer) const {
   return CopyPixelsIntoValidPixelType(GL_UNSIGNED_BYTE, buffer);
 }
 
 template <typename T>
-tensorflow::Status RenderTargets<T>::CopyPixelsIntoValidPixelType(
+tensorflow::Status RenderTargets::CopyPixelsIntoValidPixelType(
     GLenum pixel_type, absl::Span<T> buffer) const {
   if (buffer.size() != size_t(width_ * height_ * 4))
     return TFG_INTERNAL_ERROR("Buffer size is not equal to width * height * 4");
 
   TFG_RETURN_IF_GL_ERROR(
       glReadPixels(0, 0, width_, height_, GL_RGBA, pixel_type, buffer.data()));
-  return tensorflow::Status::OK();
-}
-
-template <typename T>
-tensorflow::Status RenderTargets<T>::UnbindFrameBuffer() const {
-  TFG_RETURN_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, 0));
   return tensorflow::Status::OK();
 }
 

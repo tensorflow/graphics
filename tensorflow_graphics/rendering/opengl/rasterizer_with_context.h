@@ -102,8 +102,8 @@ class RasterizerWithContext : public Rasterizer<T> {
   RasterizerWithContext(
       std::unique_ptr<EGLOffscreenContext>&& egl_context,
       std::unique_ptr<gl_utils::Program>&& program,
-      std::unique_ptr<gl_utils::RenderTargets<T>>&& render_targets,
-      float clear_r, float clear_g, float clear_b, float clear_depth);
+      std::unique_ptr<gl_utils::RenderTargets>&& render_targets, float clear_r,
+      float clear_g, float clear_b, float clear_depth);
   RasterizerWithContext(const RasterizerWithContext&) = delete;
   RasterizerWithContext(RasterizerWithContext&&) = delete;
   RasterizerWithContext& operator=(const RasterizerWithContext&) = delete;
@@ -116,7 +116,7 @@ template <typename T>
 RasterizerWithContext<T>::RasterizerWithContext(
     std::unique_ptr<EGLOffscreenContext>&& egl_context,
     std::unique_ptr<gl_utils::Program>&& program,
-    std::unique_ptr<gl_utils::RenderTargets<T>>&& render_targets, float clear_r,
+    std::unique_ptr<gl_utils::RenderTargets>&& render_targets, float clear_r,
     float clear_g, float clear_b, float clear_depth)
     : egl_context_(std::move(egl_context)),
       Rasterizer<T>(std::move(program), std::move(render_targets), clear_r,
@@ -145,7 +145,7 @@ tensorflow::Status RasterizerWithContext<T>::Create(
     std::unique_ptr<RasterizerWithContext<T>>* rasterizer_with_context,
     float clear_r, float clear_g, float clear_b, float clear_depth) {
   std::unique_ptr<gl_utils::Program> program;
-  std::unique_ptr<gl_utils::RenderTargets<float>> render_targets;
+  std::unique_ptr<gl_utils::RenderTargets> render_targets;
   std::vector<std::pair<std::string, GLenum>> shaders;
   std::unique_ptr<EGLOffscreenContext> offscreen_context;
 
@@ -160,7 +160,7 @@ tensorflow::Status RasterizerWithContext<T>::Create(
   shaders.push_back(std::make_pair(fragment_shader_source, GL_FRAGMENT_SHADER));
   TF_RETURN_IF_ERROR(gl_utils::Program::Create(shaders, &program));
   TF_RETURN_IF_ERROR(
-      gl_utils::RenderTargets<T>::Create(width, height, &render_targets));
+      gl_utils::RenderTargets::Create<float>(width, height, &render_targets));
   TF_RETURN_IF_ERROR(offscreen_context->Release());
   *rasterizer_with_context =
       std::unique_ptr<RasterizerWithContext>(new RasterizerWithContext(
