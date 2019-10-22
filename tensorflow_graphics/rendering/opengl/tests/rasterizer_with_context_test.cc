@@ -18,11 +18,10 @@ limitations under the License.
 #include <thread>
 
 #include "gtest/gtest.h"
+#include "absl/types/span.h"
+#include "tensorflow_graphics/rendering/opengl/thread_safe_resource_pool.h"
 #include "tensorflow/core/lib/core/status.h"
 #include "tensorflow/core/lib/core/status_test_util.h"
-
-#include "tensorflow_graphics/rendering/opengl/thread_safe_resource_pool.h"
-
 
 namespace {
 
@@ -106,11 +105,11 @@ const std::string geometry_shader_code =
 TEST(RasterizerWithContextTest, TestCreate) {
   constexpr int kWidth = 5;
   constexpr int kHeight = 5;
-  std::unique_ptr<RasterizerWithContext<float>> rasterizer_with_context;
+  std::unique_ptr<RasterizerWithContext> rasterizer_with_context;
 
-  TF_CHECK_OK(RasterizerWithContext<float>::Create(
-      kWidth, kHeight, kEmptyShaderCode, kEmptyShaderCode, kEmptyShaderCode,
-      &rasterizer_with_context));
+  TF_CHECK_OK(RasterizerWithContext::Create(kWidth, kHeight, kEmptyShaderCode,
+                                            kEmptyShaderCode, kEmptyShaderCode,
+                                            &rasterizer_with_context));
 }
 
 TEST(RasterizerWithContextTest, TestRenderSingleThread) {
@@ -121,9 +120,9 @@ TEST(RasterizerWithContextTest, TestRenderSingleThread) {
   constexpr float kClearBlue = 0.3;
   constexpr int kNumRenders = 100;
   constexpr int kNumVertices = 0;
-  std::unique_ptr<RasterizerWithContext<float>> rasterizer_with_context;
+  std::unique_ptr<RasterizerWithContext> rasterizer_with_context;
 
-  TF_ASSERT_OK(RasterizerWithContext<float>::Create(
+  TF_ASSERT_OK(RasterizerWithContext::Create(
       kWidth, kHeight, kEmptyShaderCode, geometry_shader_code,
       fragment_shader_code, &rasterizer_with_context, kClearRed, kClearGreen,
       kClearBlue));
@@ -147,7 +146,7 @@ constexpr float kIncrementBlue = 0.003;
 
 template <int kWidth, int kHeight>
 static tensorflow::Status rasterizer_with_context_creator(
-    std::unique_ptr<RasterizerWithContext<float>> *resource) {
+    std::unique_ptr<RasterizerWithContext> *resource) {
   static float red_clear = 0.0;
   static float green_clear = 0.0;
   static float blue_clear = 0.0;
@@ -155,7 +154,7 @@ static tensorflow::Status rasterizer_with_context_creator(
   red_clear += kIncrementRed;
   green_clear += kIncrementGreen;
   blue_clear += kIncrementBlue;
-  return RasterizerWithContext<float>::Create(
+  return RasterizerWithContext::Create(
       kWidth, kHeight, kEmptyShaderCode, geometry_shader_code,
       fragment_shader_code, resource, red_clear, green_clear, blue_clear);
 }
@@ -167,16 +166,17 @@ TEST(RasterizerWithContextTest, TestRenderMultiThread) {
   constexpr int pixel_query = kWidth * kHeight / 2;
   std::array<std::thread, kNumThreads> threads;
   std::array<std::vector<float>, kNumThreads> buffers;
-  std::array<std::unique_ptr<RasterizerWithContext<float>>, kNumThreads>
-      rasterizers;
+  std::array<std::unique_ptr<RasterizerWithContext>, kNumThreads> rasterizers;
+  auto rendering_function_pointer =
+      static_cast<tensorflow::Status (RasterizerWithContext::*)(
+          int, absl::Span<float>)>(&RasterizerWithContext::Render);
 
   for (int i = 0; i < kNumThreads; ++i) {
     buffers[i].resize(kWidth * kHeight * 4);
     TF_ASSERT_OK(
         (rasterizer_with_context_creator<kWidth, kHeight>(&rasterizers[i])));
-    threads[i] =
-        std::thread(&RasterizerWithContext<float>::Render, rasterizers[i].get(),
-                    0, absl::MakeSpan(buffers[i]));
+    threads[i] = std::thread(rendering_function_pointer, rasterizers[i].get(),
+                             0, absl::MakeSpan(buffers[i]));
   }
 
   // Wait for each thread to be done, accumulate values from the rendered
@@ -206,17 +206,18 @@ TEST(RasterizerWithContextTest, TestRenderMultiThreadLoop) {
   typedef float buffer_type;
   std::array<std::thread, kNumThreads> threads;
   std::array<std::vector<buffer_type>, kNumThreads> buffers;
-  std::array<std::unique_ptr<RasterizerWithContext<float>>, kNumThreads>
-      rasterizers;
+  std::array<std::unique_ptr<RasterizerWithContext>, kNumThreads> rasterizers;
+  auto rendering_function_pointer =
+      static_cast<tensorflow::Status (RasterizerWithContext::*)(
+          int, absl::Span<float>)>(&RasterizerWithContext::Render);
 
   // Launch all the threads.
   for (int i = 0; i < kNumThreads; ++i) {
     buffers[i].resize(kWidth * kHeight * 4);
     TF_ASSERT_OK(
         (rasterizer_with_context_creator<kWidth, kHeight>(&rasterizers[i])));
-    threads[i] =
-        std::thread(&RasterizerWithContext<float>::Render, rasterizers[i].get(),
-                    0, absl::MakeSpan(buffers[i]));
+    threads[i] = std::thread(rendering_function_pointer, rasterizers[i].get(),
+                             0, absl::MakeSpan(buffers[i]));
   }
 
   for (int l = 0; l < kNumLoops; ++l) {
@@ -226,9 +227,8 @@ TEST(RasterizerWithContextTest, TestRenderMultiThreadLoop) {
     }
     // Launch another set of rendering threads.
     for (int i = 0; i < kNumThreads; ++i) {
-      threads[i] =
-          std::thread(&RasterizerWithContext<float>::Render,
-                      rasterizers[i].get(), 0, absl::MakeSpan(buffers[i]));
+      threads[i] = std::thread(rendering_function_pointer, rasterizers[i].get(),
+                               0, absl::MakeSpan(buffers[i]));
     }
   }
 

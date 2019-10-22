@@ -20,8 +20,7 @@ limitations under the License.
 #include "tensorflow_graphics/util/cleanup.h"
 #include "tensorflow/core/lib/core/status.h"
 
-template <typename T>
-class RasterizerWithContext : public Rasterizer<T> {
+class RasterizerWithContext : public Rasterizer {
  public:
   ~RasterizerWithContext();
 
@@ -49,7 +48,7 @@ class RasterizerWithContext : public Rasterizer<T> {
       int width, int height, const std::string& vertex_shader_source,
       const std::string& geometry_shader_source,
       const std::string& fragment_shader_source,
-      std::unique_ptr<RasterizerWithContext<T>>* rasterizer_with_context,
+      std::unique_ptr<RasterizerWithContext>* rasterizer_with_context,
       float clear_r = 0.0f, float clear_g = 0.0f, float clear_b = 0.0f,
       float clear_depth = 1.0f);
 
@@ -63,7 +62,9 @@ class RasterizerWithContext : public Rasterizer<T> {
   // Returns:
   //   A boolean set to false if any error occured during the process, and set
   //   to true otherwise.
-  tensorflow::Status Render(int num_points, absl::Span<T> result) override;
+  tensorflow::Status Render(int num_points, absl::Span<float> result) override;
+  tensorflow::Status Render(int num_points,
+                            absl::Span<unsigned char> result) override;
 
   // Uploads data to a shader storage buffer.
   //
@@ -74,9 +75,9 @@ class RasterizerWithContext : public Rasterizer<T> {
   // Returns:
   //   A boolean set to false if any error occured during the process, and set
   //   to true otherwise.
-  template <typename S>
+  template <typename T>
   tensorflow::Status SetShaderStorageBuffer(const std::string& name,
-                                            absl::Span<const S> data);
+                                            absl::Span<const T> data);
 
   // Specifies the value of a uniform matrix.
   //
@@ -93,9 +94,10 @@ class RasterizerWithContext : public Rasterizer<T> {
   // Returns:
   //   A boolean set to false if any error occured during the process, and set
   //   to true otherwise.
+  template <typename T>
   tensorflow::Status SetUniformMatrix(const std::string& name, int num_columns,
                                       int num_rows, bool transpose,
-                                      absl::Span<const T> matrix) override;
+                                      absl::Span<const T> matrix);
 
  private:
   RasterizerWithContext() = delete;
@@ -113,96 +115,38 @@ class RasterizerWithContext : public Rasterizer<T> {
 };
 
 template <typename T>
-RasterizerWithContext<T>::RasterizerWithContext(
-    std::unique_ptr<EGLOffscreenContext>&& egl_context,
-    std::unique_ptr<gl_utils::Program>&& program,
-    std::unique_ptr<gl_utils::RenderTargets>&& render_targets, float clear_r,
-    float clear_g, float clear_b, float clear_depth)
-    : egl_context_(std::move(egl_context)),
-      Rasterizer<T>(std::move(program), std::move(render_targets), clear_r,
-                    clear_g, clear_b, clear_depth) {}
-
-template <typename T>
-RasterizerWithContext<T>::~RasterizerWithContext() {
-  // Destroy the rasterizer in the correct EGL context.
-  auto status = egl_context_->MakeCurrent();
-  if (status != tensorflow::Status::OK())
-    std::cerr
-        << "~RasterizerWithContext: failure to set the context as current."
-        << std::endl;
-  // Reset all the members of the Rasterizer parent class before destroying the
-  // context.
-  this->Reset();
-  // egl_context_ is destroyed here, which calls
-  // egl_offscreen_context::Release().
-}
-
-template <typename T>
-tensorflow::Status RasterizerWithContext<T>::Create(
-    int width, int height, const std::string& vertex_shader_source,
-    const std::string& geometry_shader_source,
-    const std::string& fragment_shader_source,
-    std::unique_ptr<RasterizerWithContext<T>>* rasterizer_with_context,
-    float clear_r, float clear_g, float clear_b, float clear_depth) {
-  std::unique_ptr<gl_utils::Program> program;
-  std::unique_ptr<gl_utils::RenderTargets> render_targets;
-  std::vector<std::pair<std::string, GLenum>> shaders;
-  std::unique_ptr<EGLOffscreenContext> offscreen_context;
-
-  TF_RETURN_IF_ERROR(EGLOffscreenContext::Create(&offscreen_context));
-  TF_RETURN_IF_ERROR(offscreen_context->MakeCurrent());
-  // No need to have a MakeCleanup here as EGLOffscreenContext::Release()
-  // would be called on destruction of the offscreen_context object, which
-  // would happen here if the whole creation process was not successful.
-
-  shaders.push_back(std::make_pair(vertex_shader_source, GL_VERTEX_SHADER));
-  shaders.push_back(std::make_pair(geometry_shader_source, GL_GEOMETRY_SHADER));
-  shaders.push_back(std::make_pair(fragment_shader_source, GL_FRAGMENT_SHADER));
-  TF_RETURN_IF_ERROR(gl_utils::Program::Create(shaders, &program));
-  TF_RETURN_IF_ERROR(
-      gl_utils::RenderTargets::Create<float>(width, height, &render_targets));
-  TF_RETURN_IF_ERROR(offscreen_context->Release());
-  *rasterizer_with_context =
-      std::unique_ptr<RasterizerWithContext>(new RasterizerWithContext(
-          std::move(offscreen_context), std::move(program),
-          std::move(render_targets), clear_r, clear_g, clear_b, clear_depth));
-  return tensorflow::Status::OK();
-}
-
-template <typename T>
-tensorflow::Status RasterizerWithContext<T>::Render(int num_points,
-                                                    absl::Span<T> result) {
+tensorflow::Status RasterizerWithContext::SetShaderStorageBuffer(
+    const std::string& name, absl::Span<const T> data) {
   TF_RETURN_IF_ERROR(egl_context_->MakeCurrent());
   auto context_cleanup =
-      MakeCleanup([this]() { this->egl_context_->Release(); });
-  TF_RETURN_IF_ERROR(Rasterizer<T>::Render(num_points, result));
+      MakeCleanup([this]() { return this->egl_context_->Release(); });
+  TF_RETURN_IF_ERROR(Rasterizer::SetShaderStorageBuffer(name, data));
   // context_cleanup calls EGLOffscreenContext::Release here.
   return tensorflow::Status::OK();
 }
 
 template <typename T>
-template <typename S>
-tensorflow::Status RasterizerWithContext<T>::SetShaderStorageBuffer(
-    const std::string& name, absl::Span<const S> data) {
-  TF_RETURN_IF_ERROR(egl_context_->MakeCurrent());
-  auto context_cleanup =
-      MakeCleanup([this]() { this->egl_context_->Release(); });
-  TF_RETURN_IF_ERROR(Rasterizer<T>::SetShaderStorageBuffer(name, data));
-  // context_cleanup calls EGLOffscreenContext::Release here.
-  return tensorflow::Status::OK();
-}
-
-template <typename T>
-tensorflow::Status RasterizerWithContext<T>::SetUniformMatrix(
+tensorflow::Status RasterizerWithContext::SetUniformMatrix(
     const std::string& name, int num_columns, int num_rows, bool transpose,
     absl::Span<const T> matrix) {
   TF_RETURN_IF_ERROR(egl_context_->MakeCurrent());
   auto context_cleanup =
-      MakeCleanup([this]() { this->egl_context_->Release(); });
-  TF_RETURN_IF_ERROR(Rasterizer<T>::SetUniformMatrix(
-      name, num_columns, num_rows, transpose, matrix));
+      MakeCleanup([this]() { return this->egl_context_->Release(); });
+  TF_RETURN_IF_ERROR(Rasterizer::SetUniformMatrix(name, num_columns, num_rows,
+                                                  transpose, matrix));
   // context_cleanup calls EGLOffscreenContext::Release here.
   return tensorflow::Status::OK();
 }
+
+// template <typename T>
+// tensorflow::Status RasterizerWithContext::Render(
+//     int num_points, absl::Span<T> result) {
+//   TF_RETURN_IF_ERROR(egl_context_->MakeCurrent());
+//   auto context_cleanup =
+//       MakeCleanup([this]() { return this->egl_context_->Release(); });
+//   TF_RETURN_IF_ERROR(Rasterizer::Render(num_points, result));
+//   // context_cleanup calls EGLOffscreenContext::Release here.
+//   return tensorflow::Status::OK();
+// }
 
 #endif  // THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_RASTERIZER_WITH_CONTEXT_H_

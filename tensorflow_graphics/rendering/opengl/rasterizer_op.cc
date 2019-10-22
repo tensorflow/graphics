@@ -93,21 +93,21 @@ class RasterizeOp : public tensorflow::OpKernel {
     auto rasterizer_creator =
         [vertex_shader, geometry_shader, fragment_shader, red_clear,
          green_clear, blue_clear, depth_clear,
-         this](std::unique_ptr<RasterizerWithContext<float>>* resource)
+         this](std::unique_ptr<RasterizerWithContext>* resource)
         -> tensorflow::Status {
-      return RasterizerWithContext<float>::Create(
+      return RasterizerWithContext::Create(
           output_resolution_.dim_size(1), output_resolution_.dim_size(0),
           vertex_shader, geometry_shader, fragment_shader, resource, red_clear,
           green_clear, blue_clear, depth_clear);
     };
     rasterizer_pool_ =
-        std::unique_ptr<ThreadSafeResourcePool<RasterizerWithContext<float>>>(
-            new ThreadSafeResourcePool<RasterizerWithContext<float>>(
+        std::unique_ptr<ThreadSafeResourcePool<RasterizerWithContext>>(
+            new ThreadSafeResourcePool<RasterizerWithContext>(
                 rasterizer_creator));
   }
 
   void Compute(tensorflow::OpKernelContext* context) override {
-    std::unique_ptr<RasterizerWithContext<float>> rasterizer;
+    std::unique_ptr<RasterizerWithContext> rasterizer;
 
     OP_REQUIRES_OK(context, rasterizer_pool_->AcquireResource(&rasterizer));
     OP_REQUIRES_OK(context, SetVariables(context, rasterizer));
@@ -118,12 +118,12 @@ class RasterizeOp : public tensorflow::OpKernel {
  private:
   tensorflow::Status SetVariables(
       tensorflow::OpKernelContext* context,
-      std::unique_ptr<RasterizerWithContext<float>>& rasterizer);
+      std::unique_ptr<RasterizerWithContext>& rasterizer);
   tensorflow::Status RenderImage(
       tensorflow::OpKernelContext* context,
-      std::unique_ptr<RasterizerWithContext<float>>& rasterizer);
+      std::unique_ptr<RasterizerWithContext>& rasterizer);
 
-  std::unique_ptr<ThreadSafeResourcePool<RasterizerWithContext<float>>>
+  std::unique_ptr<ThreadSafeResourcePool<RasterizerWithContext>>
       rasterizer_pool_;
   std::vector<std::string> variable_names_;
   std::vector<std::string> variable_kinds_;
@@ -132,7 +132,7 @@ class RasterizeOp : public tensorflow::OpKernel {
 
 tensorflow::Status RasterizeOp::RenderImage(
     tensorflow::OpKernelContext* context,
-    std::unique_ptr<RasterizerWithContext<float>>& rasterizer) {
+    std::unique_ptr<RasterizerWithContext>& rasterizer) {
   tensorflow::Tensor* output_image;
   tensorflow::TensorShape output_image_shape(
       {output_resolution_.dim_size(0), output_resolution_.dim_size(1), 4});
@@ -149,7 +149,7 @@ tensorflow::Status RasterizeOp::RenderImage(
 
 tensorflow::Status RasterizeOp::SetVariables(
     tensorflow::OpKernelContext* context,
-    std::unique_ptr<RasterizerWithContext<float>>& rasterizer) {
+    std::unique_ptr<RasterizerWithContext>& rasterizer) {
   tensorflow::OpInputList variable_values;
   TF_RETURN_IF_ERROR(context->input_list("variable_values", &variable_values));
 

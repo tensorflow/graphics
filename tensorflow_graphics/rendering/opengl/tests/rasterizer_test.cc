@@ -103,23 +103,23 @@ const std::string kGeometryShaderCode =
 
 TEST(RasterizerTest, TestCreate) {
   std::unique_ptr<EGLOffscreenContext> context;
-  std::unique_ptr<Rasterizer<float>> rasterizer;
+  std::unique_ptr<Rasterizer> rasterizer;
 
   TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
   TF_ASSERT_OK(context->MakeCurrent());
   TF_EXPECT_OK(
-      (Rasterizer<float>::Create(3, 2, kEmptyShaderCode, kEmptyShaderCode,
+      (Rasterizer::Create<float>(3, 2, kEmptyShaderCode, kEmptyShaderCode,
                                  kEmptyShaderCode, &rasterizer)));
 }
 
 TEST(RasterizerTest, TestSetShaderStorageBuffer) {
   std::unique_ptr<EGLOffscreenContext> context;
-  std::unique_ptr<Rasterizer<float>> rasterizer;
+  std::unique_ptr<Rasterizer> rasterizer;
 
   TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
   TF_ASSERT_OK(context->MakeCurrent());
   TF_ASSERT_OK(
-      (Rasterizer<float>::Create(3, 2, kEmptyShaderCode, kEmptyShaderCode,
+      (Rasterizer::Create<float>(3, 2, kEmptyShaderCode, kEmptyShaderCode,
                                  kEmptyShaderCode, &rasterizer)));
 
   // Fronto-parallel triangle at depth 1.
@@ -132,12 +132,12 @@ TEST(RasterizerTest, TestSetShaderStorageBuffer) {
 
 TEST(RasterizerTest, TestSetUniformMatrix) {
   std::unique_ptr<EGLOffscreenContext> context;
-  std::unique_ptr<Rasterizer<float>> rasterizer;
+  std::unique_ptr<Rasterizer> rasterizer;
 
   TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
   TF_ASSERT_OK(context->MakeCurrent());
   TF_ASSERT_OK(
-      (Rasterizer<float>::Create(3, 2, kEmptyShaderCode, kGeometryShaderCode,
+      (Rasterizer::Create<float>(3, 2, kEmptyShaderCode, kGeometryShaderCode,
                                  kFragmentShaderCode, &rasterizer)));
 
   const std::string resource_name = "view_projection_matrix";
@@ -157,7 +157,7 @@ TYPED_TEST(RasterizerInterfaceTest, TestRender) {
       -1.73205, 0.0, 0.0,      0.0, 0.0, 1.73205, 0.0,         0.0,
       0.0,      0.0, 1.002002, 1.0, 0.0, 0.0,     -0.02002002, 0.0};
   std::unique_ptr<EGLOffscreenContext> context;
-  std::unique_ptr<Rasterizer<TypeParam>> rasterizer;
+  std::unique_ptr<Rasterizer> rasterizer;
   const int kWidth = 3;
   const int kHeight = 3;
   float max_gl_value = 255.0f;
@@ -166,7 +166,7 @@ TYPED_TEST(RasterizerInterfaceTest, TestRender) {
 
   TF_ASSERT_OK(EGLOffscreenContext::Create(&context));
   TF_ASSERT_OK(context->MakeCurrent());
-  TF_ASSERT_OK((Rasterizer<TypeParam>::Create(
+  TF_ASSERT_OK((Rasterizer::Create<TypeParam>(
       kWidth, kHeight, kEmptyShaderCode, kGeometryShaderCode,
       kFragmentShaderCode, &rasterizer)));
   TF_ASSERT_OK(rasterizer->SetUniformMatrix("view_projection_matrix", 4, 4,

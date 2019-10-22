@@ -248,6 +248,7 @@ py_test(
 
 cc_library(
     name = "rasterizer",
+    srcs = ["rasterizer.cc"],
     hdrs = ["rasterizer.h"],
     deps = [
         ":gl_program",
@@ -303,8 +304,10 @@ tf_custom_op_library(
         "gl_shader_storage_buffer.cc",
         "gl_shader_storage_buffer.h",
         "macros.h",
+        "rasterizer.cc",
         "rasterizer.h",
         "rasterizer_op.cc",
+        "rasterizer_with_context.cc",
         "rasterizer_with_context.h",
         "thread_safe_resource_pool.h",
     ],
@@ -362,6 +365,7 @@ py_test(
 
 cc_library(
     name = "rasterizer_with_context",
+    srcs = ["rasterizer_with_context.cc"],
     hdrs = ["rasterizer_with_context.h"],
     deps = [
         ":egl_offscreen_context",
@@ -384,6 +388,7 @@ cc_test(
         ":thread_safe_resource_pool",
         "//third_party/tensorflow/core:lib",
         "//third_party/tensorflow/core:test",
+        "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_main",
     ],
 )
