@@ -19,7 +19,7 @@ from __future__ import print_function
 
 from absl.testing import parameterized
 import numpy as np
-import scipy as sp
+from scipy import linalg
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.convolution import utils
@@ -516,7 +516,7 @@ class UtilsConvertToBlockDiag2dTests(test_case.TestCase):
   def _validate_sizes(self, block_diag_tensor, sizes):
     """Assert all elements outside the blocks are zero."""
     data = [np.ones(shape=s) for s in sizes]
-    mask = 1.0 - sp.linalg.block_diag(*data)
+    mask = 1.0 - linalg.block_diag(*data)
 
     self.assertAllEqual(
         tf.sparse.to_dense(block_diag_tensor) * mask, np.zeros_like(mask))
@@ -570,7 +570,7 @@ class UtilsConvertToBlockDiag2dTests(test_case.TestCase):
       batch_data_padded[i, :s[0], :s[1]] = data[i]
 
     batch_data_padded_sparse = _dense_to_sparse(batch_data_padded)
-    block_diag_data = sp.linalg.block_diag(*data)
+    block_diag_data = linalg.block_diag(*data)
     block_diag_sparse = utils.convert_to_block_diag_2d(
         batch_data_padded_sparse, sizes=sizes)
 
@@ -579,7 +579,7 @@ class UtilsConvertToBlockDiag2dTests(test_case.TestCase):
   def test_convert_to_block_diag_2d_no_padding(self):
     """Test block diagonalization without any padding."""
     batch_data = np.random.uniform(size=(3, 4, 5, 4))
-    block_diag_data = sp.linalg.block_diag(
+    block_diag_data = linalg.block_diag(
         *[x for x in np.reshape(batch_data, (-1, 5, 4))])
 
     batch_data_sparse = _dense_to_sparse(batch_data)
