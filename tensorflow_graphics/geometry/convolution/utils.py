@@ -455,53 +455,5 @@ def convert_to_block_diag_2d(data,
     return block_diag
 
 
-def partition_sums_2d(data, group_ids, row_weights=None, name=None):
-  """Sum over subsets of rows in a 2-D tensor.
-
-  Args:
-    data: 2-D tensor with shape `[D1, D2]`.
-    group_ids: 1-D `int` tensor with shape `[D1]`.
-    row_weights: 1-D tensor with shape `[D1]`. Can be `None`.
-    name: A name for this op. Defaults to 'utils_partition_sums_2d'.
-
-  Returns:
-    A 2-D tensor with shape `[max(group_ids) + 1, D2]` where
-      `output[i, :] = sum(data[j, :] * weight[j] * 1(group_ids[j] == i)), 1(.)`
-      is the indicator function.
-
-  Raises:
-    ValueError: if the inputs have invalid dimensions or types.
-  """
-  with tf.compat.v1.name_scope(name, "utils_partition_sums_2d",
-                               [data, group_ids, row_weights]):
-    data = tf.convert_to_tensor(value=data)
-    group_ids = tf.convert_to_tensor(value=group_ids)
-    if not group_ids.dtype.is_integer:
-      raise TypeError("'group_ids' must be an integer tensor.")
-    elif group_ids.dtype != tf.int64:
-      group_ids = tf.cast(group_ids, dtype=tf.int64)
-    if row_weights is None:
-      row_weights = tf.ones_like(group_ids, dtype=data.dtype)
-    else:
-      row_weights = tf.convert_to_tensor(value=row_weights)
-
-    if row_weights.dtype != data.dtype:
-      raise TypeError("'data' and 'row_weights' must have the same type.")
-    shape.check_static(tensor=data, tensor_name="data", has_rank=2)
-    shape.check_static(tensor=group_ids, tensor_name="group_ids", has_rank=1)
-    shape.check_static(
-        tensor=row_weights, tensor_name="row_weights", has_rank=1)
-    shape.compare_dimensions(
-        tensors=(data, group_ids, row_weights),
-        tensor_names=("data", "group_ids", "row_weights"),
-        axes=0)
-
-    num_rows = tf.size(input=group_ids, out_type=tf.int64)
-    sparse_indices = tf.stack((group_ids, tf.range(num_rows)), axis=1)
-    out_shape = (tf.reduce_max(input_tensor=group_ids) + 1, num_rows)
-    sparse = tf.SparseTensor(sparse_indices, row_weights, dense_shape=out_shape)
-    return tf.sparse.sparse_dense_matmul(sparse, data)
-
-
 # API contains all public functions and classes.
 __all__ = []

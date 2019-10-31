@@ -143,11 +143,15 @@ def feature_steered_convolution(data,
     x_sep = tf.gather(x_flat, adjacency_ind_1)
     q_m_list = tf.unstack(weights_q, axis=-1)
     w_m_list = tf.unstack(var_w, axis=0)
+
+    x_flat_shape = tf.shape(input=x_flat)
     for q_m, w_m in zip(q_m_list, w_m_list):
       # Compute `y_i_m = sum_{j in neighborhood(i)} q_m(x_i, x_j) * w_m * x_j`.
       q_m = tf.expand_dims(q_m, axis=-1)
-      p_sum = utils.partition_sums_2d(q_m * x_sep, adjacency_ind_0,
-                                      adjacency.values)
+      p_sum = tf.math.unsorted_segment_sum(
+          data=(q_m * x_sep) * tf.expand_dims(adjacency.values, -1),
+          segment_ids=adjacency_ind_0,
+          num_segments=x_flat_shape[0])
       y_i_m.append(tf.matmul(p_sum, w_m))
     y_out = tf.add_n(inputs=y_i_m) + tf.reshape(var_b, [1, -1])
     if data_ndims > 2:
@@ -262,16 +266,21 @@ def edge_convolution_template(data,
                                   **edge_function_kwargs)
 
     if reduction == "weighted":
-      features = utils.partition_sums_2d(edge_features, adjacency_ind_0,
-                                         adjacency.values)
+      edge_features_weighted = edge_features * tf.expand_dims(
+          adjacency.values, -1)
+      features = tf.math.unsorted_segment_sum(
+          data=edge_features_weighted,
+          segment_ids=adjacency_ind_0,
+          num_segments=tf.shape(input=x_flat)[0])
     elif reduction == "max":
       features = tf.math.segment_max(data=edge_features,
                                      segment_ids=adjacency_ind_0)
-      features.set_shape(features.shape.merge_with(
-          (tf.compat.v1.dimension_value(x_flat.shape[0]),
-           tf.compat.v1.dimension_value(edge_features.shape[-1]))))
     else:
       raise ValueError("The reduction method must be 'weighted' or 'max'")
+
+    features.set_shape(features.shape.merge_with(
+        (tf.compat.v1.dimension_value(x_flat.shape[0]),
+         tf.compat.v1.dimension_value(edge_features.shape[-1]))))
 
     if data_ndims > 2:
       features = unflatten(features)

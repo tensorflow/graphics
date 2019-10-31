@@ -663,6 +663,54 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
     with self.subTest(name="shape"):
       self.assertAllEqual(y_shape[:-1], data.shape[:-1])
 
+  def test_edge_convolution_template_zero_neighbors(self):
+    """Check that vertices with no neighbors map to zeros in the output."""
+    # We can reuse `self._edge_curvature_2d` as the curvature functional.
+    num_vertices = 500
+    data, neighbors = self._circular_2d_data(num_vertices, include_normals=True)
+
+    # Interleave the data with rows filled with random data, these rows will
+    # have no neighbors in the adjacency matrix so should map to all zeros in
+    # the output.
+    rows_odd = tf.expand_dims(
+        tf.range(start=1, limit=(2 * num_vertices), delta=2), -1)
+    rows_even = tf.expand_dims(
+        tf.range(start=0, limit=(2 * num_vertices + 1), delta=2), -1)
+    data_interleaved = tf.scatter_nd(
+        indices=rows_odd, updates=data,
+        shape=(2 * num_vertices + 1, tf.shape(input=data)[-1]))
+    random_data = tf.random.uniform(shape=(data.shape[0] + 1, data.shape[-1]),
+                                    dtype=data.dtype)
+    random_interleaved = tf.scatter_nd(
+        indices=rows_even, updates=random_data,
+        shape=(2 * num_vertices + 1, tf.shape(input=data)[-1]))
+    data_interleaved = data_interleaved + random_interleaved
+    neighbors_interleaved_indices = neighbors.indices * 2 + 1
+    neighbors_interleaved = tf.SparseTensor(
+        indices=neighbors_interleaved_indices,
+        values=neighbors.values,
+        dense_shape=(2 * num_vertices + 1, 2 * num_vertices + 1))
+
+    # Convolve the interleaved data.
+    data_curvature = gc.edge_convolution_template(
+        data=data_interleaved,
+        neighbors=neighbors_interleaved,
+        sizes=None,
+        edge_function=self._edge_curvature_2d,
+        reduction="weighted",
+        edge_function_kwargs=dict())
+
+    self.assertEqual(data_curvature.shape,
+                     (2 * num_vertices + 1, 1))
+
+    # The rows corresponding to the original input data measure the curvature.
+    # The curvature at any point on a circle of radius 1 should be 1.
+    # The interleaved rows of random data should map to zeros in the output.
+    self.assertAllClose(data_curvature[1::2, :],
+                        np.ones(shape=(num_vertices, 1)))
+    self.assertAllClose(data_curvature[::2, :],
+                        np.zeros(shape=(num_vertices + 1, 1)))
+
   @parameterized.parameters(
       (1, 10, 3, True, "weighted"),
       (3, 6, 1, True, "weighted"),
