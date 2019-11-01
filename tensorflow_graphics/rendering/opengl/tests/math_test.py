@@ -603,16 +603,12 @@ class MathTest(test_case.TestCase):
     gt_screen = ((-13.23016357, 599.30444336, 4.00215721),
                  (98.07017517, -95.40383911, 3.1234405))
     gt_w = ((5.1,), (3.42247,))
-    self.assertAllClose(pred_screen, gt_screen)
+    self.assertAllClose(pred_screen, gt_screen, atol=1e-5, rtol=1e-5)
     self.assertAllClose(pred_w, gt_w)
 
   @parameterized.parameters(
       ((3,), (3,), (3,), (3,), (1,), (2,), (1,), (1,), (2,)),
-      ((
-          640,
-          480,
-          3,
-      ), (3,), (3,), (3,), (1,), (2,), (1,), (1,), (2,)),
+      ((640, 480, 3), (3,), (3,), (3,), (1,), (2,), (1,), (1,), (2,)),
       ((None, 3), (None, 3), (None, 3), (None, 3), (None, 1), (None, 2),
        (None, 1), (None, 1), (None, 2)),
       ((3,), (None, 1, 3), (None, 1, 3), (None, 1, 3), (None, 1, 1),

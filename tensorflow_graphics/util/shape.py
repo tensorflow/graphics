@@ -365,19 +365,7 @@ def compare_dimensions(tensors, axes, tensor_names=None):
   axes = _fix_axes(tensors, axes, allow_negative=False)
   if tensor_names is None:
     tensor_names = _give_default_names(tensors, 'tensor')
-  if not tf.executing_eagerly():
-    dimensions = [
-        int(tensor.shape[axis]) if tensor.shape[axis].value is not None else 1
-        for tensor, axis in zip(tensors, axes)
-    ]
-  else:
-    # In eager mode tensor.shape[axis].value doesn't exist if v2 behavior is
-    # enabled. Therefore we can use tf.shape() to return the shape as a tensor.
-    # This is compatible with both v1 and v2.
-    dimensions = [
-        int(tf.shape(input=tensor).numpy()[axis])
-        for tensor, axis in zip(tensors, axes)
-    ]
+  dimensions = [_get_dim(tensor, axis) for tensor, axis in zip(tensors, axes)]
   if not _all_are_equal(dimensions):
     raise ValueError('Tensors {} must have the same number of dimensions in '
                      'axes {}, but they are {}.'.format(
