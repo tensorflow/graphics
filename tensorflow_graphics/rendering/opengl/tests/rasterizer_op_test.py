@@ -17,6 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from absl.testing import parameterized
 import numpy as np
 import six
 import tensorflow as tf
@@ -113,6 +114,8 @@ void main() {
 class RasterizerOPTest(test_case.TestCase):
 
   def test_rasterize(self):
+    max_depth = 10
+    min_depth = 2
     height = 500
     width = 500
     camera_origin = (0.0, 0.0, 0.0)
@@ -121,6 +124,8 @@ class RasterizerOPTest(test_case.TestCase):
     fov = (60.0 * np.math.pi / 180,)
     near_plane = (1.0,)
     far_plane = (10.0,)
+    batch_shape = tf.convert_to_tensor(
+        value=(2, (max_depth - min_depth) // 2), dtype=tf.int32)
 
     world_to_camera = glm.look_at_right_handed(camera_origin, look_at,
                                                camera_up)
@@ -129,35 +134,89 @@ class RasterizerOPTest(test_case.TestCase):
     view_projection_matrix = tf.matmul(perspective_matrix, world_to_camera)
     view_projection_matrix = tf.squeeze(view_projection_matrix)
 
-    for depth in range(2, 5):
-      tris = np.array(
-          [[-10.0, 10.0, depth], [10.0, 10.0, depth], [0.0, -10.0, depth]],
-          dtype=np.float32)
-      tris_tf = tf.reshape(tris, [-1])
+    # Generate triangles at different depths and associated ground truth.
+    tris = np.zeros((max_depth - min_depth, 9), dtype=np.float32)
+    gt = np.zeros((max_depth - min_depth, width, height, 2), dtype=np.float32)
+    for idx in range(max_depth - min_depth):
+      tris[idx, :] = (-100.0, 100.0, idx + min_depth, 100.0, 100.0,
+                      idx + min_depth, 0.0, -100.0, idx + min_depth)
+      gt[idx, :, :, :] = (0, idx + min_depth)
 
-      render_parameters = {
-          "view_projection_matrix": ("mat", view_projection_matrix),
-          "triangular_mesh": ("buffer", tris_tf)
-      }
+    # Broadcast the variables.
+    render_parameters = {
+        "view_projection_matrix":
+            ("mat",
+             tf.broadcast_to(
+                 input=view_projection_matrix,
+                 shape=tf.concat(
+                     values=(batch_shape,
+                             tf.shape(input=view_projection_matrix)[-2:]),
+                     axis=0))),
+        "triangular_mesh":
+            ("buffer",
+             tf.reshape(
+                 tris, shape=tf.concat(values=(batch_shape, (9,)), axis=0)))
+    }
+    # Reshape the ground truth.
+    gt = tf.reshape(
+        gt, shape=tf.concat(values=(batch_shape, (width, height, 2)), axis=0))
 
-      render_parameters = list(six.iteritems(render_parameters))
-      variable_names = [v[0] for v in render_parameters]
-      variable_kinds = [v[1][0] for v in render_parameters]
-      variable_values = [v[1][1] for v in render_parameters]
+    render_parameters = list(six.iteritems(render_parameters))
+    variable_names = [v[0] for v in render_parameters]
+    variable_kinds = [v[1][0] for v in render_parameters]
+    variable_values = [v[1][1] for v in render_parameters]
 
-      result = rasterizer.rasterize(
-          num_points=tris.shape[0],
-          variable_names=variable_names,
-          variable_kinds=variable_kinds,
-          variable_values=variable_values,
-          output_resolution=(width, height),
-          vertex_shader=test_vertex_shader,
-          geometry_shader=test_geometry_shader,
-          fragment_shader=test_fragment_shader,
-      )
+    result = rasterizer.rasterize(
+        num_points=3,
+        variable_names=variable_names,
+        variable_kinds=variable_kinds,
+        variable_values=variable_values,
+        output_resolution=(width, height),
+        vertex_shader=test_vertex_shader,
+        geometry_shader=test_geometry_shader,
+        fragment_shader=test_fragment_shader,
+    )
 
-      gt = np.tile((0, depth), (width, height, 1))
-      self.assertAllClose(result[..., 2:4], gt)
+    self.assertAllClose(result[..., 2:4], gt)
+
+  @parameterized.parameters(
+      ("The variable names, kinds, and values must have the same size.",
+       ["var1"], ["buffer", "buffer"], [[1.0], [1.0]],
+       tf.errors.InvalidArgumentError, ValueError),
+      ("The variable names, kinds, and values must have the same size.",
+       ["var1", "var2"], ["buffer"], [[1.0], [1.0]],
+       tf.errors.InvalidArgumentError, ValueError),
+      ("The variable names, kinds, and values must have the same size.",
+       ["var1", "var2"], ["buffer", "buffer"], [[1.0]],
+       tf.errors.InvalidArgumentError, ValueError),
+      ("has an invalid batch", ["var1", "var2"], ["buffer", "buffer"],
+       [[1.0], [[1.0]]], tf.errors.InvalidArgumentError, ValueError),
+      ("has an invalid", ["var1"], ["mat"], [[1.0]],
+       tf.errors.InvalidArgumentError, ValueError),
+      ("has an invalid", ["var1"], ["buffer"], [1.0],
+       tf.errors.InvalidArgumentError, ValueError),
+  )
+  def test_invalid_variable_inputs(self, error_msg, variable_names,
+                                   variable_kinds, variable_values, error_eager,
+                                   error_graph_mode):
+    height = 1
+    width = 1
+    empty_shader_code = "#version 460\n void main() { }\n"
+    if tf.executing_eagerly():
+      error = error_eager
+    else:
+      error = error_graph_mode
+    with self.assertRaisesRegexp(error, error_msg):
+      self.evaluate(
+          rasterizer.rasterize(
+              num_points=0,
+              variable_names=variable_names,
+              variable_kinds=variable_kinds,
+              variable_values=variable_values,
+              output_resolution=(width, height),
+              vertex_shader=empty_shader_code,
+              geometry_shader=empty_shader_code,
+              fragment_shader=empty_shader_code))
 
 
 if __name__ == "__main__":
