@@ -85,6 +85,38 @@ REGISTER_OP("Rasterize")
     .Input("num_points: int32")
     .Input("variable_values: T")
     .Output("rendered_image: float")
+    .Doc(R"doc(
+Rasterization OP that runs the program specified by the supplied vertex,
+geometry and fragment shaders. Uniform variables and buffers can be passed to
+the program using variable_names, variable_kinds, and variable_values.
+
+Note that in the following, A1 to An are optional batch dimensions.
+
+output_resolution: a 2D shape containing the width and height of the resulting
+  image.
+red_clear: the red component for glClear.
+green_clear: the green component for glClear.
+blue_clear: the blue component for glClear.
+depth_clear: the depth value for glClearDepthf.
+vertex_shader: A string containing a valid vertex shader.
+fragment_shader: A string containing a valid fragment shader.
+geometry_shader: A string containing a valid geometry shader.
+variable_names: A list of strings describing the name of each variable passed
+  to the shaders. These names must map to the name of uniforms or buffers in
+  the supplied shaders.
+variable_kinds: A list of strings containing the type of each variable.
+  Possible values for each element are `mat` and `buffer`.
+num_points: The number of points to be rendered. When rasterizing a mesh, this
+  number should be set to the number of vertices in the mesh.
+variable_values: A list containing matrices of shape `[A1, ..., An, W, H]`
+  and/or buffers of shape `[A1, ..., An, S]`, with `W` and `H` in `[1,4]` and S of
+  arbitrary value. Using their associated name and kind, these values are
+  mapped to the corresponding uniform or buffer in the program. Note that all
+  variables must have the same batch dimensions `[A1, ..., An]`, and that
+  matrices are expected to be in row-major format.
+rendered_image: A tensor of shape `[A1, ..., An, width, height, 4]`, with the
+  width and height defined by `output_resolution`.
+    )doc")
     .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c) {
       int32 variables_rank;
       TF_RETURN_IF_ERROR(GetVariablesRank(c, &variables_rank));
