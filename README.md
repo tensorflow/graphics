@@ -157,6 +157,41 @@ advised to write code that takes dependency on them.
   </table>
 </div>
 
+### Differentiable ray tracing
+
+TensorFlow Graphics includes a differentiable ray tracer [redner](https://github.com/BachiLi/redner).
+
+<div align="center">
+  <table>
+    <tr>
+      <th style="text-align:center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/hello_redner_tensorflow.ipynb">Hello redner</a></th>
+      <th style="text-align:center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/pose_estimation_tensorflow.ipynb">Pose optimization with redner</a></th>
+      <th style="text-align:center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/fast_local_shading_tensorflow.ipynb">Fast local shading with redner</a></th>
+    </tr>
+    <tr>
+      <td align="center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/hello_redner_tensorflow.ipynb"><img border="0" src="https://user-images.githubusercontent.com/951021/70459469-184fe980-1a69-11ea-99b2-44157425c0c0.png" width="200" height="200">
+      </a></td>
+      <td align="center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/pose_estimation_tensorflow.ipynb"><img border="0" src="https://user-images.githubusercontent.com/951021/70459582-53eab380-1a69-11ea-90cf-c9db84b8f86c.png" width="304" height="200">
+      </a></td>
+      <td align="center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/fast_local_shading_tensorflow.ipynb"><img border="0" src="https://user-images.githubusercontent.com/951021/70459648-7a105380-1a69-11ea-9aa0-7caed57be12b.png" width="266" height="200">
+      </a></td>
+    </tr>
+    <tr>
+      <th style="text-align:center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/pathtracing-tensorflow.ipynb">Physically-based rendering</a></th>
+      <th style="text-align:center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/materials_and_lighting_tensorflow.ipynb">Materials, textures, and lighting</a></th>
+      <th style="text-align:center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/camera_model_tensorflow.ipynb">Camera models inredner</a></th>
+    </tr>
+    <tr>
+      <td align="center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/pathtracing_tensorflow.ipynb"><img border="0" src="https://user-images.githubusercontent.com/951021/70459978-2ce0b180-1a6a-11ea-9eb8-5e1d0e8003f7.png" width="266" height="200">
+      </a></td>
+      <td align="center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/material_and_lights_tensorflow.ipynb"><img border="0" src="https://user-images.githubusercontent.com/951021/70460028-48e45300-1a6a-11ea-8d27-7cd98cfca174.png" width="266" height="200">
+      </a></td>
+      <td align="center"><a href="https://colab.research.google.com/github/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/redner/camera_model_tensorflow.ipynb"><img border="0" src="https://user-images.githubusercontent.com/951021/70664131-a9b48c80-1c1e-11ea-90f3-7e84d83d952f.png" width="400" height="200">
+      </a></td>
+    </tr>
+  </table>
+</div>
+
 ## TensorBoard 3D
 
 Visual debugging is a great way to assess whether an experiment is going in the

@@ -30,6 +30,7 @@ except ImportError:
 from tensorflow_graphics import geometry
 from tensorflow_graphics import image
 from tensorflow_graphics import math
+from tensorflow_graphics import models
 from tensorflow_graphics import nn
 from tensorflow_graphics import notebooks
 from tensorflow_graphics import rendering
