@@ -35,37 +35,3 @@ py_library(
         "//tensorflow_graphics/util:export_api",
     ],
 )
-
-py_library(
-    name = "rasterizer",
-    srcs = ["rasterizer.py"],
-    srcs_version = "PY2AND3",
-    # google internal rule 1
-    deps = [
-        # google internal package dependency 1,
-        "//tensorflow_graphics/rendering/camera:orthographic",
-        "//tensorflow_graphics/util:safe_ops",
-        "//tensorflow_graphics/util:shape",
-    ],
-)
-
-py_test(
-    name = "rasterizer_test",
-    srcs = ["tests/rasterizer_test.py"],
-    srcs_version = "PY2AND3",
-    # google internal rule 1
-    # google internal rule 2
-    # google internal rule 3
-    # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
-    deps = [
-        ":rasterizer",
-        # google internal package dependency 3
-        # google internal package dependency 2
-        # google internal package dependency 6
-        # google internal package dependency 1,
-        "//tensorflow_graphics/notebooks/resources:tfg_simplified_logo",
-        "//tensorflow_graphics/util:test_case",
-    ],
-)

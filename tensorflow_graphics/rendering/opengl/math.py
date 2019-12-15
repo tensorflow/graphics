@@ -21,7 +21,7 @@ import math
 import tensorflow as tf
 
 from tensorflow_graphics.math import vector
-from tensorflow_graphics.rendering import rasterizer
+from tensorflow_graphics.math.interpolation import weighted
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
@@ -580,7 +580,7 @@ def perspective_correct_interpolation(triangle_vertices_model_space,
         vertical_field_of_view, screen_dimensions, near, far, lower_left_corner)
     vertices_w = tf.squeeze(vertices_w, axis=-1)
     pixel_position = tf.expand_dims(pixel_position, axis=-2)
-    barycentric_coordinates, _ = rasterizer.get_barycentric_coordinates(
+    barycentric_coordinates, _ = weighted.get_barycentric_coordinates(
         vertices_screen[..., :2], pixel_position)
     barycentric_coordinates = tf.squeeze(barycentric_coordinates, axis=-2)
     coeffs = barycentric_coordinates / vertices_w
