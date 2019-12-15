@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <GLES3/gl32.h>
 
+#include "absl/types/span.h"
 #include "tensorflow_graphics/rendering/opengl/macros.h"
 #include "tensorflow_graphics/util/cleanup.h"
 #include "tensorflow/core/lib/core/status.h"
