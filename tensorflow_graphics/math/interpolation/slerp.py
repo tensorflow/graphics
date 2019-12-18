@@ -39,7 +39,7 @@ from __future__ import division
 from __future__ import print_function
 
 import enum
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import asserts

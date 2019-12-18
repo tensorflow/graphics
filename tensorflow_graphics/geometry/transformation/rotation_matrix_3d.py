@@ -22,7 +22,7 @@ from __future__ import division
 from __future__ import print_function
 
 from absl import flags
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from tensorflow_graphics.geometry.transformation import rotation_matrix_common
 from tensorflow_graphics.util import asserts

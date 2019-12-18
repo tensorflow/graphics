@@ -18,7 +18,7 @@ from __future__ import print_function
 
 # pylint: disable=g-statement-before-imports,g-import-not-at-top
 try:
-  import tensorflow as tf
+  import tensorflow.compat.v1 as tf
 except ImportError:
   print("Warning: TensorFlow is not installed when you install TensorFlow"
         " Graphics. To use TensorFlow Graphics, please install TensorFlow, by"

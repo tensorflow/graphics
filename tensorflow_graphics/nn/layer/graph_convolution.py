@@ -17,7 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 import tensorflow_graphics.geometry.convolution.graph_convolution as gc
 from tensorflow_graphics.util import export_api
