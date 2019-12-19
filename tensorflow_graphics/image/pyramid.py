@@ -57,7 +57,7 @@ def _binomial_kernel(num_channels, dtype=tf.float32):
   Returns:
     A tensor of shape `[5, 5, num_channels, num_channels]`.
   """
-  kernel = np.array((1., 4., 6., 4., 1.), dtype=dtype.as_numpy_dtype())
+  kernel = np.array((1., 4., 6., 4., 1.), dtype=dtype.as_numpy_dtype)
   kernel = np.outer(kernel, kernel)
   kernel /= np.sum(kernel)
   kernel = kernel[:, :, np.newaxis, np.newaxis]

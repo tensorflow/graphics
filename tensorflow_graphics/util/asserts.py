@@ -302,7 +302,7 @@ def select_eps_for_addition(dtype):
   Returns:
     A `float` to be used to make operations safe.
   """
-  return 2.0 * np.finfo(dtype.as_numpy_dtype()).eps
+  return 2.0 * np.finfo(dtype.as_numpy_dtype).eps
 
 
 def select_eps_for_division(dtype):
@@ -323,7 +323,7 @@ def select_eps_for_division(dtype):
   Returns:
     A `float` to be used to make operations safe.
   """
-  return 10.0 * np.finfo(dtype.as_numpy_dtype()).tiny
+  return 10.0 * np.finfo(dtype.as_numpy_dtype).tiny
 
 
 # The util functions or classes are not exported.
