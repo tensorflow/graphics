@@ -28,12 +28,5 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_closure/archive/0.9.0.zip",
 )
 
-http_archive(
-    name = "org_tensorflow",
-    strip_prefix = "tensorflow-2.0.0",
-    url = "https://github.com/tensorflow/tensorflow/archive/v2.0.0.zip",
-    sha256 = "4c13e99a2e5fdddc491e003304141f9d9060e11584499061b1b4224e500dc49a",
-)
-
-load("@org_tensorflow//tensorflow:workspace.bzl", "tf_workspace")
-tf_workspace(tf_repo_name = "org_tensorflow")
+load("//:tf_configure.bzl", "tf_configure")
+tf_configure(name = "local_config_tf")
