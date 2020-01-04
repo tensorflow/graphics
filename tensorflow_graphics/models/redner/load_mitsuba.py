@@ -6,6 +6,7 @@ import os
 import pyredner_tensorflow as pyredner
 import pyredner_tensorflow.transform as transform
 
+
 def parse_transform(node):
     ret = tf.eye(4)
     for child in node:
@@ -29,12 +30,14 @@ def parse_transform(node):
             ret = value @ ret
     return ret
 
+
 def parse_vector(str):
     v = np.fromstring(str, dtype=np.float32, sep=',')
     if v.shape[0] != 3:
         v = np.fromstring(str, dtype=np.float32, sep=' ')
-    assert(v.ndim == 1)
+    assert (v.ndim == 1)
     return tf.convert_to_tensor(v)
+
 
 def parse_camera(node):
     fov = tf.constant([45.0])
@@ -57,7 +60,7 @@ def parse_camera(node):
                         up = parse_vector(grandchild.attrib['up'])
                 if not has_lookat:
                     print('Unsupported Mitsuba scene format: please use a look at transform')
-                    assert(False)
+                    assert (False)
         if child.tag == 'film':
             for grandchild in child:
                 if 'name' in grandchild.attrib:
@@ -66,14 +69,15 @@ def parse_camera(node):
                     elif grandchild.attrib['name'] == 'height':
                         resolution[1] = int(grandchild.attrib['value'])
 
-    return pyredner.Camera(position     = position,
-                           look_at      = look_at,
-                           up           = up,
-                           fov          = fov,
-                           clip_near    = clip_near,
-                           resolution   = resolution)
+    return pyredner.Camera(position=position,
+                           look_at=look_at,
+                           up=up,
+                           fov=fov,
+                           clip_near=clip_near,
+                           resolution=resolution)
 
-def parse_material(node, two_sided = False):
+
+def parse_material(node, two_sided=False):
     node_id = None
     if 'id' in node.attrib:
         node_id = node.attrib['id']
@@ -109,15 +113,15 @@ def parse_material(node, two_sided = False):
                     specular_reflectance = parse_vector(child.attrib['value'])
             elif child.attrib['name'] == 'roughness':
                 roughness = tf.constant([float(child.attrib['value'])])
-        
+
         diffuse_uv_scale = tf.constant(diffuse_uv_scale)
         specular_uv_scale = tf.constant(specular_uv_scale)
 
         return (node_id, pyredner.Material(
-                diffuse_reflectance = pyredner.Texture(diffuse_reflectance, diffuse_uv_scale),
-                specular_reflectance = pyredner.Texture(specular_reflectance, specular_uv_scale),
-                roughness = pyredner.Texture(roughness),
-                two_sided = two_sided))
+            diffuse_reflectance=pyredner.Texture(diffuse_reflectance, diffuse_uv_scale),
+            specular_reflectance=pyredner.Texture(specular_reflectance, specular_uv_scale),
+            roughness=pyredner.Texture(roughness),
+            two_sided=two_sided))
 
     elif node.attrib['type'] == 'roughplastic':
         diffuse_reflectance = tf.constant([0.5, 0.5, 0.5])
@@ -151,21 +155,22 @@ def parse_material(node, two_sided = False):
             elif child.attrib['name'] == 'alpha':
                 alpha = float(child.attrib['value'])
                 roughness = tf.constant([alpha * alpha])
-        
+
         diffuse_uv_scale = tf.constant(diffuse_uv_scale)
         specular_uv_scale = tf.constant(specular_uv_scale)
 
         return (node_id, pyredner.Material(
-                diffuse_reflectance = pyredner.Texture(diffuse_reflectance, diffuse_uv_scale),
-                specular_reflectance = pyredner.Texture(specular_reflectance, specular_uv_scale),
-                roughness = pyredner.Texture(roughness),
-                two_sided = two_sided))
+            diffuse_reflectance=pyredner.Texture(diffuse_reflectance, diffuse_uv_scale),
+            specular_reflectance=pyredner.Texture(specular_reflectance, specular_uv_scale),
+            roughness=pyredner.Texture(roughness),
+            two_sided=two_sided))
     elif node.attrib['type'] == 'twosided':
         ret = parse_material(node[0], True)
         return (node_id, ret[1])
     else:
         print('Unsupported material type:', node.attrib['type'])
-        assert(False)
+        assert (False)
+
 
 def parse_shape(node, material_dict, shape_id):
     if node.attrib['type'] == 'obj' or node.attrib['type'] == 'serialized':
@@ -193,9 +198,9 @@ def parse_shape(node, material_dict, shape_id):
                         light_intensity = parse_vector(grandchild.attrib['value'])
                         if light_intensity.shape[0] == 1:
                             light_intensity = tf.constant(
-                                         [light_intensity[0],
-                                          light_intensity[0],
-                                          light_intensity[0]])
+                                [light_intensity[0],
+                                 light_intensity[0],
+                                 light_intensity[0]])
 
         if node.attrib['type'] == 'obj':
             _, mesh_list, _ = pyredner.load_obj(filename)
@@ -205,7 +210,6 @@ def parse_shape(node, material_dict, shape_id):
             uvs = mesh_list[0][1].uvs
             normals = mesh_list[0][1].normals
             uv_indices = mesh_list[0][1].uv_indices
-            normal_indices = mesh_list[0][1].normal_indices
             if uvs is not None:
                 uvs = uvs.cpu()
             if normals is not None:
@@ -213,7 +217,7 @@ def parse_shape(node, material_dict, shape_id):
             if uv_indices is not None:
                 uv_indices = uv_indices.cpu()
         else:
-            assert(node.attrib['type'] == 'serialized')
+            assert (node.attrib['type'] == 'serialized')
             mitsuba_tri_mesh = redner.load_serialized(filename, serialized_shape_id)
             vertices = tf.convert_to_tensor(mitsuba_tri_mesh.vertices)
             indices = tf.convert_to_tensor(mitsuba_tri_mesh.indices)
@@ -225,18 +229,18 @@ def parse_shape(node, material_dict, shape_id):
                 normals = None
 
         # Transform the vertices and normals
-        vertices = tf.concat((vertices, tf.ones([vertices.shape[0], 1], dtype=tf.float32)), axis = 1)
+        vertices = tf.concat((vertices, tf.ones([vertices.shape[0], 1], dtype=tf.float32)), axis=1)
         vertices = vertices @ tf.transpose(to_world, [0, 1])
         vertices = vertices / vertices[:, 3:4]
         vertices = vertices[:, 0:3]
         if normals is not None:
             normals = normals @ (tf.linalg.inv(tf.transpose(to_world, [0, 1]))[:3, :3])
-        assert(vertices is not None)
-        assert(indices is not None)
+        assert (vertices is not None)
+        assert (indices is not None)
         if max_smooth_angle >= 0:
             if normals is None:
                 normals = tf.zeros_like(vertices)
-            new_num_vertices = redner.rebuild_topology(\
+            new_num_vertices = redner.rebuild_topology( \
                 redner.float_ptr(pyredner.data_ptr(vertices)),
                 redner.int_ptr(pyredner.data_ptr(indices)),
                 redner.float_ptr(pyredner.data_ptr(uvs) if uvs is not None else 0),
@@ -245,7 +249,7 @@ def parse_shape(node, material_dict, shape_id):
                 int(vertices.shape[0]),
                 int(indices.shape[0]),
                 max_smooth_angle)
-            print('Rebuilt topology, original vertices size: {}, new vertices size: {}'.format(\
+            print('Rebuilt topology, original vertices size: {}, new vertices size: {}'.format( \
                 int(vertices.shape[0]), new_num_vertices))
             vertices.resize_(new_num_vertices, 3)
             if uvs is not None:
@@ -264,11 +268,11 @@ def parse_shape(node, material_dict, shape_id):
                               material_id=mat_id), lgt
     elif node.attrib['type'] == 'rectangle':
         indices = tf.constant([[0, 2, 1], [1, 2, 3]],
-                               dtype = tf.int32)
+                              dtype=tf.int32)
         vertices = tf.constant([[-1.0, -1.0, 0.0],
-                                 [-1.0,  1.0, 0.0],
-                                 [ 1.0, -1.0, 0.0],
-                                 [ 1.0,  1.0, 0.0]])
+                                [-1.0, 1.0, 0.0],
+                                [1.0, -1.0, 0.0],
+                                [1.0, 1.0, 0.0]])
         uvs = None
         normals = None
         to_world = tf.eye(4)
@@ -286,34 +290,33 @@ def parse_shape(node, material_dict, shape_id):
                         light_intensity = parse_vector(grandchild.attrib['value'])
                         if light_intensity.shape[0] == 1:
                             light_intensity = tf.constant(
-                                         [light_intensity[0],
-                                          light_intensity[0],
-                                          light_intensity[0]])
+                                [light_intensity[0],
+                                 light_intensity[0],
+                                 light_intensity[0]])
         # Transform the vertices and normals
-        vertices = tf.concat((vertices, tf.convert_to_tensor(np.ones(vertices.shape[0], 1), dtype=tf.float32)), axis = 1)
+        vertices = tf.concat((vertices, tf.convert_to_tensor(np.ones(vertices.shape[0], 1), dtype=tf.float32)), axis=1)
         vertices = vertices @ tf.transpose(to_world, [0, 1])
         vertices = vertices / vertices[:, 3:4]
         vertices = vertices[:, 0:3]
         if normals is not None:
             normals = normals @ (tf.linalg.inv(tf.transpose(to_world, [0, 1]))[:3, :3])
-        assert(vertices is not None)
-        assert(indices is not None)
+        assert (vertices is not None)
+        assert (indices is not None)
         lgt = None
         if light_intensity is not None:
-            lgt = pyrender.Light(shape_id, light_intensity)
+            lgt = pyredner.Light(shape_id, light_intensity)
 
-        
         return pyredner.Shape(vertices=vertices,
                               indices=indices,
                               uvs=uvs,
                               normals=normals,
                               material_id=mat_id), lgt
     else:
-        assert(False)
+        assert (False)
+
 
 def parse_scene(node):
     cam = None
-    resolution = None
     materials = []
     material_dict = {}
     shapes = []
@@ -332,6 +335,7 @@ def parse_scene(node):
             if light is not None:
                 lights.append(light)
     return pyredner.Scene(cam, shapes, materials, lights)
+
 
 def load_mitsuba(filename):
     """

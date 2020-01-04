@@ -5,6 +5,7 @@ import tensorflow as tf
 import math
 from typing import Union, Tuple, Optional, List
 
+
 def render_albedo(scene: pyredner.Scene,
                   alpha: bool = False,
                   num_samples: Union[int, Tuple[int, int]] = (16, 4),
@@ -33,27 +34,30 @@ def render_albedo(scene: pyredner.Scene,
             if alpha == True, a tensor with size [H, W, 4],
             else, a tensor with size [H, W, 3]
     """
-    if seed==None:
+    if seed is None:
         seed = random.randint(0, 16777216)
     channels = [redner.channels.diffuse_reflectance]
     if alpha:
         channels.append(redner.channels.alpha)
-    scene_args = pyredner.serialize_scene(\
-        scene = scene,
-        num_samples = num_samples,
-        max_bounces = 0,
-        sampler_type = redner.SamplerType.sobol,
-        channels = channels,
-        use_secondary_edge_sampling = False)
+    scene_args = pyredner.serialize_scene( \
+        scene=scene,
+        num_samples=num_samples,
+        max_bounces=0,
+        sampler_type=redner.SamplerType.sobol,
+        channels=channels,
+        use_secondary_edge_sampling=False)
     return pyredner.render(seed, *scene_args)
+
 
 class DeferredLight:
     pass
+
 
 class AmbientLight(DeferredLight):
     """
         Ambient light for deferred rendering.
     """
+
     def __init__(self,
                  intensity: tf.Tensor):
         self.intensity = intensity
@@ -64,10 +68,12 @@ class AmbientLight(DeferredLight):
                albedo: tf.Tensor):
         return self.intensity * albedo
 
+
 class PointLight(DeferredLight):
     """
         Point light with squared distance falloff for deferred rendering.
     """
+
     def __init__(self,
                  position: tf.Tensor,
                  intensity: tf.Tensor):
@@ -80,18 +86,20 @@ class PointLight(DeferredLight):
                albedo: tf.Tensor):
         light_dir = self.position - position
         # the d^2 term:
-        light_dist_sq = tf.reduce_sum(light_dir * light_dir, axis = 2, keepdims = True)
+        light_dist_sq = tf.reduce_sum(light_dir * light_dir, axis=2, keepdims=True)
         light_dist = tf.sqrt(light_dist_sq)
         # Normalize light direction
         light_dir = light_dir / light_dist
-        dot_l_n = tf.reduce_sum(light_dir * normal, axis = 2, keepdims = True)
+        dot_l_n = tf.reduce_sum(light_dir * normal, axis=2, keepdims=True)
         dot_l_n = tf.maximum(dot_l_n, tf.zeros_like(dot_l_n))
-        return self.intensity * dot_l_n * (albedo / math.pi) / light_dist_sq 
+        return self.intensity * dot_l_n * (albedo / math.pi) / light_dist_sq
+
 
 class DirectionalLight(DeferredLight):
     """
         Directional light for deferred rendering.
     """
+
     def __init__(self,
                  direction: tf.Tensor,
                  intensity: tf.Tensor):
@@ -105,9 +113,10 @@ class DirectionalLight(DeferredLight):
         # Normalize light direction
         light_dir = -self.direction / tf.norm(self.direction)
         light_dir = tf.reshape(light_dir, (1, 1, 3))
-        dot_l_n = tf.reduce_sum(light_dir * normal, axis = 2, keepdims = True)
+        dot_l_n = tf.reduce_sum(light_dir * normal, axis=2, keepdims=True)
         dot_l_n = tf.maximum(dot_l_n, tf.zeros_like(dot_l_n))
         return self.intensity * dot_l_n * (albedo / math.pi)
+
 
 class SpotLight(DeferredLight):
     """
@@ -115,6 +124,7 @@ class SpotLight(DeferredLight):
         Note that we do not provide the cosine cutoff here since it is not
         differentiable.
     """
+
     def __init__(self,
                  position: tf.Tensor,
                  spot_direction: tf.Tensor,
@@ -131,15 +141,16 @@ class SpotLight(DeferredLight):
                albedo: tf.Tensor):
         light_dir = self.position - position
         # Normalize light direction
-        light_dir = light_dir / tf.norm(light_dir, axis = 2, keepdims = True)
+        light_dir = light_dir / tf.norm(light_dir, axis=2, keepdims=True)
         # Normalize spot direction
         spot_direction = -self.spot_direction / tf.norm(self.spot_direction)
-        spot_cosine = tf.reduce_sum(light_dir * spot_direction, axis = 2, keepdims = True)
+        spot_cosine = tf.reduce_sum(light_dir * spot_direction, axis=2, keepdims=True)
         spot_cosine = tf.maximum(spot_cosine, tf.zeros_like(spot_cosine))
         spot_factor = tf.pow(spot_cosine, self.spot_exponent)
-        dot_l_n = tf.reduce_sum(light_dir * normal, axis = 2, keepdims = True)
+        dot_l_n = tf.reduce_sum(light_dir * normal, axis=2, keepdims=True)
         dot_l_n = tf.maximum(dot_l_n, tf.zeros_like(dot_l_n))
         return self.intensity * spot_factor * dot_l_n * (albedo / math.pi)
+
 
 def render_deferred(scene: pyredner.Scene,
                     lights: List[DeferredLight],
@@ -176,7 +187,7 @@ def render_deferred(scene: pyredner.Scene,
             if alpha == True, a tensor with size [H, W, 4],
             else, a tensor with size [H, W, 3]
     """
-    if seed==None:
+    if seed is None:
         seed = random.randint(0, 16777216)
 
     org_res = scene.camera.resolution
@@ -187,13 +198,13 @@ def render_deferred(scene: pyredner.Scene,
                 redner.channels.diffuse_reflectance]
     if alpha:
         channels.append(redner.channels.alpha)
-    scene_args = pyredner.serialize_scene(\
-        scene = scene,
-        num_samples = (1, 1),
-        max_bounces = 0,
-        sampler_type = redner.SamplerType.sobol,
-        channels = channels,
-        use_secondary_edge_sampling = False)
+    scene_args = pyredner.serialize_scene( \
+        scene=scene,
+        num_samples=(1, 1),
+        max_bounces=0,
+        sampler_type=redner.SamplerType.sobol,
+        channels=channels,
+        use_secondary_edge_sampling=False)
     scene.camera.resolution = org_res
     g_buffer = pyredner.render(seed, *scene_args)
     pos = g_buffer[:, :, :3]
@@ -203,12 +214,13 @@ def render_deferred(scene: pyredner.Scene,
     for light in lights:
         img = img + light.render(pos, normal, albedo)
     if aa_samples > 1:
-        img = tf.expand_dims(img, 0) # HWC -> NHWC
-        img = tf.image.resize(img, size = org_res, method = 'area', antialias = True)
-        img = tf.squeeze(img, axis = 0) # NHWC -> HWC
+        img = tf.expand_dims(img, 0)  # HWC -> NHWC
+        img = tf.image.resize(img, size=org_res, method='area', antialias=True)
+        img = tf.squeeze(img, axis=0)  # NHWC -> HWC
     if alpha:
-        img = tf.concat((img, g_buffer[:, :, 9:10]), axis = 2)
+        img = tf.concat((img, g_buffer[:, :, 9:10]), axis=2)
     return img
+
 
 def render_g_buffer(scene: pyredner.Scene,
                     channels: List[redner.channels],
@@ -222,7 +234,7 @@ def render_g_buffer(scene: pyredner.Scene,
         scene: pyredner.Scene
             pyredner Scene containing camera, geometry, material, and lighting
         channels: List[pyredner.channels]
-            | A list of the following channels\:
+            | A list of the following channels:
             | pyredner.channels.alpha
             | pyredner.channels.depth
             | pyredner.channels.position
@@ -248,16 +260,17 @@ def render_g_buffer(scene: pyredner.Scene,
         tf.Tensor
             a tensor with size [H, W, C]
     """
-    if seed==None:
+    if seed is None:
         seed = random.randint(0, 16777216)
-    scene_args = pyredner.serialize_scene(\
-        scene = scene,
-        num_samples = num_samples,
-        max_bounces = 0,
-        sampler_type = redner.SamplerType.sobol,
-        channels = channels,
-        use_secondary_edge_sampling = False)
+    scene_args = pyredner.serialize_scene(
+        scene=scene,
+        num_samples=num_samples,
+        max_bounces=0,
+        sampler_type=redner.SamplerType.sobol,
+        channels=channels,
+        use_secondary_edge_sampling=False)
     return pyredner.render(seed, *scene_args)
+
 
 def render_pathtracing(scene: pyredner.Scene,
                        alpha: bool = False,
@@ -278,10 +291,10 @@ def render_pathtracing(scene: pyredner.Scene,
             Number of samples per pixel for forward and backward passes.
             Can be an integer or a tuple of 2 integers.
         sampler_type: pyredner.sampler_type
-            | Which sampling pattern to use? See 
+            | Which sampling pattern to use? See
               `Chapter 7 of the PBRT book <http://www.pbr-book.org/3ed-2018/Sampling_and_Reconstruction.html>`_
               for an explanation of the difference between different samplers.
-            | Following samplers are supported\:
+            | Following samplers are supported:
             | pyredner.sampler_type.independent
             | pyredner.sampler_type.sobol
 
@@ -291,15 +304,15 @@ def render_pathtracing(scene: pyredner.Scene,
             if alpha == True, a tensor with size [H, W, 4],
             else, a tensor with size [H, W, 3]
     """
-    if seed==None:
+    if seed is None:
         seed = random.randint(0, 16777216)
     channels = [redner.channels.radiance]
     if alpha:
         channels.append(redner.channels.alpha)
-    scene_args = pyredner.serialize_scene(\
-        scene = scene,
-        num_samples = num_samples,
-        max_bounces = max_bounces,
-        sampler_type = sampler_type,
-        channels = channels)
+    scene_args = pyredner.serialize_scene( \
+        scene=scene,
+        num_samples=num_samples,
+        max_bounces=max_bounces,
+        sampler_type=sampler_type,
+        channels=channels)
     return pyredner.render(seed, *scene_args)

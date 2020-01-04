@@ -6,6 +6,7 @@ import skimage.io
 import tensorflow as tf
 import os
 
+
 def imwrite(img: tf.Tensor,
             filename: str,
             gamma: float = 2.2,
@@ -16,7 +17,7 @@ def imwrite(img: tf.Tensor,
         Args
         ====
         img: tf.Tensor
-        
+
         filename: str
 
         gamma: float
@@ -27,7 +28,7 @@ def imwrite(img: tf.Tensor,
     directory = os.path.dirname(filename)
     if directory != '' and not os.path.exists(directory):
         os.makedirs(directory)
-    assert(tf.executing_eagerly())
+    assert (tf.executing_eagerly())
     img = img.numpy()
     if normalize:
         img_rng = np.max(img) - np.min(img)
@@ -51,7 +52,8 @@ def imwrite(img: tf.Tensor,
         exr.writePixels({'R': pixels_r, 'G': pixels_g, 'B': pixels_b})
         exr.close()
     else:
-        skimage.io.imsave(filename, (np.power(np.clip(img, 0.0, 1.0), 1.0/gamma) * 255).astype(np.uint8))
+        skimage.io.imsave(filename, (np.power(np.clip(img, 0.0, 1.0), 1.0 / gamma) * 255).astype(np.uint8))
+
 
 def imread(filename: str,
            gamma: float = 2.2):
@@ -75,18 +77,18 @@ def imread(filename: str,
         size = (dw.max.x - dw.min.x + 1, dw.max.y - dw.min.y + 1)
         pt = Imath.PixelType(Imath.PixelType.FLOAT)
         redstr = file.channel('R', pt)
-        red = np.fromstring(redstr, dtype = np.float32)
-        red.shape = (size[1], size[0]) 
+        red = np.fromstring(redstr, dtype=np.float32)
+        red.shape = (size[1], size[0])
         greenstr = file.channel('G', pt)
-        green = np.fromstring(greenstr, dtype = np.float32)
-        green.shape = (size[1], size[0]) 
+        green = np.fromstring(greenstr, dtype=np.float32)
+        green.shape = (size[1], size[0])
         bluestr = file.channel('B', pt)
-        blue = np.fromstring(bluestr, dtype = np.float32)
-        blue.shape = (size[1], size[0]) 
+        blue = np.fromstring(bluestr, dtype=np.float32)
+        blue.shape = (size[1], size[0])
         return tf.convert_to_tensor(
             np.stack([red, green, blue], axis=-1).astype(np.float32),
             dtype=tf.float32
-            )
+        )
     else:
         im = skimage.io.imread(filename)
         if im.ndim == 2:
@@ -94,6 +96,6 @@ def imread(filename: str,
         elif im.shape[2] == 4:
             im = im[:, :, :3]
         return tf.convert_to_tensor(
-                np.power(skimage.img_as_float(im).astype(np.float32), gamma), 
-                dtype=tf.float32
-            )
+            np.power(skimage.img_as_float(im).astype(np.float32), gamma),
+            dtype=tf.float32
+        )

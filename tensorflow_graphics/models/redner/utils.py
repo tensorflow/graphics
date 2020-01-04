@@ -3,7 +3,8 @@ import math
 import numpy as np
 import pyredner_tensorflow as pyredner
 
-####################### Spherical Harmonics utilities ########################
+
+# Spherical Harmonics utilities #
 # Code adapted from "Spherical Harmonic Lighting: The Gritty Details", Robin Green
 # http://silviojemma.com/public/papers/lighting/spherical-harmonic-lighting.pdf
 def associated_legendre_polynomial(l, m, x):
@@ -26,25 +27,28 @@ def associated_legendre_polynomial(l, m, x):
         pmmp1 = pll
     return pll
 
+
 def SH_renormalization(l, m):
     return math.sqrt((2.0 * l + 1.0) * math.factorial(l - m) / \
-        (4 * math.pi * math.factorial(l + m)))
+                     (4 * math.pi * math.factorial(l + m)))
+
 
 def SH(l, m, theta, phi):
     if m == 0:
         return SH_renormalization(l, m) * associated_legendre_polynomial(l, m, tf.cos(theta))
     elif m > 0:
         return math.sqrt(2.0) * SH_renormalization(l, m) * \
-            tf.cos(m * phi) * associated_legendre_polynomial(l, m, tf.cos(theta))
+               tf.cos(m * phi) * associated_legendre_polynomial(l, m, tf.cos(theta))
     else:
         return math.sqrt(2.0) * SH_renormalization(l, -m) * \
-            tf.sin(-m * phi) * associated_legendre_polynomial(l, -m, tf.cos(theta))
+               tf.sin(-m * phi) * associated_legendre_polynomial(l, -m, tf.cos(theta))
+
 
 def SH_reconstruct(coeffs, res):
     uv = np.mgrid[0:res[1], 0:res[0]].astype(np.float32)
     theta = tf.convert_to_tensor((math.pi / res[1]) * (uv[1, :, :] + 0.5))
     phi = tf.convert_to_tensor((2 * math.pi / res[0]) * (uv[0, :, :] + 0.5))
-    
+
     result = tf.constant(np.zeros([res[1], res[0], coeffs.shape[0]]), dtype=tf.float32)
     num_order = int(math.sqrt(coeffs.shape[1]))
     i = 0
@@ -54,9 +58,11 @@ def SH_reconstruct(coeffs, res):
             result = result + sh_factor.view(sh_factor.shape[0], sh_factor.shape[1], 1) * coeffs[:, i]
             i += 1
     result = tf.math.maximum(result,
-        tf.constant(np.zeros([res[1], res[0], coeffs.shape[0]]), dtype=tf.float32)
-        )
+                             tf.constant(np.zeros([res[1], res[0], coeffs.shape[0]]), dtype=tf.float32)
+                             )
     return result
+
+
 #######################################################################################
 
 def generate_sphere(theta_steps: int,
@@ -118,7 +124,6 @@ def generate_sphere(theta_steps: int,
     vertices = tf.convert_to_tensor(vertices, dtype=tf.float32)
     uvs = tf.convert_to_tensor(uvs, dtype=tf.float32)
 
-
     normals = tf.identity(vertices)
     return (vertices, indices, uvs, normals)
 
@@ -163,13 +168,14 @@ def generate_quad_light(position: tf.Tensor,
     v3 = position + x * size[0] * 0.5 + y * size[1] * 0.5
 
     with tf.device(pyredner.get_device_name()):
-        vertices = tf.stack((v0, v1, v2, v3), axis = 0)
-        indices = tf.constant([[0, 1, 2],[1, 3, 2]], dtype = tf.int32)
-        m = pyredner.Material(diffuse_reflectance = tf.constant([0.0, 0.0, 0.0]))
-    return pyredner.Object(vertices = vertices,
-                           indices = indices,
-                           material = m,
-                           light_intensity = intensity)
+        vertices = tf.stack((v0, v1, v2, v3), axis=0)
+        indices = tf.constant([[0, 1, 2], [1, 3, 2]], dtype=tf.int32)
+        m = pyredner.Material(diffuse_reflectance=tf.constant([0.0, 0.0, 0.0]))
+    return pyredner.Object(vertices=vertices,
+                           indices=indices,
+                           material=m,
+                           light_intensity=intensity)
+
 
 ############################################3
 def read_tensor(filename, shape):

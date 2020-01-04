@@ -4,6 +4,7 @@ import tensorflow as tf
 import math
 import pdb
 
+
 class EnvironmentMap:
     """
         A class representing light sources infinitely far away using an image.
@@ -23,13 +24,13 @@ class EnvironmentMap:
         if tf.is_tensor(values):
             values = pyredner.Texture(values)
 
-        assert(values.texels.dtype == tf.float32)
+        assert (values.texels.dtype == tf.float32)
 
         self.values = values
         self.env_to_world = env_to_world
 
     def generate_envmap_pdf(self):
-        assert(tf.executing_eagerly())
+        assert (tf.executing_eagerly())
         values = self.values
         with tf.device(pyredner.get_device_name()):
             # Build sampling table
@@ -47,15 +48,15 @@ class EnvironmentMap:
             # Compute CDF for x
             sample_cdf_ys_ = tf.cumsum(sample_cdf_xs_[:, -1] * y_weight, axis=0)
             pdf_norm = (luminance.shape[0] * luminance.shape[1]) / \
-                    (sample_cdf_ys_[-1] * (2 * math.pi * math.pi))
+                       (sample_cdf_ys_[-1] * (2 * math.pi * math.pi))
             # Normalize to [0, 1)
             sample_cdf_xs = (sample_cdf_xs_ - sample_cdf_xs_[:, 0:1]) / \
                 tf.math.maximum(
-                    sample_cdf_xs_[
-                        :, 
-                        (luminance.shape[1] - 1):luminance.shape[1]],
-                        1e-8 * tf.convert_to_tensor(np.ones((sample_cdf_xs_.shape[0], 1)), dtype=tf.float32)
-                    )
+                            sample_cdf_xs_[
+                                :,
+                                (luminance.shape[1] - 1):luminance.shape[1]],
+                            1e-8 * tf.convert_to_tensor(np.ones((sample_cdf_xs_.shape[0], 1)), dtype=tf.float32)
+                        )
             sample_cdf_ys = (sample_cdf_ys_ - sample_cdf_ys_[0]) / \
                 tf.math.maximum(sample_cdf_ys_[-1], tf.constant([1e-8]))
 
