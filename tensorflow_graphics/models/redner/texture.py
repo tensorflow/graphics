@@ -2,6 +2,7 @@ import tensorflow as tf
 import pyredner_tensorflow as pyredner
 import math
 
+
 class Texture:
     """
         Representing a texture and its mipmap.
@@ -17,8 +18,8 @@ class Texture:
 
     def __init__(self,
                  texels,
-                 uv_scale = tf.constant([1.0, 1.0])):
-        assert(tf.executing_eagerly())
+                 uv_scale=tf.constant([1.0, 1.0])):
+        assert (tf.executing_eagerly())
         self.texels = texels
         self.uv_scale = uv_scale
 
@@ -34,15 +35,15 @@ class Texture:
                     mipmap = tf.expand_dims(mipmap, axis=-1)
                 num_channels = mipmap.shape[-1]
                 """NOTE: conv2d kernel axes
-    
+
                 torch: (outchannels,   in_channels / groups, kH,          kW)
                 tf:    [filter_height, filter_width,         in_channels, out_channels]
                 """
                 box_filter = tf.ones([2, 2, num_channels, 1], dtype=tf.float32) / 4.0
-    
-                # (TF) [batch, in_height, in_width, in_channels], i.e. NHWC 
-                base_level = tf.transpose(tf.expand_dims(texels, axis=0), perm=[0, 3, 1, 2]) 
-    
+
+                # (TF) [batch, in_height, in_width, in_channels], i.e. NHWC
+                base_level = tf.transpose(tf.expand_dims(texels, axis=0), perm=[0, 3, 1, 2])
+
                 mipmap = [base_level]
                 prev_lvl = base_level
                 for l in range(1, num_levels):
@@ -54,33 +55,33 @@ class Texture:
                     while prev_lvl.shape[2] < desired_height:
                         prev_lvl = tf.concat(
                             [
-                                prev_lvl, 
-                                prev_lvl[:,:,0:(desired_height - prev_lvl.shape[2])]
+                                prev_lvl,
+                                prev_lvl[:, :, 0:(desired_height - prev_lvl.shape[2])]
                             ], 2)
 
                     desired_width = prev_lvl.shape[3] + dilation_size
                     while prev_lvl.shape[3] < desired_width:
                         prev_lvl = tf.concat(
-                            [prev_lvl, prev_lvl[:,:,:,0:dilation_size]], 
+                            [prev_lvl, prev_lvl[:, :, :, 0:dilation_size]],
                             3)
-    
-                    prev_lvl = tf.transpose(prev_lvl, perm=[0,2,3,1])
+
+                    prev_lvl = tf.transpose(prev_lvl, perm=[0, 2, 3, 1])
                     current_lvl = tf.nn.depthwise_conv2d(
                         prev_lvl,
                         box_filter,  # [filter_height, filter_width, in_channels, out_channels]
                         dilations=[dilation_size, dilation_size],
-                        strides=[1,1,1,1],
-                        padding="VALID",   # No padding
+                        strides=[1, 1, 1, 1],
+                        padding="VALID",  # No padding
                         data_format="NHWC"
                     )
-                    current_lvl = tf.transpose(current_lvl, [0,3,1,2])
-                    
+                    current_lvl = tf.transpose(current_lvl, [0, 3, 1, 2])
+
                     mipmap.append(current_lvl)
                     prev_lvl = current_lvl
-    
+
                 mipmap = tf.concat(mipmap, 0)
                 # Convert from NCHW to NHWC
-                mipmap = tf.transpose(mipmap, perm=[0, 2, 3, 1]) 
+                mipmap = tf.transpose(mipmap, perm=[0, 2, 3, 1])
                 texels = mipmap
         self.mipmap = texels
 

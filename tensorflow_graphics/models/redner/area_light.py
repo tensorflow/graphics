@@ -1,6 +1,7 @@
 import pyredner_tensorflow as pyredner
 import tensorflow as tf
 
+
 class AreaLight:
     """
         A mesh-based area light that points to a shape and assigns intensity.

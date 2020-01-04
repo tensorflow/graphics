@@ -6,6 +6,7 @@ import pyredner_tensorflow as pyredner
 import math
 from typing import Tuple, Optional, List
 
+
 class Camera:
     """
         redner supports four types of cameras: perspective, orthographic, fisheye, and panorama.
@@ -51,6 +52,7 @@ class Camera:
                 (legacy parameter just to ensure compatibility).
 
     """
+
     def __init__(self,
                  position: Optional[tf.Tensor] = None,
                  look_at: Optional[tf.Tensor] = None,
@@ -60,25 +62,25 @@ class Camera:
                  resolution: Tuple[int] = (256, 256),
                  cam_to_world: Optional[tf.Tensor] = None,
                  intrinsic_mat: Optional[tf.Tensor] = None,
-                 camera_type = pyredner.camera_type.perspective,
+                 camera_type=pyredner.camera_type.perspective,
                  fisheye: bool = False):
-        assert(tf.executing_eagerly())
+        assert (tf.executing_eagerly())
         if position is not None:
-            assert(position.dtype == tf.float32)
-            assert(len(position.shape) == 1 and position.shape[0] == 3)
+            assert (position.dtype == tf.float32)
+            assert (len(position.shape) == 1 and position.shape[0] == 3)
         if look_at is not None:
-            assert(look_at.dtype == tf.float32)
-            assert(len(look_at.shape) == 1 and look_at.shape[0] == 3)
+            assert (look_at.dtype == tf.float32)
+            assert (len(look_at.shape) == 1 and look_at.shape[0] == 3)
         if up is not None:
-            assert(up.dtype == tf.float32)
-            assert(len(up.shape) == 1 and up.shape[0] == 3)
+            assert (up.dtype == tf.float32)
+            assert (len(up.shape) == 1 and up.shape[0] == 3)
         if fov is not None:
-            assert(fov.dtype == tf.float32)
-            assert(len(fov.shape) == 1 and fov.shape[0] == 1)
-        assert(isinstance(clip_near, float))
+            assert (fov.dtype == tf.float32)
+            assert (len(fov.shape) == 1 and fov.shape[0] == 1)
+        assert (isinstance(clip_near, float))
         if position is None and look_at is None and up is None:
-            assert(cam_to_world is  not None)
-        
+            assert (cam_to_world is not None)
+
         self.position = position
         self.look_at = look_at
         self.up = up
@@ -95,7 +97,7 @@ class Camera:
                     diag = tf.concat([fov_factor, fov_factor, o], 0)
                     self._intrinsic_mat = tf.linalg.tensor_diag(diag)
                 else:
-                    self._intrinsic_mat = tf.eye(3, dtype=tf.float32)   
+                    self._intrinsic_mat = tf.eye(3, dtype=tf.float32)
             else:
                 self._intrinsic_mat = intrinsic_mat
             self.intrinsic_mat_inv = tf.linalg.inv(self._intrinsic_mat)
@@ -133,7 +135,7 @@ class Camera:
             with tf.device('/device:cpu:' + str(pyredner.get_cpu_device_id())):
                 self.intrinsic_mat_inv = tf.linalg.inv(self._intrinsic_mat)
         else:
-            assert(self.fov is not None)
+            assert (self.fov is not None)
             self.fov = self._fov
 
     @property
@@ -178,6 +180,7 @@ class Camera:
         out.camera_type = state_dict['camera_type']
         return out
 
+
 def automatic_camera_placement(shapes: List,
                                resolution: Tuple[int, int]):
     """
@@ -186,11 +189,11 @@ def automatic_camera_placement(shapes: List,
         some distances from the shapes, so that it can see all of them.
         Inspired by https://github.com/mitsuba-renderer/mitsuba/blob/master/src/librender/scene.cpp#L286
     """
-    assert(tf.executing_eagerly())
+    assert (tf.executing_eagerly())
     aabb_min = tf.constant((float('inf'), float('inf'), float('inf')))
     aabb_max = -tf.constant((float('inf'), float('inf'), float('inf')))
     for shape in shapes:
-        v = shape.vertices    
+        v = shape.vertices
         v_min = tf.reduce_min(v, 0)
         v_max = tf.reduce_max(v, 0)
         with tf.device('/device:cpu:' + str(pyredner.get_cpu_device_id())):
@@ -198,18 +201,18 @@ def automatic_camera_placement(shapes: List,
             v_max = tf.identity(v_max)
         aabb_min = tf.minimum(aabb_min, v_min)
         aabb_max = tf.maximum(aabb_max, v_max)
-    assert(tf.reduce_all(tf.math.is_finite(aabb_min)) and tf.reduce_all(tf.math.is_finite(aabb_max)))
+    assert (tf.reduce_all(tf.math.is_finite(aabb_min)) and tf.reduce_all(tf.math.is_finite(aabb_max)))
     center = (aabb_max + aabb_min) * 0.5
     extents = aabb_max - aabb_min
     max_extents_xy = tf.maximum(extents[0], extents[1])
     distance = max_extents_xy / (2 * math.tan(45 * 0.5 * math.pi / 180.0))
-    max_extents_xyz = tf.maximum(extents[2], max_extents_xy)    
-    return Camera(position = tf.stack((center[0], center[1], aabb_min[2] - distance)),
-                  look_at = center,
-                  up = tf.constant((0.0, 1.0, 0.0)),
-                  fov = tf.constant([45.0]),
-                  clip_near = 0.001 * float(distance),
-                  resolution = resolution)
+    return Camera(position=tf.stack((center[0], center[1], aabb_min[2] - distance)),
+                  look_at=center,
+                  up=tf.constant((0.0, 1.0, 0.0)),
+                  fov=tf.constant([45.0]),
+                  clip_near=0.001 * float(distance),
+                  resolution=resolution)
+
 
 def generate_intrinsic_mat(fx: tf.Tensor,
                            fy: tf.Tensor,
@@ -243,6 +246,6 @@ def generate_intrinsic_mat(fx: tf.Tensor,
     z = tf.zeros_like(fx)
     o = tf.ones_like(fx)
     row0 = tf.concat([fx, skew, x0], axis=0)
-    row1 = tf.concat([ z,   fy, y0], axis=0)
-    row2 = tf.concat([ z,    z,  o], axis=0)
+    row1 = tf.concat([z, fy, y0], axis=0)
+    row2 = tf.concat([z, z, o], axis=0)
     return tf.stack([row0, row1, row2])

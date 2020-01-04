@@ -10,6 +10,8 @@ from .redner_enum_wrapper import RednerCameraType, RednerSamplerType, RednerChan
 
 __EMPTY_TENSOR = tf.constant([])
 use_correlated_random_number = False
+
+
 def set_use_correlated_random_number(v: bool):
     """
         | There is a bias-variance trade off in the backward pass.
@@ -23,12 +25,14 @@ def set_use_correlated_random_number(v: bool):
     global use_correlated_random_number
     use_correlated_random_number = v
 
+
 def get_use_correlated_random_number():
     """
         See set_use_correlated_random_number
     """
     global use_correlated_random_number
     return use_correlated_random_number
+
 
 def get_tensor_dimension(t):
     """Return dimension of the TF tensor in Int
@@ -38,21 +42,25 @@ def get_tensor_dimension(t):
     """
     return len(t.get_shape())
 
+
 def is_empty_tensor(tensor):
-    return  tf.equal(tf.size(tensor), 0)
+    return tf.equal(tf.size(tensor), 0)
 
 
-class Context: pass
+class Context:
+    pass
+
 
 print_timing = True
+
 
 def serialize_scene(scene: pyredner.Scene,
                     num_samples: Union[int, Tuple[int, int]],
                     max_bounces: int,
-                    channels = [redner.channels.radiance],
-                    sampler_type = redner.SamplerType.independent,
-                    use_primary_edge_sampling = True,
-                    use_secondary_edge_sampling = True) -> List:
+                    channels=[redner.channels.radiance],
+                    sampler_type=redner.SamplerType.independent,
+                    use_primary_edge_sampling=True,
+                    use_secondary_edge_sampling=True) -> List:
     """
         Given a pyredner scene & rendering options, convert them to a linear list of argument,
         so that we can use it in PyTorch.
@@ -70,7 +78,7 @@ def serialize_scene(scene: pyredner.Scene,
             1 means direct lighting only
         channels: List[redner.channels]
             | A list of channels that should present in the output image
-            | following channels are supported\:
+            | following channels are supported:
             | redner.channels.radiance,
             | redner.channels.alpha,
             | redner.channels.depth,
@@ -216,7 +224,8 @@ def serialize_scene(scene: pyredner.Scene,
     args.append(tf.constant(use_secondary_edge_sampling))
     return args
 
-def forward(seed:int, *args):
+
+def forward(seed: int, *args):
     """
         Forward rendering pass: given a serialized scene and output an image.
     """
@@ -248,9 +257,9 @@ def forward(seed:int, *args):
     current_index += 1
     clip_near = float(args[current_index])
     current_index += 1
-    resolution = args[current_index].numpy() # Tuple[int, int]
+    resolution = args[current_index].numpy()  # Tuple[int, int]
     current_index += 1
-    camera_type = RednerCameraType.asCameraType(args[current_index]) # FIXME: Map to custom type
+    camera_type = RednerCameraType.asCameraType(args[current_index])  # FIXME: Map to custom type
     current_index += 1
 
     with tf.device('/device:cpu:' + str(pyredner.get_cpu_device_id())):
@@ -260,8 +269,8 @@ def forward(seed:int, *args):
                                    redner.float_ptr(pyredner.data_ptr(cam_position)),
                                    redner.float_ptr(pyredner.data_ptr(cam_look_at)),
                                    redner.float_ptr(pyredner.data_ptr(cam_up)),
-                                   redner.float_ptr(0), # cam_to_world
-                                   redner.float_ptr(0), # world_to_cam
+                                   redner.float_ptr(0),  # cam_to_world
+                                   redner.float_ptr(0),  # world_to_cam
                                    redner.float_ptr(pyredner.data_ptr(intrinsic_mat_inv)),
                                    redner.float_ptr(pyredner.data_ptr(intrinsic_mat)),
                                    clip_near,
@@ -300,7 +309,7 @@ def forward(seed:int, *args):
             current_index += 1
             light_id = int(args[current_index])
             current_index += 1
-            shapes.append(redner.Shape(\
+            shapes.append(redner.Shape( \
                 redner.float_ptr(pyredner.data_ptr(vertices)),
                 redner.int_ptr(pyredner.data_ptr(indices)),
                 redner.float_ptr(pyredner.data_ptr(uvs) if not is_empty_tensor(uvs) else 0),
@@ -362,36 +371,36 @@ def forward(seed:int, *args):
             if get_tensor_dimension(diffuse_reflectance) == 1:
                 diffuse_reflectance = redner.Texture3(diffuse_reflectance_ptr, 0, 0, 0, 0, diffuse_uv_scale_ptr)
             else:
-                diffuse_reflectance = redner.Texture3(\
+                diffuse_reflectance = redner.Texture3( \
                     diffuse_reflectance_ptr,
-                    int(diffuse_reflectance.shape[2]), # width
-                    int(diffuse_reflectance.shape[1]), # height
-                    int(diffuse_reflectance.shape[3]), # channels
-                    int(diffuse_reflectance.shape[0]), # num levels
+                    int(diffuse_reflectance.shape[2]),  # width
+                    int(diffuse_reflectance.shape[1]),  # height
+                    int(diffuse_reflectance.shape[3]),  # channels
+                    int(diffuse_reflectance.shape[0]),  # num levels
                     diffuse_uv_scale_ptr)
             if get_tensor_dimension(specular_reflectance) == 1:
                 specular_reflectance = redner.Texture3(specular_reflectance_ptr, 0, 0, 0, 0, specular_uv_scale_ptr)
             else:
-                specular_reflectance = redner.Texture3(\
+                specular_reflectance = redner.Texture3( \
                     specular_reflectance_ptr,
-                    int(specular_reflectance.shape[2]), # width
-                    int(specular_reflectance.shape[1]), # height
-                    int(specular_reflectance.shape[3]), # channels
-                    int(specular_reflectance.shape[0]), # num levels
+                    int(specular_reflectance.shape[2]),  # width
+                    int(specular_reflectance.shape[1]),  # height
+                    int(specular_reflectance.shape[3]),  # channels
+                    int(specular_reflectance.shape[0]),  # num levels
                     specular_uv_scale_ptr)
             if get_tensor_dimension(roughness) == 1:
                 roughness = redner.Texture1(roughness_ptr, 0, 0, 0, 0, roughness_uv_scale_ptr)
             else:
-                assert(get_tensor_dimension(roughness) == 4)
-                roughness = redner.Texture1(\
+                assert (get_tensor_dimension(roughness) == 4)
+                roughness = redner.Texture1( \
                     roughness_ptr,
-                    int(roughness.shape[2]), # width
-                    int(roughness.shape[1]), # height
-                    int(roughness.shape[3]), # channels
-                    int(roughness.shape[0]), # num levels
+                    int(roughness.shape[2]),  # width
+                    int(roughness.shape[1]),  # height
+                    int(roughness.shape[3]),  # channels
+                    int(roughness.shape[0]),  # num levels
                     roughness_uv_scale_ptr)
             if generic_texture.shape[0] > 0:
-                generic_texture = redner.TextureN(\
+                generic_texture = redner.TextureN( \
                     generic_texture_ptr,
                     int(generic_texture.shape[2]),
                     int(generic_texture.shape[1]),
@@ -399,10 +408,10 @@ def forward(seed:int, *args):
                     int(generic_texture.shape[0]),
                     generic_uv_scale_ptr)
             else:
-                generic_texture = redner.TextureN(\
+                generic_texture = redner.TextureN( \
                     redner.float_ptr(0), 0, 0, 0, 0, redner.float_ptr(0))
             if normal_map.shape[0] > 0:
-                normal_map = redner.Texture3(\
+                normal_map = redner.Texture3( \
                     normal_map_ptr,
                     int(normal_map.shape[2]),
                     int(normal_map.shape[1]),
@@ -410,9 +419,9 @@ def forward(seed:int, *args):
                     int(normal_map.shape[0]),
                     normal_map_uv_scale_ptr)
             else:
-                normal_map = redner.Texture3(\
+                normal_map = redner.Texture3( \
                     redner.float_ptr(0), 0, 0, 0, 0, redner.float_ptr(0))
-            materials.append(redner.Material(\
+            materials.append(redner.Material( \
                 diffuse_reflectance,
                 specular_reflectance,
                 roughness,
@@ -465,12 +474,12 @@ def forward(seed:int, *args):
             world_to_env = redner.float_ptr(pyredner.data_ptr(world_to_env))
         values = redner.Texture3(
             values_ptr,
-            int(values.shape[2]), # width
-            int(values.shape[1]), # height
-            int(values.shape[3]), # channels
-            int(values.shape[0]), # num levels
+            int(values.shape[2]),  # width
+            int(values.shape[1]),  # height
+            int(values.shape[3]),  # channels
+            int(values.shape[0]),  # num levels
             envmap_uv_scale)
-        envmap = redner.EnvironmentMap(\
+        envmap = redner.EnvironmentMap( \
             values,
             env_to_world,
             world_to_env,
@@ -486,7 +495,7 @@ def forward(seed:int, *args):
     if len(num_samples.shape) == 0 or num_samples.shape[0] == 1:
         num_samples = int(num_samples)
     else:
-        assert(num_samples.shape[0] == 2)
+        assert (num_samples.shape[0] == 2)
         num_samples = (int(num_samples[0]), int(num_samples[1]))
     max_bounces = int(args[current_index])
     current_index += 1
@@ -561,15 +570,16 @@ def forward(seed:int, *args):
     ctx.options = options
     ctx.num_samples = num_samples
     ctx.num_channels = __num_channels
-    ctx.args = args # important to avoid GC on tf tensors
+    ctx.args = args  # important to avoid GC on tf tensors
     return rendered_image, ctx
+
 
 @tf.custom_gradient
 def render(*x):
     """
         The main TensorFlow interface of C++ redner.
     """
-    assert(tf.executing_eagerly())
+    assert (tf.executing_eagerly())
     if pyredner.get_use_gpu() and os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] != 'true':
         print('******************** WARNING ********************')
         print('Tensorflow by default allocates all GPU memory,')
@@ -599,14 +609,14 @@ def render(*x):
                 d_up = None
                 d_cam_to_world = tf.zeros([4, 4], dtype=tf.float32)
                 d_wolrd_to_cam = tf.zeros([4, 4], dtype=tf.float32)
-            d_intrinsic_mat_inv = tf.zeros([3,3], dtype=tf.float32)
-            d_intrinsic_mat = tf.zeros([3,3], dtype=tf.float32)
+            d_intrinsic_mat_inv = tf.zeros([3, 3], dtype=tf.float32)
+            d_intrinsic_mat = tf.zeros([3, 3], dtype=tf.float32)
             if camera.use_look_at:
                 d_camera = redner.DCamera(redner.float_ptr(pyredner.data_ptr(d_position)),
                                           redner.float_ptr(pyredner.data_ptr(d_look_at)),
                                           redner.float_ptr(pyredner.data_ptr(d_up)),
-                                          redner.float_ptr(0), # cam_to_world
-                                          redner.float_ptr(0), # world_to_cam
+                                          redner.float_ptr(0),  # cam_to_world
+                                          redner.float_ptr(0),  # world_to_cam
                                           redner.float_ptr(pyredner.data_ptr(d_intrinsic_mat_inv)),
                                           redner.float_ptr(pyredner.data_ptr(d_intrinsic_mat)))
             else:
@@ -634,7 +644,7 @@ def render(*x):
                 d_uvs_list.append(d_uvs)
                 d_normals_list.append(d_normals)
                 d_colors_list.append(d_colors)
-                d_shapes.append(redner.DShape(\
+                d_shapes.append(redner.DShape( \
                     redner.float_ptr(pyredner.data_ptr(d_vertices)),
                     redner.float_ptr(pyredner.data_ptr(d_uvs) if d_uvs is not None else 0),
                     redner.float_ptr(pyredner.data_ptr(d_normals) if d_normals is not None else 0),
@@ -738,30 +748,32 @@ def render(*x):
                     d_generic_uv_scale = redner.float_ptr(pyredner.data_ptr(d_generic_uv_scale))
                 if normal_map_size[0] > 0:
                     d_normal_map_uv_scale = redner.float_ptr(pyredner.data_ptr(d_normal_map_uv_scale))
-                d_diffuse_tex = redner.Texture3(\
+                d_diffuse_tex = redner.Texture3( \
                     d_diffuse, diffuse_size[0], diffuse_size[1], 3, diffuse_size[2], d_diffuse_uv_scale)
-                d_specular_tex = redner.Texture3(\
+                d_specular_tex = redner.Texture3( \
                     d_specular, specular_size[0], specular_size[1], 3, specular_size[2], d_specular_uv_scale)
-                d_roughness_tex = redner.Texture1(\
-                    d_roughness, roughness_size[0], roughness_size[1], 1, roughness_size[2],  d_roughness_uv_scale)
+                d_roughness_tex = redner.Texture1( \
+                    d_roughness, roughness_size[0], roughness_size[1], 1, roughness_size[2], d_roughness_uv_scale)
                 if generic_size[0] > 0:
-                    d_generic_tex = redner.TextureN(\
+                    d_generic_tex = redner.TextureN( \
                         d_generic_texture,
-                        generic_size[1], # width
-                        generic_size[2], # height
-                        generic_size[0], # channels
-                        generic_size[3], # num_levels
+                        generic_size[1],  # width
+                        generic_size[2],  # height
+                        generic_size[0],  # channels
+                        generic_size[3],  # num_levels
                         d_generic_uv_scale)
                 else:
-                    d_generic_tex = redner.TextureN(\
+                    d_generic_tex = redner.TextureN( \
                         redner.float_ptr(0), 0, 0, 0, 0, redner.float_ptr(0))
                 if normal_map_size[0] > 0:
-                    d_normal_map_tex = redner.Texture3(\
-                        d_normal_map, normal_map_size[0], normal_map_size[1], 3, normal_map_size[2], d_normal_map_uv_scale)
+                    d_normal_map_tex = redner.Texture3( \
+                        d_normal_map, normal_map_size[0], normal_map_size[1], 3, normal_map_size[2],
+                        d_normal_map_uv_scale)
                 else:
-                    d_normal_map_tex = redner.Texture3(\
+                    d_normal_map_tex = redner.Texture3( \
                         redner.float_ptr(0), 0, 0, 0, 0, redner.float_ptr(0))
-                d_materials.append(redner.DMaterial(d_diffuse_tex, d_specular_tex, d_roughness_tex, d_generic_tex, d_normal_map_tex))
+                d_materials.append(
+                    redner.DMaterial(d_diffuse_tex, d_specular_tex, d_roughness_tex, d_generic_tex, d_normal_map_tex))
 
         d_intensity_list = []
         d_area_lights = []
@@ -769,7 +781,7 @@ def render(*x):
             for light in ctx.area_lights:
                 d_intensity = tf.zeros(3, dtype=tf.float32)
                 d_intensity_list.append(d_intensity)
-                d_area_lights.append(\
+                d_area_lights.append( \
                     redner.DAreaLight(redner.float_ptr(pyredner.data_ptr(d_intensity))))
 
         d_envmap = None
@@ -783,7 +795,7 @@ def render(*x):
                 d_envmap_uv_scale_ptr = redner.float_ptr(pyredner.data_ptr(d_envmap_uv_scale))
                 d_world_to_env = tf.zeros([4, 4], dtype=tf.float32)
                 d_world_to_env_ptr = redner.float_ptr(pyredner.data_ptr(d_world_to_env))
-            d_envmap_tex = redner.Texture3(\
+            d_envmap_tex = redner.Texture3( \
                 d_envmap_values_ptr, size[0], size[1], 3, size[2], d_envmap_uv_scale_ptr)
             d_envmap = redner.DEnvironmentMap(d_envmap_tex, d_world_to_env_ptr)
 
@@ -804,10 +816,10 @@ def render(*x):
             grad_img = tf.identity(grad_img)
             redner.render(scene,
                           options,
-                          redner.float_ptr(0),    # rendered_image
+                          redner.float_ptr(0),  # rendered_image
                           redner.float_ptr(pyredner.data_ptr(grad_img)),
                           d_scene,
-                          redner.float_ptr(0))    # debug_image
+                          redner.float_ptr(0))  # debug_image
         time_elapsed = time.time() - start
 
         if print_timing:
@@ -827,39 +839,39 @@ def render(*x):
         # exit()
 
         ret_list = []
-        ret_list.append(None) # seed
-        ret_list.append(None) # num_shapes
-        ret_list.append(None) # num_materials
-        ret_list.append(None) # num_lights
+        ret_list.append(None)  # seed
+        ret_list.append(None)  # num_shapes
+        ret_list.append(None)  # num_materials
+        ret_list.append(None)  # num_lights
         if camera.use_look_at:
             ret_list.append(d_position)
             ret_list.append(d_look_at)
             ret_list.append(d_up)
-            ret_list.append(None) # cam_to_world
-            ret_list.append(None) # world_to_cam
+            ret_list.append(None)  # cam_to_world
+            ret_list.append(None)  # world_to_cam
         else:
-            ret_list.append(None) # pos
-            ret_list.append(None) # look
-            ret_list.append(None) # up
+            ret_list.append(None)  # pos
+            ret_list.append(None)  # look
+            ret_list.append(None)  # up
             ret_list.append(d_cam_to_world)
             ret_list.append(d_world_to_cam)
         ret_list.append(d_intrinsic_mat_inv)
         ret_list.append(d_intrinsic_mat)
-        ret_list.append(None) # clip near
-        ret_list.append(None) # resolution
-        ret_list.append(None) # camera_type
+        ret_list.append(None)  # clip near
+        ret_list.append(None)  # resolution
+        ret_list.append(None)  # camera_type
 
         num_shapes = len(ctx.shapes)
         for i in range(num_shapes):
             ret_list.append(d_vertices_list[i])
-            ret_list.append(None) # indices
+            ret_list.append(None)  # indices
             ret_list.append(d_uvs_list[i])
             ret_list.append(d_normals_list[i])
-            ret_list.append(None) # uv_indices
-            ret_list.append(None) # normal_indices
+            ret_list.append(None)  # uv_indices
+            ret_list.append(None)  # normal_indices
             ret_list.append(d_colors_list[i])
-            ret_list.append(None) # material id
-            ret_list.append(None) # light id
+            ret_list.append(None)  # material id
+            ret_list.append(None)  # light id
 
         num_materials = len(ctx.materials)
         for i in range(num_materials):
@@ -873,26 +885,26 @@ def render(*x):
             ret_list.append(d_generic_uv_scale_list[i])
             ret_list.append(d_normal_map_list[i])
             ret_list.append(d_normal_map_uv_scale_list[i])
-            ret_list.append(None) # compute_specular_lighting
-            ret_list.append(None) # two sided
-            ret_list.append(None) # use_vertex_color
+            ret_list.append(None)  # compute_specular_lighting
+            ret_list.append(None)  # two sided
+            ret_list.append(None)  # use_vertex_color
 
         num_area_lights = len(ctx.area_lights)
         for i in range(num_area_lights):
-            ret_list.append(None) # shape id
+            ret_list.append(None)  # shape id
             with tf.device('/device:cpu:' + str(pyredner.get_cpu_device_id())):
                 ret_list.append(tf.identity(d_intensity_list[i]))
-            ret_list.append(None) # two sided
+            ret_list.append(None)  # two sided
 
         if ctx.envmap is not None:
             ret_list.append(d_envmap_values)
             ret_list.append(d_envmap_uv_scale)
-            ret_list.append(None) # env_to_world
+            ret_list.append(None)  # env_to_world
             with tf.device('/device:cpu:' + str(pyredner.get_cpu_device_id())):
                 ret_list.append(tf.identity(d_world_to_env))
-            ret_list.append(None) # sample_cdf_ys
-            ret_list.append(None) # sample_cdf_xs
-            ret_list.append(None) # pdf_norm
+            ret_list.append(None)  # sample_cdf_ys
+            ret_list.append(None)  # sample_cdf_xs
+            ret_list.append(None)  # pdf_norm
         else:
             ret_list.append(None)
             ret_list.append(None)
@@ -902,15 +914,15 @@ def render(*x):
             ret_list.append(None)
             ret_list.append(None)
 
-        ret_list.append(None) # num samples
-        ret_list.append(None) # num bounces
-        ret_list.append(None) # num channels
+        ret_list.append(None)  # num samples
+        ret_list.append(None)  # num bounces
+        ret_list.append(None)  # num channels
         for _ in range(ctx.num_channels):
-            ret_list.append(None) # channel
+            ret_list.append(None)  # channel
 
-        ret_list.append(None) # sampler type
-        ret_list.append(None) # use_primary_edge_sampling
-        ret_list.append(None) # use_secondary_edge_sampling
+        ret_list.append(None)  # sampler type
+        ret_list.append(None)  # use_primary_edge_sampling
+        ret_list.append(None)  # use_secondary_edge_sampling
 
         return ret_list
 

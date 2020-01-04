@@ -3,6 +3,7 @@ import re
 import pyredner_tensorflow as pyredner
 import os
 
+
 class WavefrontMaterial:
     def __init__(self):
         self.name = ""
@@ -13,6 +14,7 @@ class WavefrontMaterial:
         self.map_Kd = None
         self.map_Ks = None
         self.map_Ns = None
+
 
 class TriangleMesh:
     def __init__(self,
@@ -29,13 +31,14 @@ class TriangleMesh:
         self.uvs = uvs
         self.normals = normals
 
+
 def load_mtl(filename):
     mtllib = {}
     current_mtl = WavefrontMaterial()
     with open(filename, 'r') as f:
         for line in f.readlines():
             line = line.strip()
-            splitted = re.split('\ +', line)
+            splitted = re.split(' +', line)
             if splitted[0] == 'newmtl':
                 if current_mtl.name != "":
                     mtllib[current_mtl.name] = current_mtl
@@ -58,6 +61,7 @@ def load_mtl(filename):
     if current_mtl.name != "":
         mtllib[current_mtl.name] = current_mtl
     return mtllib
+
 
 def load_obj(filename: str,
              obj_group: bool = True,
@@ -111,15 +115,15 @@ def load_obj(filename: str,
                     vertices,
                     uvs,
                     normals):
-        indices = tf.constant(indices, dtype = tf.int32)
+        indices = tf.constant(indices, dtype=tf.int32)
         if len(uv_indices) == 0:
             uv_indices = None
         else:
-            uv_indices = tf.constant(uv_indices, dtype = tf.int32)
+            uv_indices = tf.constant(uv_indices, dtype=tf.int32)
         if len(normal_indices) == 0:
             normal_indices = None
         else:
-            normal_indices = tf.constant(normal_indices, dtype = tf.int32)
+            normal_indices = tf.constant(normal_indices, dtype=tf.int32)
         vertices = tf.constant(vertices)
         if len(uvs) == 0:
             uvs = None
@@ -146,15 +150,15 @@ def load_obj(filename: str,
             os.chdir(d)
         for line in f:
             line = line.strip()
-            splitted = re.split('\ +', line)
+            splitted = re.split(' +', line)
             if splitted[0] == 'mtllib':
                 current_mtllib = load_mtl(splitted[1])
             elif splitted[0] == 'usemtl':
                 if len(indices) > 0 and obj_group is True:
                     # Flush
                     mesh_list.append((current_material_name,
-                        create_mesh(indices, uv_indices, normal_indices,
-                                    vertices, uvs, normals)))
+                                      create_mesh(indices, uv_indices, normal_indices,
+                                                  vertices, uvs, normals)))
                     indices = []
                     uv_indices = []
                     normal_indices = []
@@ -171,21 +175,21 @@ def load_obj(filename: str,
                     m = current_mtllib[mtl_name]
                     if m.map_Kd is None:
                         diffuse_reflectance = tf.constant(m.Kd,
-                            dtype = tf.float32)
+                                                          dtype=tf.float32)
                     else:
                         diffuse_reflectance = pyredner.imread(m.map_Kd)
                     if m.map_Ks is None:
                         specular_reflectance = tf.constant(m.Ks,
-                            dtype = tf.float32)
+                                                           dtype=tf.float32)
                     else:
                         specular_reflectance = pyredner.imread(m.map_Ks)
                     if m.map_Ns is None:
                         roughness = tf.constant([2.0 / (m.Ns + 2.0)],
-                            dtype = tf.float32)
+                                                dtype=tf.float32)
                     else:
                         roughness = 2.0 / (pyredner.imread(m.map_Ks) + 2.0)
                     if m.Ke != (0.0, 0.0, 0.0):
-                        light_map[mtl_name] = tf.constant(m.Ke, dtype = tf.float32)
+                        light_map[mtl_name] = tf.constant(m.Ke, dtype=tf.float32)
                     material_map[mtl_name] = pyredner.Material(
                         diffuse_reflectance, specular_reflectance, roughness)
             elif splitted[0] == 'v':
@@ -201,14 +205,18 @@ def load_obj(filename: str,
             elif splitted[0] == 'f':
                 def num_indices(x):
                     return len(re.split('/', x))
+
                 def get_index(x, i):
                     return int(re.split('/', x)[i])
+
                 def parse_face_index(x, i):
                     f = get_index(x, i)
                     if f > 0:
                         f -= 1
                     return f
-                assert(len(splitted) <= 5)
+
+                assert (len(splitted) <= 5)
+
                 def get_vertex_id(indices):
                     pi = parse_face_index(indices, 0)
                     uvi = None
@@ -268,23 +276,23 @@ def load_obj(filename: str,
 
                 indices.append([vid0, vid1, vid2])
                 if uv_id0 is not None:
-                    assert(uv_id1 is not None and uv_id2 is not None)
+                    assert (uv_id1 is not None and uv_id2 is not None)
                     uv_indices.append([uv_id0, uv_id1, uv_id2])
                 if n_id0 is not None:
-                    assert(n_id1 is not None and n_id2 is not None)
+                    assert (n_id1 is not None and n_id2 is not None)
                     normal_indices.append([n_id0, n_id1, n_id2])
                 if (len(splitted) == 5):
                     vid3, uv_id3, n_id3 = get_vertex_id(splitted[4])
                     indices.append([vid0, vid2, vid3])
                     if uv_id0 is not None:
-                        assert(uv_id3 is not None)
+                        assert (uv_id3 is not None)
                         uv_indices.append([uv_id0, uv_id2, uv_id3])
                     if n_id0 is not None:
-                        assert(n_id3 is not None)
+                        assert (n_id3 is not None)
                         normal_indices.append([n_id0, n_id2, n_id3])
-    
+
     mesh_list.append((current_material_name,
-        create_mesh(indices, uv_indices, normal_indices, vertices, uvs, normals)))
+                      create_mesh(indices, uv_indices, normal_indices, vertices, uvs, normals)))
     if d != '':
         os.chdir(cwd)
 
@@ -294,22 +302,20 @@ def load_obj(filename: str,
             if mtl_name in material_map:
                 m = material_map[mtl_name]
             else:
-                m = pyredner.Material(diffuse_reflectance = \
-                        tf.constant((0.5, 0.5, 0.5)))
+                m = pyredner.Material(diffuse_reflectance=tf.constant((0.5, 0.5, 0.5)))
             if mtl_name in light_map:
                 l = light_map[mtl_name]
             else:
                 l = None
-            objects.append(pyredner.Object(\
-                vertices = mesh.vertices,
-                indices = mesh.indices,
-                material = m,
-                light_intensity = l,
-                uvs = mesh.uvs,
-                normals = mesh.normals,
-                uv_indices = mesh.uv_indices,
-                normal_indices = mesh.normal_indices))
+            objects.append(pyredner.Object( \
+                vertices=mesh.vertices,
+                indices=mesh.indices,
+                material=m,
+                light_intensity=l,
+                uvs=mesh.uvs,
+                normals=mesh.normals,
+                uv_indices=mesh.uv_indices,
+                normal_indices=mesh.normal_indices))
         return objects
     else:
         return material_map, mesh_list, light_map
-

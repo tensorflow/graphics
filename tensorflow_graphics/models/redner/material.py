@@ -2,6 +2,7 @@ import pyredner_tensorflow as pyredner
 import tensorflow as tf
 from typing import Union, Optional
 
+
 class Material:
     """
         redner currently employs a two-layer diffuse-specular material model.
@@ -33,6 +34,7 @@ class Material:
         use_vertex_color: bool
             ignores the reflectances and use the vertex color as diffuse color
     """
+
     def __init__(self,
                  diffuse_reflectance: Optional[Union[tf.Tensor, pyredner.Texture]] = None,
                  specular_reflectance: Optional[Union[tf.Tensor, pyredner.Texture]] = None,
@@ -82,7 +84,7 @@ class Material:
         if value is not None:
             self.compute_specular_lighting = True
         else:
-            self._specular_reflectance = pyredner.Texture(\
+            self._specular_reflectance = pyredner.Texture( \
                 tf.zeros([3], dtype=tf.float32))
             self.compute_specular_lighting = False
 

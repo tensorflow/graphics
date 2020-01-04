@@ -1,5 +1,6 @@
 import pyredner_tensorflow as pyredner
 
+
 class Scene:
     """
         A scene is a collection of camera, geometry, materials, and light.
@@ -16,13 +17,14 @@ class Scene:
             objects: Optional[List[pyredner.Object]] = None,
             envmap: Optional[pyredner.EnvironmentMap] = None
     """
+
     def __init__(self,
                  camera,
-                 shapes = [],
-                 materials = [],
-                 area_lights = [],
-                 objects = None,
-                 envmap = None):
+                 shapes=[],
+                 materials=[],
+                 area_lights=[],
+                 objects=None,
+                 envmap=None):
         self.camera = camera
         self.envmap = envmap
         if objects is None:
@@ -47,18 +49,18 @@ class Scene:
                     current_material_id += 1
                 if obj.light_intensity is not None:
                     current_shape_id = len(shapes)
-                    area_light = pyredner.AreaLight(shape_id = current_shape_id,
-                                                    intensity = obj.light_intensity,
-                                                    two_sided = obj.light_two_sided)
+                    area_light = pyredner.AreaLight(shape_id=current_shape_id,
+                                                    intensity=obj.light_intensity,
+                                                    two_sided=obj.light_two_sided)
                     area_lights.append(area_light)
-                shape = pyredner.Shape(vertices = obj.vertices,
-                                       indices = obj.indices,
-                                       material_id = mid,
-                                       uvs = obj.uvs,
-                                       normals = obj.normals,
-                                       uv_indices = obj.uv_indices,
-                                       normal_indices = obj.normal_indices,
-                                       colors = obj.colors)
+                shape = pyredner.Shape(vertices=obj.vertices,
+                                       indices=obj.indices,
+                                       material_id=mid,
+                                       uvs=obj.uvs,
+                                       normals=obj.normals,
+                                       uv_indices=obj.uv_indices,
+                                       normal_indices=obj.normal_indices,
+                                       colors=obj.colors)
                 shapes.append(shape)
             self.shapes = shapes
             self.materials = materials

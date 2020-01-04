@@ -1,6 +1,7 @@
 import tensorflow as tf
 import redner
 
+
 class RednerCameraType:
     __cameratypes = [
         redner.CameraType.perspective,
@@ -16,7 +17,6 @@ class RednerCameraType:
         for i in range(len(RednerCameraType.__cameratypes)):
             if RednerCameraType.__cameratypes[i] == cameratype:
                 return tf.constant(i)
-
 
     @staticmethod
     def asCameraType(index: tf.Tensor) -> redner.CameraType:
@@ -81,7 +81,6 @@ class RednerSamplerType:
         for i in range(len(RednerSamplerType.__samplertypes)):
             if RednerSamplerType.__samplertypes[i] == samplertype:
                 return tf.constant(i)
-
 
     @staticmethod
     def asSamplerType(index: tf.Tensor) -> redner.SamplerType:
