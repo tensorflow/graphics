@@ -11,8 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-build --verbose_failures
 test --keep_going
 test --build_tests_only
 test --test_output=errors
-test --test_verbose_timeout_warnings
+test --copt=-O3
+test --copt=-march=native
+test --test_timeout 300,450,1200,3600
+test --action_env=PATH
+test --action_env=LD_LIBRARY_PATH

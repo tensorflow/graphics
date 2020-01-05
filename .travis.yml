@@ -43,7 +43,9 @@ jobs:
         - pip install -U tf-nightly-2.0-preview
 
 script:
-  - bazel test //tensorflow_graphics/...
+  - NUM_CORES=$(grep -c '^processor' /proc/cpuinfo)
+  - echo ${NUM_CORES}
+  - bazel test --jobs=${NUM_CORES} //tensorflow_graphics/...
   - flake8 --config=.flake8 ./tensorflow_graphics/
 
 after_success:
