@@ -756,7 +756,7 @@ def render(*x):
                     d_roughness, roughness_size[0], roughness_size[1], 1, roughness_size[2], d_roughness_uv_scale)
                 if generic_size[0] > 0:
                     d_generic_tex = redner.TextureN( \
-                        d_generic_texture,
+                        d_generic_texture,  # TODO: This variable does not exist
                         generic_size[1],  # width
                         generic_size[2],  # height
                         generic_size[0],  # channels
