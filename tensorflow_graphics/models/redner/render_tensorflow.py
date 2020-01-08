@@ -602,13 +602,13 @@ def render(*x):
                 d_look_at = tf.zeros(3, dtype=tf.float32)
                 d_up = tf.zeros(3, dtype=tf.float32)
                 d_cam_to_world = None
-                d_wolrd_to_cam = None
+                d_world_to_cam = None
             else:
                 d_position = None
                 d_look_at = None
                 d_up = None
                 d_cam_to_world = tf.zeros([4, 4], dtype=tf.float32)
-                d_wolrd_to_cam = tf.zeros([4, 4], dtype=tf.float32)
+                d_world_to_cam = tf.zeros([4, 4], dtype=tf.float32)
             d_intrinsic_mat_inv = tf.zeros([3, 3], dtype=tf.float32)
             d_intrinsic_mat = tf.zeros([3, 3], dtype=tf.float32)
             if camera.use_look_at:
