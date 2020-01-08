@@ -76,10 +76,10 @@ landing_page:
     items:
     - heading: "Introducing TensorFlow Graphics"
       image_path: /resources/images/tf-logo-card-16x9.png
-      path: https://medium.com/tensorflow/introducing-tensorflow-graphics-computer-graphics-meets-deep-learning-c8e3877b7668
+      path: https://blog.tensorflow.org/2019/05/introducing-tensorflow-graphics_9.html
       buttons:
       - label: Read on TensorFlow blog
-        path: https://medium.com/tensorflow/introducing-tensorflow-graphics-computer-graphics-meets-deep-learning-c8e3877b7668
+        path: https://blog.tensorflow.org/2019/05/introducing-tensorflow-graphics_9.html
     - heading: "Cutting Edge TensorFlow (Google I/O'19)"
       youtube_id: Un0JDL3i5Hg
       buttons:
