@@ -224,6 +224,7 @@ Want to reach out? E-mail us at tf-graphics-contact@google.com!
 -   Ameesh Makadia
 -   Rohit Pandey
 -   Pavel Pidlypenskyi
+-   Aviv Segal
 -   Avneesh Sud
 -   Anastasia Tkach
 -   Julien Valentin (julienvalentin@google.com)
