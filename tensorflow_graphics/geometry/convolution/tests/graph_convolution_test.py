@@ -333,13 +333,23 @@ class GraphConvolutionTestFeatureSteeredConvolutionTests(test_case.TestCase):
 
   @parameterized.parameters(
       (((1.0,), (2.0,), (3.0,)), np.ones(shape=(3, 3)) / 3.0, ((0.5,),),
-       ((1.3,),), (-0.7,), (((0.8,),),), (3.0,), ((4.6,), (4.6,), (4.6,))),
+       ((1.3,),), (-0.7,), (((0.8,),),), (3.0,), ((4.6,), (4.6,), (4.6,)),
+       'gather_sum'),
       (((1.0,), (2.0,), (3.0,)), np.ones(shape=(3, 3)) / 3.0, ((0.5, 0.2),),
        ((0.3, 0.4),), (-0.7, 0.15), (((0.8,),), ((1.1,),)), (3.0,),
-       ((5.011706928844621,), (4.971030281984818,), (4.927388658982911,))),
+       ((5.011706928844621,), (4.971030281984818,), (4.927388658982911,)),
+       'gather_sum'),
+      (((1.0,), (2.0,), (3.0,)), np.ones(shape=(3, 3)) / 3.0, ((0.5,),),
+       ((1.3,),), (-0.7,), (((0.8,),),), (3.0,), ((4.6,), (4.6,), (4.6,)),
+       'sparse_matmul'),
+      (((1.0,), (2.0,), (3.0,)), np.ones(shape=(3, 3)) / 3.0, ((0.5, 0.2),),
+       ((0.3, 0.4),), (-0.7, 0.15), (((0.8,),), ((1.1,),)), (3.0,),
+       ((5.011706928844621,), (4.971030281984818,), (4.927388658982911,)),
+       'sparse_matmul'),
   )
   def test_feature_steered_convolution_padding_preset(self, data, neighbors, u,
-                                                      v, c, w, b, expected):
+                                                      v, c, w, b, expected,
+                                                      sparse_impl):
     """Test expected result for preset data and filter values."""
     array = (np.array(i) for i in (data, neighbors, expected))
     data, neighbors, expected = array
@@ -354,7 +364,8 @@ class GraphConvolutionTestFeatureSteeredConvolutionTests(test_case.TestCase):
         var_v=v,
         var_c=c,
         var_w=w,
-        var_b=b)
+        var_b=b,
+        sparse_impl=sparse_impl)
     self.assertAllClose(y, expected)
 
   @parameterized.parameters(

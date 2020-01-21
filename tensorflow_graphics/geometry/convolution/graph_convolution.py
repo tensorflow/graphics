@@ -24,6 +24,48 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
+class SparseImplementation(object):
+  GATHER_SUM = 'gather_sum'
+  SPARSE_MATMUL = 'sparse_matmul'
+
+  @classmethod
+  def all(cls):
+    return (SparseImplementation.GATHER_SUM, SparseImplementation.SPARSE_MATMUL)
+
+  @classmethod
+  def validate(cls, key):
+    if key not in cls.all():
+      raise ValueError('Invalid SparseImplementation Key %s.' % key)
+
+
+def _gather_sum(adjacency_ind_0, adjacency_ind_1, adjacency_values, weights_q,
+                x_flat):
+    q_m_list = tf.unstack(weights_q, axis=-1)
+    p_sums = []
+
+    x_sep = tf.gather(x_flat, adjacency_ind_1)
+    num_segments = tf.shape(input=x_flat)[0]
+    for q_m in q_m_list:
+      # Compute `y_i_m = sum_{j in neighborhood(i)} q_m(x_i, x_j) * w_m * x_j`.
+      q_m = tf.expand_dims(q_m, axis=-1)
+      p_sums.append(tf.math.unsorted_segment_sum(
+          data=(q_m * x_sep) * tf.expand_dims(adjacency_values, -1),
+          segment_ids=adjacency_ind_0,
+          num_segments=num_segments))
+    return p_sums
+
+
+def _sparse_matmul(
+    adjacency_indices, adjacency_values, dense_shape, weights_q, x_flat):
+  p_sums = []
+  q_m_list = tf.unstack(weights_q, axis=-1)
+  for q_m in q_m_list:
+    sp = tf.SparseTensor(
+      adjacency_indices, adjacency_values * q_m, dense_shape)
+    p_sums.append(tf.sparse.sparse_dense_matmul(sp, x_flat))
+  return p_sums
+
+
 def feature_steered_convolution(data,
                                 neighbors,
                                 sizes,
@@ -32,7 +74,8 @@ def feature_steered_convolution(data,
                                 var_c,
                                 var_w,
                                 var_b,
-                                name=None):
+                                name=None,
+                                sparse_impl=SparseImplementation.GATHER_SUM):
   #  pyformat: disable
   """Implements the Feature Steered graph convolution.
 
@@ -42,7 +85,8 @@ def feature_steered_convolution(data,
   https://arxiv.org/abs/1706.05206
 
   The shorthands used below are
-    `V`: The number of vertices.
+    `Vi`: The number of vertices in the input.
+    `Vo`: The number of vertices in the output.
     `C`: The number of channels in the input data.
     `D`: The number of channels in the output after convolution.
     `W`: The number of weight matrices used in the convolution.
@@ -53,9 +97,9 @@ def feature_steered_convolution(data,
     In the following, A1 to An are optional batch dimensions.
 
   Args:
-    data: A `float` tensor with shape `[A1, ..., An, V, C]`.
+    data: A `float` tensor with shape `[A1, ..., An, Vi, C]`.
     neighbors: A `SparseTensor` with the same type as `data` and with shape
-      `[A1, ..., An, V, V]` representing vertex neighborhoods. The neighborhood
+      `[A1, ..., An, Vo, Vi]` representing vertex neighborhoods. The neighborhood
       of a vertex defines the support region for convolution. For a mesh, a
       common choice for the neighborhood of vertex i would be the vertices in
       the K-ring of i (including i itself). Each vertex must have at least one
@@ -81,17 +125,21 @@ def feature_steered_convolution(data,
     var_c: A 1-D tensor with shape `[W]`.
     var_w: A 3-D tensor with shape `[W, C, D]`.
     var_b: A 1-D tensor with shape `[D]`.
+    sparse_impl: `SparseImplementation` prop, ('gather_sum', 'sparse_matmul').
+      This influences the computational performance. Results should be the same
+      except for floating point errors.
     name: A name for this op. Defaults to
       `graph_convolution_feature_steered_convolution`.
 
   Returns:
-    Tensor with shape `[A1, ..., An, V, D]`.
+    Tensor with shape `[A1, ..., An, Vo, D]`.
 
   Raises:
     TypeError: if the input types are invalid.
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
+  SparseImplementation.validate(sparse_impl)
   with tf.compat.v1.name_scope(
       name, "graph_convolution_feature_steered_convolution",
       [data, neighbors, sizes, var_u, var_v, var_c, var_w, var_b]):
@@ -131,28 +179,33 @@ def feature_steered_convolution(data,
       adjacency = neighbors
     x_u = tf.matmul(x_flat, var_u)
     x_v = tf.matmul(x_flat, var_v)
-    adjacency_ind_0 = adjacency.indices[:, 0]
-    adjacency_ind_1 = adjacency.indices[:, 1]
+    adjacency_ind_0, adjacency_ind_1 = tf.unstack(adjacency.indices, axis=1)
     x_u_rep = tf.gather(x_u, adjacency_ind_0)
     x_v_sep = tf.gather(x_v, adjacency_ind_1)
-    weights_q = tf.exp(x_u_rep + x_v_sep + tf.reshape(var_c, (1, -1)))
-    weights_q_sum = tf.reduce_sum(
+    logits = x_u_rep + x_v_sep + tf.reshape(var_c, (1, -1))
+    # numerically stable softmax
+    # compared to tf.nn.softmax, this gives better performance when JIT compiled
+    logits = logits - tf.reduce_max(logits, axis=-1, keepdims=True)
+    weights_q = tf.exp(logits)
+    weights_q = weights_q / tf.reduce_sum(
         input_tensor=weights_q, axis=-1, keepdims=True)
-    weights_q = weights_q / weights_q_sum
-    y_i_m = []
-    x_sep = tf.gather(x_flat, adjacency_ind_1)
-    q_m_list = tf.unstack(weights_q, axis=-1)
-    w_m_list = tf.unstack(var_w, axis=0)
 
-    x_flat_shape = tf.shape(input=x_flat)
-    for q_m, w_m in zip(q_m_list, w_m_list):
+    if sparse_impl == SparseImplementation.GATHER_SUM:
+      p_sums = _gather_sum(
+        adjacency_ind_0, adjacency_ind_1, adjacency.values, weights_q, x_flat)
+    else:
+      assert(sparse_impl == SparseImplementation.SPARSE_MATMUL)
+      p_sums = _sparse_matmul(
+        adjacency.indices, adjacency.values, adjacency.dense_shape, weights_q,
+        x_flat)
+
+    w_m_list = tf.unstack(var_w, axis=0)
+    y_i_m = []
+
+    for p_sum, w_m in zip(p_sums, w_m_list):
       # Compute `y_i_m = sum_{j in neighborhood(i)} q_m(x_i, x_j) * w_m * x_j`.
-      q_m = tf.expand_dims(q_m, axis=-1)
-      p_sum = tf.math.unsorted_segment_sum(
-          data=(q_m * x_sep) * tf.expand_dims(adjacency.values, -1),
-          segment_ids=adjacency_ind_0,
-          num_segments=x_flat_shape[0])
       y_i_m.append(tf.matmul(p_sum, w_m))
+
     y_out = tf.add_n(inputs=y_i_m) + tf.reshape(var_b, [1, -1])
     if data_ndims > 2:
       y_out = unflatten(y_out)
