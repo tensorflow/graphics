@@ -84,7 +84,9 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
               diff.argmax(), diff.shape)
       return max_error, row_max_error, column_max_error
 
-  def _create_placeholders_from_shapes(self, shapes, dtypes=None,
+  def _create_placeholders_from_shapes(self,
+                                       shapes,
+                                       dtypes=None,
                                        sparse_tensors=None):
     """Creates a list of placeholders based on a list of shapes.
 
@@ -204,7 +206,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
       delta: The amount of perturbation.
     """
     if tf.executing_eagerly():
-      return
+      self.skipTest(reason="Graph mode only test")
     max_error, _, _ = self._compute_gradient_error(x, y, x_init, delta)
     self.assertLessEqual(max_error, atol)
 
@@ -222,7 +224,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
       y: A tensor.
     """
     if tf.executing_eagerly():
-      return
+      self.skipTest(reason="Graph mode only test")
     x_shape = x.shape.as_list()
     y_shape = y.shape.as_list()
     with tf.compat.v1.Session():
@@ -279,7 +281,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
     """
     if tf.executing_eagerly():
       # Currently TFLite conversion is not supported in eager mode.
-      return
+      self.skipTest(reason="Graph mode only test")
     # Generate graph with the function given as input.
     in_tensors = self._create_placeholders_from_shapes(shapes, dtypes)
     out_tensors = func(*in_tensors)

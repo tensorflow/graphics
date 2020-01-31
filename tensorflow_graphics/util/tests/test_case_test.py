@@ -17,6 +17,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import unittest
+
 from absl.testing import parameterized
 import tensorflow as tf
 
@@ -47,8 +49,11 @@ class TestCaseTest(test_case.TestCase):
           func=self._dummy_tf_lite_compatible_function,
           shapes=((1,),),
           test_inputs=test_inputs)
+    except unittest.case.SkipTest as e:
+      # Forwarding SkipTest exception in order to skip the test.
+      raise e
     except Exception as e:  # pylint: disable=broad-except
-      self.fail("Exception raised: %s" % str(e))
+      self.fail("Exception raised: %s" % type(e))
 
   @parameterized.parameters(None, (((1.0,),),))
   def test_assert_tf_lite_convertible_exception_raised(self, test_inputs):
