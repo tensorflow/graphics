@@ -79,6 +79,20 @@ py_library(
     ],
 )
 
+py_library(
+    name = "trilinear",
+    srcs = [
+        "trilinear.py",
+    ],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    deps = [
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:export_api",
+        "//tensorflow_graphics/util:shape",
+    ],
+)
+
 py_test(
     name = "slerp_test",
     srcs = ["tests/slerp_test.py"],
@@ -132,6 +146,30 @@ py_test(
         # google internal package dependency 2
         # google internal package dependency 6
         # google internal package dependency 1,
+        "//tensorflow_graphics/util:test_case",
+    ],
+)
+
+py_test(
+    name = "trilinear_test",
+    srcs = [
+        "tests/trilinear_test.py",
+    ],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
+    deps = [
+        ":trilinear",
+        # google internal package dependency 3
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
+        "//tensorflow_graphics/geometry/representation:grid",
+        "//tensorflow_graphics/geometry/transformation:rotation_matrix_3d",
         "//tensorflow_graphics/util:test_case",
     ],
 )
