@@ -374,8 +374,8 @@ def ndc_to_screen(point_ndc_space,
     ValueError: If any input is of an unsupported shape.
 
   Returns:
-    A tensor of shape `[A1, ..., An, 2]`, containing `point_ndc_space` in
-    screen coordinates (pixels).
+    A tensor of shape `[A1, ..., An, 3]`, containing `point_ndc_space` in
+    screen coordinates.
   """
   with tf.compat.v1.name_scope(
       name, "ndc_to_screen",
@@ -477,9 +477,9 @@ def model_to_screen(point_model_space,
     ValueError: If any input is of an unsupported shape.
 
   Returns:
-  A tuple of two tensors, respectively of shape `[A1, ..., An, 2]` and
+  A tuple of two tensors, respectively of shape `[A1, ..., An, 3]` and
     `[A1, ..., An, 1]`, where the first tensor containing the projection of
-    `point_model_space` in screen coordinates (pixels), and the second
+    `point_model_space` in screen coordinates, and the second
     represents the 'w' component of `point_model_space` in clip space.
   """
   with tf.compat.v1.name_scope(name, "model_to_screen", [
@@ -563,8 +563,7 @@ def perspective_correct_interpolation(triangle_vertices_model_space,
     ValueError: If any input is of an unsupported shape.
 
   Returns:
-    A tensor of shape `[A1, ..., An, 2]`, containing the projection of
-    `point_model_space` in screen coordinates (pixels).
+    A tensor of shape `[A1, ..., An, B]`, containing interpolated attributes.
   """
   with tf.compat.v1.name_scope(name, "perspective_correct_interpolation", [
       triangle_vertices_model_space, attribute, pixel_position, camera_position,
@@ -586,7 +585,7 @@ def perspective_correct_interpolation(triangle_vertices_model_space,
     coeffs = barycentric_coordinates / vertices_w
     denominator = tf.reduce_sum(input_tensor=coeffs, axis=-1, keepdims=True)
     numerator = tf.reduce_sum(
-        input_tensor=tf.expand_dims(coeffs, axis=-1) * attribute, axis=-1)
+        input_tensor=tf.expand_dims(coeffs, axis=-1) * attribute, axis=-2)
     return numerator / denominator
 
 

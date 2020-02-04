@@ -818,27 +818,40 @@ class MathTest(test_case.TestCase):
 
   def test_perspective_correct_interpolation_preset(self):
     """Tests that perspective_correct_interpolation generates expected results."""
-    vertices = np.tile(((-0.2857143, 0.2857143, 5.0),
-                        (0.2857143, 0.2857143, 0.5), (0.0, -0.2857143, 1.0)),
-                       (2, 1, 1))
-    attributes = np.tile((((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))),
-                         (2, 1, 1))
-    pixel_position = np.array(((125.5, 375.5), (250.5, 250.5)))
-    camera_position = np.tile((0.0, 0.0, 0.0), (2, 3, 1))
-    look_at = np.tile((0.0, 0.0, 1.0), (2, 3, 1))
-    up_vector = np.tile((0.0, 1.0, 0.0), (2, 3, 1))
-    vertical_field_of_view = np.tile((1.0471975511965976,), (2, 3, 1))
-    screen_dimensions = np.tile((501.0, 501.0), (2, 3, 1))
-    near = np.tile((0.01,), (2, 3, 1))
-    far = np.tile((10.0,), (2, 3, 1))
-    lower_left_corner = np.tile((0.0, 0.0), (2, 3, 1))
+    camera_origin = np.array((0.0, 0.0, 0.0))
+    camera_up = np.array((0.0, 1.0, 0.0))
+    look_at = np.array((0.0, 0.0, 1.0))
+    fov = np.array((90.0 * np.math.pi / 180.0,))
+    bottom_left = np.array((0.0, 0.0))
+    image_size = np.array((501.0, 501.0))
+    near_plane = np.array((0.01,))
+    far_plane = np.array((10.0,))
+    batch_size = np.random.randint(5)
+    triangle_x_y = np.random.uniform(-10.0, 10.0, (batch_size, 3, 2))
+    triangle_z = np.random.uniform(2.0, 10.0, (batch_size, 3, 1))
+    triangles = np.concatenate((triangle_x_y, triangle_z), axis=-1)
+    # Builds barycentric weights.
+    barycentric_weights = np.random.uniform(size=(batch_size, 3))
+    barycentric_weights = barycentric_weights / np.sum(
+        barycentric_weights, axis=-1, keepdims=True)
+    # Barycentric interpolation of vertex positions.
+    convex_combination = np.einsum("ba, bac -> bc", barycentric_weights,
+                                   triangles)
+    # Computes where those points project in screen coordinates.
+    pixel_position, _ = glm.model_to_screen(convex_combination, camera_origin,
+                                            look_at, camera_up, fov, image_size,
+                                            near_plane, far_plane, bottom_left)
+    # Builds attributes.
+    num_pixels = pixel_position.shape[0]
+    attribute_size = np.random.randint(10)
+    attributes = np.random.uniform(size=(num_pixels, 3, attribute_size))
 
-    pred = glm.perspective_correct_interpolation(
-        vertices, attributes, pixel_position, camera_position, look_at,
-        up_vector, vertical_field_of_view, screen_dimensions, near, far,
-        lower_left_corner)
-    gt = ((0.051941, 0.84417719, 0.10388184), (0.25, 0.25, 0.5))
-    self.assertAllClose(pred, gt)
+    prediction = glm.perspective_correct_interpolation(
+        triangles, attributes, pixel_position[..., 0:2], camera_origin, look_at,
+        camera_up, fov, image_size, near_plane, far_plane, bottom_left)
+
+    groundtruth = np.einsum("ba, bac -> bc", barycentric_weights, attributes)
+    self.assertAllClose(prediction, groundtruth)
 
   @parameterized.parameters(
       ((500, 400, 3, 3), (3, 7), (2,), (3,), (3,), (3,), (1,), (2,), (1,), (1,),
