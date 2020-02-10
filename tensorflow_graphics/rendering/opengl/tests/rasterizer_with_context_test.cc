@@ -160,7 +160,7 @@ static tensorflow::Status rasterizer_with_context_creator(
 }
 
 TEST(RasterizerWithContextTest, TestRenderMultiThread) {
-  constexpr int kNumThreads = 50;
+  constexpr int kNumThreads = 32;
   constexpr int kWidth = 10;
   constexpr int kHeight = 10;
   constexpr int pixel_query = kWidth * kHeight / 2;
@@ -199,7 +199,7 @@ TEST(RasterizerWithContextTest, TestRenderMultiThread) {
 }
 
 TEST(RasterizerWithContextTest, TestRenderMultiThreadLoop) {
-  constexpr int kNumThreads = 50;
+  constexpr int kNumThreads = 32;
   constexpr int kNumLoops = 10;
   constexpr int kWidth = 10;
   constexpr int kHeight = 10;
