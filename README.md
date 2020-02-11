@@ -220,6 +220,7 @@ Want to reach out? E-mail us at tf-graphics-contact@google.com!
 -   Ambrus Csaszar
 -   Boyang Deng
 -   Ariel Gordon
+-   Christian Häne
 -   Cem Keskin
 -   Ameesh Makadia
 -   Rohit Pandey
