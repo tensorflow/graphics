@@ -32,6 +32,26 @@ from tensorflow_graphics.util import tfg_flags
 FLAGS = flags.FLAGS
 
 
+def _max_error(arrays1, arrays2):
+  """Computes maximum elementwise gap between two lists of ndarrays.
+
+  Computes the maximum elementwise gap between two lists with the same length,
+  of arrays with the same shape.
+
+  Args:
+    arrays1: a lists of np.ndarrays.
+    arrays2: a lists of np.ndarrays of the same shape as arrays1.
+
+  Returns:
+    The maximum elementwise absolute difference between the two lists of arrays.
+  """
+  error = 0
+  for array1, array2 in zip(arrays1, arrays2):
+    if array1.size or array2.size:  # Handle zero size ndarrays correctly
+      error = np.maximum(error, np.fabs(array1 - array2).max())
+  return error
+
+
 class TestCase(parameterized.TestCase, tf.test.TestCase):
   """Test case class implementing extra test functionalities."""
 
@@ -195,7 +215,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
       func(*placeholders, **kwargs)
 
   def assert_jacobian_is_correct(self, x, x_init, y, atol=1e-6, delta=1e-6):
-    """Tests that the gradient error of y(x) is small.
+    """Tests that the gradient error of y=f(x) is small.
 
     Args:
       x: A tensor.
@@ -208,6 +228,24 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
     if tf.executing_eagerly():
       self.skipTest(reason="Graph mode only test")
     max_error, _, _ = self._compute_gradient_error(x, y, x_init, delta)
+    self.assertLessEqual(max_error, atol)
+
+  def assert_jacobian_is_correct_fn(self, f, x, atol=1e-6, delta=1e-6):
+    """Tests that the gradient error of y=f(x) is small.
+
+    Args:
+      f: the function.
+      x: A list of arguments for the function
+      atol: Maximum absolute tolerance in gradient error.
+      delta: The amount of perturbation.
+    """
+    # pylint: disable=no-value-for-parameter
+    if tf.executing_eagerly():
+      max_error = _max_error(*tf.compat.v2.test.compute_gradient(f, x, delta))
+    else:
+      with self.cached_session():
+        max_error = _max_error(*tf.compat.v2.test.compute_gradient(f, x, delta))
+    # pylint: enable=no-value-for-parameter
     self.assertLessEqual(max_error, atol)
 
   def assert_jacobian_is_finite(self, x, x_init, y):
@@ -234,6 +272,26 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
       self.assertFalse(
           np.isnan(theoretical_gradient).any() or
           np.isinf(theoretical_gradient).any())
+
+  def assert_jacobian_is_finite_fn(self, f, x):
+    """Tests that the Jacobian only contains valid values.
+
+    The analytical gradients and numerical ones are expected to differ at points
+    where f(x) is not smooth. This function can be used to check that the
+    analytical gradient is not 'NaN' nor 'Inf'.
+
+    Args:
+      f: the function.
+      x: A list of arguments for the function
+    """
+    if tf.executing_eagerly():
+      theoretical_gradient, _ = tf.compat.v2.test.compute_gradient(f, x)
+    else:
+      with self.cached_session():
+        theoretical_gradient, _ = tf.compat.v2.test.compute_gradient(f, x)
+    self.assertFalse(
+        np.isnan(theoretical_gradient).any() or
+        np.isinf(theoretical_gradient).any())
 
   def assert_output_is_correct(self,
                                func,

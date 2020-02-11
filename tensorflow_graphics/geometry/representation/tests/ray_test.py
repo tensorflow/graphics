@@ -53,10 +53,10 @@ class RayTest(test_case.TestCase):
     # Wrap these with identies because some assert_* ops look at the constant
     # tensor values and mark these as unfeedable.
     self.points = tf.identity(tf.convert_to_tensor(value=self.points_values))
-    self.startpoints = tf.identity(tf.convert_to_tensor(
-        value=self.startpoints_values))
-    self.endpoints = tf.identity(tf.convert_to_tensor(
-        value=self.endpoints_values))
+    self.startpoints = tf.identity(
+        tf.convert_to_tensor(value=self.startpoints_values))
+    self.endpoints = tf.identity(
+        tf.convert_to_tensor(value=self.endpoints_values))
     self.weights = tf.identity(tf.convert_to_tensor(value=self.weights_values))
 
   @parameterized.parameters(
@@ -95,13 +95,15 @@ class RayTest(test_case.TestCase):
     """Tests that Jacobian is finite."""
     self._generate_random_example()
 
-    points = ray.triangulate(self.startpoints, self.endpoints, self.weights)
-
-    self.assert_jacobian_is_finite(self.startpoints, self.startpoints_values,
-                                   points)
-    self.assert_jacobian_is_finite(self.endpoints, self.endpoints_values,
-                                   points)
-    self.assert_jacobian_is_finite(self.weights, self.weights_values, points)
+    self.assert_jacobian_is_finite_fn(
+        lambda x: ray.triangulate(x, self.endpoints, self.weights),
+        [self.startpoints])
+    self.assert_jacobian_is_finite_fn(
+        lambda x: ray.triangulate(self.startpoints, x, self.weights),
+        [self.endpoints])
+    self.assert_jacobian_is_finite_fn(
+        lambda x: ray.triangulate(self.startpoints, self.endpoints, x),
+        [self.weights])
 
   def test_triangulate_random(self):
     """Tests that original points are recovered by triangualtion."""

@@ -68,15 +68,16 @@ class PointTest(test_case.TestCase):
     direction_init = np.random.random(size=tensor_shape + [3])
     direction_init /= np.maximum(
         np.linalg.norm(direction_init, axis=-1, keepdims=True), eps)
-    point_tensor = tf.convert_to_tensor(value=point_init)
-    origin_tensor = tf.convert_to_tensor(value=origin_init)
-    direction_tensor = tf.convert_to_tensor(value=direction_init)
 
-    y = point.distance_to_ray(point_tensor, origin_tensor, direction_tensor)
-
-    self.assert_jacobian_is_correct(point_tensor, point_init, y)
-    self.assert_jacobian_is_correct(origin_tensor, origin_init, y)
-    self.assert_jacobian_is_correct(direction_tensor, direction_init, y)
+    self.assert_jacobian_is_correct_fn(
+        lambda x: point.distance_to_ray(x, origin_init, direction_init),
+        [point_init])
+    self.assert_jacobian_is_correct_fn(
+        lambda x: point.distance_to_ray(point_init, x, direction_init),
+        [origin_init])
+    self.assert_jacobian_is_correct_fn(
+        lambda x: point.distance_to_ray(point_init, origin_init, x),
+        [direction_init])
 
   @parameterized.parameters(
       (((1., 1., 1.), (-10., 1., 1.), (1., 0., 0.)), ((0.,),)),)
