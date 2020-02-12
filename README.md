@@ -224,6 +224,7 @@ Want to reach out? E-mail us at tf-graphics-contact@google.com!
 -   Cem Keskin
 -   Ameesh Makadia
 -   Rohit Pandey
+-   Romain Prévost
 -   Pavel Pidlypenskyi
 -   Konstantinos Rematas
 -   Aviv Segal
