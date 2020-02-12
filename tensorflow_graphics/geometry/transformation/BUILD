@@ -95,6 +95,19 @@ py_library(
 )
 
 py_library(
+    name = "linear_blend_skinning",
+    srcs = ["linear_blend_skinning.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    deps = [
+        ":rotation_matrix_3d",
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:export_api",
+        "//tensorflow_graphics/util:shape",
+    ],
+)
+
+py_library(
     name = "euler",
     srcs = ["euler.py"],
     srcs_version = "PY2AND3",
@@ -118,6 +131,7 @@ py_library(
     deps = [
         ":axis_angle",
         ":euler",
+        ":linear_blend_skinning",
         ":quaternion",
         ":rotation_matrix_2d",
         ":rotation_matrix_3d",
@@ -256,6 +270,27 @@ py_test(
     deps = [
         ":rotation_matrix_2d",
         ":test_data",
+        ":test_helpers",
+        # google internal package dependency 3
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:test_case",
+    ],
+)
+
+py_test(
+    name = "linear_blend_skinning_test",
+    srcs = ["tests/linear_blend_skinning_test.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
+    deps = [
+        ":linear_blend_skinning",
         ":test_helpers",
         # google internal package dependency 3
         # google internal package dependency 2

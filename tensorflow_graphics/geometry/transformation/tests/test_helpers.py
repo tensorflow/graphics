@@ -126,3 +126,86 @@ def generate_random_test_rotation_matrix_2d():
   random_matrix = np.array(
       [stats.special_ortho_group.rvs(2) for _ in range(20)])
   return np.reshape(random_matrix, [5, 4, 2, 2])
+
+
+def generate_random_test_lbs_blend():
+  """Generates random test for the linear blend skinning blend function."""
+  tensor_dimensions = np.random.randint(3)
+  tensor_shape = np.random.randint(1, 10, size=(tensor_dimensions)).tolist()
+  random_points = np.random.uniform(size=tensor_shape + [3])
+  num_weights = np.random.randint(2, 10)
+  random_weights = np.random.uniform(size=tensor_shape + [num_weights])
+  random_weights /= np.sum(random_weights, axis=-1)
+
+  random_rotations = np.array(
+      [stats.special_ortho_group.rvs(3) for _ in range(num_weights)])
+  random_rotations = np.reshape(random_rotations, [num_weights, 3, 3])
+  random_translations = np.random.uniform(size=[num_weights, 3])
+  return random_points, random_weights, random_rotations, random_translations
+
+
+def generate_preset_test_lbs_blend():
+  """Generates preset test for the linear blend skinning blend function."""
+  points = np.array(
+      [[[1.0, 0.0, 0.0],
+        [0.1, 0.2, 0.5]],
+       [[0.0, 1.0, 0.0],
+        [0.3, -0.5, 0.2]],
+       [[-0.3, 0.1, 0.3],
+        [0.1, -0.9, -0.4]]])
+  weights = np.array(
+      [[[0.0, 1.0, 0.0, 0.0],
+        [0.4, 0.2, 0.3, 0.1]],
+       [[0.6, 0.0, 0.4, 0.0],
+        [0.2, 0.2, 0.1, 0.5]],
+       [[0.0, 0.1, 0.0, 0.9],
+        [0.1, 0.2, 0.3, 0.4]]])
+  rotations = np.array(
+      [[[[1.0, 0.0, 0.0],
+         [0.0, 1.0, 0.0],
+         [0.0, 0.0, 1.0]],
+        [[0.36, 0.48, -0.8],
+         [-0.8, 0.60, 0.00],
+         [0.48, 0.64, 0.60]],
+        [[0.0, 0.0, 1.0],
+         [1.0, 0.0, 0.0],
+         [0.0, 1.0, 0.0]],
+        [[0.0, 1.0, 0.0],
+         [1.0, 0.0, 0.0],
+         [0.0, 0.0, -1.0]]],
+       [[[-0.41554751, -0.42205085, -0.80572535],
+         [0.08028719, -0.89939186, 0.42970716],
+         [-0.9060211, 0.11387432, 0.40762533]],
+        [[-0.05240625, -0.24389111, 0.96838562],
+         [0.99123384, -0.13047444, 0.02078231],
+         [0.12128095, 0.96098572, 0.2485908]],
+        [[-0.32722936, -0.06793413, -0.94249981],
+         [-0.70574479, 0.68082693, 0.19595657],
+         [0.62836712, 0.72928708, -0.27073072]],
+        [[-0.22601332, -0.95393284, 0.19730719],
+         [-0.01189659, 0.20523618, 0.97864017],
+         [-0.97405157, 0.21883843, -0.05773466]]]])  # pyformat: disable
+  translations = np.array(
+      [[[0.1, -0.2, 0.5],
+        [-0.2, 0.7, 0.7],
+        [0.8, -0.2, 0.4],
+        [-0.1, 0.2, -0.3]],
+       [[0.5, 0.6, 0.9],
+        [-0.1, -0.3, -0.7],
+        [0.4, -0.2, 0.8],
+        [0.7, 0.8, -0.4]]])  # pyformat: disable
+  blended_points = np.array(
+      [[[[0.16, -0.1, 1.18],
+         [0.3864, 0.148, 0.7352]],
+        [[0.38, 0.4, 0.86],
+         [-0.2184, 0.152, 0.0088]],
+        [[-0.05, 0.01, -0.46],
+         [-0.3152, -0.004, -0.1136]]],
+       [[[-0.15240625, 0.69123384, -0.57871905],
+         [0.07776242, 0.33587402, 0.55386645]],
+        [[0.17959584, 0.01269566, 1.22003942],
+         [0.71406514, 0.6187734, -0.43794053]],
+        [[0.67662743, 0.94549789, -0.14946982],
+         [0.88587099, -0.09324637, -0.45012815]]]])
+
+  return points, weights, rotations, translations, blended_points
