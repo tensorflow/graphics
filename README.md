@@ -226,6 +226,7 @@ Want to reach out? E-mail us at tf-graphics-contact@google.com!
 -   Rohit Pandey
 -   Romain Prévost
 -   Pavel Pidlypenskyi
+-   Stefan Popov
 -   Konstantinos Rematas
 -   Aviv Segal
 -   Avneesh Sud
