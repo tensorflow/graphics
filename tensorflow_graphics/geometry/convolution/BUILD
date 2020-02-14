@@ -111,6 +111,7 @@ py_test(
         "tests/graph_pooling_test.py",
         "tests/utils_test.py",
     ],
+    shard_count = 4,
     srcs_version = "PY2AND3",
     # google internal rule 1
     # google internal rule 2
