@@ -79,16 +79,17 @@ class TriangleTest(test_case.TestCase):
         tf.convert_to_tensor(value=v) for v in [v0_init, v1_init, v2_init]
     ]
 
-    y = triangle.normal(v0_tensor, v1_tensor, v2_tensor)
-
     with self.subTest(name="v0"):
-      self.assert_jacobian_is_correct(v0_tensor, v0_init, y)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.normal(x, v1_tensor, v2_tensor), [v0_init])
 
     with self.subTest(name="v1"):
-      self.assert_jacobian_is_correct(v1_tensor, v1_init, y)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.normal(v0_tensor, x, v2_tensor), [v1_init])
 
     with self.subTest(name="v2"):
-      self.assert_jacobian_is_correct(v2_tensor, v2_init, y)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.normal(v0_tensor, v1_tensor, x), [v2_init])
 
   def test_normal_jacobian_random(self):
     """Test the Jacobian of the triangle normal function."""
@@ -101,19 +102,23 @@ class TriangleTest(test_case.TestCase):
         tf.convert_to_tensor(value=v) for v in [v0_init, v1_init, v2_init]
     ]
 
-    y = triangle.normal(v0_tensor, v1_tensor, v2_tensor)
-
     with self.subTest(name="v0"):
-      self.assert_jacobian_is_correct(
-          v0_tensor, v0_init, y, atol=1e-4, delta=1e-9)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.normal(x, v1_tensor, v2_tensor), [v0_init],
+          atol=1e-4,
+          delta=1e-9)
 
     with self.subTest(name="v1"):
-      self.assert_jacobian_is_correct(
-          v1_tensor, v1_init, y, atol=1e-4, delta=1e-9)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.normal(v0_tensor, x, v2_tensor), [v1_init],
+          atol=1e-4,
+          delta=1e-9)
 
     with self.subTest(name="v2"):
-      self.assert_jacobian_is_correct(
-          v2_tensor, v2_init, y, atol=1e-4, delta=1e-9)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.normal(v0_tensor, v1_tensor, x), [v2_init],
+          atol=1e-4,
+          delta=1e-9)
 
   @parameterized.parameters(
       (((0., 0., 1.), (0., 0., 0.), (0., 1., 0.)), ((-1., 0., 0.),)),
@@ -191,25 +196,25 @@ class TriangleTest(test_case.TestCase):
 
     Args:
       *vertices: List of 3 tuples of shape [3] denoting 3 vertex coordinates.
-
     Note: 'almost' degenerate triangles are tested instead of completely
-    degenrate triangles, as the gradient of tf.Norm is NaN at 0.
+      degenrate triangles, as the gradient of tf.Norm is NaN at 0.
     """
     v0_init, v1_init, v2_init = [np.array(v) for v in vertices]
     v0_tensor, v1_tensor, v2_tensor = [
         tf.convert_to_tensor(value=v) for v in [v0_init, v1_init, v2_init]
     ]
 
-    area = triangle.area(v0_tensor, v1_tensor, v2_tensor)
-
     with self.subTest(name="v0"):
-      self.assert_jacobian_is_correct(v0_tensor, v0_init, area)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.area(x, v1_tensor, v2_tensor), [v0_init])
 
     with self.subTest(name="v1"):
-      self.assert_jacobian_is_correct(v1_tensor, v1_init, area)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.area(v0_tensor, x, v2_tensor), [v1_init])
 
     with self.subTest(name="v2"):
-      self.assert_jacobian_is_correct(v2_tensor, v2_init, area)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.area(v0_tensor, v1_tensor, x), [v2_init])
 
   def test_area_jacobian_random(self):
     """Test the Jacobian of the triangle normal function."""
@@ -222,19 +227,23 @@ class TriangleTest(test_case.TestCase):
         tf.convert_to_tensor(value=v) for v in [v0_init, v1_init, v2_init]
     ]
 
-    area = triangle.area(v0_tensor, v1_tensor, v2_tensor)
-
     with self.subTest(name="v0"):
-      self.assert_jacobian_is_correct(
-          v0_tensor, v0_init, area, atol=1e-4, delta=1e-9)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.area(x, v1_tensor, v2_tensor), [v0_init],
+          atol=1e-4,
+          delta=1e-9)
 
     with self.subTest(name="v1"):
-      self.assert_jacobian_is_correct(
-          v1_tensor, v1_init, area, atol=1e-4, delta=1e-9)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.area(v0_tensor, x, v2_tensor), [v1_init],
+          atol=1e-4,
+          delta=1e-9)
 
     with self.subTest(name="v2"):
-      self.assert_jacobian_is_correct(
-          v2_tensor, v2_init, area, atol=1e-4, delta=1e-9)
+      self.assert_jacobian_is_correct_fn(
+          lambda x: triangle.area(v0_tensor, v1_tensor, x), [v2_init],
+          atol=1e-4,
+          delta=1e-9)
 
   @parameterized.parameters(
       (((0., 0., 0.), (0., 0., 0.), (0., 0., 0.)), ((0.,),)),
@@ -246,6 +255,7 @@ class TriangleTest(test_case.TestCase):
   def test_area_preset(self, test_inputs, test_outputs):
     """Tests the triangle area computation."""
     self.assert_output_is_correct(triangle.area, test_inputs, test_outputs)
+
 
 if __name__ == "__main__":
   test_case.main()

@@ -83,13 +83,15 @@ class RayTest(test_case.TestCase):
     """Tests that Jacobian is correct."""
     self._generate_random_example()
 
-    points = ray.triangulate(self.startpoints, self.endpoints, self.weights)
-
-    self.assert_jacobian_is_correct(self.startpoints, self.startpoints_values,
-                                    points)
-    self.assert_jacobian_is_correct(self.endpoints, self.endpoints_values,
-                                    points)
-    self.assert_jacobian_is_correct(self.weights, self.weights_values, points)
+    self.assert_jacobian_is_correct_fn(
+        lambda x: ray.triangulate(x, self.endpoints, self.weights),
+        [self.startpoints_values])
+    self.assert_jacobian_is_correct_fn(
+        lambda x: ray.triangulate(self.startpoints, x, self.weights),
+        [self.endpoints_values])
+    self.assert_jacobian_is_correct_fn(
+        lambda x: ray.triangulate(self.startpoints, self.endpoints, x),
+        [self.weights_values])
 
   def test_triangulate_jacobian_is_finite(self):
     """Tests that Jacobian is finite."""
@@ -97,13 +99,13 @@ class RayTest(test_case.TestCase):
 
     self.assert_jacobian_is_finite_fn(
         lambda x: ray.triangulate(x, self.endpoints, self.weights),
-        [self.startpoints])
+        [self.startpoints_values])
     self.assert_jacobian_is_finite_fn(
         lambda x: ray.triangulate(self.startpoints, x, self.weights),
-        [self.endpoints])
+        [self.endpoints_values])
     self.assert_jacobian_is_finite_fn(
         lambda x: ray.triangulate(self.startpoints, self.endpoints, x),
-        [self.weights])
+        [self.weights_values])
 
   def test_triangulate_random(self):
     """Tests that original points are recovered by triangualtion."""
@@ -194,21 +196,25 @@ class RayTest(test_case.TestCase):
     ray_init = np.random.uniform(size=tensor_shape + [3])
     ray_init /= np.linalg.norm(ray_init, axis=-1, keepdims=True)
     point_on_ray_init = np.random.uniform(0.0, 1.0, size=tensor_shape + [3])
-    sphere_center = tf.convert_to_tensor(value=sphere_center_init)
-    sphere_radius = tf.convert_to_tensor(value=sphere_radius_init)
-    ray_tensor = tf.convert_to_tensor(value=ray_init)
-    point_on_ray = tf.convert_to_tensor(value=point_on_ray_init)
-    y_p, y_n = ray.intersection_ray_sphere(sphere_center, sphere_radius,
-                                           ray_tensor, point_on_ray)
 
-    self.assert_jacobian_is_correct(ray_tensor, ray_init, y_p)
-    self.assert_jacobian_is_correct(ray_tensor, ray_init, y_n)
-    self.assert_jacobian_is_correct(sphere_radius, sphere_radius_init, y_p)
-    self.assert_jacobian_is_correct(sphere_radius, sphere_radius_init, y_n)
-    self.assert_jacobian_is_correct(sphere_center, sphere_center_init, y_p)
-    self.assert_jacobian_is_correct(sphere_center, sphere_center_init, y_n)
-    self.assert_jacobian_is_correct(point_on_ray, point_on_ray_init, y_p)
-    self.assert_jacobian_is_correct(point_on_ray, point_on_ray_init, y_n)
+    def intersection_ray_sphere_position(sphere_center, sphere_radius,
+                                         input_ray, point_on_ray):
+      y_p, _ = ray.intersection_ray_sphere(sphere_center, sphere_radius,
+                                           input_ray, point_on_ray)
+      return y_p
+
+    def intersection_ray_sphere_normal(sphere_center, sphere_radius, input_ray,
+                                       point_on_ray):
+      _, y_n = ray.intersection_ray_sphere(sphere_center, sphere_radius,
+                                           input_ray, point_on_ray)
+      return y_n
+
+    self.assert_jacobian_is_correct_fn(
+        intersection_ray_sphere_position,
+        [sphere_center_init, sphere_radius_init, ray_init, point_on_ray_init])
+    self.assert_jacobian_is_correct_fn(
+        intersection_ray_sphere_normal,
+        [sphere_center_init, sphere_radius_init, ray_init, point_on_ray_init])
 
   @parameterized.parameters(
       (((0.0, 0.0, 3.0), (1.0,), (0.0, 0.0, 1.0), (0.0, 0.0, 0.0)),

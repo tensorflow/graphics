@@ -52,12 +52,12 @@ class MeshTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 5, size=tensor_size).tolist()
     vertex_init = np.random.random(size=tensor_shape)
     indices_init = np.random.randint(0, tensor_shape[-2], size=tensor_shape)
-    vertex_tensor = tf.convert_to_tensor(value=vertex_init)
     indices_tensor = tf.convert_to_tensor(value=indices_init)
 
-    y = normals.gather_faces(vertex_tensor, indices_tensor)
+    def gather_faces(vertex_tensor):
+      return normals.gather_faces(vertex_tensor, indices_tensor)
 
-    self.assert_jacobian_is_correct(vertex_tensor, vertex_init, y)
+    self.assert_jacobian_is_correct_fn(gather_faces, [vertex_init])
 
   @parameterized.parameters(
       ((((0.,), (1.,)), ((1, 0),)), ((((1.,), (0.,)),),)),
@@ -115,14 +115,14 @@ class MeshTest(test_case.TestCase):
     index_init = np.reshape(index_init, newshape=[1] * (tensor_vertex_size - 1) \
                             + [tensor_index_shape, 3])
     index_init = np.tile(index_init, tensor_vertex_shape[:-1] + [1, 1])
-    vertex_tensor = tf.convert_to_tensor(value=vertex_init)
     index_tensor = tf.convert_to_tensor(value=index_init)
 
-    face_tensor = normals.gather_faces(vertex_tensor, index_tensor)
-    y = normals.face_normals(face_tensor)
+    def face_normals(vertex_tensor):
+      face_tensor = normals.gather_faces(vertex_tensor, index_tensor)
+      return normals.face_normals(face_tensor)
 
-    self.assert_jacobian_is_correct(
-        vertex_tensor, vertex_init, y, atol=1e-4, delta=1e-9)
+    self.assert_jacobian_is_correct_fn(
+        face_normals, [vertex_init], atol=1e-4, delta=1e-9)
 
   @parameterized.parameters(
       ((((0., 0., 0.), (1., 0., 0.), (0., 1., 0.)), ((0, 1, 2),)),
@@ -215,12 +215,12 @@ class MeshTest(test_case.TestCase):
     index_init = np.tile(faces, tensor_out_shape + [1, 1])
     vertex_scale = np.random.uniform(0.5, 5., tensor_out_shape + [1] * 2)
     vertex_init = vertex_axis * vertex_scale
-    vertex_tensor = tf.convert_to_tensor(value=vertex_init)
     index_tensor = tf.convert_to_tensor(value=index_init)
 
-    y = normals.vertex_normals(vertex_tensor, index_tensor)
+    def vertex_normals(vertex_tensor):
+      return normals.vertex_normals(vertex_tensor, index_tensor)
 
-    self.assert_jacobian_is_correct(vertex_tensor, vertex_init, y)
+    self.assert_jacobian_is_correct_fn(vertex_normals, [vertex_init])
 
   @parameterized.parameters(
       (((((-1., -1., 1.), (-1., 1., 1.), (-1., -1., -1.), (-1., 1., -1.),
