@@ -18,7 +18,8 @@ max-complexity = 10
 exclude = .git,
           .tox,
           .pytest_cache,
-          __pycache__
+          __pycache__,
+          projects
 ignore = C901,
          E101,
          E111,
