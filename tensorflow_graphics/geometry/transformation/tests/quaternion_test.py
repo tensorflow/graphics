@@ -82,6 +82,23 @@ class QuaternionTest(test_case.TestCase):
     self.assertAllEqual(
         quaternion.is_normalized(rotation), np.full(tensor_shape + [1], True))
 
+  def test_between_two_vectors_3d_that_are_the_same(self):
+    """Checks the extracted rotation between two identical 3d vectors."""
+    source = np.random.random((1, 3))
+    rotation = quaternion.between_two_vectors_3d(source, source)
+    self.assertAllEqual([[0, 0, 0, 1]], rotation)
+
+  def test_between_two_vectors_3d_that_are_collinear(self):
+    """Checks the extracted rotation between two collinear 3d vectors."""
+    axis = [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0)]
+    antiparallel_axis = [(0.0, 1.0, 0.0), (0.0, 0.0, 1.0)]
+    source = np.multiply(axis, 10.)
+    target = np.multiply(axis, -10.)
+    rotation = quaternion.between_two_vectors_3d(source, target)
+    rotation_pi = quaternion.from_axis_angle(antiparallel_axis,
+                                             [[np.pi], [np.pi]])
+    self.assertAllClose(rotation_pi, rotation)
+
   @parameterized.parameters(
       ((4,),),
       ((None, 4),),

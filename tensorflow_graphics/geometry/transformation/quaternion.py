@@ -101,12 +101,29 @@ def between_two_vectors_3d(vector1, vector2, name=None):
     shape.compare_batch_dimensions(
         tensors=(vector1, vector2), last_axes=-2, broadcast_compatible=True)
 
-    # Make sure we deal with unit vectors.
+    # Make sure that we are dealing with unit vectors.
     vector1 = tf.nn.l2_normalize(vector1, axis=-1)
     vector2 = tf.nn.l2_normalize(vector2, axis=-1)
-    axis = vector.cross(vector1, vector2)
     cos_theta = vector.dot(vector1, vector2)
-    rot = tf.concat((axis, 1. + cos_theta), axis=-1)
+    real_part = 1.0 + cos_theta
+    axis = vector.cross(vector1, vector2)
+
+    # Compute arbitrary antiparallel axes to rotate around in case of opposite
+    # vectors.
+    x, y, z = tf.split(vector1, (1, 1, 1), axis=-1)
+    x_bigger_z = tf.abs(x) > tf.abs(z)
+    x_bigger_z = tf.concat([x_bigger_z] * 3, axis=-1)
+    antiparallel_axis = tf.compat.v1.where(
+        x_bigger_z, tf.concat((-y, x, tf.zeros_like(z)), axis=-1),
+        tf.concat((tf.zeros_like(x), -z, y), axis=-1))
+
+    # Compute rotation between two vectors.
+    is_antiparallel = real_part < 1e-6
+    is_antiparallel = tf.concat([is_antiparallel] * 4, axis=-1)
+    rot = tf.compat.v1.where(
+        is_antiparallel,
+        tf.concat((antiparallel_axis, tf.zeros_like(real_part)), axis=-1),
+        tf.concat((axis, real_part), axis=-1))
     return tf.nn.l2_normalize(rot, axis=-1)
 
 
