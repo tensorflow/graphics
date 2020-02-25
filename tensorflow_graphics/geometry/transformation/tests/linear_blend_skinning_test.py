@@ -19,7 +19,7 @@ from __future__ import print_function
 
 from absl.testing import flagsaver
 from absl.testing import parameterized
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from tensorflow_graphics.geometry.transformation import linear_blend_skinning
 from tensorflow_graphics.geometry.transformation.tests import test_helpers
