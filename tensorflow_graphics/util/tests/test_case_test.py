@@ -20,7 +20,7 @@ from __future__ import print_function
 import unittest
 
 from absl.testing import parameterized
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from tensorflow_graphics.util import test_case
 

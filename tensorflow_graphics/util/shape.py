@@ -20,7 +20,7 @@ from __future__ import print_function
 import itertools
 
 import six
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 
 def _broadcast_shape_helper(shape_x, shape_y):
