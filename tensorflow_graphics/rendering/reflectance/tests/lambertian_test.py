@@ -23,7 +23,7 @@ import sys
 from absl.testing import flagsaver
 from absl.testing import parameterized
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from tensorflow_graphics.rendering.reflectance import lambertian
 from tensorflow_graphics.util import test_case

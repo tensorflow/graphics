@@ -20,7 +20,7 @@ from __future__ import print_function
 import itertools
 from absl.testing import parameterized
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 import tensorflow_graphics.geometry.convolution.graph_pooling as gp
 from tensorflow_graphics.geometry.convolution.tests import utils_test

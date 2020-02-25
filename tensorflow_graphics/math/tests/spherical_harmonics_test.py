@@ -21,7 +21,7 @@ import sys
 
 from absl.testing import parameterized
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from tensorflow_graphics.math import math_helpers
 from tensorflow_graphics.math import spherical_harmonics

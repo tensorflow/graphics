@@ -20,7 +20,7 @@ from __future__ import print_function
 from absl.testing import parameterized
 import numpy as np
 import six
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from tensorflow_graphics.rendering.opengl import gen_rasterizer_op as rasterizer
 from tensorflow_graphics.rendering.opengl import math as glm

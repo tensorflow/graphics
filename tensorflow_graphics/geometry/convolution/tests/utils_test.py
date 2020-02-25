@@ -20,7 +20,7 @@ from __future__ import print_function
 from absl.testing import parameterized
 import numpy as np
 from scipy import linalg
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from tensorflow_graphics.geometry.convolution import utils
 from tensorflow_graphics.util import test_case
