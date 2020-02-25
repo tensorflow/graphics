@@ -37,7 +37,7 @@ from __future__ import print_function
 
 import itertools
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 from tensorflow_graphics.util import export_api
 

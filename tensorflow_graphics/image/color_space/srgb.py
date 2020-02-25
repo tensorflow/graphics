@@ -23,7 +23,7 @@ from __future__ import print_function
 
 import sys
 
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from tensorflow_graphics.image.color_space import constants
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api

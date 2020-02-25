@@ -19,7 +19,7 @@ from __future__ import print_function
 
 from absl.testing import parameterized
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 
 import tensorflow_graphics.nn.layer.graph_convolution as gc_layer
 from tensorflow_graphics.util import test_case
