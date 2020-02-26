@@ -116,8 +116,8 @@ class RasterizerOPTest(test_case.TestCase):
   def test_rasterize(self):
     max_depth = 10
     min_depth = 2
-    height = 500
-    width = 500
+    height = 480
+    width = 640
     camera_origin = (0.0, 0.0, 0.0)
     camera_up = (0.0, 1.0, 0.0)
     look_at = (0.0, 0.0, 1.0)
@@ -159,7 +159,7 @@ class RasterizerOPTest(test_case.TestCase):
     }
     # Reshape the ground truth.
     gt = tf.reshape(
-        gt, shape=tf.concat(values=(batch_shape, (width, height, 2)), axis=0))
+        gt, shape=tf.concat(values=(batch_shape, (height, width, 2)), axis=0))
 
     render_parameters = list(six.iteritems(render_parameters))
     variable_names = [v[0] for v in render_parameters]

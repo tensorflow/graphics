@@ -169,7 +169,7 @@ class RasterizeOp : public tensorflow::OpKernel {
          this](std::unique_ptr<RasterizerWithContext>* resource)
         -> tensorflow::Status {
       return RasterizerWithContext::Create(
-          output_resolution_.dim_size(1), output_resolution_.dim_size(0),
+          output_resolution_.dim_size(0), output_resolution_.dim_size(1),
           vertex_shader, geometry_shader, fragment_shader, resource, red_clear,
           green_clear, blue_clear, depth_clear);
     };
@@ -188,7 +188,8 @@ class RasterizeOp : public tensorflow::OpKernel {
     tensorflow::TensorShape output_image_shape;
 
     output_image_shape.AppendShape(batch_shape);
-    output_image_shape.AppendShape(output_resolution_);
+    output_image_shape.AddDim(output_resolution_.dim_size(1));
+    output_image_shape.AddDim(output_resolution_.dim_size(0));
     output_image_shape.AddDim(4);
     OP_REQUIRES_OK(context, context->allocate_output(0, output_image_shape,
                                                      &output_image));
