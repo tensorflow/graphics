@@ -69,7 +69,7 @@ cc_test(
     srcs = ["tests/egl_offscreen_context_test.cc"],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
-        "requires-gpu-sm35",
+        "requires-gpu-nvidia",
     ],
     deps = [
         ":egl_offscreen_context",
@@ -135,7 +135,7 @@ cc_test(
     srcs = ["tests/gl_program_test.cc"],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
-        "requires-gpu-sm35",
+        "requires-gpu-nvidia",
     ],
     deps = [
         ":egl_offscreen_context",
@@ -162,7 +162,7 @@ cc_test(
     srcs = ["tests/gl_render_targets_test.cc"],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
-        "requires-gpu-sm35",
+        "requires-gpu-nvidia",
     ],
     deps = [
         ":egl_offscreen_context",
@@ -191,7 +191,7 @@ cc_test(
     srcs = ["tests/gl_shader_storage_buffer_test.cc"],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
-        "requires-gpu-sm35",
+        "requires-gpu-nvidia",
     ],
     deps = [
         ":gl_native_libs",
@@ -264,7 +264,7 @@ cc_test(
     srcs = ["tests/rasterizer_test.cc"],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
-        "requires-gpu-sm35",
+        "requires-gpu-nvidia",
     ],
     deps = [
         ":egl_offscreen_context",
@@ -381,7 +381,7 @@ cc_test(
     srcs = ["tests/rasterizer_with_context_test.cc"],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
-        "requires-gpu-sm35",
+        "requires-gpu-nvidia",
     ],
     deps = [
         ":gl_native_libs",
