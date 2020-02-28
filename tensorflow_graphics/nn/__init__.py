@@ -17,6 +17,7 @@ from __future__ import division
 from __future__ import print_function
 
 from tensorflow_graphics.nn import layer
+from tensorflow_graphics.nn import loss
 from tensorflow_graphics.nn import metric
 from tensorflow_graphics.util import export_api as _export_api
 

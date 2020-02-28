@@ -11,26 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Convolutions and related tools for tf-graphics.
+"""Loss module."""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
-# google internal package dependency 8)
+from tensorflow_graphics.nn.loss import chamfer_distance
+from tensorflow_graphics.util import export_api as _export_api
 
-licenses(["notice"])  # Apache 2.0
-
-package(default_visibility = ["//visibility:public"])
-
-py_library(
-    name = "nn",
-    srcs = [
-        "__init__.py",
-    ],
-    srcs_version = "PY2AND3",
-    # google internal rule 1
-    visibility = ["//visibility:public"],
-    deps = [
-        "//tensorflow_graphics/nn/layer",
-        "//tensorflow_graphics/nn/loss",
-        "//tensorflow_graphics/nn/metric",
-        "//tensorflow_graphics/util:export_api",
-    ],
-)
+# API contains submodules of tensorflow_graphics.nn.loss.
+__all__ = _export_api.get_modules()
