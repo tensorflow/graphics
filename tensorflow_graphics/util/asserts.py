@@ -286,6 +286,33 @@ def assert_at_least_k_non_zero_entries(tensor, k=1, name=None):
       return tf.identity(tensor)
 
 
+def assert_binary(tensor, name=None):
+  """Asserts that all the values in the tensor are zeros or ones.
+
+  Args:
+    tensor: A tensor of shape `[A1, ..., An]` containing the values we want to
+      check.
+    name: A name for this op. Defaults to "assert_binary".
+
+  Returns:
+    The input tensor, with dependence on the assertion operator in the graph.
+
+  Raises:
+    tf.errors.InvalidArgumentError: If any of the values in the tensor is not
+    zero or one.
+  """
+  if not FLAGS[tfg_flags.TFG_ADD_ASSERTS_TO_GRAPH].value:
+    return tensor
+
+  with tf.compat.v1.name_scope(name, 'assert_binary', [tensor]):
+    tensor = tf.convert_to_tensor(value=tensor)
+    condition = tf.reduce_all(
+        input_tensor=tf.logical_or(tf.equal(tensor, 0), tf.equal(tensor, 1)))
+
+    with tf.control_dependencies([tf.Assert(condition, data=[tensor])]):
+      return tf.identity(tensor)
+
+
 def select_eps_for_addition(dtype):
   """Returns 2 * machine epsilon based on `dtype`.
 

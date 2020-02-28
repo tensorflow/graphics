@@ -11,14 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Neural Network module."""
+"""Metrics module."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow_graphics.nn import layer
-from tensorflow_graphics.nn import metric
+from tensorflow_graphics.nn.metric import intersection_over_union
 from tensorflow_graphics.util import export_api as _export_api
 
-# API contains submodules of tensorflow_graphics.nn.
+# API contains submodules of tensorflow_graphics.nn.metric.
 __all__ = _export_api.get_modules()

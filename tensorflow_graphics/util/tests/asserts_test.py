@@ -360,6 +360,60 @@ class AssertsTest(test_case.TestCase):
 
     self.assertIs(vector_input, vector_output)
 
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_assert_binary_passthrough(self):
+    """Checks that the assert is a passthrough when the flag is False."""
+    vector_input = _pick_random_vector()
+
+    vector_output = asserts.assert_binary(vector_input)
+
+    self.assertIs(vector_input, vector_output)
+
+  # pylint: disable=g-error-prone-assert-raises
+  @parameterized.parameters(tf.float16, tf.float32, tf.float64, tf.int16,
+                            tf.int32, tf.int64)
+  def test_assert_binary_exception_raised(self, dtype):
+    """Checks that assert_binary raises exceptions for invalid input."""
+    tensor_size = np.random.randint(3) + 1
+    tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
+    num_elements = np.prod(tensor_shape)
+
+    # Vector with all ones except for a single negative entry.
+    vector_with_negative = np.ones(num_elements)
+    vector_with_negative[np.random.randint(num_elements)] = -1
+    vector_with_negative = vector_with_negative.reshape(tensor_shape)
+    vector_with_negative = tf.convert_to_tensor(
+        value=vector_with_negative, dtype=dtype)
+
+    # Vector with all zeros except for a single 0.5 (or 2 in case dtype=int).
+    vector = np.zeros(num_elements)
+    vector[np.random.randint(num_elements)] = 2
+    vector = vector.reshape(tensor_shape)
+    vector = tf.convert_to_tensor(value=vector, dtype=dtype)
+    vector = vector - tf.compat.v1.div(vector, 4) * 3
+
+    with self.subTest(name="has_negative_number"):
+      with self.assertRaises(tf.errors.InvalidArgumentError):
+        self.evaluate(asserts.assert_binary(vector_with_negative))
+
+    with self.subTest(name="has_non_binary_number"):
+      with self.assertRaises(tf.errors.InvalidArgumentError):
+        self.evaluate(asserts.assert_binary(vector))
+
+  @parameterized.parameters(tf.float16, tf.float32, tf.float64, tf.int16,
+                            tf.int32, tf.int64)
+  def test_assert_binary_exception_not_raised(self, dtype):
+    """Checks that assert_binary raises no exceptions for valid input."""
+    tensor_size = np.random.randint(3) + 1
+    tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
+
+    # Vector with random zeros and ones.
+    vector = np.random.randint(2, size=tensor_shape)
+    vector = tf.convert_to_tensor(value=vector, dtype=dtype)
+
+    self.assert_exception_is_not_raised(
+        asserts.assert_binary, shapes=[], tensor=vector)
+
 
 if __name__ == "__main__":
   test_case.main()
