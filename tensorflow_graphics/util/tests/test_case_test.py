@@ -49,7 +49,7 @@ class TestCaseTest(test_case.TestCase):
           func=self._dummy_tf_lite_compatible_function,
           shapes=((1,),),
           test_inputs=test_inputs)
-    except unittest.case.SkipTest as e:
+    except unittest.SkipTest as e:
       # Forwarding SkipTest exception in order to skip the test.
       raise e
     except Exception as e:  # pylint: disable=broad-except

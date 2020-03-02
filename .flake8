@@ -19,7 +19,7 @@ exclude = .git,
           .tox,
           .pytest_cache,
           __pycache__,
-          tensorflow_graphics/projects/*
+          projects/*
 ignore = C901,
          E101,
          E111,
