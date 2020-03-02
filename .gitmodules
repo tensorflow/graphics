@@ -1,0 +1,4 @@
+[submodule "tensorflow_graphics/projects/redner"]
+	path = tensorflow_graphics/projects/redner
+	url = https://github.com/BachiLi/redner
+	branch = tf_graphics
