@@ -29,7 +29,10 @@ py_library(
     # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
+        ":fscore",
         ":intersection_over_union",
+        ":precision",
+        ":recall",
         "//tensorflow_graphics/util:export_api",
     ],
 )
@@ -60,6 +63,107 @@ py_test(
     # google internal rule 6
     deps = [
         ":intersection_over_union",
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:test_case",
+    ],
+)
+
+py_library(
+    name = "fscore",
+    srcs = ["fscore.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    deps = [
+        ":precision",
+        ":recall",
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:export_api",
+        "//tensorflow_graphics/util:safe_ops",
+        "//tensorflow_graphics/util:shape",
+    ],
+)
+
+py_test(
+    name = "fscore_test",
+    srcs = ["tests/fscore_test.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
+    deps = [
+        ":fscore",
+        ":precision",
+        ":recall",
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:test_case",
+    ],
+)
+
+py_library(
+    name = "precision",
+    srcs = ["precision.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    deps = [
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:export_api",
+        "//tensorflow_graphics/util:safe_ops",
+        "//tensorflow_graphics/util:shape",
+    ],
+)
+
+py_test(
+    name = "precision_test",
+    srcs = ["tests/precision_test.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
+    deps = [
+        ":precision",
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:test_case",
+    ],
+)
+
+py_library(
+    name = "recall",
+    srcs = ["recall.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    deps = [
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:export_api",
+        "//tensorflow_graphics/util:safe_ops",
+        "//tensorflow_graphics/util:shape",
+        "//tensorflow_graphics/util:tfg_flags",
+    ],
+)
+
+py_test(
+    name = "recall_test",
+    srcs = ["tests/recall_test.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
+    deps = [
+        ":recall",
         # google internal package dependency 2
         # google internal package dependency 6
         # google internal package dependency 1,

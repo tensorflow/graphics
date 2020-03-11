@@ -16,7 +16,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from tensorflow_graphics.nn.metric import fscore
 from tensorflow_graphics.nn.metric import intersection_over_union
+from tensorflow_graphics.nn.metric import precision
+from tensorflow_graphics.nn.metric import recall
 from tensorflow_graphics.util import export_api as _export_api
 
 # API contains submodules of tensorflow_graphics.nn.metric.
