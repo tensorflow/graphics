@@ -74,8 +74,9 @@ def evaluate(point_set_a, point_set_b, name=None):
 
     # Create N x M matrix where the entry i,j corresponds to ai - bj (vector of
     # dimension D).
-    difference = tf.expand_dims(point_set_a, axis=-2) - \
-        tf.expand_dims(point_set_b, axis=-3)
+    difference = (
+        tf.expand_dims(point_set_a, axis=-2) -
+        tf.expand_dims(point_set_b, axis=-3))
     # Calculate the square distances between each two points: |ai - bj|^2.
     square_distances = tf.einsum("...i,...i->...", difference, difference)
 
@@ -84,8 +85,9 @@ def evaluate(point_set_a, point_set_b, name=None):
     minimum_square_distance_b_to_a = tf.reduce_min(
         input_tensor=square_distances, axis=-2)
 
-    return tf.reduce_mean(input_tensor=minimum_square_distance_a_to_b, axis=-1) + \
-        tf.reduce_mean(input_tensor=minimum_square_distance_b_to_a, axis=-1)
+    return (
+        tf.reduce_mean(input_tensor=minimum_square_distance_a_to_b, axis=-1) +
+        tf.reduce_mean(input_tensor=minimum_square_distance_b_to_a, axis=-1))
 
 
 # API contains all public functions and classes.
