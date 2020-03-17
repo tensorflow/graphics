@@ -65,6 +65,7 @@ py_test(
     name = "matting_test",
     timeout = "long",
     srcs = ["tests/matting_test.py"],
+    shard_count = 8,
     srcs_version = "PY2AND3",
     # google internal rule 1
     # google internal rule 2

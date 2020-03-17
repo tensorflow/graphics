@@ -84,14 +84,15 @@ class MattingTest(test_case.TestCase):
     tensor_shape = np.random.randint(size, 6, size=3)
     image_init = np.random.uniform(
         0.0, 1.0, size=tensor_shape.tolist() + [channels])
-    image = tf.convert_to_tensor(value=image_init)
-
-    laplacian, pseudo_inverse = matting.build_matrices(image, size=size)
 
     with self.subTest(name="laplacian"):
-      self.assert_jacobian_is_correct(image, image_init, laplacian)
+      self.assert_jacobian_is_correct_fn(
+          lambda image: matting.build_matrices(image, size=size)[0],
+          [image_init])
     with self.subTest(name="pseudo_inverse"):
-      self.assert_jacobian_is_correct(image, image_init, pseudo_inverse)
+      self.assert_jacobian_is_correct_fn(
+          lambda image: matting.build_matrices(image, size=size)[1],
+          [image_init])
 
   @parameterized.parameters((3, 1), (3, 3), (5, 3), (5, 1))
   def test_build_matrices_laplacian_zero_rows_and_columns(self, size, channels):
@@ -157,19 +158,21 @@ class MattingTest(test_case.TestCase):
     num_coeffs = np.random.randint(2, 4)
     pseudo_inverse_init = np.random.uniform(
         0.0, 1.0, size=tensor_shape.tolist() + [num_coeffs, size**2])
-    matte = tf.convert_to_tensor(value=matte_init)
-    pseudo_inverse = tf.convert_to_tensor(value=pseudo_inverse_init)
 
-    a, b = matting.linear_coefficients(matte, pseudo_inverse)
+    def a_fn(matte, pseudo_inverse):
+      a, _ = matting.linear_coefficients(matte, pseudo_inverse)
+      return a
 
-    with self.subTest(name="matte_a"):
-      self.assert_jacobian_is_correct(matte, matte_init, a)
-    with self.subTest(name="matte_b"):
-      self.assert_jacobian_is_correct(matte, matte_init, b)
-    with self.subTest(name="pseudo_inverse_a"):
-      self.assert_jacobian_is_correct(pseudo_inverse, pseudo_inverse_init, a)
-    with self.subTest(name="pseudo_inverse_b"):
-      self.assert_jacobian_is_correct(pseudo_inverse, pseudo_inverse_init, b)
+    def b_fn(matte, pseudo_inverse):
+      _, b = matting.linear_coefficients(matte, pseudo_inverse)
+      return b
+
+    with self.subTest(name="a"):
+      self.assert_jacobian_is_correct_fn(a_fn,
+                                         [matte_init, pseudo_inverse_init])
+    with self.subTest(name="b"):
+      self.assert_jacobian_is_correct_fn(b_fn,
+                                         [matte_init, pseudo_inverse_init])
 
   @parameterized.parameters(
       ((None, None, None, 1), (None, None, None, 4, 9)),
@@ -224,15 +227,10 @@ class MattingTest(test_case.TestCase):
     tensor_shape[1:3] -= (size - 1)
     laplacian_init = np.random.uniform(
         0.0, 1.0, size=tensor_shape.tolist() + [size**2, size**2])
-    matte = tf.convert_to_tensor(value=matte_init)
-    laplacian = tf.convert_to_tensor(value=laplacian_init)
-
-    loss = matting.loss(matte, laplacian)
 
     with self.subTest(name="matte"):
-      self.assert_jacobian_is_correct(matte, matte_init, loss)
-    with self.subTest(name="laplacian"):
-      self.assert_jacobian_is_correct(laplacian, laplacian_init, loss)
+      self.assert_jacobian_is_correct_fn(matting.loss,
+                                         [matte_init, laplacian_init])
 
   @parameterized.parameters(
       ((None, None, None, 1), (None, None, None, 9, 9)),
@@ -297,18 +295,9 @@ class MattingTest(test_case.TestCase):
     image_init = np.random.uniform(0.0, 1.0, size=tensor_shape + [channels])
     mul_init = np.random.uniform(0.0, 1.0, size=tensor_shape + [channels])
     add_init = np.random.uniform(0.0, 1.0, size=tensor_shape + [1])
-    image = tf.convert_to_tensor(value=image_init)
-    mul = tf.convert_to_tensor(value=mul_init)
-    add = tf.convert_to_tensor(value=add_init)
 
-    reconstruction = matting.reconstruct(image, mul, add)
-
-    with self.subTest(name="image"):
-      self.assert_jacobian_is_correct(image, image_init, reconstruction)
-    with self.subTest(name="coeff_mul"):
-      self.assert_jacobian_is_correct(mul, mul_init, reconstruction)
-    with self.subTest(name="coeff_add"):
-      self.assert_jacobian_is_correct(add, add_init, reconstruction)
+    self.assert_jacobian_is_correct_fn(matting.reconstruct,
+                                       [image_init, mul_init, add_init])
 
   @parameterized.parameters(
       ((None, None, None, 3), (None, None, None, 3), (None, None, None, 1)),
