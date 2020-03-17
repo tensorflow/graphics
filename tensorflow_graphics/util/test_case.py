@@ -88,7 +88,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
     """
     x_shape = x.shape.as_list()
     y_shape = y.shape.as_list()
-    with tf.compat.v1.Session():
+    with self.cached_session():
       grad = tf.compat.v1.test.compute_gradient(x, x_shape, y, y_shape,
                                                 x_init_value, delta)
       if isinstance(grad, tuple):
@@ -289,9 +289,12 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
     else:
       with self.cached_session():
         theoretical_gradient, _ = tf.compat.v2.test.compute_gradient(f, x)
-    self.assertFalse(
-        np.isnan(theoretical_gradient).any() or
-        np.isinf(theoretical_gradient).any())
+    self.assertNotIn(
+        True, [
+            np.isnan(element).any() or np.isinf(element).any()
+            for element in theoretical_gradient
+        ],
+        msg="nan or inf elements found in theoretical jacobian.")
 
   def assert_output_is_correct(self,
                                func,

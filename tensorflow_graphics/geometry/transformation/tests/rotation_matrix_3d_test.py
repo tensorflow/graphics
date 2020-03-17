@@ -202,21 +202,15 @@ class RotationMatrix3dTest(test_case.TestCase):
   def test_from_euler_jacobian_preset(self):
     """Test the Jacobian of the from_euler function."""
     x_init = test_helpers.generate_preset_test_euler_angles()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = rotation_matrix_3d.from_euler(x)
-
-    self.assert_jacobian_is_correct(x, x_init, y)
+    self.assert_jacobian_is_correct_fn(rotation_matrix_3d.from_euler, [x_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_from_euler_jacobian_random(self):
     """Test the Jacobian of the from_euler function."""
     x_init = test_helpers.generate_random_test_euler_angles()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = rotation_matrix_3d.from_euler(x)
-
-    self.assert_jacobian_is_correct(x, x_init, y)
+    self.assert_jacobian_is_correct_fn(rotation_matrix_3d.from_euler, [x_init])
 
   def test_from_euler_normalized_preset(self):
     """Tests that euler angles can be converted to rotation matrices."""
@@ -298,11 +292,9 @@ class RotationMatrix3dTest(test_case.TestCase):
     """Test the Jacobian of from_euler_with_small_angles_approximation."""
     x_init = test_helpers.generate_random_test_euler_angles(
         min_angle=-0.17, max_angle=0.17)
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = rotation_matrix_3d.from_euler_with_small_angles_approximation(x)
-
-    self.assert_jacobian_is_correct(x, x_init, y)
+    self.assert_jacobian_is_correct_fn(
+        rotation_matrix_3d.from_euler_with_small_angles_approximation, [x_init])
 
   def test_from_euler_with_small_angles_approximation_random(self):
     """Tests small_angles approximation by comparing to exact calculation."""
@@ -338,21 +330,17 @@ class RotationMatrix3dTest(test_case.TestCase):
   def test_from_quaternion_jacobian_preset(self):
     """Test the Jacobian of the from_quaternion function."""
     x_init = test_helpers.generate_preset_test_quaternions()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = rotation_matrix_3d.from_quaternion(x)
-
-    self.assert_jacobian_is_correct(x, x_init, y)
+    self.assert_jacobian_is_correct_fn(rotation_matrix_3d.from_quaternion,
+                                       [x_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_from_quaternion_jacobian_random(self):
     """Test the Jacobian of the from_quaternion function."""
     x_init = test_helpers.generate_random_test_quaternions()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = rotation_matrix_3d.from_quaternion(x)
-
-    self.assert_jacobian_is_correct(x, x_init, y)
+    self.assert_jacobian_is_correct_fn(rotation_matrix_3d.from_quaternion,
+                                       [x_init])
 
   def test_from_quaternion_normalized_preset(self):
     """Tests that quaternions can be converted to rotation matrices."""
@@ -419,21 +407,15 @@ class RotationMatrix3dTest(test_case.TestCase):
   def test_inverse_jacobian_preset(self):
     """Test the Jacobian of the inverse function."""
     x_init = test_helpers.generate_preset_test_rotation_matrices_3d()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = rotation_matrix_3d.inverse(x)
-
-    self.assert_jacobian_is_correct(x, x_init, y)
+    self.assert_jacobian_is_correct_fn(rotation_matrix_3d.inverse, [x_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_inverse_jacobian_random(self):
     """Test the Jacobian of the inverse function."""
     x_init = test_helpers.generate_random_test_rotation_matrix_3d()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = rotation_matrix_3d.inverse(x)
-
-    self.assert_jacobian_is_correct(x, x_init, y)
+    self.assert_jacobian_is_correct_fn(rotation_matrix_3d.inverse, [x_init])
 
   def test_inverse_normalized_random(self):
     """Checks that inverted rotation matrices are valid rotations."""
@@ -533,29 +515,21 @@ class RotationMatrix3dTest(test_case.TestCase):
   def test_rotate_jacobian_preset(self):
     """Test the Jacobian of the rotate function."""
     x_matrix_init = test_helpers.generate_preset_test_rotation_matrices_3d()
-    x_matrix = tf.convert_to_tensor(value=x_matrix_init)
-    tensor_shape = x_matrix.shape[:-1]
+    tensor_shape = x_matrix_init.shape[:-1]
     x_point_init = np.random.uniform(size=tensor_shape)
-    x_point = tf.convert_to_tensor(value=x_point_init)
 
-    y = rotation_matrix_3d.rotate(x_point, x_matrix)
-
-    self.assert_jacobian_is_correct(x_matrix, x_matrix_init, y)
-    self.assert_jacobian_is_correct(x_point, x_point_init, y)
+    self.assert_jacobian_is_correct_fn(rotation_matrix_3d.rotate,
+                                       [x_point_init, x_matrix_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_rotate_jacobian_random(self):
     """Test the Jacobian of the rotate function."""
     x_matrix_init = test_helpers.generate_random_test_rotation_matrix_3d()
-    x_matrix = tf.convert_to_tensor(value=x_matrix_init)
-    tensor_shape = x_matrix.shape[:-1]
+    tensor_shape = x_matrix_init.shape[:-1]
     x_point_init = np.random.uniform(size=tensor_shape)
-    x_point = tf.convert_to_tensor(value=x_point_init)
 
-    y = rotation_matrix_3d.rotate(x_point, x_matrix)
-
-    self.assert_jacobian_is_correct(x_matrix, x_matrix_init, y)
-    self.assert_jacobian_is_correct(x_point, x_point_init, y)
+    self.assert_jacobian_is_correct_fn(rotation_matrix_3d.rotate,
+                                       [x_point_init, x_matrix_init])
 
   @parameterized.parameters(
       ((td.ANGLE_90 * td.AXIS_3D_X, td.AXIS_3D_X), (td.AXIS_3D_X,)),

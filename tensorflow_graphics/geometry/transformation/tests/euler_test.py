@@ -53,25 +53,17 @@ class EulerTest(test_case.TestCase):
   def test_from_axis_angle_jacobian_preset(self):
     """Test the Jacobian of the from_axis_angle function."""
     x_axis_init, x_angle_init = test_helpers.generate_preset_test_axis_angle()
-    x_axis = tf.convert_to_tensor(value=x_axis_init)
-    x_angle = tf.convert_to_tensor(value=x_angle_init)
 
-    y = euler.from_axis_angle(x_axis, x_angle)
-
-    self.assert_jacobian_is_finite(x_axis, x_axis_init, y)
-    self.assert_jacobian_is_finite(x_angle, x_angle_init, y)
+    self.assert_jacobian_is_finite_fn(euler.from_axis_angle,
+                                      [x_axis_init, x_angle_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_from_axis_angle_jacobian_random(self):
     """Test the Jacobian of the from_axis_angle function."""
     x_axis_init, x_angle_init = test_helpers.generate_random_test_axis_angle()
-    x_axis = tf.convert_to_tensor(value=x_axis_init)
-    x_angle = tf.convert_to_tensor(value=x_angle_init)
 
-    y = euler.from_axis_angle(x_axis, x_angle)
-
-    self.assert_jacobian_is_finite(x_axis, x_axis_init, y)
-    self.assert_jacobian_is_finite(x_angle, x_angle_init, y)
+    self.assert_jacobian_is_finite_fn(euler.from_axis_angle,
+                                      [x_axis_init, x_angle_init])
 
   def test_from_axis_angle_random(self):
     """Checks that Euler angles can be retrieved from an axis-angle."""
@@ -130,21 +122,15 @@ class EulerTest(test_case.TestCase):
   def test_from_quaternion_jacobian_preset(self):
     """Test the Jacobian of the from_quaternion function."""
     x_init = test_helpers.generate_preset_test_quaternions()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = euler.from_quaternion(x)
-
-    self.assert_jacobian_is_finite(x, x_init, y)
+    self.assert_jacobian_is_finite_fn(euler.from_quaternion, [x_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_from_quaternion_jacobian_random(self):
     """Test the Jacobian of the from_quaternion function."""
     x_init = test_helpers.generate_random_test_quaternions()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = euler.from_quaternion(x)
-
-    self.assert_jacobian_is_finite(x, x_init, y)
+    self.assert_jacobian_is_finite_fn(euler.from_quaternion, [x_init])
 
   @parameterized.parameters(
       (td.ANGLE_90,),
@@ -215,11 +201,8 @@ class EulerTest(test_case.TestCase):
   def test_from_rotation_matrix_jacobian_random(self):
     """Test the Jacobian of the from_rotation_matrix function."""
     x_init = test_helpers.generate_random_test_rotation_matrix_3d()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = euler.from_rotation_matrix(x)
-
-    self.assert_jacobian_is_finite(x, x_init, y)
+    self.assert_jacobian_is_finite_fn(euler.from_rotation_matrix, [x_init])
 
   def test_from_rotation_matrix_gimbal(self):
     """Testing that Euler angles can be retrieved in Gimbal lock."""
@@ -278,21 +261,15 @@ class EulerTest(test_case.TestCase):
   def test_inverse_jacobian_preset(self):
     """Test the Jacobian of the inverse function."""
     x_init = test_helpers.generate_preset_test_euler_angles()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = euler.inverse(x)
-
-    self.assert_jacobian_is_correct(x, x_init, y)
+    self.assert_jacobian_is_correct_fn(euler.inverse, [x_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_inverse_jacobian_random(self):
     """Test the Jacobian of the inverse function."""
     x_init = test_helpers.generate_random_test_euler_angles()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y = euler.inverse(x)
-
-    self.assert_jacobian_is_correct(x, x_init, y)
+    self.assert_jacobian_is_correct_fn(euler.inverse, [x_init])
 
   def test_inverse_preset(self):
     """Checks that inverse works as intended."""
@@ -311,7 +288,6 @@ class EulerTest(test_case.TestCase):
     groundtruth = -random_euler_angles
 
     self.assertAllClose(prediction, groundtruth, rtol=1e-3)
-
 
 if __name__ == "__main__":
   test_case.main()

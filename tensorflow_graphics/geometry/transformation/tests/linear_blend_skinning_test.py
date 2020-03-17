@@ -71,25 +71,17 @@ class LinearBlendSkinningTest(test_case.TestCase):
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_blend_jacobian_random(self):
     """Test the Jacobian of the blend function."""
-    x_points_init, x_weights_init, x_rotations_init, x_translations_init = test_helpers.generate_random_test_lbs_blend(
-    )
-    x_points = tf.convert_to_tensor(value=x_points_init)
-    x_weights = tf.convert_to_tensor(value=x_weights_init)
-    x_rotations = tf.convert_to_tensor(value=x_rotations_init)
-    x_translations = tf.convert_to_tensor(value=x_translations_init)
+    (x_points_init, x_weights_init, x_rotations_init,
+     x_translations_init) = test_helpers.generate_random_test_lbs_blend()
 
-    y = linear_blend_skinning.blend(x_points, x_weights, x_rotations,
-                                    x_translations)
-
-    self.assert_jacobian_is_correct(x_points, x_points_init, y)
-    self.assert_jacobian_is_correct(x_weights, x_weights_init, y)
-    self.assert_jacobian_is_correct(x_rotations, x_rotations_init, y)
-    self.assert_jacobian_is_correct(x_translations, x_translations_init, y)
+    self.assert_jacobian_is_correct_fn(
+        linear_blend_skinning.blend,
+        [x_points_init, x_weights_init, x_rotations_init, x_translations_init])
 
   def test_blend_preset(self):
     """Checks that blend returns the expected value."""
-    x_points_init, x_weights_init, x_rotations_init, x_translations_init, y_blended_points_init = test_helpers.generate_preset_test_lbs_blend(
-    )
+    (x_points_init, x_weights_init, x_rotations_init, x_translations_init,
+     y_blended_points_init) = test_helpers.generate_preset_test_lbs_blend()
 
     x_points = tf.convert_to_tensor(value=x_points_init)
     x_weights = tf.convert_to_tensor(value=x_weights_init)

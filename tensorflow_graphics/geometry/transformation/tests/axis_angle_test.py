@@ -20,7 +20,6 @@ from __future__ import print_function
 from absl.testing import flagsaver
 from absl.testing import parameterized
 import numpy as np
-import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import axis_angle
 from tensorflow_graphics.geometry.transformation import quaternion
@@ -53,12 +52,11 @@ class AxisAngleTest(test_case.TestCase):
       Preset angles are not tested as the gradient of tf.norm is NaN at 0.
     """
     x_init = test_helpers.generate_random_test_euler_angles()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y_axis, y_angle = axis_angle.from_euler(x)
-
-    self.assert_jacobian_is_finite(x, x_init, y_axis)
-    self.assert_jacobian_is_finite(x, x_init, y_angle)
+    self.assert_jacobian_is_finite_fn(lambda x: axis_angle.from_euler(x)[0],
+                                      [x_init])
+    self.assert_jacobian_is_finite_fn(lambda x: axis_angle.from_euler(x)[1],
+                                      [x_init])
 
   def test_from_euler_random(self):
     """Tests that from_euler allows to perform the expect rotation of points."""
@@ -150,12 +148,11 @@ class AxisAngleTest(test_case.TestCase):
       Preset angles are not tested as the gradient of tf.norm is NaN a 0.
     """
     x_init = test_helpers.generate_random_test_quaternions()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y_axis, y_angle = axis_angle.from_quaternion(x)
-
-    self.assert_jacobian_is_finite(x, x_init, y_axis)
-    self.assert_jacobian_is_finite(x, x_init, y_angle)
+    self.assert_jacobian_is_finite_fn(
+        lambda x: axis_angle.from_quaternion(x)[0], [x_init])
+    self.assert_jacobian_is_finite_fn(
+        lambda x: axis_angle.from_quaternion(x)[1], [x_init])
 
   def test_from_quaternion_normalized_preset(self):
     """Tests that from_quaternion returns normalized axis-angles."""
@@ -227,12 +224,11 @@ class AxisAngleTest(test_case.TestCase):
       Preset angles are not tested as the gradient of tf.norm is NaN a 0.
     """
     x_init = test_helpers.generate_random_test_rotation_matrix_3d()
-    x = tf.convert_to_tensor(value=x_init)
 
-    y_axis, y_angle = axis_angle.from_rotation_matrix(x)
-
-    self.assert_jacobian_is_finite(x, x_init, y_axis)
-    self.assert_jacobian_is_finite(x, x_init, y_angle)
+    self.assert_jacobian_is_finite_fn(
+        lambda x: axis_angle.from_rotation_matrix(x)[0], [x_init])
+    self.assert_jacobian_is_finite_fn(
+        lambda x: axis_angle.from_rotation_matrix(x)[1], [x_init])
 
   def test_from_rotation_matrix_normalized_preset(self):
     """Tests that from_rotation_matrix returns normalized axis-angles."""
@@ -307,25 +303,21 @@ class AxisAngleTest(test_case.TestCase):
   def test_inverse_jacobian_preset(self):
     """Test the Jacobian of the inverse function."""
     x_axis_init, x_angle_init = test_helpers.generate_preset_test_axis_angle()
-    x_axis = tf.convert_to_tensor(value=x_axis_init)
-    x_angle = tf.convert_to_tensor(value=x_angle_init)
 
-    y_axis, y_angle = axis_angle.inverse(x_axis, x_angle)
-
-    self.assert_jacobian_is_correct(x_axis, x_axis_init, y_axis)
-    self.assert_jacobian_is_correct(x_angle, x_angle_init, y_angle)
+    self.assert_jacobian_is_correct_fn(
+        lambda x: axis_angle.inverse(x, x_angle_init)[0], [x_axis_init])
+    self.assert_jacobian_is_correct_fn(
+        lambda x: axis_angle.inverse(x_axis_init, x)[1], [x_angle_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_inverse_jacobian_random(self):
     """Test the Jacobian of the inverse function."""
     x_axis_init, x_angle_init = test_helpers.generate_random_test_axis_angle()
-    x_axis = tf.convert_to_tensor(value=x_axis_init)
-    x_angle = tf.convert_to_tensor(value=x_angle_init)
 
-    y_axis, y_angle = axis_angle.inverse(x_axis, x_angle)
-
-    self.assert_jacobian_is_correct(x_axis, x_axis_init, y_axis)
-    self.assert_jacobian_is_correct(x_angle, x_angle_init, y_angle)
+    self.assert_jacobian_is_correct_fn(
+        lambda x: axis_angle.inverse(x, x_angle_init)[0], [x_axis_init])
+    self.assert_jacobian_is_correct_fn(
+        lambda x: axis_angle.inverse(x_axis_init, x)[1], [x_angle_init])
 
   def test_inverse_normalized_random(self):
     """Tests that axis-angle inversion return a normalized axis-angle."""
@@ -396,31 +388,19 @@ class AxisAngleTest(test_case.TestCase):
   def test_rotate_jacobian_preset(self):
     """Test the Jacobian of the rotate function."""
     x_axis_init, x_angle_init = test_helpers.generate_preset_test_axis_angle()
-    x_axis = tf.convert_to_tensor(value=x_axis_init)
-    x_angle = tf.convert_to_tensor(value=x_angle_init)
-    x_point_init = np.random.uniform(size=x_axis.shape)
-    x_point = tf.convert_to_tensor(value=x_point_init)
+    x_point_init = np.random.uniform(size=x_axis_init.shape)
 
-    y = axis_angle.rotate(x_point, x_axis, x_angle)
-
-    self.assert_jacobian_is_correct(x_axis, x_axis_init, y)
-    self.assert_jacobian_is_correct(x_angle, x_angle_init, y)
-    self.assert_jacobian_is_correct(x_point, x_point_init, y)
+    self.assert_jacobian_is_correct_fn(
+        axis_angle.rotate, [x_point_init, x_axis_init, x_angle_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_rotate_jacobian_random(self):
     """Test the Jacobian of the rotate function."""
     x_axis_init, x_angle_init = test_helpers.generate_random_test_axis_angle()
-    x_axis = tf.convert_to_tensor(value=x_axis_init)
-    x_angle = tf.convert_to_tensor(value=x_angle_init)
-    x_point_init = np.random.uniform(size=x_axis.shape)
-    x_point = tf.convert_to_tensor(value=x_point_init)
+    x_point_init = np.random.uniform(size=x_axis_init.shape)
 
-    y = axis_angle.rotate(x_point, x_axis, x_angle)
-
-    self.assert_jacobian_is_correct(x_axis, x_axis_init, y)
-    self.assert_jacobian_is_correct(x_angle, x_angle_init, y)
-    self.assert_jacobian_is_correct(x_point, x_point_init, y)
+    self.assert_jacobian_is_correct_fn(
+        axis_angle.rotate, [x_point_init, x_axis_init, x_angle_init])
 
   def test_rotate_random(self):
     """Tests that the rotate provide the same results as quaternion.rotate."""
