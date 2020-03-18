@@ -118,19 +118,13 @@ class TrilinearTest(test_case.TestCase):
 
   def test_interpolation_values_preset(self):
     voxels = np.zeros((2, 2, 2, 1))
-    voxels[[0, 1, 1, 0], [0, 0, 1, 1], [0, 0, 0, 0], 0] = 1
-    sampling_points = np.array([[0, 0, 0],
-                                [0.5, 0, 0],
-                                [1.0, 0, 0],
-                                [0., 0, 0.25],
-                                [0., 0, 0.5],
-                                [0., 0, 0.75],
-                                [0., 0, 1.0],
-                                [0., 0, 2.0],
-                                [-1.0, -0.5, 0],
-                                [0, 2, 1.5]])
-    correct_values = np.array([[1.0, 1.0, 1.0, 0.75, 0.5,
-                                0.25, 0.0, 0.0, 1.0, 0.0]]).T
+    voxels[(0, 1, 1, 0), (0, 0, 1, 1), (0, 0, 0, 0), 0] = 1
+    sampling_points = np.array(((0, 0, 0), (0.5, 0, 0), (1.0, 0, 0),
+                                (0., 0, 0.25), (0., 0, 0.5), (0., 0, 0.75),
+                                (0., 0, 1.0), (0., 0, 2.0), (-1.0, -0.5, 0),
+                                (0, 2, 1.5)))
+    correct_values = np.array(
+        ((1.0, 1.0, 1.0, 0.75, 0.5, 0.25, 0.0, 0.0, 1.0, 0.0),)).T
 
     self.assert_output_is_correct(
         trilinear.interpolate, (voxels, sampling_points), (correct_values,),
@@ -176,15 +170,9 @@ class TrilinearTest(test_case.TestCase):
     sampling_points_np = np.zeros((bsize, height * width * depth, 3))
     sampling_points_np[:, :, 0] = np.arange(0, height * width * depth)
 
-    # Wrap these in identities because some assert_* ops look at the constant
-    # tensor value and mark it as unfeedable.
-    grid_3d = tf.identity(tf.convert_to_tensor(value=grid_3d_np))
-    sampling_points = tf.identity(
-        tf.convert_to_tensor(value=sampling_points_np))
-    interpolated_points = trilinear.interpolate(
-        grid_3d=grid_3d, sampling_points=sampling_points)
-
-    self.assert_jacobian_is_correct(grid_3d, grid_3d_np, interpolated_points)
+    self.assert_jacobian_is_correct_fn(
+        lambda grid_3d: trilinear.interpolate(grid_3d, sampling_points_np),
+        [grid_3d_np])
 
 
 if __name__ == "__main__":

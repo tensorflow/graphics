@@ -61,13 +61,7 @@ class VectorTest(test_case.TestCase):
   )
   def test_cross_jacobian_preset(self, u_init, v_init):
     """Tests the Jacobian of the dot product."""
-    u_tensor = tf.convert_to_tensor(value=u_init)
-    v_tensor = tf.convert_to_tensor(value=v_init)
-
-    y = vector.cross(u_tensor, v_tensor)
-
-    self.assert_jacobian_is_correct(u_tensor, u_init, y)
-    self.assert_jacobian_is_correct(v_tensor, v_init, y)
+    self.assert_jacobian_is_correct_fn(vector.cross, [u_init, v_init])
 
   def test_cross_jacobian_random(self):
     """Test the Jacobian of the dot product."""
@@ -75,13 +69,8 @@ class VectorTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
     u_init = np.random.random(size=tensor_shape + [3])
     v_init = np.random.random(size=tensor_shape + [3])
-    u_tensor = tf.convert_to_tensor(value=u_init)
-    v_tensor = tf.convert_to_tensor(value=v_init)
 
-    y = vector.cross(u_tensor, v_tensor)
-
-    self.assert_jacobian_is_correct(u_tensor, u_init, y)
-    self.assert_jacobian_is_correct(v_tensor, v_init, y)
+    self.assert_jacobian_is_correct_fn(vector.cross, [u_init, v_init])
 
   @parameterized.parameters(
       ((td.AXIS_3D_0, td.AXIS_3D_0), (td.AXIS_3D_0,)),
@@ -147,13 +136,7 @@ class VectorTest(test_case.TestCase):
   )
   def test_dot_jacobian_preset(self, u_init, v_init):
     """Tests the Jacobian of the dot product."""
-    u_tensor = tf.convert_to_tensor(value=u_init)
-    v_tensor = tf.convert_to_tensor(value=v_init)
-
-    y = vector.dot(u_tensor, v_tensor)
-
-    self.assert_jacobian_is_correct(u_tensor, u_init, y)
-    self.assert_jacobian_is_correct(v_tensor, v_init, y)
+    self.assert_jacobian_is_correct_fn(vector.dot, [u_init, v_init])
 
   def test_dot_jacobian_random(self):
     """Tests the Jacobian of the dot product."""
@@ -161,13 +144,8 @@ class VectorTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
     u_init = np.random.random(size=tensor_shape + [3])
     v_init = np.random.random(size=tensor_shape + [3])
-    u_tensor = tf.convert_to_tensor(value=u_init)
-    v_tensor = tf.convert_to_tensor(value=v_init)
 
-    y = vector.dot(u_tensor, v_tensor)
-
-    self.assert_jacobian_is_correct(u_tensor, u_init, y)
-    self.assert_jacobian_is_correct(v_tensor, v_init, y)
+    self.assert_jacobian_is_correct_fn(vector.dot, [u_init, v_init])
 
   @parameterized.parameters(
       ((td.AXIS_3D_0, td.AXIS_3D_0), (0.,)),
@@ -241,13 +219,7 @@ class VectorTest(test_case.TestCase):
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_reflect_jacobian_preset(self, u_init, v_init):
     """Tests the Jacobian of the reflect function."""
-    u_tensor = tf.convert_to_tensor(value=u_init)
-    v_tensor = tf.convert_to_tensor(value=v_init)
-
-    y = vector.reflect(u_tensor, v_tensor)
-
-    self.assert_jacobian_is_correct(u_tensor, u_init, y)
-    self.assert_jacobian_is_correct(v_tensor, v_init, y)
+    self.assert_jacobian_is_correct_fn(vector.reflect, [u_init, v_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_reflect_jacobian_random(self):
@@ -256,13 +228,8 @@ class VectorTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
     u_init = np.random.random(size=tensor_shape + [3])
     v_init = np.random.random(size=tensor_shape + [3])
-    u_tensor = tf.convert_to_tensor(value=u_init)
-    v_tensor = tf.convert_to_tensor(value=v_init)
 
-    y = vector.reflect(u_tensor, v_tensor)
-
-    self.assert_jacobian_is_correct(u_tensor, u_init, y)
-    self.assert_jacobian_is_correct(v_tensor, v_init, y)
+    self.assert_jacobian_is_correct_fn(vector.reflect, [u_init, v_init])
 
   @parameterized.parameters(
       ((td.AXIS_3D_0, td.AXIS_3D_X), (td.AXIS_3D_0,)),

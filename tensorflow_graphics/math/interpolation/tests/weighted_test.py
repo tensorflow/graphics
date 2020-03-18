@@ -141,20 +141,11 @@ class WeightedTest(test_case.TestCase):
     points_np, weights_np, indices_np = self._get_tensors_from_shapes(
         num_points, dim_points, num_outputs, num_pts_to_interpolate)
 
-    # Wrap these in identities because some assert_* ops look at the constant
-    # tensor value and mark it as unfeedable.
-    points = tf.identity(tf.convert_to_tensor(value=points_np))
-    weights = tf.identity(tf.convert_to_tensor(value=weights_np))
-    indices = tf.identity(tf.convert_to_tensor(value=indices_np))
+    def interpolate_fn(points, weights):
+      return weighted.interpolate(
+          points=points, weights=weights, indices=indices_np, normalize=True)
 
-    y = weighted.interpolate(
-        points=points, weights=weights, indices=indices, normalize=True)
-
-    with self.subTest(name="points"):
-      self.assert_jacobian_is_correct(points, points_np, y)
-
-    with self.subTest(name="weights"):
-      self.assert_jacobian_is_correct(weights, weights_np, y)
+    self.assert_jacobian_is_correct_fn(interpolate_fn, [points_np, weights_np])
 
   @parameterized.parameters(
       ((3, 2), (2, 2)),
@@ -190,19 +181,12 @@ class WeightedTest(test_case.TestCase):
     triangle_vertices_init += np.array(
         ((0.25, 0.25), (0.5, 0.75), (0.75, 0.25)))
     pixels_init = np.random.random(tensor_shape + [3, 2]).astype(np.float64)
-    triangle_vertices = tf.convert_to_tensor(
-        value=triangle_vertices_init, dtype=tf.float64)
-    pixels = tf.convert_to_tensor(value=pixels_init, dtype=tf.float64)
 
-    barycentric_coord, _ = weighted.get_barycentric_coordinates(
-        triangle_vertices, pixels)
+    barycentric_fn = weighted.get_barycentric_coordinates
 
-    with self.subTest(name="pixels_jacobian"):
-      self.assert_jacobian_is_correct(pixels, pixels_init, barycentric_coord)
-
-    with self.subTest(name="vertices_jacobian"):
-      self.assert_jacobian_is_correct(triangle_vertices, triangle_vertices_init,
-                                      barycentric_coord)
+    self.assert_jacobian_is_correct_fn(
+        lambda vertices, pixels: barycentric_fn(vertices, pixels)[0],
+        [triangle_vertices_init, pixels_init])
 
   def test_get_barycentric_coordinates_normalized(self):
     """Tests whether the barycentric coordinates are normalized."""

@@ -19,7 +19,6 @@ from __future__ import print_function
 
 from absl.testing import parameterized
 import numpy as np
-import tensorflow as tf
 
 from tensorflow_graphics.math.interpolation import bspline
 from tensorflow_graphics.util import test_case
@@ -177,28 +176,28 @@ class BSplineTest(test_case.TestCase):
     positions_init = np.random.random_sample((10, 1))
     scale = num_knots if cyclical else num_knots - degree
     positions_init *= scale
-    # Wrap this in identity because some assert_* ops look at the constant
-    # tensor value and mark it as unfeedable.
-    positions = tf.identity(tf.convert_to_tensor(value=positions_init))
 
-    weights = bspline.knot_weights(
-        positions=positions,
-        num_knots=num_knots,
-        degree=degree,
-        cyclical=cyclical,
-        sparse_mode=False)
-    sparse_weights = bspline.knot_weights(
-        positions=positions,
-        num_knots=num_knots,
-        degree=degree,
-        cyclical=cyclical,
-        sparse_mode=True)[0]
+    def dense_mode_fn(positions):
+      return bspline.knot_weights(
+          positions=positions,
+          num_knots=num_knots,
+          degree=degree,
+          cyclical=cyclical,
+          sparse_mode=False)
+
+    def sparse_mode_fn(positions):
+      return bspline.knot_weights(
+          positions=positions,
+          num_knots=num_knots,
+          degree=degree,
+          cyclical=cyclical,
+          sparse_mode=True)[0]
 
     with self.subTest(name="dense_mode"):
-      self.assert_jacobian_is_correct(positions, positions_init, weights)
+      self.assert_jacobian_is_correct_fn(dense_mode_fn, [positions_init])
 
     with self.subTest(name="sparse_mode"):
-      self.assert_jacobian_is_correct(positions, positions_init, sparse_weights)
+      self.assert_jacobian_is_correct_fn(sparse_mode_fn, [positions_init])
 
 
 if __name__ == "__main__":

@@ -170,13 +170,11 @@ class SphericalHarmonicsTest(test_case.TestCase):
     m_init = np.random.randint(0, 4, size=tensor_shape)
     x_init = np.random.uniform(-1.0, 1.0, size=tensor_shape)
 
-    # Wrap this in identity because some assert_* ops look at the constant
-    # tensor value and mark it as unfeedable.
-    x = tf.identity(tf.convert_to_tensor(value=x_init))
+    def evaluate_legendre_polynomial_fn(x):
+      return spherical_harmonics.evaluate_legendre_polynomial(l_init, m_init, x)
 
-    y = spherical_harmonics.evaluate_legendre_polynomial(l_init, m_init, x)
-
-    self.assert_jacobian_is_correct(x, x_init, y, atol=1e-3)
+    self.assert_jacobian_is_correct_fn(
+        evaluate_legendre_polynomial_fn, [x_init], atol=1e-3)
 
   @parameterized.parameters(
       ((4,), (4,)),
@@ -424,16 +422,12 @@ class SphericalHarmonicsTest(test_case.TestCase):
     phi_init = np.random.uniform(0.0, 2.0 * np.pi, size=tensor_shape)
     phi_init = np.expand_dims(phi_init, axis=-1)
 
-    # Wrap these in identities because some assert_* ops look at the constant
-    # tensor value and mark it as unfeedable.
-    theta = tf.identity(tf.convert_to_tensor(value=theta_init))
-    phi = tf.identity(tf.convert_to_tensor(value=phi_init))
+    def evaluate_spherical_harmonics_fn(theta, phi):
+      return spherical_harmonics.evaluate_spherical_harmonics(
+          l_init, m_init, theta, phi)
 
-    y = spherical_harmonics.evaluate_spherical_harmonics(
-        l_init, m_init, theta, phi)
-
-    self.assert_jacobian_is_correct(theta, theta_init, y)
-    self.assert_jacobian_is_correct(phi, phi_init, y)
+    self.assert_jacobian_is_correct_fn(evaluate_spherical_harmonics_fn,
+                                       [theta_init, phi_init])
 
   def test_rotate_zonal_harmonics_jacobian_random(self):
     """Tests the jacobian of rotate_zonal_harmonics."""
@@ -444,15 +438,13 @@ class SphericalHarmonicsTest(test_case.TestCase):
     phi_init = np.random.uniform(0.0, 2.0 * np.pi, size=tensor_shape + [1])
     zonal_coeffs = tf.convert_to_tensor(
         value=np.random.uniform(-1.0, 1.0, size=[3]), dtype=dtype)
-    # Wrap these in identities because some assert_* ops look at the constant
-    # tensor value and mark it as unfeedable.
-    theta = tf.identity(tf.convert_to_tensor(value=theta_init))
-    phi = tf.identity(tf.convert_to_tensor(value=phi_init))
 
-    y = spherical_harmonics.rotate_zonal_harmonics(zonal_coeffs, theta, phi)
+    def rotate_zonal_harmonics_fn(theta, phi):
+      return spherical_harmonics.rotate_zonal_harmonics(zonal_coeffs, theta,
+                                                        phi)
 
-    self.assert_jacobian_is_correct(theta, theta_init, y)
-    self.assert_jacobian_is_correct(phi, phi_init, y)
+    self.assert_jacobian_is_correct_fn(rotate_zonal_harmonics_fn,
+                                       [theta_init, phi_init])
 
   @parameterized.parameters(
       ((4,), (3, 1), (3, 1)),
@@ -507,11 +499,9 @@ class SphericalHarmonicsTest(test_case.TestCase):
   def test_tile_zonal_coefficients_jacobian_random(self):
     """Tests the jacobian of tile_zonal_coefficients."""
     zonal_coeffs_init = np.random.uniform(size=(1,))
-    zonal_coeffs = tf.convert_to_tensor(value=zonal_coeffs_init)
 
-    y = spherical_harmonics.tile_zonal_coefficients(zonal_coeffs)
-
-    self.assert_jacobian_is_correct(zonal_coeffs, zonal_coeffs_init, y)
+    self.assert_jacobian_is_correct_fn(
+        spherical_harmonics.tile_zonal_coefficients, [zonal_coeffs_init])
 
   @parameterized.parameters(
       ((2,)),)
