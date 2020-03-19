@@ -64,7 +64,7 @@ def from_linear_rgb(linear_rgb, name=None):
         tensor_name="linear_rgb",
         has_rank_greater_than=0,
         has_dim_equals=(-1, 3))
-    asserts.assert_all_in_range(linear_rgb, 0., 1.)
+    linear_rgb = asserts.assert_all_in_range(linear_rgb, 0., 1.)
 
     # Adds a small eps to avoid nan gradients from the second branch of
     # tf.where.
