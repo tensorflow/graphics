@@ -30,74 +30,18 @@ from tensorflow_graphics.util import test_case
 
 def fake_brdf(incoming_light_direction, outgoing_light_direction,
               surface_point_normal):
-  del incoming_light_direction, surface_point_normal
+  del incoming_light_direction, surface_point_normal  # Unused.
   return outgoing_light_direction
 
 
 def returning_zeros_brdf(incoming_light_direction, outgoing_light_direction,
                          surface_point_normal):
-  del incoming_light_direction, outgoing_light_direction
+  del incoming_light_direction, outgoing_light_direction  # Unused.
   return tf.zeros_like(surface_point_normal)
 
 
 def random_tensor(tensor_shape):
   return np.random.uniform(low=-100.0, high=100.0, size=tensor_shape)
-
-
-def random_estimate_radiance():
-  tensor_size = np.random.randint(10)
-  tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
-  light_tensor_size = np.random.randint(10)
-  lights_tensor_shape = np.random.randint(
-      1, 10, size=(light_tensor_size)).tolist()
-  point_light_radiance_init = random_tensor(lights_tensor_shape + [1])
-  point_light_position_init = random_tensor(lights_tensor_shape + [3])
-  surface_point_position_init = random_tensor(tensor_shape + [3])
-  surface_point_normal_init = random_tensor(tensor_shape + [3])
-  observation_point_init = random_tensor(tensor_shape + [3])
-  point_light_radiance = tf.convert_to_tensor(value=point_light_radiance_init)
-  point_light_position = tf.convert_to_tensor(value=point_light_position_init)
-  surface_point_position = tf.convert_to_tensor(
-      value=surface_point_position_init)
-  surface_point_normal = tf.convert_to_tensor(value=surface_point_normal_init)
-  observation_point = tf.convert_to_tensor(value=observation_point_init)
-
-  estimated_radiance = point_light.estimate_radiance(
-      point_light_radiance, point_light_position, surface_point_position,
-      surface_point_normal, observation_point, fake_brdf)
-
-  return (point_light_radiance, point_light_radiance_init),\
-      (point_light_position, point_light_position_init),\
-      (surface_point_position, surface_point_position_init),\
-      (surface_point_normal, surface_point_normal_init),\
-      (observation_point, observation_point_init),\
-      estimated_radiance
-
-
-def preset_estimate_radiance():
-  delta = 1e-5
-  point_light_radiance_init = np.array(1.0).reshape((1, 1))
-  point_light_position_init = np.array((delta, 1.0, 0.0)).reshape((1, 3))
-  surface_point_position_init = np.array((0.0, 0.0, 0.0))
-  surface_point_normal_init = np.array((1.0, 0.0, 0.0))
-  observation_point_init = np.array((delta, 3.0, 0.0))
-  point_light_radiance = tf.convert_to_tensor(value=point_light_radiance_init)
-  point_light_position = tf.convert_to_tensor(value=point_light_position_init)
-  surface_point_position = tf.convert_to_tensor(
-      value=surface_point_position_init)
-  surface_point_normal = tf.convert_to_tensor(value=surface_point_normal_init)
-  observation_point = tf.convert_to_tensor(value=observation_point_init)
-
-  estimated_radiance = point_light.estimate_radiance(
-      point_light_radiance, point_light_position, surface_point_position,
-      surface_point_normal, observation_point, fake_brdf)
-
-  return (point_light_radiance, point_light_radiance_init),\
-      (point_light_position, point_light_position_init),\
-      (surface_point_position, surface_point_position_init),\
-      (surface_point_normal, surface_point_normal_init),\
-      (observation_point, observation_point_init),\
-      estimated_radiance
 
 
 class PointLightTest(test_case.TestCase):
@@ -174,118 +118,58 @@ class PointLightTest(test_case.TestCase):
     self.assertAllClose(expected, pred)
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_estimate_radiance_jacobian_wrt_point_light_position_random(self):
-    """Tests the Jacobian of the point lighting equation.
+  def test_estimate_radiance_jacobian_random(self):
+    """Tests the Jacobian of the point lighting equation."""
+    tensor_size = np.random.randint(10)
+    tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
+    light_tensor_size = np.random.randint(10)
+    lights_tensor_shape = np.random.randint(
+        1, 10, size=(light_tensor_size)).tolist()
+    point_light_radiance_init = random_tensor(lights_tensor_shape + [1])
+    point_light_position_init = random_tensor(lights_tensor_shape + [3])
+    surface_point_position_init = random_tensor(tensor_shape + [3])
+    surface_point_normal_init = random_tensor(tensor_shape + [3])
+    observation_point_init = random_tensor(tensor_shape + [3])
 
-    Verifies that the Jacobian of the point lighting equation with respect to
-    the point light position is correct for random inputs.
-    """
-    _, (point_light_position, point_light_position_init), _, _, _, \
-        estimated_radiance = random_estimate_radiance()
+    def estimate_radiance_fn(point_light_position, surface_point_position,
+                             surface_point_normal, observation_point):
+      return point_light.estimate_radiance(point_light_radiance_init,
+                                           point_light_position,
+                                           surface_point_position,
+                                           surface_point_normal,
+                                           observation_point, fake_brdf)
 
-    self.assert_jacobian_is_correct(point_light_position,
-                                    point_light_position_init,
-                                    estimated_radiance)
-
-  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_estimate_radiance_jacobian_wrt_surface_point_position_random(self):
-    """Tests the Jacobian of the point lighting equation.
-
-    Verifies that the Jacobian of the point lighting equation with respect to
-    the surface point position is correct for random inputs.
-    """
-    _, _, (surface_point_position, surface_point_position_init), _, _,\
-        estimated_radiance = random_estimate_radiance()
-
-    self.assert_jacobian_is_correct(surface_point_position,
-                                    surface_point_position_init,
-                                    estimated_radiance)
-
-  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_estimate_radiance_jacobian_wrt_surface_point_normal_random(self):
-    """Tests the Jacobian of the point lighting equation.
-
-    Verifies that the Jacobian of the point lighting equation with respect to
-    the surface point noraml is correct for random inputs.
-    """
-    _, _, _, (surface_point_normal, surface_point_normal_init), _,\
-        estimated_radiance = random_estimate_radiance()
-
-    self.assert_jacobian_is_correct(surface_point_normal,
-                                    surface_point_normal_init,
-                                    estimated_radiance)
+    self.assert_jacobian_is_correct_fn(estimate_radiance_fn, [
+        point_light_position_init, surface_point_position_init,
+        surface_point_normal_init, observation_point_init
+    ])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_estimate_radiance_jacobian_wrt_observation_point_random(self):
+  def test_estimate_radiance_jacobian_preset(self):
     """Tests the Jacobian of the point lighting equation.
 
-    Verifies that the Jacobian of the point lighting equation with respect to
-    the observation point is correct for random inputs.
+    Verifies that the Jacobian of the point lighting equation is correct when
+    the light direction is orthogonal to the surface normal.
     """
-    _, _, _, _, (observation_point, observation_point_init),\
-        estimated_radiance = random_estimate_radiance()
+    delta = 1e-5
+    point_light_radiance_init = np.array(1.0).reshape((1, 1))
+    point_light_position_init = np.array((delta, 1.0, 0.0)).reshape((1, 3))
+    surface_point_position_init = np.array((0.0, 0.0, 0.0))
+    surface_point_normal_init = np.array((1.0, 0.0, 0.0))
+    observation_point_init = np.array((delta, 3.0, 0.0))
 
-    self.assert_jacobian_is_correct(observation_point, observation_point_init,
-                                    estimated_radiance)
+    def estimate_radiance_fn(point_light_position, surface_point_position,
+                             surface_point_normal, observation_point):
+      return point_light.estimate_radiance(point_light_radiance_init,
+                                           point_light_position,
+                                           surface_point_position,
+                                           surface_point_normal,
+                                           observation_point, fake_brdf)
 
-  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_estimate_radiance_jacobian_wrt_point_light_position_preset(self):
-    """Tests the Jacobian of the point lighting equation.
-
-    Verifies that the Jacobian of the point lighting equation with respect to
-    the point light position is correct when the light direction is orthogonal
-    to the surface normal.
-    """
-    _, (point_light_position, point_light_position_init), _, _, _, \
-        estimated_radiance = preset_estimate_radiance()
-
-    self.assert_jacobian_is_correct(point_light_position,
-                                    point_light_position_init,
-                                    estimated_radiance)
-
-  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_estimate_radiance_jacobian_wrt_surface_point_position_preset(self):
-    """Tests the Jacobian of the point lighting equation.
-
-    Verifies that the Jacobian of the point lighting equation with respect to
-    the surface point position is correct when the light direction is orthogonal
-    to the surface normal.
-    """
-    _, _, (surface_point_position, surface_point_position_init), _, _,\
-        estimated_radiance = preset_estimate_radiance()
-
-    self.assert_jacobian_is_correct(surface_point_position,
-                                    surface_point_position_init,
-                                    estimated_radiance)
-
-  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_estimate_radiance_jacobian_wrt_surface_point_normal_preset(self):
-    """Tests the Jacobian of the point lighting equation.
-
-    Verifies that the Jacobian of the point lighting equation with respect to
-    the surface point normal is correct when the light direction is orthogonal
-    to the surface normal.
-    """
-    _, _, _, (surface_point_normal, surface_point_normal_init), _,\
-        estimated_radiance = preset_estimate_radiance()
-
-    self.assert_jacobian_is_correct(surface_point_normal,
-                                    surface_point_normal_init,
-                                    estimated_radiance)
-
-  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_estimate_radiance_jacobian_wrt_observation_point_preset(self):
-    """Tests the Jacobian of the point lighting equation.
-
-    Verifies that the Jacobian of the point lighting equation with respect to
-    the observation point is correct when the light direction is orthogonal to
-    the surface normal.
-    """
-    _, _, _, _, (observation_point, observation_point_init),\
-        estimated_radiance = preset_estimate_radiance()
-
-    self.assert_jacobian_is_correct(observation_point, observation_point_init,
-                                    estimated_radiance)
+    self.assert_jacobian_is_correct_fn(estimate_radiance_fn, [
+        point_light_position_init, surface_point_position_init,
+        surface_point_normal_init, observation_point_init
+    ])
 
   @parameterized.parameters(
       ((1, 1), (1, 3), (3,), (3,), (3,)),

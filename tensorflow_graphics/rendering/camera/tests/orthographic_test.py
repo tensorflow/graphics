@@ -19,7 +19,6 @@ from __future__ import print_function
 
 from absl.testing import parameterized
 import numpy as np
-import tensorflow as tf
 
 from tensorflow_graphics.rendering.camera import orthographic
 from tensorflow_graphics.util import test_case
@@ -49,11 +48,8 @@ class OrthographicTest(test_case.TestCase):
     tensor_size = np.random.randint(3)
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
     point_3d_init = np.random.uniform(size=tensor_shape + [3])
-    point_3d = tf.convert_to_tensor(value=point_3d_init)
 
-    y = orthographic.project(point_3d)
-
-    self.assert_jacobian_is_correct(point_3d, point_3d_init, y)
+    self.assert_jacobian_is_correct_fn(orthographic.project, [point_3d_init])
 
   def test_project_random(self):
     """Test the project function using random 3d points."""
@@ -84,11 +80,8 @@ class OrthographicTest(test_case.TestCase):
     tensor_size = np.random.randint(3)
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
     point_2d_init = np.random.uniform(size=tensor_shape + [2])
-    point_2d = tf.convert_to_tensor(value=point_2d_init)
 
-    y = orthographic.ray(point_2d)
-
-    self.assert_jacobian_is_correct(point_2d, point_2d_init, y)
+    self.assert_jacobian_is_correct_fn(orthographic.ray, [point_2d_init])
 
   def test_ray_random(self):
     """Test the ray function using random 2d points."""
@@ -124,13 +117,9 @@ class OrthographicTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
     point_2d_init = np.random.uniform(size=tensor_shape + [2])
     depth_init = np.random.uniform(size=tensor_shape + [1])
-    point_2d = tf.convert_to_tensor(value=point_2d_init)
-    depth = tf.convert_to_tensor(value=depth_init)
 
-    y = orthographic.unproject(point_2d, depth)
-
-    self.assert_jacobian_is_correct(point_2d, point_2d_init, y)
-    self.assert_jacobian_is_correct(depth, depth_init, y)
+    self.assert_jacobian_is_correct_fn(orthographic.unproject,
+                                       [point_2d_init, depth_init])
 
   def test_unproject_random(self):
     """Test the unproject function using random 2d points."""
