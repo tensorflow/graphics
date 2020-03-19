@@ -28,7 +28,7 @@ limitations under the License.
 
 static tensorflow::Status GetVariablesRank(
     ::tensorflow::shape_inference::InferenceContext* c, int32* rank) {
-  std::vector<string> variable_names, variable_kinds;
+  std::vector<std::string> variable_names, variable_kinds;
   TF_RETURN_IF_ERROR(c->GetAttr("variable_names", &variable_names));
   TF_RETURN_IF_ERROR(c->GetAttr("variable_kinds", &variable_kinds));
 
