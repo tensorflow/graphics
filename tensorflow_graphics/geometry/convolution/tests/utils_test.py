@@ -180,16 +180,16 @@ class UtilsCheckValidGraphPoolingInputTests(test_case.TestCase):
       ("'sizes' must have an integer type.", np.float32, np.float32,
        np.float32),
       ("'data' must have a float type.", np.int32, np.float32, np.int32),
-      ("'pool_map' and 'data' must have the same type.", np.float32,
-       np.float64, np.int32),
+      ("'pool_map' and 'data' must have the same type.", np.float32, np.float64,
+       np.int32),
   )
   def test_check_valid_graph_pooling_exception_raised_types(
       self, err_msg, data_type, pool_map_type, sizes_type):
     """Check the type errors for invalid input types."""
     data = tf.convert_to_tensor(value=np.ones((2, 3, 3), dtype=data_type))
     pool_map = _dense_to_sparse(np.ones((2, 3, 3), dtype=pool_map_type))
-    sizes = tf.convert_to_tensor(value=np.array(((1, 2), (2, 3)),
-                                                dtype=sizes_type))
+    sizes = tf.convert_to_tensor(
+        value=np.array(((1, 2), (2, 3)), dtype=sizes_type))
 
     with self.assertRaisesRegexp(TypeError, err_msg):
       utils.check_valid_graph_pooling_input(data, pool_map, sizes)
@@ -205,8 +205,8 @@ class UtilsCheckValidGraphPoolingInputTests(test_case.TestCase):
     """Check there are no exceptions for valid input types."""
     data = tf.convert_to_tensor(value=np.ones((2, 3, 3), dtype=data_type))
     pool_map = _dense_to_sparse(np.ones((2, 3, 3), dtype=pool_map_type))
-    sizes = tf.convert_to_tensor(value=np.array(((1, 2), (2, 3)),
-                                                dtype=sizes_type))
+    sizes = tf.convert_to_tensor(
+        value=np.array(((1, 2), (2, 3)), dtype=sizes_type))
 
     self.assert_exception_is_not_raised(
         utils.check_valid_graph_pooling_input,
@@ -261,8 +261,7 @@ class UtilsCheckValidGraphPoolingInputTests(test_case.TestCase):
           sparse_tensors=sparse_tensors,
           sizes=None)
 
-  def test_check_graph_pooling_input_sparse_exception_raised(
-      self):
+  def test_check_graph_pooling_input_sparse_exception_raised(self):
     """Check that passing dense `neighbors` tensor raises exception."""
     error_msg = "must be a SparseTensor"
     dtypes = [tf.float32, tf.float32, tf.int32]
@@ -281,8 +280,8 @@ class UtilsCheckValidGraphPoolingInputTests(test_case.TestCase):
       ("must have the same number of dimensions in axes", (3, 2), (3, 2), None),
       ("Not all batch dimensions are identical.", (3, 5, 2), (1, 5, 5), None),
       ("must have a rank of 2", (2, 5, 2), (2, 3, 5), (3, 5)),
-      ("Not all batch dimensions are identical.",
-       (3, 5, 2), (3, 3, 5), ((3, 5), (2, 4))),
+      ("Not all batch dimensions are identical.", (3, 5, 2), (3, 3, 5),
+       ((3, 5), (2, 4))),
   )
   def test_check_valid_graph_pooling_exception_raised_shapes(
       self, err_msg, data_shape, pool_map_shape, sizes):
@@ -326,15 +325,10 @@ class UtilsFlattenBatchTo2dTests(test_case.TestCase):
     if shapes[1] is not None:
       dtypes.append(tf.int32)
       self.assert_exception_is_not_raised(
-          utils.flatten_batch_to_2d,
-          shapes=shapes,
-          dtypes=dtypes)
+          utils.flatten_batch_to_2d, shapes=shapes, dtypes=dtypes)
     else:
       self.assert_exception_is_not_raised(
-          utils.flatten_batch_to_2d,
-          shapes=shapes,
-          dtypes=dtypes,
-          sizes=None)
+          utils.flatten_batch_to_2d, shapes=shapes, dtypes=dtypes, sizes=None)
 
   @parameterized.parameters(
       ("must have a rank of 1", (3, 4, 3), (3, 4)),
@@ -401,17 +395,21 @@ class UtilsFlattenBatchTo2dTests(test_case.TestCase):
     """Test the jacobian is correct for random inputs."""
     data_init = np.random.uniform(size=(3, 2, 7, 5, 4))
     sizes = np.random.randint(low=1, high=5, size=(3, 2, 7))
-    data = tf.convert_to_tensor(value=data_init)
-
-    y, unflatten = utils.flatten_batch_to_2d(data, sizes=sizes)
-    # assert_jacobian_is_correct() requires a fully defined static shape.
-    y.set_shape([np.sum(sizes), 4])
     flat_init = np.random.uniform(size=(np.sum(sizes), 10))
-    flat = tf.convert_to_tensor(value=flat_init)
-    y_unflattened = unflatten(flat)
 
-    self.assert_jacobian_is_correct(data, data_init, y)
-    self.assert_jacobian_is_correct(flat, flat_init, y_unflattened)
+    def flatten_batch_to_2d(data):
+      flattened, _ = utils.flatten_batch_to_2d(data, sizes=sizes)
+      return flattened
+
+    def unflatten_2d_to_batch(flat):
+      _, unflatten = utils.flatten_batch_to_2d(data_init, sizes=sizes)
+      return unflatten(flat)
+
+    with self.subTest(name="flatten"):
+      self.assert_jacobian_is_correct_fn(flatten_batch_to_2d, [data_init])
+
+    with self.subTest(name="unflatten"):
+      self.assert_jacobian_is_correct_fn(unflatten_2d_to_batch, [flat_init])
 
   @parameterized.parameters((np.int32), (np.float32), (np.uint16))
   def test_flatten_batch_to_2d_unflatten_types(self, dtype):
@@ -469,11 +467,12 @@ class UtilsUnflatten2dToBatch(test_case.TestCase):
     """Test unflattening with a preset input."""
     data = 1. + np.reshape(np.arange(12, dtype=np.float32), (6, 2))
     sizes = (2, 3, 1)
-    output_true = np.array((((1., 2.), (3., 4.), (0., 0.)),
-                            ((5., 6.), (7., 8.), (9., 10.)),
-                            ((11., 12.), (0., 0.), (0., 0.))), dtype=np.float32)
-    output_true_padded = np.pad(output_true, ((0, 0), (0, 2), (0, 0)),
-                                mode="constant")
+    output_true = np.array(
+        (((1., 2.), (3., 4.), (0., 0.)), ((5., 6.), (7., 8.), (9., 10.)),
+         ((11., 12.), (0., 0.), (0., 0.))),
+        dtype=np.float32)
+    output_true_padded = np.pad(
+        output_true, ((0, 0), (0, 2), (0, 0)), mode="constant")
 
     output = utils.unflatten_2d_to_batch(data, sizes, max_rows=None)
     output_padded = utils.unflatten_2d_to_batch(data, sizes, max_rows=5)
@@ -486,17 +485,17 @@ class UtilsUnflatten2dToBatch(test_case.TestCase):
       ((3, 2, 1, 2), 4, 2),
       (((3, 2), (1, 2)), None, 2),
   )
-  def test_unflatten_batch_to_2d_jacobian_random(
-      self, sizes, max_rows, num_features):
+  def test_unflatten_batch_to_2d_jacobian_random(self, sizes, max_rows,
+                                                 num_features):
     """Test that the jacobian is correct."""
     max_rows = np.max(sizes) if max_rows is None else max_rows
     total_rows = np.sum(sizes)
     data_init = 0.1 + np.random.uniform(size=(total_rows, num_features))
-    data = tf.convert_to_tensor(value=data_init)
 
-    unflattened = utils.unflatten_2d_to_batch(data, sizes, max_rows)
+    def unflatten_2d_to_batch(data):
+      return utils.unflatten_2d_to_batch(data, sizes, max_rows)
 
-    self.assert_jacobian_is_correct(data, data_init, unflattened)
+    self.assert_jacobian_is_correct_fn(unflatten_2d_to_batch, [data_init])
 
   @parameterized.parameters((np.int32), (np.float32), (np.uint16))
   def test_unflatten_batch_to_2d_types(self, dtype):
@@ -536,8 +535,7 @@ class UtilsConvertToBlockDiag2dTests(test_case.TestCase):
   def test_convert_to_block_diag_2d_exception_raised_ranks(self):
     """Check the exception when input data rank is invalid."""
     with self.assertRaisesRegexp(ValueError, "must have a rank greater than 2"):
-      utils.convert_to_block_diag_2d(
-          _dense_to_sparse(np.ones(shape=(3, 3))))
+      utils.convert_to_block_diag_2d(_dense_to_sparse(np.ones(shape=(3, 3))))
 
     with self.assertRaisesRegexp(ValueError, "must have a rank greater than 2"):
       utils.convert_to_block_diag_2d(_dense_to_sparse(np.ones(shape=(3,))))
@@ -639,13 +637,14 @@ class UtilsConvertToBlockDiag2dTests(test_case.TestCase):
       batch_data_padded[i, :s[0], :s[1]] = data[i]
     sparse_ind = np.where(batch_data_padded)
     sparse_val_init = batch_data_padded[sparse_ind]
-    sparse_val = tf.convert_to_tensor(value=sparse_val_init)
-    sparse = tf.SparseTensor(
-        np.stack(sparse_ind, axis=-1), sparse_val, batch_data_padded.shape)
 
-    y = utils.convert_to_block_diag_2d(sparse, sizes)
+    def convert_to_block_diag_2d(sparse_val):
+      sparse = tf.SparseTensor(
+          np.stack(sparse_ind, axis=-1), sparse_val, batch_data_padded.shape)
+      return utils.convert_to_block_diag_2d(sparse, sizes).values
 
-    self.assert_jacobian_is_correct(sparse_val, sparse_val_init, y.values)
+    self.assert_jacobian_is_correct_fn(convert_to_block_diag_2d,
+                                       [sparse_val_init])
 
 
 if __name__ == "__main__":
