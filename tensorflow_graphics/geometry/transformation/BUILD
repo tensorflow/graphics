@@ -303,6 +303,7 @@ py_test(
 py_test(
     name = "euler_test",
     srcs = ["tests/euler_test.py"],
+    shard_count = 16,
     srcs_version = "PY2AND3",
     # google internal rule 1
     # google internal rule 2
