@@ -93,11 +93,11 @@ class PointLightTest(test_case.TestCase):
        the fall off of the reflected light in the calculation. Defaults to
        False.
     """
-    tensor_size = np.random.randint(3) + 1
-    tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
-    lights_tensor_size = np.random.randint(3) + 1
+    tensor_size = np.random.randint(1, 3) + 1
+    tensor_shape = np.random.randint(1, 10, size=tensor_size).tolist()
+    lights_tensor_size = np.random.randint(1, 3) + 1
     lights_tensor_shape = np.random.randint(
-        1, 10, size=(lights_tensor_size)).tolist()
+        1, 10, size=lights_tensor_size).tolist()
     point_light_radiance = np.tile(light_radiance, lights_tensor_shape + [1])
     point_light_position = np.tile(light_pos, lights_tensor_shape + [1])
     surface_point_normal = np.tile([0.0, 0.0, 1.0], tensor_shape + [1])
@@ -120,11 +120,11 @@ class PointLightTest(test_case.TestCase):
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_estimate_radiance_jacobian_random(self):
     """Tests the Jacobian of the point lighting equation."""
-    tensor_size = np.random.randint(10)
-    tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
-    light_tensor_size = np.random.randint(10)
+    tensor_size = np.random.randint(1, 3)
+    tensor_shape = np.random.randint(1, 10, size=tensor_size).tolist()
+    light_tensor_size = np.random.randint(1, 3)
     lights_tensor_shape = np.random.randint(
-        1, 10, size=(light_tensor_size)).tolist()
+        1, 10, size=light_tensor_size).tolist()
     point_light_radiance_init = random_tensor(lights_tensor_shape + [1])
     point_light_position_init = random_tensor(lights_tensor_shape + [3])
     surface_point_position_init = random_tensor(tensor_shape + [3])
