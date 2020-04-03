@@ -13,7 +13,8 @@
 # limitations under the License.
 book_path: /graphics/_book.yaml
 project_path: /graphics/_project.yaml
-description: <!--no description-->
+description: A library that provides a set of differentiable graphics layers and 3D viewer
+ functionalities that can be used in any ML models.
 landing_page:
   custom_css_path: /site-assets/css/style.css
   rows:
