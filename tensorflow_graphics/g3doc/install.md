@@ -3,8 +3,7 @@
 ## Stable builds
 
 TensorFlow Graphics depends on [TensorFlow](https://www.tensorflow.org/install)
-1.13.1 or above. Nightly builds of TensorFlow that tf-nightly and
-tf-nightly-2.0-preview are also supported.
+1.13.1 or above. Nightly builds of TensorFlow (tf-nightly) are also supported.
 
 To install the latest CPU version from
 [PyPI](https://pypi.org/project/tensorflow-graphics/), run the following:
