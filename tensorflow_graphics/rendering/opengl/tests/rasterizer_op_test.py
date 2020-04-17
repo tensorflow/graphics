@@ -166,18 +166,30 @@ class RasterizerOPTest(test_case.TestCase):
     variable_kinds = [v[1][0] for v in render_parameters]
     variable_values = [v[1][1] for v in render_parameters]
 
-    result = rasterizer.rasterize(
-        num_points=3,
-        variable_names=variable_names,
-        variable_kinds=variable_kinds,
-        variable_values=variable_values,
-        output_resolution=(width, height),
-        vertex_shader=test_vertex_shader,
-        geometry_shader=test_geometry_shader,
-        fragment_shader=test_fragment_shader,
-    )
+    def rasterize():
+      return rasterizer.rasterize(
+          num_points=3,
+          variable_names=variable_names,
+          variable_kinds=variable_kinds,
+          variable_values=variable_values,
+          output_resolution=(width, height),
+          vertex_shader=test_vertex_shader,
+          geometry_shader=test_geometry_shader,
+          fragment_shader=test_fragment_shader,
+      )
 
+    result = rasterize()
     self.assertAllClose(result[..., 2:4], gt)
+
+    @tf.function
+    def check_lazy_shape():
+      # Within @tf.function, the tensor shape is determined by SetShapeFn
+      # callback. Ensure that the shape of non-batch axes matches that of of
+      # the actual tensor evaluated in eager mode above.
+      lazy_shape = rasterize().shape
+      self.assertEqual(lazy_shape[-3:], list(result.shape)[-3:])
+
+    check_lazy_shape()
 
   @parameterized.parameters(
       ("The variable names, kinds, and values must have the same size.",
