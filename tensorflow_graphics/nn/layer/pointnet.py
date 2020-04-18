@@ -41,25 +41,24 @@ class PointNetConv2Layer(tf.keras.layers.Layer):
     self.conv = layers.Conv2D(self.channels, (1, 1), input_shape=input_shape)
     self.bn = layers.BatchNormalization(momentum=self.momentum)
 
-  def call(self, x, training=False):
+  def call(self, x, training):
     return tf.nn.relu(self.bn(self.conv(x), training))
 
+
 class VanillaEncoder(tf.keras.layers.Layer):
-  def __init__(self, num_features, momentum):
+  def __init__(self, momentum=.5):
     super(VanillaEncoder, self).__init__()
-    self.num_features=num_features
     self.conv1 = PointNetConv2Layer(64, momentum)
     self.conv2 = PointNetConv2Layer(64, momentum)
     self.conv3 = PointNetConv2Layer(64, momentum)
     self.conv4 = PointNetConv2Layer(128, momentum)
-    self.conv5 = PointNetConv2Layer(num_features, momentum)
+    self.conv5 = PointNetConv2Layer(1024, momentum)
   
   def build(self, input_shape):
     B,N,C = input_shape
     self.conv1.build(input_shape=(B,N,1,C))
 
-  def call(self, x, training=False):
-    num_points = x.shape[-2]
+  def call(self, x, training=True):
     x = tf.expand_dims(x, axis=2)     #< BxNx1xD
     x = self.conv1(x, training)       #< BxNx1x64
     x = self.conv2(x, training)       #< BxNx1x64
@@ -69,17 +68,16 @@ class VanillaEncoder(tf.keras.layers.Layer):
     x = tf.math.reduce_max(x, axis=1) #< Bx1x1024
     return tf.squeeze(x)              #< Bx1024
 
-class VanillaEncoder_LEGACY(tf.keras.layers.Layer):
-  def __init__(self, num_points, batchnorm_momentum=.5):
-    super(VanillaEncoder_LEGACY, self).__init__()
 
-    print("TODO: still calling legacy encoder")
+class VanillaEncoder_LEGACY(tf.keras.layers.Layer):
+  def __init__(self, momentum=.5):
+    super(VanillaEncoder_LEGACY, self).__init__()
     self.model = models.Sequential()
-    self.model.add(PointNetConv2Layer(64, momentum=batchnorm_momentum)) 
-    self.model.add(PointNetConv2Layer(64, momentum=batchnorm_momentum))
-    self.model.add(PointNetConv2Layer(64, momentum=batchnorm_momentum))
-    self.model.add(PointNetConv2Layer(128, momentum=batchnorm_momentum))
-    self.model.add(PointNetConv2Layer(1024, momentum=batchnorm_momentum))
+    self.model.add(PointNetConv2Layer(64, momentum)) 
+    self.model.add(PointNetConv2Layer(64, momentum))
+    self.model.add(PointNetConv2Layer(64, momentum))
+    self.model.add(PointNetConv2Layer(128, momentum))
+    self.model.add(PointNetConv2Layer(1024, momentum))
 
   def build(self, input_shape):
     B,N,C = input_shape
@@ -92,13 +90,13 @@ class VanillaEncoder_LEGACY(tf.keras.layers.Layer):
     return tf.squeeze(x) #< Bx1024
 
 class ClassificationHead(object):
-  def __init__(self, num_classes=40, n_features=1024, batchnorm_momentum=.5):
+  def __init__(self, num_classes=40, n_features=1024, momentum=.5):
     self.model = models.Sequential()
     self.model.add(layers.Dense(512, input_shape=(n_features,)))
-    self.model.add(layers.BatchNormalization(momentum=batchnorm_momentum))
+    self.model.add(layers.BatchNormalization(momentum=momentum))
     self.model.add(layers.Activation("relu"))
     self.model.add(layers.Dense(256))
-    self.model.add(layers.BatchNormalization(momentum=batchnorm_momentum))
+    self.model.add(layers.BatchNormalization(momentum=momentum))
     self.model.add(layers.Activation("relu"))
     self.model.add(layers.Dropout(0.3))
     self.model.add(layers.Dense(num_classes, activation="linear"))
@@ -110,10 +108,14 @@ class ClassificationHead(object):
 
 class PointNetVanillaClassifier(object):
   
-  def __init__(self, num_points, num_classes, batchnorm_momentum=.5):
-    self.encoder = VanillaEncoder_LEGACY(num_points=num_points, batchnorm_momentum=batchnorm_momentum)
-    self.classifier = ClassificationHead(num_classes=num_classes, batchnorm_momentum=batchnorm_momentum)
-    self.encoder.build((32, num_points, 3))
+  def __init__(self, num_points, num_classes, momentum=.5):
+    # self.encoder = VanillaEncoder_LEGACY(momentum)
+    self.encoder = VanillaEncoder(momentum)
+    self.encoder.build((32, num_points, 3)) #< TODO: fix this
+    # print([var.name for var in self.encoder.trainable_variables])
+    # exit(0)
+
+    self.classifier = ClassificationHead(num_classes=num_classes, momentum=momentum)
     self.trainable_variables = self.encoder.trainable_variables + self.classifier.trainable_variables 
   
   def __call__(self, points, training):
