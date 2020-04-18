@@ -31,6 +31,7 @@ import tensorflow as tf
 from tensorflow.keras import models #< TODO remove
 from tensorflow.keras import layers
 
+
 class PointNetConv2Layer(tf.keras.layers.Layer):
   def __init__(self, channels, momentum):
     super(PointNetConv2Layer, self).__init__()
@@ -43,6 +44,20 @@ class PointNetConv2Layer(tf.keras.layers.Layer):
 
   def call(self, x, training):
     return tf.nn.relu(self.bn(self.conv(x), training))
+
+
+class PointNetDenseLayer(tf.keras.layers.Layer):
+  def __init__(self, channels, momentum):
+    super(PointNetDenseLayer, self).__init__()
+    self.momentum = momentum
+    self.channels = channels
+
+  def build(self, input_shape):
+    self.dense = layers.Dense(self.channels, input_shape=input_shape)
+    self.bn = layers.BatchNormalization(momentum=self.momentum)
+
+  def call(self, x, training):
+    return tf.nn.relu(self.bn(self.dense(x), training))
 
 
 class VanillaEncoder(tf.keras.layers.Layer):
@@ -65,52 +80,29 @@ class VanillaEncoder(tf.keras.layers.Layer):
     return tf.squeeze(x)              #< Bx1024
 
 
-class VanillaEncoder_LEGACY(tf.keras.layers.Layer):
-  def __init__(self, momentum=.5):
-    super(VanillaEncoder_LEGACY, self).__init__()
-    self.model = models.Sequential()
-    self.model.add(PointNetConv2Layer(64, momentum)) 
-    self.model.add(PointNetConv2Layer(64, momentum))
-    self.model.add(PointNetConv2Layer(64, momentum))
-    self.model.add(PointNetConv2Layer(128, momentum))
-    self.model.add(PointNetConv2Layer(1024, momentum))
-
+class ClassificationHead(tf.keras.layers.Layer):
+  def __init__(self, num_classes, momentum):
+    super(ClassificationHead, self).__init__()
+    self.dense1 = PointNetDenseLayer(512, momentum)
+    self.dense2 = PointNetDenseLayer(256, momentum)
+    self.dropout = layers.Dropout(0.3)
+    self.dense3 = layers.Dense(num_classes, activation="linear")
+      
   def call(self, x, training):
-    x = tf.expand_dims(x, axis=2) #< BxNx1xD (prep for Conv2D)
-    x = self.model(x, training) #< BxNx1x1024
-    x = tf.math.reduce_max(x, axis=1) #< Bx1x1024
-    return tf.squeeze(x) #< Bx1024
+    x = self.dense1(x, training)
+    x = self.dense2(x, training)
+    x = self.dropout(x, training)
+    x = self.dense3(x)
+    return x #< Bx1
 
-class ClassificationHead(object):
-  def __init__(self, num_classes=40, n_features=1024, momentum=.5):
-    self.model = models.Sequential()
-    self.model.add(layers.Dense(512, input_shape=(n_features,)))
-    self.model.add(layers.BatchNormalization(momentum=momentum))
-    self.model.add(layers.Activation("relu"))
-    self.model.add(layers.Dense(256))
-    self.model.add(layers.BatchNormalization(momentum=momentum))
-    self.model.add(layers.Activation("relu"))
-    self.model.add(layers.Dropout(0.3))
-    self.model.add(layers.Dense(num_classes, activation="linear"))
-    self.trainable_variables = self.model.trainable_variables
-
-  def __call__(self, features, training):
-    return self.model(features, training) #< Bx1
-
-
-class PointNetVanillaClassifier(object):
+class PointNetVanillaClassifier(tf.keras.layers.Layer):
   
-  def __init__(self, num_points, num_classes, momentum=.5):
-    # self.encoder = VanillaEncoder_LEGACY(momentum)
+  def __init__(self, num_classes, momentum=.5):
+    super(PointNetVanillaClassifier, self).__init__()
     self.encoder = VanillaEncoder(momentum)
-    self.classifier = ClassificationHead(num_classes=num_classes, momentum=momentum)
+    self.classifier = ClassificationHead(num_classes, momentum)
   
-  def trainable_variables(self):
-    # TODO: use a keras Model / Layer instead here for auto-tracing!!
-    return self.encoder.trainable_variables + self.classifier.trainable_variables
-
-  def __call__(self, points, training):
-    # TODO: use call from Model/ Keras here
+  def call(self, points, training):
     features = self.encoder(points, training) #< Bx1024
     logits = self.classifier(features, training) #< Bx40
     return logits
