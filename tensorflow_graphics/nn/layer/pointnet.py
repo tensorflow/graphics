@@ -53,12 +53,8 @@ class VanillaEncoder(tf.keras.layers.Layer):
     self.conv3 = PointNetConv2Layer(64, momentum)
     self.conv4 = PointNetConv2Layer(128, momentum)
     self.conv5 = PointNetConv2Layer(1024, momentum)
-  
-  def build(self, input_shape):
-    B,N,C = input_shape
-    self.conv1.build(input_shape=(B,N,1,C))
 
-  def call(self, x, training=True):
+  def call(self, x, training):
     x = tf.expand_dims(x, axis=2)     #< BxNx1xD
     x = self.conv1(x, training)       #< BxNx1x64
     x = self.conv2(x, training)       #< BxNx1x64
@@ -78,10 +74,6 @@ class VanillaEncoder_LEGACY(tf.keras.layers.Layer):
     self.model.add(PointNetConv2Layer(64, momentum))
     self.model.add(PointNetConv2Layer(128, momentum))
     self.model.add(PointNetConv2Layer(1024, momentum))
-
-  def build(self, input_shape):
-    B,N,C = input_shape
-    self.model.build(input_shape=(B,N,1,C))
 
   def call(self, x, training):
     x = tf.expand_dims(x, axis=2) #< BxNx1xD (prep for Conv2D)
@@ -111,14 +103,14 @@ class PointNetVanillaClassifier(object):
   def __init__(self, num_points, num_classes, momentum=.5):
     # self.encoder = VanillaEncoder_LEGACY(momentum)
     self.encoder = VanillaEncoder(momentum)
-    self.encoder.build((32, num_points, 3)) #< TODO: fix this
-    # print([var.name for var in self.encoder.trainable_variables])
-    # exit(0)
-
     self.classifier = ClassificationHead(num_classes=num_classes, momentum=momentum)
-    self.trainable_variables = self.encoder.trainable_variables + self.classifier.trainable_variables 
   
+  def trainable_variables(self):
+    # TODO: use a keras Model / Layer instead here for auto-tracing!!
+    return self.encoder.trainable_variables + self.classifier.trainable_variables
+
   def __call__(self, points, training):
+    # TODO: use call from Model/ Keras here
     features = self.encoder(points, training) #< Bx1024
     logits = self.classifier(features, training) #< Bx40
     return logits
