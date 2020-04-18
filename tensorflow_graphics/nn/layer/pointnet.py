@@ -44,16 +44,20 @@ class PointNetConv2Layer(tf.keras.layers.Layer):
   def call(self, x, training=False):
     return tf.nn.relu(self.bn(self.conv(x), training))
 
-class VanillaEncoder(tf.keras.models.Model):
-  def __init__(self, batchnorm_momentum):
-    super(tf.keras.models.Model, self).__init__()
-    # self.conv1 = layers.Conv2D(64, (1, 1), input_shape=(num_points, 1, 3))
-    self.conv1 = PointNetConv2Layer(64, momentum=batchnorm_momentum, input_shape=(2048, 1, 3))
-    self.conv2 = PointNetConv2Layer(64, momentum=batchnorm_momentum)
-    self.conv3 = PointNetConv2Layer(64, momentum=batchnorm_momentum)
-    self.conv4 = PointNetConv2Layer(128, momentum=batchnorm_momentum)
-    self.conv5 = PointNetConv2Layer(1024, momentum=batchnorm_momentum)
+class VanillaEncoder(tf.keras.layers.Layer):
+  def __init__(self, num_features, momentum):
+    super(VanillaEncoder, self).__init__()
+    self.num_features=num_features
+    self.conv1 = PointNetConv2Layer(64, momentum)
+    self.conv2 = PointNetConv2Layer(64, momentum)
+    self.conv3 = PointNetConv2Layer(64, momentum)
+    self.conv4 = PointNetConv2Layer(128, momentum)
+    self.conv5 = PointNetConv2Layer(num_features, momentum)
   
+  def build(self, input_shape):
+    B,N,C = input_shape
+    self.conv1.build(input_shape=(B,N,1,C))
+
   def call(self, x, training=False):
     num_points = x.shape[-2]
     x = tf.expand_dims(x, axis=2)     #< BxNx1xD
@@ -87,7 +91,6 @@ class VanillaEncoder_LEGACY(tf.keras.layers.Layer):
     x = tf.math.reduce_max(x, axis=1) #< Bx1x1024
     return tf.squeeze(x) #< Bx1024
 
-
 class ClassificationHead(object):
   def __init__(self, num_classes=40, n_features=1024, batchnorm_momentum=.5):
     self.model = models.Sequential()
@@ -110,6 +113,7 @@ class PointNetVanillaClassifier(object):
   def __init__(self, num_points, num_classes, batchnorm_momentum=.5):
     self.encoder = VanillaEncoder_LEGACY(num_points=num_points, batchnorm_momentum=batchnorm_momentum)
     self.classifier = ClassificationHead(num_classes=num_classes, batchnorm_momentum=batchnorm_momentum)
+    self.encoder.build((32, num_points, 3))
     self.trainable_variables = self.encoder.trainable_variables + self.classifier.trainable_variables 
   
   def __call__(self, points, training):
