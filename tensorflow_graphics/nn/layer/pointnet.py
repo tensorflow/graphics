@@ -39,6 +39,10 @@ These shorthands are used throughout this module:
 
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import BatchNormalization
 
 
 class PointNetConv2Layer(Layer):
@@ -63,8 +67,8 @@ class PointNetConv2Layer(Layer):
 
   def build(self, input_shape):
     """Builds the layer with a specified input_shape."""
-    self.conv = layers.Conv2D(self.channels, (1, 1), input_shape=input_shape)
-    self.bn = layers.BatchNormalization(momentum=self.momentum)
+    self.conv = Conv2D(self.channels, (1, 1), input_shape=input_shape)
+    self.bn = BatchNormalization(momentum=self.momentum)
 
   # pylint: disable=arguments-differ
   def call(self, inputs, training):
@@ -96,8 +100,8 @@ class PointNetDenseLayer(Layer):
 
   def build(self, input_shape):
     """Builds the layer with a specified input_shape."""
-    self.dense = layers.Dense(self.channels, input_shape=input_shape)
-    self.bn = layers.BatchNormalization(momentum=self.momentum)
+    self.dense = Dense(self.channels, input_shape=input_shape)
+    self.bn = BatchNormalization(momentum=self.momentum)
 
   # pylint: disable=arguments-differ
   def call(self, inputs, training):
@@ -158,7 +162,7 @@ class VanillaEncoder(Layer):
     return tf.squeeze(x)               # Bx1024
 
 
-class ClassificationHead(tf.keras.layers.Layer):
+class ClassificationHead(Layer):
   """The PointNet classification head.
 
   The classifier consists of 2x PointNetDenseLayer layers (with 512 and 256 channels),
@@ -173,8 +177,8 @@ class ClassificationHead(tf.keras.layers.Layer):
     super(ClassificationHead, self).__init__()
     self.dense1 = PointNetDenseLayer(512, momentum)
     self.dense2 = PointNetDenseLayer(256, momentum)
-    self.dropout = layers.Dropout(0.3)
-    self.dense3 = layers.Dense(num_classes, activation="linear")
+    self.dropout = Dropout(0.3)
+    self.dense3 = Dense(num_classes, activation="linear")
 
   # pylint: disable=arguments-differ
   def call(self, inputs, training):
@@ -193,7 +197,7 @@ class ClassificationHead(tf.keras.layers.Layer):
     return self.dense3(x)             # Bx1
 
 
-class PointNetVanillaClassifier(tf.keras.layers.Layer):
+class PointNetVanillaClassifier(Layer):
   # TODO documentation
 
   def __init__(self, num_classes, momentum=.5):
