@@ -28,7 +28,7 @@ NOTE: scheduling of batchnorm momentum currently not available in keras. However
 """
 
 import tensorflow as tf
-from tensorflow.keras import models #< TODO remove
+from tensorflow.keras import models  # TODO remove
 from tensorflow.keras import layers
 
 
@@ -70,14 +70,14 @@ class VanillaEncoder(tf.keras.layers.Layer):
     self.conv5 = PointNetConv2Layer(1024, momentum)
 
   def call(self, x, training):
-    x = tf.expand_dims(x, axis=2)     #< BxNx1xD
-    x = self.conv1(x, training)       #< BxNx1x64
-    x = self.conv2(x, training)       #< BxNx1x64
-    x = self.conv3(x, training)       #< BxNx1x64
-    x = self.conv4(x, training)       #< BxNx1x128
-    x = self.conv5(x, training)       #< BxNx1x1024
-    x = tf.math.reduce_max(x, axis=1) #< Bx1x1024
-    return tf.squeeze(x)              #< Bx1024
+    x = tf.expand_dims(x, axis=2)      # BxNx1xD
+    x = self.conv1(x, training)        # BxNx1x64
+    x = self.conv2(x, training)        # BxNx1x64
+    x = self.conv3(x, training)        # BxNx1x64
+    x = self.conv4(x, training)        # BxNx1x128
+    x = self.conv5(x, training)        # BxNx1x1024
+    x = tf.math.reduce_max(x, axis=1)  # Bx1x1024
+    return tf.squeeze(x)               # Bx1024
 
 
 class ClassificationHead(tf.keras.layers.Layer):
@@ -87,24 +87,25 @@ class ClassificationHead(tf.keras.layers.Layer):
     self.dense2 = PointNetDenseLayer(256, momentum)
     self.dropout = layers.Dropout(0.3)
     self.dense3 = layers.Dense(num_classes, activation="linear")
-      
+
   def call(self, x, training):
     x = self.dense1(x, training)
     x = self.dense2(x, training)
     x = self.dropout(x, training)
     x = self.dense3(x)
-    return x #< Bx1
+    return x  # Bx1
+
 
 class PointNetVanillaClassifier(tf.keras.layers.Layer):
-  
+
   def __init__(self, num_classes, momentum=.5):
     super(PointNetVanillaClassifier, self).__init__()
     self.encoder = VanillaEncoder(momentum)
     self.classifier = ClassificationHead(num_classes, momentum)
-  
+
   def call(self, points, training):
-    features = self.encoder(points, training) #< Bx1024
-    logits = self.classifier(features, training) #< Bx40
+    features = self.encoder(points, training)  # Bx1024
+    logits = self.classifier(features, training)  # Bx40
     return logits
 
   @staticmethod
@@ -119,7 +120,7 @@ if __name__ == "__main__":
   # encoder = VanillaEncoder(2048, momentum=.5)
   # print(encoder(x).shape)
 
-  x = tf.random.uniform((32,2048,1,3))
+  x = tf.random.uniform((32, 2048, 1, 3))
   layer = PointNetConv2Layer(64, .5)
   # layer.build(x.shape)
   y = layer(x)
