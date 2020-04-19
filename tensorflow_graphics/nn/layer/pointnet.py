@@ -56,7 +56,7 @@ class PointNetConv2Layer(Layer):
       1. fully connected layer
       2. batch normalization layer
       3. ReLU activation unit
-    
+
     Args:
       channels: the number of generated feature.
       momentum: the momentum of the batch normalization layer.
@@ -78,7 +78,7 @@ class PointNetConv2Layer(Layer):
       inputs: a dense tensor of size `[B, N, 1, D]`.
       training: flag to control batch normalization update statistics.
 
-    Returns: 
+    Returns:
       Tensor with shape `[B, N, 1, C]`.
     """
     return tf.nn.relu(self.bn(self.conv(inputs), training))
@@ -86,13 +86,14 @@ class PointNetConv2Layer(Layer):
 
 class PointNetDenseLayer(Layer):
   """The fully connected layer used by the classification head in pointnet.
-  
+
   Note:
     Differently from the standard Keras Conv2 layer, the order of ops is:
       1. fully connected layer
       2. batch normalization layer
       3. ReLU activation unit
   """
+
   def __init__(self, channels, momentum):
     super(PointNetDenseLayer, self).__init__()
     self.momentum = momentum
@@ -111,7 +112,7 @@ class PointNetDenseLayer(Layer):
       inputs: a dense tensor of size `[B, D]`.
       training: flag to control batch normalization update statistics.
 
-    Returns: 
+    Returns:
       Tensor with shape `[B, C]`.
     """
     return tf.nn.relu(self.bn(self.dense(inputs), training))
@@ -119,7 +120,7 @@ class PointNetDenseLayer(Layer):
 
 class VanillaEncoder(Layer):
   """The Vanilla PointNet feature encoder.
-  
+
   Consists of five conv2 layers with (64,64,64,128,1024) output channels.
 
   Note:
@@ -131,7 +132,7 @@ class VanillaEncoder(Layer):
   def __init__(self, momentum=.5):
     """Constructs a VanillaEncoder keras layer.
 
-    Args: 
+    Args:
       momentum: the momentum used for the batch normalization layer.
     """
     super(VanillaEncoder, self).__init__()
@@ -143,7 +144,7 @@ class VanillaEncoder(Layer):
 
   # pylint: disable=arguments-differ
   def call(self, inputs, training):
-    """Computes the PointNet features. 
+    """Computes the PointNet features.
 
     Args:
       inputs: a dense tensor of size `[B, N, D]`.
@@ -152,7 +153,7 @@ class VanillaEncoder(Layer):
     Returns:
       Tensor with shape `[B, N, C=1024]`
     """
-    x = tf.expand_dims(inputs, axis=2) # BxNx1xD
+    x = tf.expand_dims(inputs, axis=2)  # BxNx1xD
     x = self.conv1(x, training)        # BxNx1x64
     x = self.conv2(x, training)        # BxNx1x64
     x = self.conv3(x, training)        # BxNx1x64
@@ -165,14 +166,15 @@ class VanillaEncoder(Layer):
 class ClassificationHead(Layer):
   """The PointNet classification head.
 
-  The classifier consists of 2x PointNetDenseLayer layers (with 512 and 256 channels),
-  followed by a dropout layer (drop rate=30%) a dense linear layer producing the 
-  logits of the num_classes classes. 
+  The classifier consists of 2x PointNetDenseLayer layers (512 and 256 channels)
+  followed by a dropout layer (drop rate=30%) a dense linear layer producing the
+  logits of the num_classes classes.
 
   Args:
     num_classes: the number of classes to classify
     momentum: the momentum used for the batch normalization layer.
   """
+
   def __init__(self, num_classes, momentum):
     super(ClassificationHead, self).__init__()
     self.dense1 = PointNetDenseLayer(512, momentum)
@@ -191,14 +193,14 @@ class ClassificationHead(Layer):
     Returns:
       Tensor with shape `[B, 1]`
     """
-    x = self.dense1(inputs, training) # Bx512
-    x = self.dense2(x, training)      # Bx256
-    x = self.dropout(x, training)
-    return self.dense3(x)             # Bx1
+    x = self.dense1(inputs, training)  # Bx512
+    x = self.dense2(x, training)       # Bx256
+    x = self.dropout(x, training)      # Bx256
+    return self.dense3(x)              # Bxnum_classes
 
 
 class PointNetVanillaClassifier(Layer):
-  # TODO documentation
+  """TODO(ataiya): documentation."""
 
   def __init__(self, num_classes, momentum=.5):
     super(PointNetVanillaClassifier, self).__init__()
