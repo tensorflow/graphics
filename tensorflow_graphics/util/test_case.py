@@ -22,6 +22,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import warnings
+
 from absl import flags
 from absl.testing import parameterized
 import numpy as np
@@ -225,6 +227,10 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
       atol: Maximum absolute tolerance in gradient error.
       delta: The amount of perturbation.
     """
+    warnings.warn((
+        "assert_jacobian_is_correct is deprecated and might get "
+        "removed in a future version please use assert_jacobian_is_correct_fn"),
+                  DeprecationWarning)
     if tf.executing_eagerly():
       self.skipTest(reason="Graph mode only test")
     max_error, _, _ = self._compute_gradient_error(x, y, x_init, delta)
@@ -261,6 +267,10 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
         gradients of y.
       y: A tensor.
     """
+    warnings.warn((
+        "assert_jacobian_is_finite is deprecated and might get "
+        "removed in a future version please use assert_jacobian_is_finite_fn"),
+                  DeprecationWarning)
     if tf.executing_eagerly():
       self.skipTest(reason="Graph mode only test")
     x_shape = x.shape.as_list()

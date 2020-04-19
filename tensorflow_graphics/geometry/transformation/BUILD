@@ -37,6 +37,19 @@ py_library(
 )
 
 py_library(
+    name = "dual_quaternion",
+    srcs = ["dual_quaternion.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    deps = [
+        ":quaternion",
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:asserts",
+        "//tensorflow_graphics/util:shape",
+    ],
+)
+
+py_library(
     name = "axis_angle",
     srcs = ["axis_angle.py"],
     srcs_version = "PY2AND3",
@@ -185,6 +198,28 @@ py_test(
         # google internal package dependency 3
         # google internal package dependency 2
         # google internal package dependency 6
+        # google internal package dependency 1,
+        "//tensorflow_graphics/util:test_case",
+    ],
+)
+
+py_test(
+    name = "dual_quaternion_test",
+    timeout = "long",
+    srcs = ["tests/dual_quaternion_test.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 5
+    # google internal rule 6
+    deps = [
+        ":dual_quaternion",
+        ":quaternion",
+        ":test_helpers",
+        # google internal package dependency 3
+        # google internal package dependency 2
         # google internal package dependency 1,
         "//tensorflow_graphics/util:test_case",
     ],

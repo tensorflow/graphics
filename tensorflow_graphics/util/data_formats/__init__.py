@@ -24,8 +24,8 @@ try:
 except ImportError:
   print(
       "Warning: To use the exr data format, please install the OpenEXR"
-      " package following the instructions detailed in the README at"
-      " github.com/tensorflow/graphics.",
+      " package following the instructions detailed at"
+      " tensorflow.org/graphics/install.",
       file=sys.stderr)
 # pylint: enable=g-import-not-at-top
 

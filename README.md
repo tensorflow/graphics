@@ -228,6 +228,7 @@ Want to reach out? E-mail us at tf-graphics-contact@google.com!
 -   Pavel Pidlypenskyi
 -   Stefan Popov
 -   Konstantinos Rematas
+-   Omar Sanseviero
 -   Aviv Segal
 -   Avneesh Sud
 -   Anastasia Tkach

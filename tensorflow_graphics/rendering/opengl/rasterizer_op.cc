@@ -125,7 +125,7 @@ rendered_image: A tensor of shape `[A1, ..., An, width, height, 4]`, with the
       tensorflow::TensorShape resolution;
       TF_RETURN_IF_ERROR(c->GetAttr("output_resolution", &resolution));
       auto image_shape =
-          c->MakeShape({resolution.dim_size(0), resolution.dim_size(1), 4});
+          c->MakeShape({resolution.dim_size(1), resolution.dim_size(0), 4});
 
       tensorflow::shape_inference::ShapeHandle output_shape;
       TF_RETURN_IF_ERROR(

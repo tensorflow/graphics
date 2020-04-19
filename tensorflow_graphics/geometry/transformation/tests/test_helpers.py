@@ -22,7 +22,7 @@ import math
 
 import numpy as np
 from scipy import stats
-import tensorflow as tf
+import tensorflow.compat.v2 as tf
 
 from tensorflow_graphics.geometry.transformation import axis_angle
 from tensorflow_graphics.geometry.transformation import quaternion
@@ -34,6 +34,14 @@ def generate_preset_test_euler_angles(dimensions=3):
   """Generates a permutation with duplicate of some classic euler angles."""
   permutations = itertools.product(
       [0., np.pi, np.pi / 2., np.pi / 3., np.pi / 4., np.pi / 6.],
+      repeat=dimensions)
+  return np.array(list(permutations))
+
+
+def generate_preset_test_translations(dimensions=3):
+  """Generates a set of translations."""
+  permutations = itertools.product(
+      [0.1, -0.2, 0.5, 0.7, 0.4, -0.1],
       repeat=dimensions)
   return np.array(list(permutations))
 
@@ -76,6 +84,55 @@ def generate_preset_test_quaternions():
     return np.array(preset_quaternion)
   with tf.compat.v1.Session() as sess:
     return np.array(sess.run([preset_quaternion]))
+
+
+def generate_preset_test_dual_quaternions():
+  """Generates pre-set test quaternions."""
+  angles = generate_preset_test_euler_angles()
+  preset_quaternion_real = quaternion.from_euler(angles)
+
+  translations = generate_preset_test_translations()
+  translations = np.concatenate((translations / 2.0,
+                                 np.zeros((np.ma.size(translations, 0), 1))),
+                                axis=1)
+  preset_quaternion_translation = tf.convert_to_tensor(value=translations)
+
+  preset_quaternion_dual = quaternion.multiply(preset_quaternion_translation,
+                                               preset_quaternion_real)
+
+  preset_dual_quaternion = tf.concat((preset_quaternion_real,
+                                      preset_quaternion_dual),
+                                     axis=-1)
+
+  return preset_dual_quaternion
+
+
+def generate_random_test_dual_quaternions():
+  """Generates random test dual quaternions."""
+  angles = generate_random_test_euler_angles()
+  random_quaternion_real = quaternion.from_euler(angles)
+
+  min_translation = -3.0
+  max_translation = 3.0
+  translations = np.random.uniform(min_translation, max_translation,
+                                   angles.shape)
+
+  translations_quaternion_shape = np.asarray(translations.shape)
+  translations_quaternion_shape[-1] = 1
+  translations = np.concatenate((translations / 2.0,
+                                 np.zeros(translations_quaternion_shape)),
+                                axis=-1)
+
+  random_quaternion_translation = tf.convert_to_tensor(value=translations)
+
+  random_quaternion_dual = quaternion.multiply(random_quaternion_translation,
+                                               random_quaternion_real)
+
+  random_dual_quaternion = tf.concat((random_quaternion_real,
+                                      random_quaternion_dual),
+                                     axis=-1)
+
+  return random_dual_quaternion
 
 
 def generate_random_test_euler_angles(dimensions=3,
