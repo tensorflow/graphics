@@ -14,7 +14,7 @@
 # Layers tf-graphics.
 
 # google internal package dependency 8)
-# google internal package dependency 5
+# google internal package dependency 10
 
 licenses(["notice"])  # Apache 2.0
 
@@ -51,12 +51,14 @@ py_test(
     name = "graph_convolution_test",
     srcs = ["tests/graph_convolution_test.py"],
     srcs_version = "PY2AND3",
-    # google internal rule 1
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    # google internal rule 7
+    # google internal rule 8
+    # google internal rule 9
+    # google internal rule 10
+    # google internal rule 11
     deps = [
         ":graph_convolution",
         # google internal package dependency 2
