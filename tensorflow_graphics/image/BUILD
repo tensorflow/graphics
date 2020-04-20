@@ -14,7 +14,7 @@
 # Image utils for tf-graphics.
 
 # google internal package dependency 8)
-# google internal package dependency 5
+load("//vr/perception/tensorflow/tools:tf_tests.bzl", "py2and3_tf_graph_and_eager_on_device_test")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -61,7 +61,7 @@ py_library(
     ],
 )
 
-py_test(
+py2and3_tf_graph_and_eager_on_device_test(
     name = "matting_test",
     timeout = "long",
     srcs = ["tests/matting_test.py"],
@@ -71,8 +71,8 @@ py_test(
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    test_with_eager = True,
+    test_with_graph = True,
     deps = [
         ":matting",
         # google internal package dependency 2
@@ -84,7 +84,7 @@ py_test(
     ],
 )
 
-py_test(
+py2and3_tf_graph_and_eager_on_device_test(
     name = "pyramid_test",
     timeout = "long",
     srcs = ["tests/pyramid_test.py"],
@@ -93,8 +93,8 @@ py_test(
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    test_with_eager = True,
+    test_with_graph = True,
     deps = [
         ":pyramid",
         # google internal package dependency 2

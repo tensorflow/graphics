@@ -14,7 +14,7 @@
 # Convolutions and related tools for tf-graphics.
 
 # google internal package dependency 8)
-# google internal package dependency 5
+load("//vr/perception/tensorflow/tools:tf_tests.bzl", "py2and3_tf_graph_and_eager_on_device_test")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -69,7 +69,7 @@ py_library(
     ],
 )
 
-py_test(
+py2and3_tf_graph_and_eager_on_device_test(
     name = "utils_test",
     srcs = ["tests/utils_test.py"],
     srcs_version = "PY2AND3",
@@ -77,8 +77,8 @@ py_test(
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    test_with_eager = True,
+    test_with_graph = True,
     deps = [
         ":utils",
         # google internal package dependency 1,
@@ -86,7 +86,7 @@ py_test(
     ],
 )
 
-py_test(
+py2and3_tf_graph_and_eager_on_device_test(
     name = "graph_convolution_test",
     srcs = ["tests/graph_convolution_test.py"],
     srcs_version = "PY2AND3",
@@ -94,8 +94,8 @@ py_test(
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    test_with_eager = True,
+    test_with_graph = True,
     deps = [
         ":graph_convolution",
         # google internal package dependency 2
@@ -105,7 +105,7 @@ py_test(
     ],
 )
 
-py_test(
+py2and3_tf_graph_and_eager_on_device_test(
     name = "graph_pooling_test",
     srcs = [
         "tests/graph_pooling_test.py",
@@ -117,8 +117,8 @@ py_test(
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    test_with_eager = True,
+    test_with_graph = True,
     deps = [
         ":graph_pooling",
         ":utils",

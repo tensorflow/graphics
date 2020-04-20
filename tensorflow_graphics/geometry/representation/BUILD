@@ -14,7 +14,7 @@
 # Geometry utils for tf-graphics.
 
 # google internal package dependency 8)
-# google internal package dependency 5
+load("//vr/perception/tensorflow/tools:tf_tests.bzl", "py2and3_tf_graph_and_eager_on_device_test")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -93,7 +93,7 @@ py_library(
     ],
 )
 
-py_test(
+py2and3_tf_graph_and_eager_on_device_test(
     name = "point_test",
     srcs = ["tests/point_test.py"],
     srcs_version = "PY2AND3",
@@ -101,8 +101,8 @@ py_test(
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    test_with_eager = True,
+    test_with_graph = True,
     deps = [
         ":point",
         # google internal package dependency 3
@@ -113,7 +113,7 @@ py_test(
     ],
 )
 
-py_test(
+py2and3_tf_graph_and_eager_on_device_test(
     name = "triangle_test",
     srcs = ["tests/triangle_test.py"],
     srcs_version = "PY2AND3",
@@ -121,8 +121,8 @@ py_test(
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    test_with_eager = True,
+    test_with_graph = True,
     deps = [
         ":triangle",
         # google internal package dependency 2
@@ -133,7 +133,7 @@ py_test(
     ],
 )
 
-py_test(
+py2and3_tf_graph_and_eager_on_device_test(
     name = "grid_test",
     srcs = ["tests/grid_test.py"],
     srcs_version = "PY2AND3",
@@ -141,8 +141,8 @@ py_test(
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    test_with_eager = True,
+    test_with_graph = True,
     deps = [
         ":grid",
         # google internal package dependency 2
@@ -152,7 +152,7 @@ py_test(
     ],
 )
 
-py_test(
+py2and3_tf_graph_and_eager_on_device_test(
     name = "ray_test",
     srcs = ["tests/ray_test.py"],
     srcs_version = "PY2AND3",
@@ -160,8 +160,8 @@ py_test(
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    test_with_eager = True,
+    test_with_graph = True,
     deps = [
         ":ray",
         # google internal package dependency 4,
