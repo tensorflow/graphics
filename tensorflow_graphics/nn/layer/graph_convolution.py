@@ -138,6 +138,7 @@ def feature_steered_convolution_layer(
         name=name)
 
 
+@tf.keras.utils.register_keras_serializable("Graphics")
 class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
   """Wraps the function `feature_steered_convolution` as a Keras layer."""
 
@@ -171,7 +172,17 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
     if initializer is None:
       self._initializer = tf.compat.v1.truncated_normal_initializer(stddev=0.1)
     else:
-      self._initializer = initializer
+      self._initializer = tf.keras.initializers.get(initializer)
+  
+  def get_config(self):
+    config = super().get_config()
+    config.update(dict(
+      translation_invariant=self._translation_invariant,
+      num_weight_matrices=self._num_weight_matrices,
+      num_output_channels=self._num_output_channels,
+      initializer=tf.keras.utils.serialize_keras_object(self._initializer),
+    ))
+    return config
 
   def build(self, input_shape):
     """Initializes the trainable weights."""
@@ -268,6 +279,7 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
         var_b=self.var_b)
 
 
+@tf.keras.utils.register_keras_serializable("Graphics")
 class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
   """A keras layer for dynamic graph convolutions.
 
@@ -331,15 +343,35 @@ class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
         name=name, **kwargs)
     self._num_output_channels = num_output_channels
     self._reduction = reduction
-    self._activation = activation
+    self._activation = tf.keras.activations.get(activation)
     self._use_bias = use_bias
-    self._kernel_initializer = kernel_initializer
-    self._bias_initializer = bias_initializer
-    self._kernel_regularizer = kernel_regularizer
-    self._bias_regularizer = bias_regularizer
-    self._activity_regularizer = activity_regularizer
-    self._kernel_constraint = kernel_constraint
-    self._bias_constraint = bias_constraint
+    self._kernel_initializer = tf.keras.initializers.get(kernel_initializer)
+    self._bias_initializer = tf.keras.initializers.get(bias_initializer)
+    self._kernel_regularizer = tf.keras.regularizers.get(kernel_regularizer)
+    self._bias_regularizer = tf.keras.regularizers.get(bias_regularizer)
+    self._activity_regularizer = tf.keras.regularizers.get(activity_regularizer)
+    self._kernel_constraint = tf.keras.constraints.get(kernel_constraint)
+    self._bias_constraint = tf.keras.constraints.get(bias_constraint)
+  
+  def get_config(self):
+    config = super().get_config()
+    config.update(dict(
+      num_output_channels=self._num_output_channels,
+      reduction=self._reduction,
+      activation=tf.keras.utils.serialize_keras_object(self._activation),
+      use_bias=self._use_bias,
+      kernel_initializer=tf.keras.utils.serialize_keras_object(
+        self._kernel_initializer),
+      bias_initializer=tf.keras.utils.serialize_keras_object(self._bias_initializer),
+      kernel_regularizer=tf.keras.utils.serialize_keras_object(
+        self._kernel_regularizer),
+      bias_regularizer=tf.keras.utils.serialize_keras_object(self._bias_regularizer),
+      activity_regularizer=tf.keras.utils.serialize_keras_object(
+        self._activity_regularizer),
+      kernel_constraint=tf.keras.utils.serialize_keras_object(self._kernel_constraint),
+      bias_constraint=tf.keras.utils.serialize_keras_object(self._bias_constraint),
+    ))
+    return config
 
   def build(self, input_shape):
     """Initializes the layer weights."""

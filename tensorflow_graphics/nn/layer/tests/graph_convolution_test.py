@@ -190,6 +190,17 @@ class GraphConvolutionTestFeatureSteeredConvolutionLayerTests(
         sess.run(tf.compat.v1.initialize_all_variables())
         for _ in range(num_training_iterations):
           sess.run(train_op)
+    
+  def test_layer_serialization(self):
+    layer = gc_layer.FeatureSteeredConvolutionKerasLayer(
+      num_weight_matrices=9, num_output_channels=17, initializer='glorot_normal')
+    serialized = tf.keras.utils.serialize_keras_object(layer)
+    deserialized = tf.keras.utils.deserialize_keras_object(serialized)
+    deserialized.build(((None, 3), (None, 2)))
+    config = deserialized.get_config()
+    self.assertEqual(config['num_weight_matrices'], 9)
+    self.assertEqual(config['num_output_channels'], 17)
+    self.assertEqual(config['initializer']['class_name'], 'GlorotNormal')
 
 
 class GraphConvolutionTestDynamicGraphConvolutionKerasLayerTests(
@@ -294,6 +305,19 @@ class GraphConvolutionTestDynamicGraphConvolutionKerasLayerTests(
         grads = tape.gradient(loss, trainable_variables)
         tf.compat.v1.train.GradientDescentOptimizer(1e-4).apply_gradients(
             zip(grads, trainable_variables))
+  
+  def test_layer_serialization(self):
+    layer = gc_layer.DynamicGraphConvolutionKerasLayer(
+      activation=tf.nn.relu, reduction='weighted', num_output_channels=17,
+      kernel_initializer='glorot_normal')
+    serialized = tf.keras.utils.serialize_keras_object(layer)
+    deserialized = tf.keras.utils.deserialize_keras_object(serialized)
+    deserialized.build(((None, 3), (None, 2)))
+    config = deserialized.get_config()
+    self.assertEqual(config['activation'], 'relu')
+    self.assertEqual(config['reduction'], 'weighted')
+    self.assertEqual(config['num_output_channels'], 17)
+    self.assertEqual(config['kernel_initializer']['class_name'], 'GlorotNormal')
 
 if __name__ == "__main__":
   test_case.main()
