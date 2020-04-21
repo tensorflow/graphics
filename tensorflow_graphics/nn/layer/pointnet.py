@@ -25,15 +25,17 @@ Implementation of the PointNet networks from:
 
 NOTE: scheduling of batchnorm momentum currently not available in keras. However
 experimentally, using the batch norm from Keras resulted in better test accuracy
-(+1.5%) than the author's [custom batch norm version](https://github.com/charlesq34/pointnet/blob/master/utils/tf_util.py)
+(+1.5%) than the author's [custom batch norm
+version](https://github.com/charlesq34/pointnet/blob/master/utils/tf_util.py)
 even when coupled with batchnorm momentum decay. Further, note the author's
 version is actually performing a "global normalization", as mentioned in the
-[tf.nn.moments documentation] (https://www.tensorflow.org/api_docs/python/tf/nn/moments).
+[tf.nn.moments documentation]
+(https://www.tensorflow.org/api_docs/python/tf/nn/moments).
 
-These shorthands are used throughout this module:
+This shorthand notation is used throughout this module:
   `B`: Number of elements in a batch.
-  `N`: The number of points.
-  `D`: Number of dimensions (2 for 2D, 3 for 3D).
+  `N`: The number of points in the point set.
+  `D`: Number of dimensions (e.g. 2 for 2D, 3 for 3D).
   `C`: The number of feature channels.
 """
 
@@ -147,75 +149,102 @@ class VanillaEncoder(Layer):
     """Computes the PointNet features.
 
     Args:
-      inputs: a dense tensor of size `[B, N, D]`.
+      inputs: a dense tensor of size `[B,N,D]`.
       training: flag to control batch normalization update statistics.
 
     Returns:
       Tensor with shape `[B, N, C=1024]`
     """
-    x = tf.expand_dims(inputs, axis=2)  # BxNx1xD
-    x = self.conv1(x, training)        # BxNx1x64
-    x = self.conv2(x, training)        # BxNx1x64
-    x = self.conv3(x, training)        # BxNx1x64
-    x = self.conv4(x, training)        # BxNx1x128
-    x = self.conv5(x, training)        # BxNx1x1024
-    x = tf.math.reduce_max(x, axis=1)  # Bx1x1024
-    return tf.squeeze(x)               # Bx1024
+    x = tf.expand_dims(inputs, axis=2)  # [B,N,1,D]
+    x = self.conv1(x, training)         # [B,N,1,64]
+    x = self.conv2(x, training)         # [B,N,1,64]
+    x = self.conv3(x, training)         # [B,N,1,64]
+    x = self.conv4(x, training)         # [B,N,1,128]
+    x = self.conv5(x, training)         # [B,N,1,1024]
+    x = tf.math.reduce_max(x, axis=1)   # [B,1,1024]
+    return tf.squeeze(x)                # [B,1024]
 
 
 class ClassificationHead(Layer):
   """The PointNet classification head.
 
-  The classifier consists of 2x PointNetDenseLayer layers (512 and 256 channels)
+  The head consists of 2x PointNetDenseLayer layers (512 and 256 channels)
   followed by a dropout layer (drop rate=30%) a dense linear layer producing the
   logits of the num_classes classes.
-
-  Args:
-    num_classes: the number of classes to classify
-    momentum: the momentum used for the batch normalization layer.
   """
 
-  def __init__(self, num_classes, momentum):
+  def __init__(self, num_classes=40, momentum=0.5, drop_rate=0.3):
+    """Constructor. 
+
+      Args:
+        num_classes: the number of classes to classify.
+        momentum: the momentum used for the batch normalization layer.
+        drop_rate: the dropout rate
+    """
     super(ClassificationHead, self).__init__()
     self.dense1 = PointNetDenseLayer(512, momentum)
     self.dense2 = PointNetDenseLayer(256, momentum)
-    self.dropout = Dropout(0.3)
+    self.dropout = Dropout(self.drop_rate)
     self.dense3 = Dense(num_classes, activation="linear")
 
   # pylint: disable=arguments-differ
   def call(self, inputs, training):
-    """Computes the classiciation logits (without softmax).
+    """Computes the classifiation logits given features (note: without softmax).
 
     Args:
-      inputs: a dense tensor of size `[B, D]`.
-      training: flag to control batch normalization update statistics.
+      inputs: tensor of points with shape `[B,D]`.
+      training: flag for batch normalization and dropout training.
 
     Returns:
-      Tensor with shape `[B, 1]`
+      Tensor with shape `[B,num_classes]`
     """
-    x = self.dense1(inputs, training)  # Bx512
-    x = self.dense2(x, training)       # Bx256
-    x = self.dropout(x, training)      # Bx256
-    return self.dense3(x)              # Bxnum_classes
+    x = self.dense1(inputs, training)  # [B,512]
+    x = self.dense2(x, training)       # [B,256]
+    x = self.dropout(x, training)      # [B,256]
+    return self.dense3(x)              # [B,num_classes)
 
 
 class PointNetVanillaClassifier(Layer):
-  """TODO(ataiya): documentation."""
+  """The PointNet 'Vanilla' classifier (i.e. without spatial transformer)."""
 
-  def __init__(self, num_classes, momentum=.5):
+  def __init__(self, num_classes=40, momentum=.5):
+    """Constructor. 
+
+    Args:
+      num_classes: the number of classes to classify
+      momentum: the momentum used for the batch normalization layer.
+    """
     super(PointNetVanillaClassifier, self).__init__()
     self.encoder = VanillaEncoder(momentum)
     self.classifier = ClassificationHead(num_classes, momentum)
 
   # pylint: disable=arguments-differ
   def call(self, points, training):
-    features = self.encoder(points, training)  # Bx1024
-    logits = self.classifier(features, training)  # Bx40
+    """Computes the classifiation logits of a point set.
+
+    Args:
+      points: a tensor of points with shape `[B, D]` 
+      training: for batch normalization and dropout training.
+    
+    Returns: 
+      Tensor with shape `[B,num_classes]`
+    """
+    features = self.encoder(points, training)     # (B,1024)
+    logits = self.classifier(features, training)  # (B,num_classes)
     return logits
 
   @staticmethod
   def loss(labels, logits):
+    """The classification model training loss.
+    
+    Note: 
+      see tf.nn.sparse_softmax_cross_entropy_with_logits
+
+    Args:
+      labels: a tensor with shape `[B,]`
+      logits: a tensor with shape `[B,num_classes]` 
+    """
     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits
-    residual = cross_entropy(labels=labels, logits=logits)
-    loss = tf.reduce_mean(residual)
-    return loss
+    residual = cross_entropy(labels, logits)
+    return tf.reduce_mean(residual)
+    
