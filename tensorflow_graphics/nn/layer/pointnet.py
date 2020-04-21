@@ -173,18 +173,18 @@ class ClassificationHead(Layer):
   logits of the num_classes classes.
   """
 
-  def __init__(self, num_classes=40, momentum=0.5, drop_rate=0.3):
-    """Constructor. 
+  def __init__(self, num_classes=40, momentum=0.5, dropout_rate=0.3):
+    """Constructor.
 
       Args:
         num_classes: the number of classes to classify.
         momentum: the momentum used for the batch normalization layer.
-        drop_rate: the dropout rate
+        dropout_rate: the dropout rate for fully connected layer
     """
     super(ClassificationHead, self).__init__()
     self.dense1 = PointNetDenseLayer(512, momentum)
     self.dense2 = PointNetDenseLayer(256, momentum)
-    self.dropout = Dropout(self.drop_rate)
+    self.dropout = Dropout(dropout_rate)
     self.dense3 = Dense(num_classes, activation="linear")
 
   # pylint: disable=arguments-differ
@@ -207,26 +207,29 @@ class ClassificationHead(Layer):
 class PointNetVanillaClassifier(Layer):
   """The PointNet 'Vanilla' classifier (i.e. without spatial transformer)."""
 
-  def __init__(self, num_classes=40, momentum=.5):
-    """Constructor. 
+  def __init__(self, num_classes=40, momentum=.5, dropout_rate=.3):
+    """Constructor.
 
     Args:
-      num_classes: the number of classes to classify
+      num_classes: the number of classes to classify.
       momentum: the momentum used for the batch normalization layer.
+      dropout_rate: the dropout rate for the classification head.
     """
     super(PointNetVanillaClassifier, self).__init__()
     self.encoder = VanillaEncoder(momentum)
-    self.classifier = ClassificationHead(num_classes, momentum)
+    self.classifier = ClassificationHead(num_classes=num_classes,
+                                         momentum=momentum,
+                                         dropout_rate=dropout_rate)
 
   # pylint: disable=arguments-differ
   def call(self, points, training):
     """Computes the classifiation logits of a point set.
 
     Args:
-      points: a tensor of points with shape `[B, D]` 
+      points: a tensor of points with shape `[B, D]`
       training: for batch normalization and dropout training.
-    
-    Returns: 
+
+    Returns:
       Tensor with shape `[B,num_classes]`
     """
     features = self.encoder(points, training)     # (B,1024)
@@ -236,15 +239,14 @@ class PointNetVanillaClassifier(Layer):
   @staticmethod
   def loss(labels, logits):
     """The classification model training loss.
-    
-    Note: 
+
+    Note:
       see tf.nn.sparse_softmax_cross_entropy_with_logits
 
     Args:
       labels: a tensor with shape `[B,]`
-      logits: a tensor with shape `[B,num_classes]` 
+      logits: a tensor with shape `[B,num_classes]`
     """
     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits
     residual = cross_entropy(labels, logits)
     return tf.reduce_mean(residual)
-    
