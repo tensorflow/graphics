@@ -72,19 +72,7 @@ class RandomForwardExecutionTest(test_case.TestCase):
     inputs = tf.random.uniform(input_shape)
     head = ClassificationHead(num_classes, momentum)
     outputs = head(inputs, training=training)
-    assert outputs.shape == (B,num_classes)
-
-  @parameterized.parameters(
-      ((16, 1024), (20), (.9), True),
-      ((8, 2048), (40), (.5), False),
-      ((32, 512), (10), (.99), True),
-  )
-  def test_classification_head(self, input_shape, num_classes, momentum, training):
-    B, C = input_shape
-    inputs = tf.random.uniform(input_shape)
-    head = ClassificationHead(num_classes, momentum)
-    outputs = head(inputs, training=training)
-    assert outputs.shape == (B,num_classes)
+    assert outputs.shape == (B, num_classes)
 
   @parameterized.parameters(
       ((32, 1024, 3), 40, True),
