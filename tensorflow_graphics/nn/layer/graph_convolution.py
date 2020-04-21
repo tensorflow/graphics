@@ -173,9 +173,9 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
       self._initializer = tf.compat.v1.truncated_normal_initializer(stddev=0.1)
     else:
       self._initializer = tf.keras.initializers.get(initializer)
-  
+
   def get_config(self):
-    config = super().get_config()
+    config = super(FeatureSteeredConvolutionKerasLayer, self).get_config()
     config.update(dict(
       translation_invariant=self._translation_invariant,
       num_weight_matrices=self._num_weight_matrices,
@@ -352,9 +352,9 @@ class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
     self._activity_regularizer = tf.keras.regularizers.get(activity_regularizer)
     self._kernel_constraint = tf.keras.constraints.get(kernel_constraint)
     self._bias_constraint = tf.keras.constraints.get(bias_constraint)
-  
+
   def get_config(self):
-    config = super().get_config()
+    config = super(DynamicGraphConvolutionKerasLayer, self).get_config()
     config.update(dict(
       num_output_channels=self._num_output_channels,
       reduction=self._reduction,

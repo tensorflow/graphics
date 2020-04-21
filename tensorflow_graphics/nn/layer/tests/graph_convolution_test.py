@@ -190,7 +190,7 @@ class GraphConvolutionTestFeatureSteeredConvolutionLayerTests(
         sess.run(tf.compat.v1.initialize_all_variables())
         for _ in range(num_training_iterations):
           sess.run(train_op)
-    
+
   def test_layer_serialization(self):
     layer = gc_layer.FeatureSteeredConvolutionKerasLayer(
       num_weight_matrices=9, num_output_channels=17, initializer='glorot_normal')
@@ -305,7 +305,7 @@ class GraphConvolutionTestDynamicGraphConvolutionKerasLayerTests(
         grads = tape.gradient(loss, trainable_variables)
         tf.compat.v1.train.GradientDescentOptimizer(1e-4).apply_gradients(
             zip(grads, trainable_variables))
-  
+
   def test_layer_serialization(self):
     layer = gc_layer.DynamicGraphConvolutionKerasLayer(
       activation=tf.nn.relu, reduction='weighted', num_output_channels=17,
