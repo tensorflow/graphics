@@ -54,6 +54,10 @@ class PyramidTest(test_case.TestCase):
     image_random_init = np.random.uniform(size=tensor_shape)
 
     for level in range(_NUM_LEVELS):
+      # We skip testing level = 0, which returns the image as is. In graph mode,
+      # the gradient calculation fails when there are no nodes in the graph.
+      if level == 0 and not tf.executing_eagerly():
+        continue
       self.assert_jacobian_is_correct_fn(
           lambda x, level=level: downsample(x)[level], [image_random_init])
 
@@ -101,6 +105,10 @@ class PyramidTest(test_case.TestCase):
     image_random_init = np.random.uniform(size=tensor_shape)
 
     for level in range(_NUM_LEVELS):
+      # We skip testing level = 0, which returns the image as is. In graph mode,
+      # the gradient calculation fails when there are no nodes in the graph.
+      if level == 0 and not tf.executing_eagerly():
+        continue
       self.assert_jacobian_is_correct_fn(
           lambda x, level=level: upsample(x)[level], [image_random_init])
 
