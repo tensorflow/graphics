@@ -29,6 +29,7 @@ import tensorflow as tf
 
 from tensorflow_graphics.geometry.convolution import utils as conv_utils
 from tensorflow_graphics.geometry.representation.mesh import utils as mesh_utils
+from tensorflow_graphics.geometry.representation.mesh import utils_tf as mesh_utils_tf
 from tensorflow_graphics.util import shape
 
 DEFAULT_IO_PARAMS = {
@@ -101,6 +102,40 @@ def adjacency_from_edges(edges, weights, num_edges, num_vertices):
       dense_shape=[batch_size, max_num_vertices, max_num_vertices])
   adjacency = tf.sparse.reorder(adjacency)
   return adjacency
+
+
+def get_weighted_edges_tf(faces, num_vertices, self_edges=True):
+  r"""Gets unique edges and degree weights from a triangular mesh.
+
+  The shorthands used below are:
+      `T`: The number of triangles in the mesh.
+      `E`: The number of unique directed edges in the mesh.
+
+  Args:
+    faces: A [T, 3] `int32` tensor of triangle vertex indices.
+    num_vertices: A scalar int32. All values of faces must be less than this.
+    self_edges: A `bool` flag. If true, then for every vertex 'i' an edge
+      [i, i] is added to edge list.
+  Returns:
+    edges: A  [E, 2] `int32` tensor of directed edges.
+    weights: A [E] `float32` tensor denoting edge weights.
+
+    The degree of a vertex is the number of edges incident on the vertex,
+    including any self-edges. The weight for an edge $w_{ij}$ connecting vertex
+    $v_i$ and vertex $v_j$ is defined as,
+    $$
+    w_{ij} = 1.0 / degree(v_i)
+    \sum_{j} w_{ij} = 1
+    $$
+  """
+  edges = mesh_utils_tf.extract_unique_edges_from_triangular_mesh(
+      faces, num_vertices, directed_edges=True)
+  if self_edges:
+    vertices = tf.range(num_vertices, dtype=edges.dtype)
+    self_edges = tf.tile(tf.expand_dims(vertices, axis=1), (1, 2))
+    edges = tf.concat((edges, self_edges), axis=0)
+  weights = mesh_utils_tf.get_degree_based_edge_weights(edges, dtype=tf.float32)
+  return edges, weights
 
 
 def get_weighted_edges(faces, self_edges=True):
@@ -223,15 +258,13 @@ def _parse_mesh_data(mesh_data, mean_center=True):
   if mean_center:
     vertices = vertices - tf.reduce_mean(
         input_tensor=vertices, axis=0, keepdims=True)
-
-  edges, weights = tf.py_function(
-      func=lambda t: get_weighted_edges(t.numpy()),
-      inp=[triangles],
-      Tout=[tf.int32, tf.float32])
-
-  num_edges = tf.shape(input=edges)[0]
+  
   num_vertices = tf.cast(mesh_data['num_vertices'], tf.int32)
   num_triangles = tf.cast(mesh_data['num_triangles'], tf.int32)
+
+  edges, weights = get_weighted_edges_tf(triangles, num_vertices)
+
+  num_edges = tf.shape(input=edges)[0]
   mesh_data = dict(
       vertices=vertices,
       labels=labels,
