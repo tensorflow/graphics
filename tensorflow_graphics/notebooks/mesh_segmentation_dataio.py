@@ -258,7 +258,7 @@ def _parse_mesh_data(mesh_data, mean_center=True):
   if mean_center:
     vertices = vertices - tf.reduce_mean(
         input_tensor=vertices, axis=0, keepdims=True)
-  
+
   num_vertices = tf.cast(mesh_data['num_vertices'], tf.int32)
   num_triangles = tf.cast(mesh_data['num_triangles'], tf.int32)
 

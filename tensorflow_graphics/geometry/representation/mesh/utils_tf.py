@@ -59,11 +59,11 @@ def extract_unique_edges_from_triangular_mesh(
           .format(faces.shape[1], faces.shape))
     if not faces.dtype.is_integer:
       raise ValueError(
-        "'faces' must have integer type but has dtype {}".format(faces.dtype))
+          "'faces' must have integer type but has dtype {}".format(faces.dtype))
     if num_vertices.shape.ndims != 0:
-        raise ValueError(
-        "'num_vertices' must be a scalar but it has shape {}"
-        .format(num_vertices.dtype))
+      raise ValueError(
+          "'num_vertices' must be a scalar but it has shape {}"
+          .format(num_vertices.dtype))
     rolled_faces = tf.roll(faces, shift=-1, axis=1)
     # we could make indices by stacking faces and rolled faces
     # but unique requires our tensor to be 1D, so we'll ravel the index
