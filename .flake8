@@ -20,6 +20,7 @@ exclude = .git,
           .pytest_cache,
           __pycache__,
           tensorflow_graphics/projects/*
+          tensorflow_graphics/submodules/*
 ignore = C901,
          E101,
          E111,
