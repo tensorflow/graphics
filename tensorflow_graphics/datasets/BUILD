@@ -11,35 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Tensorflow-Graphics, a library for differentiable computer graphics and geometry.
+# Datasets for tf-graphics.
 
-# google internal package dependency 9
-# google internal package dependency 7
+# google internal package dependency 8)
 
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["LICENSE"])
-
 py_library(
-    name = "tensorflow_graphics",
-    srcs = [
-        "__init__.py",
-        "version.py",
-    ],
+    name = "datasets",
+    # srcs = ["__init__.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
-        "//tensorflow_graphics/datasets",
-        "//tensorflow_graphics/geometry",
-        "//tensorflow_graphics/image",
-        "//tensorflow_graphics/math",
-        "//tensorflow_graphics/nn",
-        "//tensorflow_graphics/notebooks",
-        "//tensorflow_graphics/rendering",
-        "//tensorflow_graphics/util",
+        "//tensorflow_graphics/datasets/modelnet40",
         "//tensorflow_graphics/util:export_api",
     ],
 )
