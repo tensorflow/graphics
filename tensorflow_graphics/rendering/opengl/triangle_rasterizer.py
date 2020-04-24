@@ -176,8 +176,8 @@ class TriangleRasterizer(object):
         defines the up vector of the camera.
       field_of_view:  A Tensor of shape `[A1, ..., An, 1]`, where the last axis
         represents the vertical field of view of the frustum expressed in
-        radians. Note that values for `vertical_field_of_view` must be in the
-        range (0, pi).
+        radians. Note that values for `field_of_view` must be in the range (0,
+        pi).
       image_size: A tuple (height, width) containing the dimensions in pixels of
         the rasterized image".
       near_plane: A Tensor of shape `[A1, ..., An, 1]`, where the last axis
