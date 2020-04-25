@@ -14,7 +14,7 @@
 # Camera functionalities for tf-graphics.
 
 # google internal package dependency 8)
-# google internal package dependency 5
+# google internal package dependency 10
 
 licenses(["notice"])  # Apache 2.0
 
@@ -75,12 +75,14 @@ py_test(
     name = "perspective_test",
     srcs = ["tests/perspective_test.py"],
     srcs_version = "PY2AND3",
-    # google internal rule 1
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    # google internal rule 7
+    # google internal rule 8
+    # google internal rule 9
+    # google internal rule 10
+    # google internal rule 11
     deps = [
         ":perspective",
         # google internal package dependency 2
@@ -94,12 +96,14 @@ py_test(
     name = "orthographic_test",
     srcs = ["tests/orthographic_test.py"],
     srcs_version = "PY2AND3",
-    # google internal rule 1
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    # google internal rule 7
+    # google internal rule 8
+    # google internal rule 9
+    # google internal rule 10
+    # google internal rule 11
     deps = [
         ":orthographic",
         # google internal package dependency 2
@@ -113,12 +117,14 @@ py_test(
     name = "quadratic_radial_distortion_test",
     srcs = ["tests/quadratic_radial_distortion_test.py"],
     srcs_version = "PY2AND3",
-    # google internal rule 1
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    # google internal rule 7
+    # google internal rule 8
+    # google internal rule 9
+    # google internal rule 10
+    # google internal rule 11
     deps = [
         ":quadratic_radial_distortion",
         # google internal package dependency 2

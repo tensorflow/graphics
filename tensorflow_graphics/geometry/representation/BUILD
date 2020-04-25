@@ -14,7 +14,7 @@
 # Geometry utils for tf-graphics.
 
 # google internal package dependency 8)
-# google internal package dependency 5
+# google internal package dependency 10
 
 licenses(["notice"])  # Apache 2.0
 
@@ -97,12 +97,14 @@ py_test(
     name = "point_test",
     srcs = ["tests/point_test.py"],
     srcs_version = "PY2AND3",
-    # google internal rule 1
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    # google internal rule 7
+    # google internal rule 8
+    # google internal rule 9
+    # google internal rule 10
+    # google internal rule 11
     deps = [
         ":point",
         # google internal package dependency 3
@@ -117,12 +119,14 @@ py_test(
     name = "triangle_test",
     srcs = ["tests/triangle_test.py"],
     srcs_version = "PY2AND3",
-    # google internal rule 1
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    # google internal rule 7
+    # google internal rule 8
+    # google internal rule 9
+    # google internal rule 10
+    # google internal rule 11
     deps = [
         ":triangle",
         # google internal package dependency 2
@@ -137,12 +141,14 @@ py_test(
     name = "grid_test",
     srcs = ["tests/grid_test.py"],
     srcs_version = "PY2AND3",
-    # google internal rule 1
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    # google internal rule 7
+    # google internal rule 8
+    # google internal rule 9
+    # google internal rule 10
+    # google internal rule 11
     deps = [
         ":grid",
         # google internal package dependency 2
@@ -156,12 +162,14 @@ py_test(
     name = "ray_test",
     srcs = ["tests/ray_test.py"],
     srcs_version = "PY2AND3",
-    # google internal rule 1
     # google internal rule 2
     # google internal rule 3
     # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
+    # google internal rule 7
+    # google internal rule 8
+    # google internal rule 9
+    # google internal rule 10
+    # google internal rule 11
     deps = [
         ":ray",
         # google internal package dependency 4,

@@ -11,35 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-[flake8]
-inline-quotes = double
-max-line-length = 88
-max-complexity = 10
-exclude = .git,
-          .tox,
-          .pytest_cache,
-          __pycache__,
-          tensorflow_graphics/projects/*
-          tensorflow_graphics/submodules/*
-ignore = C901,
-         E101,
-         E111,
-         E114,
-         E121,
-         E125,
-         E126,
-         E129,
-         E221,
-         E265,
-         E271,
-         E305,
-         E306,
-         E501,
-         E502,
-         E731,
-         E741,
-         F401,
-         F812,
-         W191,
-         W503,
-         W504,
+# Datasets for tf-graphics.
+
+# google internal package dependency 8)
+
+licenses(["notice"])  # Apache 2.0
+
+package(default_visibility = ["//visibility:public"])
+
+py_library(
+    name = "datasets",
+    # srcs = ["__init__.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    visibility = ["//visibility:public"],
+    deps = [
+        "//tensorflow_graphics/datasets/modelnet40",
+        "//tensorflow_graphics/util:export_api",
+    ],
+)

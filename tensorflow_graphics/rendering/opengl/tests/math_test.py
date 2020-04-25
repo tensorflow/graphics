@@ -17,6 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import functools
 import math
 
 from absl.testing import parameterized
@@ -591,8 +592,10 @@ class MathTest(test_case.TestCase):
           lambda *args: glm.model_to_screen(*args)[0], args)
 
     with self.subTest(name="jacobian_w"):
-      self.assert_jacobian_is_correct_fn(
-          lambda *args: glm.model_to_screen(*args)[1], args)
+      partial_fn = functools.partial(
+          glm.model_to_screen, lower_left_corner=lower_left_corner_init)
+      self.assert_jacobian_is_correct_fn(lambda *args: partial_fn(*args)[1],
+                                         args[:-1])
 
   def test_model_to_screen_jacobian_random(self):
     """Tests the Jacobian of model_to_screen."""
@@ -621,8 +624,10 @@ class MathTest(test_case.TestCase):
           lambda *args: glm.model_to_screen(*args)[0], args)
 
     with self.subTest(name="jacobian_w"):
-      self.assert_jacobian_is_correct_fn(
-          lambda *args: glm.model_to_screen(*args)[1], args)
+      partial_fn = functools.partial(
+          glm.model_to_screen, lower_left_corner=lower_left_corner_init)
+      self.assert_jacobian_is_correct_fn(lambda *args: partial_fn(*args)[1],
+                                         args[:-1])
 
   def test_perspective_correct_interpolation_preset(self):
     """Tests that perspective_correct_interpolation generates expected results."""
