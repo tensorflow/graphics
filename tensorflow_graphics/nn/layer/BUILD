@@ -67,3 +67,23 @@ py_test(
         "//tensorflow_graphics/util:test_case",
     ],
 )
+
+py_library(
+    name = "pointnet",
+    srcs = ["pointnet.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        # "//tensorflow_graphics/util:export_api",
+    ],
+)
+
+py_test(
+    name = "pointnet_test",
+    srcs = ["tests/pointnet_test.py"],
+    srcs_version = "PY2AND3",
+    size = "small",
+    deps = [
+        ":pointnet",
+        "//tensorflow_graphics/util:test_case",
+    ],
+)
