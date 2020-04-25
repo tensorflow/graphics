@@ -496,7 +496,7 @@ class GraphConvolutionTestFeatureSteeredConvolutionTests(test_case.TestCase):
 
 class EdgeConvolutionTemplateTests(test_case.TestCase):
 
-  def _zeros(self, vertex_features, neighbor_features, out_dimensions=None):
+  def _zeros(self, vertex_features, _, out_dimensions=None):
     """A callable for `edge_convolution_template`."""
     if out_dimensions is None:
       return tf.zeros_like(vertex_features)
@@ -505,7 +505,7 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
           shape=(vertex_features.shape.as_list()[0], out_dimensions),
           dtype=vertex_features.dtype)
 
-  def _pass_through(self, vertex_features, neighbor_features):
+  def _pass_through(self, _, neighbor_features):
     """A callable for `edge_convolution_template`."""
     return neighbor_features
 

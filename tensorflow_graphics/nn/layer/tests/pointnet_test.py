@@ -13,6 +13,7 @@
 # limitations under the License.
 """Tests for pointnet layers."""
 
+# pylint: disable=invalid-name
 
 import tensorflow as tf
 from absl.testing import parameterized
@@ -56,7 +57,7 @@ class RandomForwardExecutionTest(test_case.TestCase):
       ((32, 2048, 3), (.99), True),
   )
   def test_vanilla_encoder(self, input_shape, momentum, training):
-    B, N, D = input_shape
+    B = input_shape[0]
     inputs = tf.random.uniform(input_shape)
     encoder = VanillaEncoder(momentum)
     outputs = encoder(inputs, training=training)
@@ -67,8 +68,12 @@ class RandomForwardExecutionTest(test_case.TestCase):
       ((8, 2048), (40), (.5), False),
       ((32, 512), (10), (.99), True),
   )
-  def test_classification_head(self, input_shape, num_classes, momentum, training):
-    B, C = input_shape
+  def test_classification_head(self,
+                               input_shape,
+                               num_classes,
+                               momentum,
+                               training):
+    B = input_shape[0]
     inputs = tf.random.uniform(input_shape)
     head = ClassificationHead(num_classes, momentum)
     outputs = head(inputs, training=training)
@@ -81,13 +86,13 @@ class RandomForwardExecutionTest(test_case.TestCase):
       ((16, 2048, 2), 20, False),
   )
   def test_vanilla_classifier(self, input_shape, num_classes, training):
-    B, N, D = input_shape
+    B = input_shape[0]
     C = num_classes
     inputs = tf.random.uniform(input_shape)
     model = PointNetVanillaClassifier(num_classes, momentum=.5)
     logits = model(inputs, training)
     assert logits.shape == (B, C)
-    labels = tf.random.uniform((B, ), minval=0, maxval=C, dtype=tf.int64)
+    labels = tf.random.uniform((B,), minval=0, maxval=C, dtype=tf.int64)
     PointNetVanillaClassifier.loss(labels, logits)
 
 

@@ -29,7 +29,7 @@ SEGMENTATION_COLORMAP = np.array(
     dtype=np.float32) / 255.0
 
 
-class Viewer(object):
+class Viewer():
   """A ThreeJS based viewer class for viewing 3D meshes."""
 
   def _mesh_from_data(self, data):
