@@ -32,6 +32,7 @@ py_library(
     # google internal rule 1
     visibility = ["//visibility:public"],
     deps = [
+        "//tensorflow_graphics/datasets",
         "//tensorflow_graphics/geometry",
         "//tensorflow_graphics/image",
         "//tensorflow_graphics/math",
