@@ -11,35 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-[flake8]
-inline-quotes = double
-max-line-length = 88
-max-complexity = 10
-exclude = .git,
-          .tox,
-          .pytest_cache,
-          __pycache__,
-          tensorflow_graphics/projects/*
-          tensorflow_graphics/submodules/*
-ignore = C901,
-         E101,
-         E111,
-         E114,
-         E121,
-         E125,
-         E126,
-         E129,
-         E221,
-         E265,
-         E271,
-         E305,
-         E306,
-         E501,
-         E502,
-         E731,
-         E741,
-         F401,
-         F812,
-         W191,
-         W503,
-         W504,
+# Lint as: python3
+"""Download, computes and stores the checksums."""
+
+from absl import app
+import tensorflow_datasets as tfds
+from tensorflow_graphics.datasets.modelnet40 import ModelNet40
+
+
+def main(_):
+  config = tfds.download.DownloadConfig(register_checksums=True)
+  modelnet40_builder = ModelNet40(data_dir="~/tensorflow_datasets")
+  modelnet40_builder.download_and_prepare(download_config=config)
+
+
+if __name__ == "__main__":
+  app.run(main)

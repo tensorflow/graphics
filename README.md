@@ -2,7 +2,6 @@
 
 [![PyPI project status](https://img.shields.io/pypi/status/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
 [![Travis build status](https://img.shields.io/travis/tensorflow/graphics.svg)](https://travis-ci.org/tensorflow/graphics)
-[![Code coverage](https://img.shields.io/coveralls/github/tensorflow/graphics.svg)](https://coveralls.io/github/tensorflow/graphics)
 [![Supported Python version](https://img.shields.io/pypi/pyversions/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
 [![PyPI release version](https://img.shields.io/pypi/v/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
 
@@ -194,7 +193,7 @@ environment.
     or answer technical questions.
 *   [GitHub](https://github.com/tensorflow/graphics/issues): Report bugs or make
     feature requests.
-*   [TensorFlow Blog](https://medium.com/tensorflow): Stay up to date on content
+*   [TensorFlow Blog](https://blog.tensorflow.org/): Stay up to date on content
     from the TensorFlow team and best articles from the community.
 *   [Youtube Channel](http://youtube.com/tensorflow/): Follow TensorFlow shows.
 
