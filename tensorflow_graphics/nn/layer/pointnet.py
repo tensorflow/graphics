@@ -72,8 +72,7 @@ class PointNetConv2Layer(Layer):
     self.conv = Conv2D(self.channels, (1, 1), input_shape=input_shape)
     self.bn = BatchNormalization(momentum=self.momentum)
 
-  # pylint: disable=arguments-differ
-  def call(self, inputs, training):
+  def call(self, inputs, training=None):  # pylint: disable=arguments-differ
     """Executes the convolution.
 
     Args:
@@ -106,8 +105,7 @@ class PointNetDenseLayer(Layer):
     self.dense = Dense(self.channels, input_shape=input_shape)
     self.bn = BatchNormalization(momentum=self.momentum)
 
-  # pylint: disable=arguments-differ
-  def call(self, inputs, training):
+  def call(self, inputs, training=None):  # pylint: disable=arguments-differ
     """Executes the convolution.
 
     Args:
@@ -144,8 +142,7 @@ class VanillaEncoder(Layer):
     self.conv4 = PointNetConv2Layer(128, momentum)
     self.conv5 = PointNetConv2Layer(1024, momentum)
 
-  # pylint: disable=arguments-differ
-  def call(self, inputs, training):
+  def call(self, inputs, training=None):  # pylint: disable=arguments-differ
     """Computes the PointNet features.
 
     Args:
@@ -187,8 +184,7 @@ class ClassificationHead(Layer):
     self.dropout = Dropout(dropout_rate)
     self.dense3 = Dense(num_classes, activation="linear")
 
-  # pylint: disable=arguments-differ
-  def call(self, inputs, training):
+  def call(self, inputs, training=None):  # pylint: disable=arguments-differ
     """Computes the classifiation logits given features (note: without softmax).
 
     Args:
@@ -221,8 +217,7 @@ class PointNetVanillaClassifier(Layer):
                                          momentum=momentum,
                                          dropout_rate=dropout_rate)
 
-  # pylint: disable=arguments-differ
-  def call(self, points, training):
+  def call(self, points, training=None):  # pylint: disable=arguments-differ
     """Computes the classifiation logits of a point set.
 
     Args:
