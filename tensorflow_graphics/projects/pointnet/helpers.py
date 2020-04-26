@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+#Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,22 +16,29 @@
 import os
 import time
 import argparse
-import tensorflow.compat.v2 as tf
+import tempfile
+import tensorflow as tf
 from termcolor import cprint
 
-class ArgumentParser(argparse.ArgumentParser):  # pylint: disable=missing-docstring
+class ArgumentParser(argparse.ArgumentParser):
+  """Argument parser with default flags, and tensorboard helpers."""
 
   def __init__(self, *args, **kwargs):
     argparse.ArgumentParser.__init__(self, *args, **kwargs)
 
+    # --- Query default logdir
+    random_logdir = tempfile.mkdtemp(prefix="tensorboard_")
+    default_logdir = os.environ.get("TENSORBOARD_DEFAULT_LOGDIR", random_logdir)
+
     # --- Add the default options
-    self.add('--logdir', 'gs://taglia/tb/timestamp', help="tensorboard dir")
+    self.add('--logdir', default_logdir, help="tensorboard dir")
     self.add('--tensorboard', True, help='should generate summaries?')
     self.add('--assert_gpu', True, help='asserts on missing GPU accelerator')
     self.add('--tf_quiet', True, help='no verbose tf startup')
 
-  def add(self, name, default, **kwargs):  # pylint: disable=missing-docstring
-    helpval = kwargs['help'] if 'help' in kwargs else ''
+  def add(self, name, default, **kwargs):
+    """More compact argumentparser 'add' flag method."""
+    helpstring = kwargs['help'] if 'help' in kwargs else ''
     metavar = kwargs['metavar'] if 'metavar' in kwargs else default
 
     # --- Fixes problems with bool arguments
@@ -48,9 +55,14 @@ class ArgumentParser(argparse.ArgumentParser):  # pylint: disable=missing-docstr
     if isinstance(default, bool):
       mytype = str2bool
 
-    self.add_argument(name, default=default, metavar=metavar, help=helpval, type=mytype)
+    self.add_argument(name,
+                      default=default,
+                      metavar=metavar,
+                      help=helpstring,
+                      type=mytype)
 
-  def parse_args(self, args=None, namespace=None):  # pylint: disable=missing-docstring
+  def parse_args(self, args=None, namespace=None):
+    """WARNING: programmatically changes the logdir flags."""
     flags = super(ArgumentParser, self).parse_args(args)
 
     # --- setup automatic logdir (timestamp)
@@ -91,7 +103,7 @@ def summary_command(parser, flags, log_to_file=True, log_to_summary=True):
   for i, arg in enumerate(vars(flags)):
     exec_string += "  --{} ".format(arg)
     exec_string += "{}".format(getattr(flags, arg))
-    if i+1<nflags: exec_string += " \\\n"
+    if i+1 < nflags: exec_string += " \\\n"
   exec_string += "\n"
   if log_to_file:
     with tf.io.gfile.GFile(flags.logdir+"command.txt", mode="w") as fid:
@@ -107,7 +119,7 @@ def setup_tensorboard(flags):
 
   # --- Do not allow experiment with same name
   assert not tf.io.gfile.exists(flags.logdir), \
-    'CRITICAL: folder {} already exists'.format(logdir)
+    'CRITICAL: folder {} already exists'.format(flags.logdir)
 
   # --- Log where summary can be found
   print("View results with: ", end="")
@@ -124,11 +136,15 @@ def setup_tensorboard(flags):
 
 
 def handle_keyboard_interrupt(flags):
+  """Informs user how to delete stale summaries."""
   print("Keyboard interrupt by user")
   if len(flags.logdir) > 5 and flags.logdir[0:5] == "gs://":
     bucketpath = flags.logdir[5:]
-    print("Clear summaries with: ", end="")
+    print("Delete these summaries with: ", end="")
     cprint("gsutil rm -rf {}".format(flags.logdir), "red")
     baseurl = "https://pantheon.corp.google.com/storage/browser/{}"
     print("Or by visiting: ", end="")
     cprint(baseurl.format(bucketpath), "red")
+  else:
+    print("Delete these summaries with: ", end="")
+    cprint("rm -rf {}".format(flags.logdir), "red")
