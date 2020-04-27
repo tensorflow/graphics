@@ -35,7 +35,7 @@ INSTALL_PACKAGES = [
     'six >= 1.11.0',
     'setuptools >= 41.0.0',
     'tensorflow_datasets >= 2.1.0',
-    'matplotlib >= 3.2.1',
+    'matplotlib >= 2.2.5',
 ]
 
 if '--compute_platform' in sys.argv:
