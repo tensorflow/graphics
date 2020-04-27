@@ -11,14 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-load("//devtools/python/blaze:pytype.bzl", "pytype_strict_library")
-load("//production/dependency/rpc/testing/hermetic:build_defs.bzl", "py_hermetic_test")
 
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = ["//visibility:public"])
 
-pytype_strict_library(
+py_library(
     name = "modelnet40",
     srcs = ["__init__.py"],
     data = [":url_checksums"],
@@ -41,7 +39,7 @@ filegroup(
     ]),
 )
 
-py_hermetic_test(
+py_test(
     name = "modelnet40_test",
     srcs = ["modelnet40_test.py"],
     data = [":fake_examples"],
