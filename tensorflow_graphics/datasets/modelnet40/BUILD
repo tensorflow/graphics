@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@python_deps//:requirements.bzl", "requirement")
+
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = ["//visibility:public"])
@@ -23,7 +25,7 @@ py_library(
     deps = [
         # google internal package dependency 6
         # google internal package dependency 1,
-        "//third_party/py/tensorflow_datasets",
+        requirement("tensorflow_datasets"),
     ],
 )
 
@@ -44,9 +46,9 @@ py_test(
     srcs = ["modelnet40_test.py"],
     data = [":fake_examples"],
     python_version = "PY3",
+    size = "small",
     deps = [
         ":modelnet40",
-        "//third_party/py/absl/logging",
     ],
 )
 
@@ -57,7 +59,7 @@ py_binary(
     visibility = ["//visibility:private"],
     deps = [
         ":modelnet40",
-        "//third_party/py/tensorflow_datasets",
+        requirement("tensorflow_datasets"),
     ],
 )
 
@@ -67,13 +69,24 @@ py_binary(
     python_version = "PY3",
     deps = [
         ":modelnet40",
-        "//third_party/py/absl:app",
+        requirement("absl-py"),
         # google internal package dependency 4,
-        "//third_party/py/matplotlib",
-        "//third_party/py/mpl_toolkits/mplot3d",
-        "//tensorflow_graphics/datasets",
+        requirement("tensorflow_datasets"),
     ],
 )
+
+# TODO(atagliasacchi): test when non-headless enviroment available
+# py_binary(
+#     name = "modelnet40_show",
+#     srcs = ["modelnet40_show.py"],
+#     python_version = "PY3",
+#     deps = [
+#         ":modelnet40",
+#         requirement("absl-py"),
+#         requirement("matplotlib"),
+#         requirement("tensorflow_datasets"),
+#     ],
+# )
 
 py_binary(
     name = "modelnet40_checksums",
@@ -81,8 +94,8 @@ py_binary(
     python_version = "PY3",
     deps = [
         ":modelnet40",
-        "//third_party/py/absl:app",
+        requirement("absl-py"),
         # google internal package dependency 4,
-        "//tensorflow_graphics/datasets",
+        requirement("tensorflow_datasets"),
     ],
 )
