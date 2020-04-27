@@ -215,7 +215,7 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
         name='b',
         trainable=True)
 
-  def call(self, inputs, sizes=None):
+  def call(self, inputs, **kwargs):
     # pyformat: disable
     """Executes the convolution.
 
@@ -256,7 +256,9 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
     Returns:
       Tensor with shape `[A1, ..., An, V, num_output_channels]`.
     """
+
     # pyformat: enable
+    sizes = kwargs.get("sizes", None)
     return gc.feature_steered_convolution(
         data=inputs[0],
         neighbors=inputs[1],
@@ -358,7 +360,7 @@ class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
         kernel_constraint=self._kernel_constraint,
         bias_constraint=self._bias_constraint)
 
-  def call(self, inputs, sizes=None):
+  def call(self, inputs, **kwargs):
     # pyformat: disable
     """Executes the convolution.
 
@@ -419,17 +421,14 @@ class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
       convolved_features = tf.squeeze(input=convolved_features, axis=(0,))
       return convolved_features
 
-    kwargs = {
-        'conv1d_layer': self._conv1d_layer
-    }
-
+    sizes = kwargs.get('sizes', None)
     return gc.edge_convolution_template(
         data=inputs[0],
         neighbors=inputs[1],
         sizes=sizes,
         edge_function=_edge_convolution,
         reduction=self._reduction,
-        edge_function_kwargs=kwargs)
+        edge_function_kwargs={'conv1d_layer': self._conv1d_layer})
 
 
 # API contains all public functions and classes.

@@ -13,6 +13,8 @@
 # limitations under the License.
 """Tests for exr.py."""
 
+# pylint: disable=c-extension-no-member
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -20,8 +22,8 @@ from __future__ import print_function
 import collections
 import tempfile
 from absl.testing import parameterized
-import Imath
 import numpy as np
+import Imath
 import OpenEXR
 
 from tensorflow_graphics.util import test_case

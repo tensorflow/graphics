@@ -127,7 +127,7 @@ void main() {
 """
 
 
-class TriangleRasterizer(object):
+class TriangleRasterizer():
   """A class allowing to rasterize triangular meshes.
 
   The resulting images contain perspective-correct interpolation of attributes
