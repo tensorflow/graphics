@@ -55,9 +55,9 @@ class RotationMatrix3dTest(test_case.TestCase):
     self.evaluate(matrix_normalized)
 
     with self.assertRaises(tf.errors.InvalidArgumentError):
-      rescaled_normalized = rotation_matrix_3d.assert_rotation_matrix_normalized(
+      rescaled_norm = rotation_matrix_3d.assert_rotation_matrix_normalized(
           matrix_rescaled)
-      self.evaluate(rescaled_normalized)
+      self.evaluate(rescaled_norm)
 
   @parameterized.parameters(
       ((3, 3),),
