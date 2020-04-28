@@ -45,7 +45,8 @@ jobs:
 
 script:
   - bazel test //tensorflow_graphics/...
-  - pylint --rcfile=.pylintrc ./tensorflow_graphics/
+  # - pylint --rcfile=.pylintrc ./tensorflow_graphics/
+  - flake8 --config=.flake8 ./tensorflow_graphics/
 
 after_success:
   - coveralls
