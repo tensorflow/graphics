@@ -81,7 +81,7 @@ class PointNetConv2Layer(tf.keras.layers.Layer):
     return tf.nn.relu(self.bn(self.conv(inputs), training))
 
 
-class PointNetDenseLayer(_Layer):
+class PointNetDenseLayer(tf.keras.layers.Layer):
   """The fully connected layer used by the classification head in pointnet.
 
   Note:
