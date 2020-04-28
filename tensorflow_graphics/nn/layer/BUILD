@@ -67,3 +67,33 @@ py_test(
         "//tensorflow_graphics/util:test_case",
     ],
 )
+
+py_library(
+    name = "pointnet",
+    srcs = ["pointnet.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        # google internal package dependency 1,
+    ],
+)
+
+py_test(
+    name = "pointnet_test",
+    size = "small",
+    timeout = "long",
+    srcs = ["tests/pointnet_test.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 7
+    # google internal rule 8
+    # google internal rule 9
+    # google internal rule 10
+    # google internal rule 11
+    deps = [
+        ":pointnet",
+        # google internal package dependency 2
+        "//tensorflow_graphics/util:test_case",
+    ],
+)
