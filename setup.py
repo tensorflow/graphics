@@ -37,6 +37,7 @@ INSTALL_PACKAGES = [
     'tensorflow_datasets >= 2.1.0',
     'matplotlib >= 2.2.5',
     'tqdm >= 4.45.0',
+    'psutil >= 5.7.0',
 ]
 
 if '--compute_platform' in sys.argv:

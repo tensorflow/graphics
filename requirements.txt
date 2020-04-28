@@ -3,3 +3,4 @@ h5py==2.10.0
 absl-py==0.9.0
 matplotlib==2.2.5
 tqdm==4.45.0
+psutil==5.7.0
