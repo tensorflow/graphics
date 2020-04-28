@@ -25,6 +25,7 @@ before_install:
   - pip install -U scipy
   - pip install -U OpenEXR
   - pip install -U pylint
+  - pip install -U flake8
   - pip install -U python-coveralls
   - pip install -U tensorflow_datasets
 
