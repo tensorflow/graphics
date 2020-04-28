@@ -24,7 +24,7 @@ from setuptools import setup
 
 version_path = os.path.join(os.path.dirname(__file__), 'tensorflow_graphics')
 sys.path.append(version_path)
-from version import __version__  # pylint: disable=g-import-not-at-top
+from version import __version__  # pylint: disable=g-import-not-at-top, wrong-import-position
 
 tensorflow_version = '1.13.1'
 
