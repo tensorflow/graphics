@@ -30,7 +30,7 @@ except ImportError:
         " pip install tensorflow_graphics[tf-gpu].")
 # pylint: enable=g-statement-before-imports,g-import-not-at-top
 
-# pylint: disable=g-statement-before-imports,g-import-not-at-top
+# pylint: disable=g-statement-before-imports,g-import-not-at-top,ungrouped-imports
 from tensorflow_graphics.util.doc import _import_tfg_docs
 if _import_tfg_docs():
   from tensorflow_graphics import geometry

@@ -26,7 +26,7 @@ from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import test_case
 
 
-class TriangleTest(test_case.TestCase):
+class TriangleTest(test_case.TestCase):  # pylint: disable=missing-class-docstring
 
   @parameterized.parameters(
       ((0., 0., 0.), (0., 0., 0.), (0., 0., 0.)),
