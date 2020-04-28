@@ -21,6 +21,7 @@ before_install:
   - sudo apt-get -y install libopenexr-dev
   - sudo apt-get -y install libgles2-mesa-dev
   - sudo apt-get -y install libc-ares-dev
+  - sudo apt-get -y install pylint
   - pip install -U absl-py
   - pip install -U scipy
   - pip install -U OpenEXR
@@ -45,7 +46,7 @@ jobs:
         - pip install -U tf-nightly
 
 script:
-  # - pylint --rcfile=.pylintrc ./tensorflow_graphics/
+  - /usr/bin/pylint --rcfile=.pylintrc ./tensorflow_graphics/
   - flake8 --config=.flake8 ./tensorflow_graphics/
   - bazel test //tensorflow_graphics/...
 

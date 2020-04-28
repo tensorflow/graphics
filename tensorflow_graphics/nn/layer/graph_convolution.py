@@ -343,7 +343,7 @@ class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
     self._kernel_constraint = kernel_constraint
     self._bias_constraint = bias_constraint
 
-  def build(self, input_shape):
+  def build(self, input_shape):  # pylint: disable=unused-argument
     """Initializes the layer weights."""
     self._conv1d_layer = tf.keras.layers.Conv1D(
         filters=self._num_output_channels,
