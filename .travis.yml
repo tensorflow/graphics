@@ -26,6 +26,8 @@ before_install:
   - pip install -U OpenEXR
   - pip install -U pylint
   - pip install -U python-coveralls
+  - pip install -U psutil
+  - pip install -U tqdm
 
 jobs:
   include:
