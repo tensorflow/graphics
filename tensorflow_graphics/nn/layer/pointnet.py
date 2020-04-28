@@ -1,4 +1,4 @@
-#Copyright 2020 Google LLC
+#Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,8 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
-Implementation of the PointNet networks from:
+"""Implementation of the PointNet networks.
 
 @inproceedings{qi2017pointnet,
   title={Pointnet: Deep learning on point sets
@@ -40,11 +39,12 @@ This shorthand notation is used throughout this module:
 """
 
 import tensorflow as tf
-from tensorflow.keras.layers import Layer
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import Conv2D
-from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import BatchNormalization
+
+Layer = tf.keras.layers.Layer
+Dense = tf.keras.layers.Dense
+Dropout = tf.keras.layers.Dropout
+Conv2D = tf.keras.layers.Conv2D
+BatchNormalization = tf.keras.layers.BatchNormalization
 
 
 class PointNetConv2Layer(Layer):
@@ -153,13 +153,13 @@ class VanillaEncoder(Layer):
       Tensor with shape `[B, N, C=1024]`
     """
     x = tf.expand_dims(inputs, axis=2)  # [B,N,1,D]
-    x = self.conv1(x, training)         # [B,N,1,64]
-    x = self.conv2(x, training)         # [B,N,1,64]
-    x = self.conv3(x, training)         # [B,N,1,64]
-    x = self.conv4(x, training)         # [B,N,1,128]
-    x = self.conv5(x, training)         # [B,N,1,1024]
-    x = tf.math.reduce_max(x, axis=1)   # [B,1,1024]
-    return tf.squeeze(x)                # [B,1024]
+    x = self.conv1(x, training)  # [B,N,1,64]
+    x = self.conv2(x, training)  # [B,N,1,64]
+    x = self.conv3(x, training)  # [B,N,1,64]
+    x = self.conv4(x, training)  # [B,N,1,128]
+    x = self.conv5(x, training)  # [B,N,1,1024]
+    x = tf.math.reduce_max(input_tensor=x, axis=1)  # [B,1,1024]
+    return tf.squeeze(x)  # [B,1024]
 
 
 class ClassificationHead(Layer):
@@ -173,10 +173,10 @@ class ClassificationHead(Layer):
   def __init__(self, num_classes=40, momentum=0.5, dropout_rate=0.3):
     """Constructor.
 
-      Args:
-        num_classes: the number of classes to classify.
-        momentum: the momentum used for the batch normalization layer.
-        dropout_rate: the dropout rate for fully connected layer
+    Args:
+      num_classes: the number of classes to classify.
+      momentum: the momentum used for the batch normalization layer.
+      dropout_rate: the dropout rate for fully connected layer
     """
     super(ClassificationHead, self).__init__()
     self.dense1 = PointNetDenseLayer(512, momentum)
@@ -195,9 +195,9 @@ class ClassificationHead(Layer):
       Tensor with shape `[B,num_classes]`
     """
     x = self.dense1(inputs, training)  # [B,512]
-    x = self.dense2(x, training)       # [B,256]
-    x = self.dropout(x, training)      # [B,256]
-    return self.dense3(x)              # [B,num_classes)
+    x = self.dense2(x, training)  # [B,256]
+    x = self.dropout(x, training)  # [B,256]
+    return self.dense3(x)  # [B,num_classes)
 
 
 class PointNetVanillaClassifier(Layer):
@@ -213,9 +213,8 @@ class PointNetVanillaClassifier(Layer):
     """
     super(PointNetVanillaClassifier, self).__init__()
     self.encoder = VanillaEncoder(momentum)
-    self.classifier = ClassificationHead(num_classes=num_classes,
-                                         momentum=momentum,
-                                         dropout_rate=dropout_rate)
+    self.classifier = ClassificationHead(
+        num_classes=num_classes, momentum=momentum, dropout_rate=dropout_rate)
 
   def call(self, points, training=None):  # pylint: disable=arguments-differ
     """Computes the classifiation logits of a point set.
@@ -227,7 +226,7 @@ class PointNetVanillaClassifier(Layer):
     Returns:
       Tensor with shape `[B,num_classes]`
     """
-    features = self.encoder(points, training)     # (B,1024)
+    features = self.encoder(points, training)  # (B,1024)
     logits = self.classifier(features, training)  # (B,num_classes)
     return logits
 
@@ -244,4 +243,4 @@ class PointNetVanillaClassifier(Layer):
     """
     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits
     residual = cross_entropy(labels, logits)
-    return tf.reduce_mean(residual)
+    return tf.reduce_mean(input_tensor=residual)

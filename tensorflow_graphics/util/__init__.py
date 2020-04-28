@@ -16,13 +16,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow_graphics.util import asserts
-from tensorflow_graphics.util import data_formats
-from tensorflow_graphics.util import export_api
-from tensorflow_graphics.util import safe_ops
-from tensorflow_graphics.util import shape
-from tensorflow_graphics.util import test_case
-from tensorflow_graphics.util import tfg_flags
+# pylint: disable=g-import-not-at-top
+from tensorflow_graphics.util.doc import _import_tfg_docs
+if _import_tfg_docs():
+  from tensorflow_graphics.util import asserts
+  from tensorflow_graphics.util import data_formats
+  from tensorflow_graphics.util import export_api
+  from tensorflow_graphics.util import safe_ops
+  from tensorflow_graphics.util import shape
+  from tensorflow_graphics.util import test_case
+  from tensorflow_graphics.util import tfg_flags
+# pylint: enable=g-import-not-at-top
 
 # The util modules are not exported.
 __all__ = []
