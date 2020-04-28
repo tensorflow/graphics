@@ -174,6 +174,8 @@ py_library(
         ":quaternion",
         ":rotation_matrix_2d",
         ":rotation_matrix_3d",
+        # google internal package dependency 6
+        requirement("scipy"),
         # google internal package dependency 1,
     ],
 )

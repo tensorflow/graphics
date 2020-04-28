@@ -34,6 +34,12 @@ py_library(
     name = "exr",
     srcs = ["exr.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    deps = [
+        requirement("Imath"),
+        requirement("OpenEXR"),
+        # google internal package dependency 6
+    ],
 )
 
 py2and3_strict_test(
@@ -41,6 +47,8 @@ py2and3_strict_test(
     srcs = ["tests/exr_test.py"],
     deps = [
         ":exr",
+        requirement("Imath"),
+        requirement("OpenEXR"),
         # google internal package dependency 2
         # google internal package dependency 6
         "//tensorflow_graphics/util:test_case",

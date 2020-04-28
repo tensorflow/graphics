@@ -102,6 +102,11 @@ py_library(
     name = "shape",
     srcs = ["shape.py"],
     srcs_version = "PY2AND3",
+    # google internal rule 1
+    deps = [
+        requirement("six"),
+        # google internal package dependency 1,
+    ],
 )
 
 py_library(

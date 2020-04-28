@@ -83,6 +83,9 @@ py_test(
     # google internal rule 11
     deps = [
         ":utils",
+        # google internal package dependency 2
+        # google internal package dependency 6
+        requirement("scipy"),
         # google internal package dependency 1,
         "//tensorflow_graphics/util:test_case",
     ],
@@ -128,6 +131,9 @@ py_test(
     deps = [
         ":graph_pooling",
         ":utils",
+        # google internal package dependency 2
+        # google internal package dependency 6
+        requirement("scipy"),
         # google internal package dependency 1,
         "//tensorflow_graphics/util:test_case",
     ],

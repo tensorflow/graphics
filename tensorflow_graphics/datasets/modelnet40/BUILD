@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+load("@python_deps//:requirements.bzl", "requirement")
 load("//devtools/python/blaze:pytype.bzl", "pytype_strict_library")
 load("//production/dependency/rpc/testing/hermetic:build_defs.bzl", "py_hermetic_test")
 
@@ -25,7 +26,7 @@ pytype_strict_library(
     deps = [
         # google internal package dependency 6
         # google internal package dependency 1,
-        "//third_party/py/tensorflow_datasets",
+        requirement("tensorflow_datasets"),
     ],
 )
 
@@ -59,7 +60,7 @@ py_binary(
     visibility = ["//visibility:private"],
     deps = [
         ":modelnet40",
-        "//third_party/py/tensorflow_datasets",
+        requirement("tensorflow_datasets"),
     ],
 )
 
@@ -71,7 +72,7 @@ py_binary(
         ":modelnet40",
         "//third_party/py/absl:app",
         # google internal package dependency 4,
-        "//third_party/py/matplotlib",
+        requirement("matplotlib"),
         "//third_party/py/mpl_toolkits/mplot3d",
         "//tensorflow_graphics/datasets",
     ],

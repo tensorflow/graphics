@@ -42,6 +42,7 @@ py_library(
     srcs_version = "PY2AND3",
     # google internal rule 1
     deps = [
+        requirement("enum"),
         # google internal package dependency 1,
         "//tensorflow_graphics/math:vector",
         "//tensorflow_graphics/util:asserts",
@@ -57,6 +58,7 @@ py_library(
     srcs_version = "PY2AND3",
     # google internal rule 1
     deps = [
+        requirement("enum"),
         # google internal package dependency 1,
         "//tensorflow_graphics/util:asserts",
         "//tensorflow_graphics/util:export_api",
