@@ -17,10 +17,12 @@
 
 import tensorflow as tf
 from tqdm import tqdm
-import helpers
-import augment
+
 from tensorflow_graphics.datasets.modelnet40 import ModelNet40
 from tensorflow_graphics.nn.layer.pointnet import PointNetVanillaClassifier as PointNet
+
+import augment
+import helpers
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

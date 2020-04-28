@@ -17,8 +17,9 @@ import os
 import time
 import argparse
 import tempfile
-import tensorflow as tf
+
 from termcolor import cprint
+import tensorflow as tf
 
 class ArgumentParser(argparse.ArgumentParser):
   """Argument parser with default flags, and tensorboard helpers."""

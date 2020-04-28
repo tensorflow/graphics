@@ -13,8 +13,10 @@
 # limitations under the License.
 
 """Data augmentation utility functions."""
+
 import numpy as np
 import tensorflow as tf
+
 from tensorflow_graphics.geometry.transformation import rotation_matrix_3d
 
 def jitter(points, stddev=0.01, clip=0.05):
