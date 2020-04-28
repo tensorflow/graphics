@@ -13,13 +13,13 @@
 # limitations under the License.
 """A collection of training helper utilities."""
 
+import argparse
 import os
 import time
-import argparse
 import tempfile
 
-from termcolor import cprint
 import tensorflow as tf
+from termcolor import cprint
 
 class ArgumentParser(argparse.ArgumentParser):
   """Argument parser with default flags, and tensorboard helpers."""
