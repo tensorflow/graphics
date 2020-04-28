@@ -45,7 +45,6 @@ def _dummy_data(batch_size, num_vertices, num_channels):
   return data, neighbors
 
 
-# pylint: disable=missing-class-docstring
 class GraphConvolutionTestFeatureSteeredConvolutionLayerTests(
     test_case.TestCase):
 

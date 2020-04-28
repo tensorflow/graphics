@@ -15,14 +15,14 @@
 
 # pylint: disable=invalid-name
 
-import tensorflow as tf
 from absl.testing import parameterized
-from tensorflow_graphics.util import test_case
+import tensorflow as tf
 from tensorflow_graphics.nn.layer.pointnet import ClassificationHead
 from tensorflow_graphics.nn.layer.pointnet import PointNetConv2Layer
 from tensorflow_graphics.nn.layer.pointnet import PointNetDenseLayer
-from tensorflow_graphics.nn.layer.pointnet import VanillaEncoder
 from tensorflow_graphics.nn.layer.pointnet import PointNetVanillaClassifier
+from tensorflow_graphics.nn.layer.pointnet import VanillaEncoder
+from tensorflow_graphics.util import test_case
 
 
 class RandomForwardExecutionTest(test_case.TestCase):
@@ -68,10 +68,7 @@ class RandomForwardExecutionTest(test_case.TestCase):
       ((8, 2048), (40), (.5), False),
       ((32, 512), (10), (.99), True),
   )
-  def test_classification_head(self,
-                               input_shape,
-                               num_classes,
-                               momentum,
+  def test_classification_head(self, input_shape, num_classes, momentum,
                                training):
     B = input_shape[0]
     inputs = tf.random.uniform(input_shape)
