@@ -16,15 +16,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import sys  # TODO(sofien): why is this needed?
+import sys
 
-# pylint: disable=g-import-not-at-top
-from tensorflow_graphics.util.doc import _import_tfg_docs
-if _import_tfg_docs():
-  from tensorflow_graphics.notebooks import resources
-  from tensorflow_graphics.notebooks import threejs_visualization
+from tensorflow_graphics.notebooks import resources
+from tensorflow_graphics.notebooks import threejs_visualization
 
-  # The notebooks module is not exported.
-  __all__ = []
-
-# pylint: enable=g-import-not-at-top
+# The notebooks module is not exported.
+__all__ = []

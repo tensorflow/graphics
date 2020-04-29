@@ -40,13 +40,8 @@ py_library(
     srcs = ["export_api.py"],
     srcs_version = "PY2AND3",
     # google internal rule 1
-)
-
-py_library(
-    name = "doc",
-    srcs = ["doc.py"],
-    srcs_version = "PY2AND3",
-    # google internal rule 1
+    deps = [
+    ],
 )
 
 py_library(
@@ -111,7 +106,6 @@ py_library(
     # google internal rule 1
     deps = [
         ":asserts",
-        ":doc",
         ":export_api",
         ":safe_ops",
         ":shape",

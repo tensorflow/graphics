@@ -29,7 +29,6 @@ py_library(
         ":matting",
         ":pyramid",
         "//tensorflow_graphics/image/color_space",
-        "//tensorflow_graphics/util:doc",
         "//tensorflow_graphics/util:export_api",
     ],
 )

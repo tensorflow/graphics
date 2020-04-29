@@ -32,7 +32,6 @@ py_library(
         "//tensorflow_graphics/geometry/deformation_energy",
         "//tensorflow_graphics/geometry/representation",
         "//tensorflow_graphics/geometry/transformation",
-        "//tensorflow_graphics/util:doc",
         "//tensorflow_graphics/util:export_api",
     ],
 )

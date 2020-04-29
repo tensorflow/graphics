@@ -40,7 +40,6 @@ py_library(
         "//tensorflow_graphics/notebooks",
         "//tensorflow_graphics/rendering",
         "//tensorflow_graphics/util",
-        "//tensorflow_graphics/util:doc",
         "//tensorflow_graphics/util:export_api",
     ],
 )

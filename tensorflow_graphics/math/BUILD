@@ -34,7 +34,6 @@ py_library(
         ":vector",
         "//tensorflow_graphics/math/interpolation",
         "//tensorflow_graphics/math/optimizer",
-        "//tensorflow_graphics/util:doc",
         "//tensorflow_graphics/util:export_api",
     ],
 )

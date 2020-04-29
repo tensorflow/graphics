@@ -31,7 +31,6 @@ py_library(
         "//tensorflow_graphics/nn/layer",
         "//tensorflow_graphics/nn/loss",
         "//tensorflow_graphics/nn/metric",
-        "//tensorflow_graphics/util:doc",
         "//tensorflow_graphics/util:export_api",
     ],
 )
