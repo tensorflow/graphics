@@ -5,15 +5,17 @@
 
 # Module: tfg.rendering.reflectance.blinn_phong
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/blinn_phong.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/blinn_phong.py">View source</a>
+
+
 
 This module implements the Blinn-Phong specular reflectance.
 
-<!-- Placeholder for "Used in" -->
 
 For a derivation of the normalization factor ensuring energy conservation, we
 refer the interested reader to:

@@ -5,19 +5,20 @@
 
 # tfg.geometry.transformation.quaternion.relative_angle
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View source</a>
+
+
 
 Computes the unsigned relative rotation angle between 2 unit quaternions.
 
-``` python
+```python
 tfg.geometry.transformation.quaternion.relative_angle(
-    quaternion1,
-    quaternion2,
-    name=None
+    quaternion1, quaternion2, name=None
 )
 ```
 
@@ -33,7 +34,10 @@ $$\theta = 2\arccos(\mathbf{q}_1^T\mathbf{q}_2)$$.
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`quaternion1`</b>: A tensor of shape `[A1, ..., An, 4]`, where the last dimension
   represents a normalized quaternion.
@@ -47,6 +51,9 @@ In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An, 1]` where the last dimension represents
 rotation angles in the range [0.0, pi].
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `quaternion1` or `quaternion2` is not supported.

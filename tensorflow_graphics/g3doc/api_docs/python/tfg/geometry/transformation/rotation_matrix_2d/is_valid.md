@@ -5,19 +5,20 @@
 
 # tfg.geometry.transformation.rotation_matrix_2d.is_valid
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_2d.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_2d.py">View source</a>
+
+
 
 Determines if a matrix is a valid rotation matrix.
 
-``` python
+```python
 tfg.geometry.transformation.rotation_matrix_2d.is_valid(
-    matrix,
-    atol=0.001,
-    name=None
+    matrix, atol=0.001, name=None
 )
 ```
 
@@ -32,7 +33,10 @@ that $$\mathbf{R}^T\mathbf{R} = \mathbf{I}$$ and $$\det(\mathbf{R}) = 1$$.
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`matrix`</b>: A tensor of shape `[A1, ..., An, 2, 2]`, where the last two
   dimensions represent a 2d rotation matrix.
@@ -42,5 +46,5 @@ In the following, A1 to An are optional batch dimensions.
 
 #### Returns:
 
-A tensor of type `bool` and shape `[A1, ..., An, 1]` where False indicates that
-the input is not a valid rotation matrix.
+A tensor of type `bool` and shape `[A1, ..., An, 1]` where False indicates
+that the input is not a valid rotation matrix.

@@ -5,15 +5,17 @@
 
 # Module: tfg.image.pyramid
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/pyramid.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/pyramid.py">View source</a>
+
+
 
 This module implements image pyramid functionalities.
 
-<!-- Placeholder for "Used in" -->
 
 More details about image pyramids can be found on [this page.]
 (https://en.wikipedia.org/wiki/Pyramid_(image_processing))

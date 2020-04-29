@@ -5,21 +5,20 @@
 
 # tfg.geometry.representation.ray.intersection_ray_sphere
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/ray.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/ray.py">View source</a>
+
+
 
 Finds positions and surface normals where the sphere and the ray intersect.
 
-``` python
+```python
 tfg.geometry.representation.ray.intersection_ray_sphere(
-    sphere_center,
-    sphere_radius,
-    ray,
-    point_on_ray,
-    name=None
+    sphere_center, sphere_radius, ray, point_on_ray, name=None
 )
 ```
 
@@ -27,11 +26,15 @@ tfg.geometry.representation.ray.intersection_ray_sphere(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`sphere_center`</b>: A tensor of shape `[3]` representing the 3d sphere center.
 * <b>`sphere_radius`</b>: A tensor of shape `[1]` containing a strictly positive value
@@ -50,7 +53,10 @@ surface normals at that point. Both tensors contain NaNs when there is no
 intersections. The first dimension of the returned tensor provides access to
 the first and second intersections of the ray with the sphere.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: if the shape of `sphere_center`, `sphere_radius`, `ray` or
   `point_on_ray` is not supported.

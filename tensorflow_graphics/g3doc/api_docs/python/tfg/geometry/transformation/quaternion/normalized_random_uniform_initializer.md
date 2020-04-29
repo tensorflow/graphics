@@ -5,15 +5,18 @@
 
 # tfg.geometry.transformation.quaternion.normalized_random_uniform_initializer
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View source</a>
+
+
 
 Random unit quaternion initializer.
 
-``` python
+```python
 tfg.geometry.transformation.quaternion.normalized_random_uniform_initializer()
 ```
 

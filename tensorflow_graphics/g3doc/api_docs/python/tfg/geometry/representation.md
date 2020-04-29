@@ -5,15 +5,17 @@
 
 # Module: tfg.geometry.representation
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/__init__.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/__init__.py">View source</a>
+
+
 
 Geometry module.
 
-<!-- Placeholder for "Used in" -->
 
 
 ## Modules

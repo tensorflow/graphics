@@ -5,24 +5,22 @@
 
 # tfg.nn.layer.graph_convolution.feature_steered_convolution_layer
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/layer/graph_convolution.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/nn/layer/graph_convolution.py">View source</a>
+
+
 
 Wraps the function `feature_steered_convolution` as a TensorFlow layer.
 
-``` python
+```python
 tfg.nn.layer.graph_convolution.feature_steered_convolution_layer(
-    data,
-    neighbors,
-    sizes,
-    translation_invariant=True,
-    num_weight_matrices=8,
+    data, neighbors, sizes, translation_invariant=True, num_weight_matrices=8,
     num_output_channels=None,
-    initializer=tf.compat.v1.truncated_normal_initializer(stddev=0.1),
-    name=None,
+    initializer=tf.compat.v1.truncated_normal_initializer(stddev=0.1), name=None,
     var_name=None
 )
 ```
@@ -39,7 +37,10 @@ The shorthands used below are
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`data`</b>: A `float` tensor with shape `[A1, ..., An, V, C]`.
 * <b>`neighbors`</b>: A SparseTensor with the same type as `data` and with shape

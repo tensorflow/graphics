@@ -5,15 +5,17 @@
 
 # Module: tfg.geometry.transformation.rotation_matrix_2d
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_2d.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/rotation_matrix_2d.py">View source</a>
+
+
 
 This module implements 2d rotation matrix functionalities.
 
-<!-- Placeholder for "Used in" -->
 
 Given an angle of rotation $$\theta$$ a 2d rotation matrix can be expressed as
 

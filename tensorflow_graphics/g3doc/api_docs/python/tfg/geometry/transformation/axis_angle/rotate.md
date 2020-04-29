@@ -5,20 +5,20 @@
 
 # tfg.geometry.transformation.axis_angle.rotate
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/axis_angle.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/axis_angle.py">View source</a>
+
+
 
 Rotates a 3d point using an axis-angle by applying the Rodrigues' formula.
 
-``` python
+```python
 tfg.geometry.transformation.axis_angle.rotate(
-    point,
-    axis,
-    angle,
-    name=None
+    point, axis, angle, name=None
 )
 ```
 
@@ -36,7 +36,10 @@ $$\mathbf{v}'=\mathbf{v}\cos(\theta)+(\mathbf{a}\times\mathbf{v})\sin(\theta)
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`point`</b>: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
   represents a 3d point to rotate.
@@ -52,7 +55,10 @@ In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
 a 3d point.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If `point`, `axis`, or `angle` are of different shape or if
 their respective shape is not supported.

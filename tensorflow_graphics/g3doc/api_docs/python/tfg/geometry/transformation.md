@@ -5,15 +5,17 @@
 
 # Module: tfg.geometry.transformation
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/__init__.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/__init__.py">View source</a>
+
+
 
 Transformation module.
 
-<!-- Placeholder for "Used in" -->
 
 
 ## Modules
@@ -21,6 +23,8 @@ Transformation module.
 [`axis_angle`](../../tfg/geometry/transformation/axis_angle.md) module: This module implements axis-angle functionalities.
 
 [`euler`](../../tfg/geometry/transformation/euler.md) module: This modules implements Euler angles functionalities.
+
+[`linear_blend_skinning`](../../tfg/geometry/transformation/linear_blend_skinning.md) module: This module implements TensorFlow linear blend skinning functions.
 
 [`quaternion`](../../tfg/geometry/transformation/quaternion.md) module: This module implements TensorFlow quaternion utility functions.
 

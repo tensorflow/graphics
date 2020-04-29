@@ -7,20 +7,21 @@
 
 # tfg.math.interpolation.slerp.InterpolationType
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View source</a>
 
-## Class `InterpolationType`
+
 
 Defines interpolation methods for slerp module.
 
 <!-- Placeholder for "Used in" -->
 
 
-## Class Members
+## Class Variables
 
-*   `QUATERNION` <a id="QUATERNION"></a>
-*   `VECTOR` <a id="VECTOR"></a>
+* `QUATERNION` <a id="QUATERNION"></a>
+* `VECTOR` <a id="VECTOR"></a>

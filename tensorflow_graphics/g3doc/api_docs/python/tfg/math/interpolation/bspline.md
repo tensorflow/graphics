@@ -5,15 +5,17 @@
 
 # Module: tfg.math.interpolation.bspline
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/bspline.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/bspline.py">View source</a>
+
+
 
 Tensorflow.graphics B-spline interpolation module.
 
-<!-- Placeholder for "Used in" -->
 
 This module supports cardinal B-spline interpolation up to degree 4, with up
 to C3 smoothness. It has functions to calculate basis functions, control point

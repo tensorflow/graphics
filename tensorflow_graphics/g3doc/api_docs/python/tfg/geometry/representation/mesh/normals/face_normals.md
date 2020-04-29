@@ -5,20 +5,20 @@
 
 # tfg.geometry.representation.mesh.normals.face_normals
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py">View source</a>
+
+
 
 Computes face normals for meshes.
 
-``` python
+```python
 tfg.geometry.representation.mesh.normals.face_normals(
-    faces,
-    clockwise=True,
-    normalize=True,
-    name=None
+    faces, clockwise=True, normalize=True, name=None
 )
 ```
 
@@ -34,7 +34,10 @@ face to calculate the face normal.
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`faces`</b>: A tensor of shape `[A1, ..., An, M, 3]`, which stores vertices
   positions of each face, where M is the number of vertices of each face.
@@ -49,6 +52,9 @@ In the following, A1 to An are optional batch dimensions.
 
 A tensor of shape `[A1, ..., An, 3]` containing the face normals.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `vertices`, `faces` is not supported.

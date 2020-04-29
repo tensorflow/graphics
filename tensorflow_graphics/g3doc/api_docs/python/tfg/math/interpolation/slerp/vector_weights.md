@@ -5,21 +5,20 @@
 
 # tfg.math.interpolation.slerp.vector_weights
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View source</a>
+
+
 
 Spherical linear interpolation (slerp) between two unnormalized vectors.
 
-``` python
+```python
 tfg.math.interpolation.slerp.vector_weights(
-    vector1,
-    vector2,
-    percent,
-    eps=None,
-    name=None
+    vector1, vector2, percent, eps=None, name=None
 )
 ```
 
@@ -35,7 +34,10 @@ input vectors are exactly anti-parallel.
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`vector1`</b>: A tensor of shape `[A1, ... , An, M]`, which stores a normalized
   vector in its last dimension.
@@ -50,11 +52,12 @@ In the following, A1 to An are optional batch dimensions.
 
 #### Raises:
 
+
 * <b>`ValueError`</b>: if the shape of `vector1`, `vector2`, or `percent` is not
   supported.
 
 
 #### Returns:
 
-Two tensors of shape `[A1, ... , An, 1]`, representing interpolation weights for
-each input vector.
+Two tensors of shape `[A1, ... , An, 1]`, representing interpolation weights
+for each input vector.

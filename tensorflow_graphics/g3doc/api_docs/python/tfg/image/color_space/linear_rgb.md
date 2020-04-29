@@ -5,17 +5,20 @@
 
 # Module: tfg.image.color_space.linear_rgb
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/color_space/linear_rgb.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/color_space/linear_rgb.py">View source</a>
+
+
 
 This module implements utility functions for the linear RGB color space.
 
-<!-- Placeholder for "Used in" -->
+
 
 ## Functions
 
-[`from_srgb(...)`](../../../tfg/image/color_space/linear_rgb/from_srgb.md):
-Converts sRGB colors to linear colors.
+[`from_srgb(...)`](../../../tfg/image/color_space/linear_rgb/from_srgb.md): Converts sRGB colors to linear colors.
+

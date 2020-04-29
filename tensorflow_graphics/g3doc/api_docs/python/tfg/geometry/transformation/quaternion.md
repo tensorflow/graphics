@@ -5,15 +5,17 @@
 
 # Module: tfg.geometry.transformation.quaternion
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View source</a>
+
+
 
 This module implements TensorFlow quaternion utility functions.
 
-<!-- Placeholder for "Used in" -->
 
 A quaternion is written as $$q =  xi + yj + zk + w$$, where $$i,j,k$$ forms the
 three bases of the imaginary part. The functions implemented in this file

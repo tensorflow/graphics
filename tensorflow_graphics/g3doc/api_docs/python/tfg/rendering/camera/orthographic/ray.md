@@ -5,18 +5,20 @@
 
 # tfg.rendering.camera.orthographic.ray
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py">View source</a>
+
+
 
 Computes the 3d ray for a 2d point (the z component of the ray is 1).
 
-``` python
+```python
 tfg.rendering.camera.orthographic.ray(
-    point_2d,
-    name=None
+    point_2d, name=None
 )
 ```
 
@@ -38,6 +40,7 @@ Note: In the following, A1 to An are optional batch dimensions.
 
 #### Args:
 
+
 * <b>`point_2d`</b>: A tensor of shape `[A1, ..., An, 2]`, where the last dimension
   represents a 2d point.
 * <b>`name`</b>: A name for this op that defaults to "orthographic_ray".
@@ -48,6 +51,9 @@ Note: In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
 a 3d ray.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `point_2d` is not supported.
