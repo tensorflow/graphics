@@ -32,6 +32,7 @@ py_library(
         "//tensorflow_graphics/rendering/camera",
         "//tensorflow_graphics/rendering/opengl",
         "//tensorflow_graphics/rendering/reflectance",
+        "//tensorflow_graphics/rendering/voxels",
         "//tensorflow_graphics/util:doc",
         "//tensorflow_graphics/util:export_api",
     ],
