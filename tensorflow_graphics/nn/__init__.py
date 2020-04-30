@@ -16,10 +16,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow_graphics.nn import layer
-from tensorflow_graphics.nn import loss
-from tensorflow_graphics.nn import metric
-from tensorflow_graphics.util import export_api as _export_api
+# pylint: disable=g-import-not-at-top
+from tensorflow_graphics.util.doc import _import_tfg_docs
+if _import_tfg_docs():
+  from tensorflow_graphics.nn import layer
+  from tensorflow_graphics.nn import loss
+  from tensorflow_graphics.nn import metric
+  from tensorflow_graphics.util import export_api as _export_api
 
-# API contains submodules of tensorflow_graphics.nn.
-__all__ = _export_api.get_modules()
+  # API contains submodules of tensorflow_graphics.nn.
+  __all__ = _export_api.get_modules()
+# pylint: enable=g-import-not-at-top

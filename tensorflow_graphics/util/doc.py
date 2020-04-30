@@ -11,20 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""notebook module."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+"""Query environment variable for documentation building."""
+import os
 
-import sys  # TODO(sofien): why is this needed?
 
-# pylint: disable=g-import-not-at-top
-from tensorflow_graphics.util.doc import _import_tfg_docs
-if _import_tfg_docs():
-  from tensorflow_graphics.notebooks import resources
-  from tensorflow_graphics.notebooks import threejs_visualization
+def _import_tfg_docs():
+  """Checks if __init__.py imports should be executed (for buildling docs)."""
+  return os.getenv("TFG_DOC_IMPORTS", 0) == "1"
 
-  # The notebooks module is not exported.
-  __all__ = []
 
-# pylint: enable=g-import-not-at-top
+def enable_tfg_doc_imports():
+  """Re-enables the imports in the __init__.py so that docs can be built."""
+  os.environ["TFG_DOC_IMPORTS"] = "1"
