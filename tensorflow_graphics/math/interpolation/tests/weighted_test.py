@@ -79,7 +79,7 @@ class WeightedTest(test_case.TestCase):
         (3.0, -1.0)), ((0.25, 0.25, 0.25, 0.25), (0.5, 0.5, 0.0, 0.0)),
        (((0,), (1,), (3,), (4,)), ((1,), (2,), (4,),
                                    (5,))), False, ((0.0, 0.0), (2.0, 1.0))),)
-  def test_interpolate_preset(self, points, weights, indices, normalize, out):
+  def test_interpolate_preset(self, points, weights, indices, _, out):
     """Tests whether interpolation results are correct."""
     weights = tf.convert_to_tensor(value=weights)
 
@@ -117,8 +117,7 @@ class WeightedTest(test_case.TestCase):
         (3.0, -1.0)), ((1.0, -1.0, 1.0, -1.0), (0.0, 0.0, 0.0, 0.0)),
        (((0,), (1,), (3,), (4,)), ((1,), (2,), (4,), (5,))), ((0.0, 0.0),
                                                               (0.0, 0.0))))
-  def test_interpolate_unnormalizable_raised_(self, points, weights, indices,
-                                              out):
+  def test_interp_unnormalizable_raised_(self, points, weights, indices, _):
     """Tests whether exception is raised when weights are unnormalizable."""
     with self.assertRaises(tf.errors.InvalidArgumentError):
       result = weighted.interpolate(

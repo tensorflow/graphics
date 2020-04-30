@@ -34,6 +34,10 @@ INSTALL_PACKAGES = [
     'scipy >= 1.1.0',
     'six >= 1.11.0',
     'setuptools >= 41.0.0',
+    'tensorflow_datasets >= 2.1.0',
+    'matplotlib >= 2.2.5',
+    'tqdm >= 4.45.0',
+    'psutil >= 5.7.0',
 ]
 
 if '--compute_platform' in sys.argv:

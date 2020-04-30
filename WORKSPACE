@@ -30,10 +30,39 @@ http_archive(
 
 http_archive(
     name = "org_tensorflow",
-    strip_prefix = "tensorflow-2.0.0",
-    url = "https://github.com/tensorflow/tensorflow/archive/v2.0.0.zip",
-    sha256 = "4c13e99a2e5fdddc491e003304141f9d9060e11584499061b1b4224e500dc49a",
+    strip_prefix = "tensorflow-2.1.0",
+    sha256 = "e82f3b94d863e223881678406faa5071b895e1ff928ba18578d2adbbc6b42a4c",
+    url = "https://github.com/tensorflow/tensorflow/archive/v2.1.0.zip"
 )
 
 load("@org_tensorflow//tensorflow:workspace.bzl", "tf_workspace")
 tf_workspace(tf_repo_name = "org_tensorflow")
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+http_archive(
+    name = "rules_python",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.0.1/rules_python-0.0.1.tar.gz",
+    sha256 = "aa96a691d3a8177f3215b14b0edc9641787abaaa30363a080165d06ab65e1161",
+)
+load("@rules_python//python:repositories.bzl", "py_repositories")
+py_repositories()
+
+# Only needed if using the packaging rules.
+load("@rules_python//python:pip.bzl", "pip_repositories", "pip_import")
+pip_repositories()
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+# pip install dependencies for Bazel
+pip_import(
+    name = "python_deps",
+    requirements = "//:requirements.txt",
+)
+
+load("@python_deps//:requirements.bzl", "pip_install")
+pip_install()

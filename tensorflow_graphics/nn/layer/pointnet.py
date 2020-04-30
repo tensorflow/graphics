@@ -40,14 +40,8 @@ This shorthand notation is used throughout this module:
 
 import tensorflow as tf
 
-Layer = tf.keras.layers.Layer
-Dense = tf.keras.layers.Dense
-Dropout = tf.keras.layers.Dropout
-Conv2D = tf.keras.layers.Conv2D
-BatchNormalization = tf.keras.layers.BatchNormalization
 
-
-class PointNetConv2Layer(Layer):
+class PointNetConv2Layer(tf.keras.layers.Layer):
   """The 2D convolution layer used by the feature encoder in PointNet."""
 
   def __init__(self, channels, momentum):
@@ -69,8 +63,9 @@ class PointNetConv2Layer(Layer):
 
   def build(self, input_shape):
     """Builds the layer with a specified input_shape."""
-    self.conv = Conv2D(self.channels, (1, 1), input_shape=input_shape)
-    self.bn = BatchNormalization(momentum=self.momentum)
+    self.conv = tf.keras.layers.Conv2D(
+        self.channels, (1, 1), input_shape=input_shape)
+    self.bn = tf.keras.layers.BatchNormalization(momentum=self.momentum)
 
   def call(self, inputs, training=None):  # pylint: disable=arguments-differ
     """Executes the convolution.
@@ -85,7 +80,7 @@ class PointNetConv2Layer(Layer):
     return tf.nn.relu(self.bn(self.conv(inputs), training))
 
 
-class PointNetDenseLayer(Layer):
+class PointNetDenseLayer(tf.keras.layers.Layer):
   """The fully connected layer used by the classification head in pointnet.
 
   Note:
@@ -102,8 +97,8 @@ class PointNetDenseLayer(Layer):
 
   def build(self, input_shape):
     """Builds the layer with a specified input_shape."""
-    self.dense = Dense(self.channels, input_shape=input_shape)
-    self.bn = BatchNormalization(momentum=self.momentum)
+    self.dense = tf.keras.layers.Dense(self.channels, input_shape=input_shape)
+    self.bn = tf.keras.layers.BatchNormalization(momentum=self.momentum)
 
   def call(self, inputs, training=None):  # pylint: disable=arguments-differ
     """Executes the convolution.
@@ -118,7 +113,7 @@ class PointNetDenseLayer(Layer):
     return tf.nn.relu(self.bn(self.dense(inputs), training))
 
 
-class VanillaEncoder(Layer):
+class VanillaEncoder(tf.keras.layers.Layer):
   """The Vanilla PointNet feature encoder.
 
   Consists of five conv2 layers with (64,64,64,128,1024) output channels.
@@ -162,7 +157,7 @@ class VanillaEncoder(Layer):
     return tf.squeeze(x)  # [B,1024]
 
 
-class ClassificationHead(Layer):
+class ClassificationHead(tf.keras.layers.Layer):
   """The PointNet classification head.
 
   The head consists of 2x PointNetDenseLayer layers (512 and 256 channels)
@@ -181,8 +176,8 @@ class ClassificationHead(Layer):
     super(ClassificationHead, self).__init__()
     self.dense1 = PointNetDenseLayer(512, momentum)
     self.dense2 = PointNetDenseLayer(256, momentum)
-    self.dropout = Dropout(dropout_rate)
-    self.dense3 = Dense(num_classes, activation="linear")
+    self.dropout = tf.keras.layers.Dropout(dropout_rate)
+    self.dense3 = tf.keras.layers.Dense(num_classes, activation="linear")
 
   def call(self, inputs, training=None):  # pylint: disable=arguments-differ
     """Computes the classifiation logits given features (note: without softmax).
@@ -200,7 +195,7 @@ class ClassificationHead(Layer):
     return self.dense3(x)  # [B,num_classes)
 
 
-class PointNetVanillaClassifier(Layer):
+class PointNetVanillaClassifier(tf.keras.layers.Layer):
   """The PointNet 'Vanilla' classifier (i.e. without spatial transformer)."""
 
   def __init__(self, num_classes=40, momentum=.5, dropout_rate=.3):

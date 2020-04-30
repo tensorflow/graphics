@@ -29,30 +29,30 @@ class BSplineTest(test_case.TestCase):
   @parameterized.parameters((0.0, (1.0,)), (1.0, (1.0,)))
   def test_constant_basis_boundary_values(self, position, weights):
     """Tests that basis functions of degree 0 return expected values."""
-    self.assertAllClose(bspline._constant(position), weights)
+    self.assertAllClose(bspline._constant(position), weights)  # pylint: disable=protected-access
 
   @parameterized.parameters((0.0, (1.0, 0.0)), (1.0, (0.0, 1.0)))
   def test_linear_basis_boundary_values(self, position, weights):
     """Tests that basis functions of degree 1 return expected values."""
-    self.assertAllClose(bspline._linear(position), weights)
+    self.assertAllClose(bspline._linear(position), weights)  # pylint: disable=protected-access
 
   @parameterized.parameters((0.0, (0.5, 0.5, 0.0)), (1.0, (0.0, 0.5, 0.5)))
   def test_quadratic_basis_boundary_values(self, position, weights):
     """Tests that basis functions of degree 2 return expected values."""
-    self.assertAllClose(bspline._quadratic(position), weights)
+    self.assertAllClose(bspline._quadratic(position), weights)  # pylint: disable=protected-access
 
   @parameterized.parameters((0.0, (1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0, 0.0)),
                             (1.0, (0.0, 1.0 / 6.0, 2.0 / 3.0, 1.0 / 6.0)))
   def test_cubic_basis_boundary_values(self, position, weights):
     """Tests that basis functions of degree 3 return expected values."""
-    self.assertAllClose(bspline._cubic(position), weights)
+    self.assertAllClose(bspline._cubic(position), weights)  # pylint: disable=protected-access
 
   @parameterized.parameters(
       (0.0, (1.0 / 24.0, 11.0 / 24.0, 11.0 / 24.0, 1.0 / 24.0, 0.0)),
       (1.0, (0.0, 1.0 / 24.0, 11.0 / 24.0, 11.0 / 24.0, 1.0 / 24.0)))
   def test_quartic_basis_boundary_values(self, position, weights):
     """Tests that basis functions of degree 4 return expected values."""
-    self.assertAllClose(bspline._quartic(position), weights)
+    self.assertAllClose(bspline._quartic(position), weights)  # pylint: disable=protected-access
 
   @parameterized.parameters(
       (((0.5,), (1.5,), (2.5,)), (((0.5, 0.5),), ((0.5, 0.5),), ((0.5, 0.5),)),

@@ -13,6 +13,8 @@
 # limitations under the License.
 """Tests for google3.third_party.py.tensorflow_graphics.geometry.convolution.tests.graph_pooling."""
 
+# pylint: disable=protected-access
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
