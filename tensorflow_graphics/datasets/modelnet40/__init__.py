@@ -108,7 +108,7 @@ class PointnetConfig(ModelNet40Config):
     )
 
   def split_generators(self, download_manager):
-    extracted_path = download_manager.download_and_extract(_URL)
+    extracted_path = download_manager.download_and_extract(_POINTNET_URL)
 
     # Note: VALIDATION split was not provided by the authors
     return [
@@ -172,6 +172,7 @@ _MODELNET_CITATION = """\
 }
 """
 
+
 class MeshConfig(ModelNet40Config):
   """Base class for derivatives of the original .off mesh data."""
   def __init__(self, input_key, input_feature, **kwargs):
@@ -229,6 +230,7 @@ class MeshConfig(ModelNet40Config):
             'label': class_name,
         }
 
+
 class PolymeshConfig(MeshConfig):
   """MeshConfig with original polygonal meshes."""
   def __init__(self):
@@ -280,6 +282,7 @@ POINTNET = PointnetConfig()
 POLYMESH = PolymeshConfig()
 
 TRIMESH = TrimeshConfig()
+
 
 class ModelNet40(tfds.core.GeneratorBasedBuilder):
   """ModelNet40."""
