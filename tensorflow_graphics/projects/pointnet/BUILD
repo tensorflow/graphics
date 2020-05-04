@@ -13,4 +13,5 @@ py_test(
     srcs = ["train_test.py"],
     main = "train_test.py",
     deps = [":train"],
+    size="small",
 )
