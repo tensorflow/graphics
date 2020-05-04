@@ -96,7 +96,7 @@ class VectorTest(test_case.TestCase):
     tensor_size = np.random.randint(1, 4)
     tensor_shape = np.random.randint(1, 10, size=tensor_size).tolist()
     axis = np.random.randint(tensor_size)
-    tensor_shape[axis] = 3
+    tensor_shape[axis] = 3  # pylint: disable=invalid-sequence-index
     u = np.random.random(size=tensor_shape)
     v = np.random.random(size=tensor_shape)
 

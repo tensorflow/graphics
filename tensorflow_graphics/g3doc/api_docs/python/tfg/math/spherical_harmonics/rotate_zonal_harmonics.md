@@ -5,20 +5,20 @@
 
 # tfg.math.spherical_harmonics.rotate_zonal_harmonics
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View source</a>
+
+
 
 Rotates zonal harmonics.
 
-``` python
+```python
 tfg.math.spherical_harmonics.rotate_zonal_harmonics(
-    zonal_coeffs,
-    theta,
-    phi,
-    name=None
+    zonal_coeffs, theta, phi, name=None
 )
 ```
 
@@ -26,11 +26,15 @@ tfg.math.spherical_harmonics.rotate_zonal_harmonics(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`zonal_coeffs`</b>: A tensor of shape `[C]` storing zonal harmonics coefficients.
 * <b>`theta`</b>: A tensor of shape `[A1, ..., An, 1]` storing polar angles.
@@ -44,7 +48,10 @@ In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An, C*C]` storing coefficients of the rotated
 harmonics.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `zonal_coeffs`, `theta` or `phi` is not
   supported.

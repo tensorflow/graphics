@@ -5,18 +5,20 @@
 
 # tfg.geometry.transformation.euler.from_rotation_matrix
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/euler.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/euler.py">View source</a>
+
+
 
 Converts rotation matrices to Euler angles.
 
-``` python
+```python
 tfg.geometry.transformation.euler.from_rotation_matrix(
-    rotation_matrix,
-    name=None
+    rotation_matrix, name=None
 )
 ```
 
@@ -37,7 +39,10 @@ Gimbal locks when abs(rotation_matrix(2,0)) == 1, which are not handled.
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`rotation_matrix`</b>: A tensor of shape `[A1, ..., An, 3, 3]`, where the last two
   dimensions represent a rotation matrix.
@@ -49,6 +54,9 @@ In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
 the three Euler angles.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `rotation_matrix` is not supported.

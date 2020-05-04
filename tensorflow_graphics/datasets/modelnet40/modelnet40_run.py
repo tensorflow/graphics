@@ -17,8 +17,7 @@
 See: https://www.tensorflow.org/datasets/api_docs/python/tfds/load
 """
 from absl import app
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D  # pylint:disable=unused-import
+
 from tensorflow_graphics.datasets.modelnet40 import ModelNet40
 
 
@@ -39,12 +38,6 @@ def main(_):
       "airplane", info.features["label"].str2int("airplane")))
   print("Example of ID#={} to string='{}'".format(
       12, info.features["label"].int2str(12)))
-
-  # --- example visualizing 3D data
-  fig = plt.figure()
-  ax3 = fig.add_subplot(111, projection="3d")
-  scatter3 = lambda p, c="r", *args: ax3.scatter(p[:, 0], p[:, 1], p[:, 2], c)
-  scatter3(points)
 
 
 if __name__ == "__main__":

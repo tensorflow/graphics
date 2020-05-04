@@ -13,6 +13,8 @@
 # limitations under the License.
 """Tests for exr.py."""
 
+# pylint: disable=c-extension-no-member
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

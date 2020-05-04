@@ -5,23 +5,21 @@
 
 # tfg.math.optimizer.levenberg_marquardt.minimize
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/optimizer/levenberg_marquardt.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/optimizer/levenberg_marquardt.py">View source</a>
+
+
 
 Minimizes a set of residuals in the least-squares sense.
 
-``` python
+```python
 tfg.math.optimizer.levenberg_marquardt.minimize(
-    residuals,
-    variables,
-    max_iterations,
-    regularizer=1e-20,
-    regularizer_multiplier=10.0,
-    callback=None,
-    name=None
+    residuals, variables, max_iterations, regularizer=1e-20,
+    regularizer_multiplier=10.0, callback=None, name=None
 )
 ```
 
@@ -29,7 +27,9 @@ tfg.math.optimizer.levenberg_marquardt.minimize(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Args:
+
 
 * <b>`residuals`</b>: A residual or a list/tuple of residuals. A residual is a Python
   `callable`.
@@ -55,7 +55,10 @@ tfg.math.optimizer.levenberg_marquardt.minimize(
 The value of the objective function and variables attained at the final
 iteration of the minimization procedure.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If max_iterations is not at least 1.
 * <b>`InvalidArgumentError`</b>: This exception is only raised in graph mode if the
@@ -65,6 +68,7 @@ is increased automatically.
 
 
 #### Examples:
+
 
 ```python
 x = tf.constant(np.random.random_sample(size=(1,2)), dtype=tf.float32)

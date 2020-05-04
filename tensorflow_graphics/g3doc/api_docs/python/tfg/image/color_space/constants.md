@@ -6,16 +6,19 @@
 
 # Module: tfg.image.color_space.constants
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/color_space/constants.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/color_space/constants.py">View source</a>
+
+
 
 Constant parameters for color space conversion.
 
-<!-- Placeholder for "Used in" -->
+
 
 ## Other Members
 
-*   `srgb_gamma` <a id="srgb_gamma"></a>
+* `srgb_gamma` <a id="srgb_gamma"></a>

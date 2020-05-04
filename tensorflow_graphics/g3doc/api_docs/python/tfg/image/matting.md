@@ -5,20 +5,26 @@
 
 # Module: tfg.image.matting
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/matting.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/image/matting.py">View source</a>
+
+
 
 This module implements image matting functionalities.
 
-<!-- Placeholder for "Used in" -->
+
 
 ## Functions
 
-[`laplacian_weights(...)`](../../tfg/image/matting/laplacian_weights.md):
-Generates the closed form matting Laplacian weights.
+[`build_matrices(...)`](../../tfg/image/matting/build_matrices.md): Generates the closed form matting Laplacian.
 
-[`loss(...)`](../../tfg/image/matting/loss.md): Computes the matting loss
-function based on the matting Laplacian weights.
+[`linear_coefficients(...)`](../../tfg/image/matting/linear_coefficients.md): Computes the matting linear coefficients.
+
+[`loss(...)`](../../tfg/image/matting/loss.md): Computes the matting loss function based on the matting Laplacian.
+
+[`reconstruct(...)`](../../tfg/image/matting/reconstruct.md): Reconstruct the matte from the image using the linear coefficients.
+

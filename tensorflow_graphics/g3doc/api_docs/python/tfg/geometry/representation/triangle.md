@@ -5,18 +5,22 @@
 
 # Module: tfg.geometry.representation.triangle
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/triangle.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/triangle.py">View source</a>
+
+
 
 Tensorflow triangle utility functions.
 
-<!-- Placeholder for "Used in" -->
 
 
 ## Functions
+
+[`area(...)`](../../../tfg/geometry/representation/triangle/area.md): Computes triangle areas.
 
 [`normal(...)`](../../../tfg/geometry/representation/triangle/normal.md): Computes face normals (triangles).
 

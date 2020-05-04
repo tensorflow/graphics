@@ -10,22 +10,24 @@
 
 # tfg.math.interpolation.bspline.Degree
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/bspline.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/bspline.py">View source</a>
 
-## Class `Degree`
+
 
 Defines valid degrees for B-spline interpolation.
 
 <!-- Placeholder for "Used in" -->
 
-## Class Members
 
-*   `CONSTANT = <Degree.CONSTANT: 0>` <a id="CONSTANT"></a>
-*   `CUBIC = <Degree.CUBIC: 3>` <a id="CUBIC"></a>
-*   `LINEAR = <Degree.LINEAR: 1>` <a id="LINEAR"></a>
-*   `QUADRATIC = <Degree.QUADRATIC: 2>` <a id="QUADRATIC"></a>
-*   `QUARTIC = <Degree.QUARTIC: 4>` <a id="QUARTIC"></a>
+## Class Variables
+
+* `CONSTANT = <Degree.CONSTANT: 0>` <a id="CONSTANT"></a>
+* `CUBIC = <Degree.CUBIC: 3>` <a id="CUBIC"></a>
+* `LINEAR = <Degree.LINEAR: 1>` <a id="LINEAR"></a>
+* `QUADRATIC = <Degree.QUADRATIC: 2>` <a id="QUADRATIC"></a>
+* `QUARTIC = <Degree.QUARTIC: 4>` <a id="QUARTIC"></a>

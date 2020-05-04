@@ -5,21 +5,20 @@
 
 # tfg.geometry.representation.point.distance_to_ray
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/point.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/point.py">View source</a>
+
+
 
 Computes the distance from a M-d point to a M-d ray.
 
-``` python
+```python
 tfg.geometry.representation.point.distance_to_ray(
-    point,
-    origin,
-    direction,
-    keepdims=True,
-    name=None
+    point, origin, direction, keepdims=True, name=None
 )
 ```
 
@@ -27,12 +26,16 @@ tfg.geometry.representation.point.distance_to_ray(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Note:
 
 In the following, A1 to An are optional batch dimensions, which must be
 broadcast compatible.
 
+
+
 #### Args:
+
 
 * <b>`point`</b>: A tensor of shape `[A1, ..., An, M]`.
 * <b>`origin`</b>: A tensor of shape `[A1, ..., An, M]`.
@@ -48,7 +51,10 @@ broadcast compatible.
 A tensor of shape `[A1, ..., An, 1]` containing the distance from each point
 to the corresponding ray.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `point`, `origin`, or 'direction' is not
 supported.

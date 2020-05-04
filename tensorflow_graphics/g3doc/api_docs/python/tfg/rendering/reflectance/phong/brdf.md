@@ -5,23 +5,21 @@
 
 # tfg.rendering.reflectance.phong.brdf
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/phong.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/phong.py">View source</a>
+
+
 
 Evaluates the specular brdf of the Phong model.
 
-``` python
+```python
 tfg.rendering.reflectance.phong.brdf(
-    direction_incoming_light,
-    direction_outgoing_light,
-    surface_normal,
-    shininess,
-    albedo,
-    brdf_normalization=True,
-    name=None
+    direction_incoming_light, direction_outgoing_light, surface_normal, shininess,
+    albedo, brdf_normalization=True, name=None
 )
 ```
 
@@ -29,17 +27,23 @@ tfg.rendering.reflectance.phong.brdf(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Note:
 
 In the following, A1 to An are optional batch dimensions, which must be
 broadcast compatible.
+
+
 
 #### Note:
 
 The gradient of this function is not smooth when the dot product of the
 normal with any light is 0.0.
 
+
+
 #### Args:
+
 
 * <b>`direction_incoming_light`</b>: A tensor of shape `[A1, ..., An, 3]`, where the
   last dimension represents a normalized incoming light vector.
@@ -63,7 +67,10 @@ normal with any light is 0.0.
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
   the amount of light reflected in the outgoing light direction.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: if the shape of `direction_incoming_light`,
 `direction_outgoing_light`, `surface_normal`, `shininess` or `albedo` is not

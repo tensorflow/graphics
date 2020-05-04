@@ -5,15 +5,17 @@
 
 # Module: tfg.rendering.camera.orthographic
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py">View source</a>
+
+
 
 This module implements orthographic camera functionalities.
 
-<!-- Placeholder for "Used in" -->
 
 An orthographic camera represents three-dimensional objects in two dimensions
 by parallel projection, in which the projection lines are parallel to the

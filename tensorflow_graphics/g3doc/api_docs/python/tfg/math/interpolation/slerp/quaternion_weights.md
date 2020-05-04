@@ -5,21 +5,20 @@
 
 # tfg.math.interpolation.slerp.quaternion_weights
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View source</a>
+
+
 
 Calculates slerp weights for two normalized quaternions.
 
-``` python
+```python
 tfg.math.interpolation.slerp.quaternion_weights(
-    quaternion1,
-    quaternion2,
-    percent,
-    eps=None,
-    name=None
+    quaternion1, quaternion2, percent, eps=None, name=None
 )
 ```
 
@@ -39,7 +38,10 @@ the inputs are normalized, and whether Inf or Nan values are produced.
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`quaternion1`</b>: A tensor of shape `[A1, ... , An, 4]` storing normalized
   quaternions in its last dimension.
@@ -54,6 +56,7 @@ In the following, A1 to An are optional batch dimensions.
 
 #### Raises:
 
+
 * <b>`ValueError`</b>: If the shapes of quaternions do not match, if the last
   dimensions of quaternions are not 4, or if percent is neither a float, nor
   a tensor with last dimension 1.
@@ -61,5 +64,5 @@ In the following, A1 to An are optional batch dimensions.
 
 #### Returns:
 
-Two tensors of shape `[A1, ... , An, 1]` each, which are the two slerp weights
-for each quaternion.
+Two tensors of shape `[A1, ... , An, 1]` each, which are the two slerp
+  weights for each quaternion.

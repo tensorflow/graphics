@@ -5,15 +5,17 @@
 
 # Module: tfg.geometry.transformation.euler
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/euler.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/euler.py">View source</a>
+
+
 
 This modules implements Euler angles functionalities.
 
-<!-- Placeholder for "Used in" -->
 
 The Euler angles are defined using a vector $$[\theta, \gamma, \beta]^T \in
 \mathbb{R}^3$$, where $$\theta$$ is the angle about $$x$$, $$\gamma$$ the angle

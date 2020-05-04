@@ -5,15 +5,17 @@
 
 # Module: tfg.math.optimizer.levenberg_marquardt
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/optimizer/levenberg_marquardt.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/optimizer/levenberg_marquardt.py">View source</a>
+
+
 
 This module implements a Levenberg-Marquardt optimizer.
 
-<!-- Placeholder for "Used in" -->
 
 Minimizes \\(\min_{\mathbf{x}} \sum_i \|\mathbf{r}_i(\mathbf{x})\|^2_2\\) where
 \\(\mathbf{r}_i(\mathbf{x})\\)

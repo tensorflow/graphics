@@ -5,15 +5,17 @@
 
 # Module: tfg.rendering.camera.perspective
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py">View source</a>
+
+
 
 This module implements perspective camera functionalities.
 
-<!-- Placeholder for "Used in" -->
 
 The perspective camera model, also referred to as pinhole camera model, is
 defined using a focal length \\((f_x, f_y)\\) and a principal point

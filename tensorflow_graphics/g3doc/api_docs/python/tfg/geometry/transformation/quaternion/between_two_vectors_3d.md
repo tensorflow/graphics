@@ -5,19 +5,20 @@
 
 # tfg.geometry.transformation.quaternion.between_two_vectors_3d
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View source</a>
+
+
 
 Computes quaternion over the shortest arc between two vectors.
 
-``` python
+```python
 tfg.geometry.transformation.quaternion.between_two_vectors_3d(
-    vector1,
-    vector2,
-    name=None
+    vector1, vector2, name=None
 )
 ```
 
@@ -32,7 +33,10 @@ vector1 to vector2.
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`vector1`</b>: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
   represents the first vector.
@@ -47,6 +51,9 @@ In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An, 4]`, where the last dimension represents
 a normalized quaternion.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `vector1` or `vector2` is not supported.

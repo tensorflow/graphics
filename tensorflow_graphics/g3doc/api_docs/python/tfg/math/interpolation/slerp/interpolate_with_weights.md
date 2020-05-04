@@ -5,21 +5,20 @@
 
 # tfg.math.interpolation.slerp.interpolate_with_weights
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View source</a>
+
+
 
 Interpolates vectors by taking their weighted sum.
 
-``` python
+```python
 tfg.math.interpolation.slerp.interpolate_with_weights(
-    vector1,
-    vector2,
-    weight1,
-    weight2,
-    name=None
+    vector1, vector2, weight1, weight2, name=None
 )
 ```
 
@@ -34,7 +33,10 @@ Therefore this function simply returns weight1 * vector1 + weight2 * vector2.
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`vector1`</b>: A tensor of shape `[A1, ... , An, M]`, which stores a normalized
   vector in its last dimension.

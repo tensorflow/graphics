@@ -5,19 +5,20 @@
 
 # tfg.geometry.transformation.quaternion.normalize
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View source</a>
+
+
 
 Normalizes a quaternion.
 
-``` python
+```python
 tfg.geometry.transformation.quaternion.normalize(
-    quaternion,
-    eps=1e-12,
-    name=None
+    quaternion, eps=1e-12, name=None
 )
 ```
 
@@ -25,11 +26,15 @@ tfg.geometry.transformation.quaternion.normalize(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`quaternion`</b>:  A tensor of shape `[A1, ..., An, 4]`, where the last dimension
   represents a quaternion.
@@ -42,6 +47,9 @@ In the following, A1 to An are optional batch dimensions.
 A N-D tensor of shape `[?, ..., ?, 1]` where the quaternion elements have
 been normalized.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `quaternion` is not supported.
