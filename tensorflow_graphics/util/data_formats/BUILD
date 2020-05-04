@@ -13,8 +13,8 @@
 # limitations under the License.
 # Data format utilities for tf-graphics.
 
-# google internal package dependency 8)
-load("//devtools/python/blaze:python3.bzl", "py2and3_strict_test")
+# google internal package dependency 8
+# google internal package dependency 13
 
 licenses(["notice"])  # Apache 2.0
 
@@ -36,7 +36,7 @@ py_library(
     srcs_version = "PY2AND3",
 )
 
-py2and3_strict_test(
+py_test(
     name = "exr_test",
     srcs = ["tests/exr_test.py"],
     deps = [

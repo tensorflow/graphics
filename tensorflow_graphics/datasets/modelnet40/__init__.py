@@ -15,6 +15,7 @@
 """ModelNet40 classification dataset fom https://modelnet.cs.princeton.edu."""
 
 import os
+import h5py
 import tensorflow as tf
 import tensorflow_datasets as tfds
 
@@ -52,9 +53,6 @@ _LABELS = [
 # --- registers the checksum
 _CHECKSUM_DIR = os.path.join(os.path.dirname(__file__), 'checksums/')
 _CHECKSUM_DIR = os.path.normpath(_CHECKSUM_DIR)
-# BEGIN GOOGLE-INTERNAL
-_CHECKSUM_DIR = 'google3/third_party/py/tensorflow_graphics/datasets/modelnet40/checksums'
-# END GOOGLE-INTERNAL
 tfds.download.add_checksums_dir(_CHECKSUM_DIR)
 
 
@@ -113,7 +111,7 @@ class ModelNet40(tfds.core.GeneratorBasedBuilder):
     for filename in filename_list:
       h5path = os.path.join(ancestor_path, filename)
 
-      with tfds.core.lazy_imports.h5py.File(h5path, 'r') as h5file:
+      with h5py.File(h5path, 'r') as h5file:
         points = h5file['data'][:]  # shape=(2048, 2048, 3)
         label = h5file['label'][:]  # shape=(2048, )
 

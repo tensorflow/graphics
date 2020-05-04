@@ -42,7 +42,7 @@ flags.DEFINE_string("site_path", "graphics/api_docs/python",
                     "Path prefix in the _toc.yaml")
 
 
-def main(unused_argv):
+def main(_):
   doc_generator = generate_lib.DocGenerator(
       root_title="Tensorflow Graphics",
       py_modules=[("tfg", tfg)],

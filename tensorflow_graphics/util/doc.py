@@ -17,7 +17,7 @@ import os
 
 def _import_tfg_docs():
   """Checks if __init__.py imports should be executed (for buildling docs)."""
-  return os.getenv("TFG_DOC_IMPORTS", 0) == "1"
+  return os.getenv("TFG_DOC_IMPORTS", "0") == "1"
 
 
 def enable_tfg_doc_imports():

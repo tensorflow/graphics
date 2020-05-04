@@ -13,7 +13,7 @@
 # limitations under the License.
 # Colab resources for tf-graphics.
 
-# google internal package dependency 8)
+# google internal package dependency 8
 
 package(default_visibility = ["//visibility:public"])
 

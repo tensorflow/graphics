@@ -11,5 +11,5 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Warning: this blank file needed by blaze/rules_python, see:
+# Warning: this blank file needed by bazel/rules_python, see:
 # https://github.com/bazelbuild/rules_python/issues/299

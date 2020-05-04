@@ -57,7 +57,7 @@ def _max_error(arrays1, arrays2):
 class TestCase(parameterized.TestCase, tf.test.TestCase):
   """Test case class implementing extra test functionalities."""
 
-  def setUp(self):
+  def setUp(self):  # pylint: disable=invalid-name
     """Sets the seed for tensorflow and numpy."""
     super(TestCase, self).setUp()
     try:

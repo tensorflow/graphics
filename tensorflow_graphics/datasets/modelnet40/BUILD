@@ -11,21 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-load("//devtools/python/blaze:pytype.bzl", "pytype_strict_library")
-load("//production/dependency/rpc/testing/hermetic:build_defs.bzl", "py_hermetic_test")
+# google internal package dependency 8
+# google internal package dependency 10
 
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = ["//visibility:public"])
 
-pytype_strict_library(
+py_library(
     name = "modelnet40",
     srcs = ["__init__.py"],
     data = [":url_checksums"],
     deps = [
+        # google internal package dependency 11
         # google internal package dependency 6
         # google internal package dependency 1,
-        "//third_party/py/tensorflow_datasets",
+        # google internal package dependency 5,
     ],
 )
 
@@ -41,14 +42,15 @@ filegroup(
     ]),
 )
 
-py_hermetic_test(
+py_test(
     name = "modelnet40_test",
+    size = "small",
     srcs = ["modelnet40_test.py"],
     data = [":fake_examples"],
-    python_version = "PY3",
     deps = [
         ":modelnet40",
-        "//third_party/py/absl/logging",
+        # google internal package dependency 5,
+        # google internal package dependency 12
     ],
 )
 
@@ -59,7 +61,7 @@ py_binary(
     visibility = ["//visibility:private"],
     deps = [
         ":modelnet40",
-        "//third_party/py/tensorflow_datasets",
+        # google internal package dependency 5,
     ],
 )
 
@@ -69,13 +71,24 @@ py_binary(
     python_version = "PY3",
     deps = [
         ":modelnet40",
-        "//third_party/py/absl:app",
+        # google internal package dependency 14,
         # google internal package dependency 4,
-        "//third_party/py/matplotlib",
-        "//third_party/py/mpl_toolkits/mplot3d",
-        "//tensorflow_graphics/datasets",
+        # google internal package dependency 5,
     ],
 )
+
+# TODO(atagliasacchi): test when non-headless enviroment available
+# py_binary(
+#     name = "modelnet40_show",
+#     srcs = ["modelnet40_show.py"],
+#     python_version = "PY3",
+#     deps = [
+#         ":modelnet40",
+#         requirement("absl-py"),
+#         requirement("matplotlib"),
+#         # google internal package dependency 5,
+#     ],
+# )
 
 py_binary(
     name = "modelnet40_checksums",
@@ -83,8 +96,8 @@ py_binary(
     python_version = "PY3",
     deps = [
         ":modelnet40",
-        "//third_party/py/absl:app",
+        # google internal package dependency 14,
         # google internal package dependency 4,
-        "//tensorflow_graphics/datasets",
+        # google internal package dependency 5,
     ],
 )
