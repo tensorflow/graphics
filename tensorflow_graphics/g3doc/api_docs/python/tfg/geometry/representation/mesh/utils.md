@@ -5,20 +5,16 @@
 
 # Module: tfg.geometry.representation.mesh.utils
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/utils.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/utils.py">View source</a>
+
+
 
 This module implements utility functions for meshes.
 
-<!-- Placeholder for "Used in" -->
 
-
-## Functions
-
-[`extract_unique_edges_from_triangular_mesh(...)`](../../../../tfg/geometry/representation/mesh/utils/extract_unique_edges_from_triangular_mesh.md): Extracts all the unique edges using the faces of a mesh.
-
-[`get_degree_based_edge_weights(...)`](../../../../tfg/geometry/representation/mesh/utils/get_degree_based_edge_weights.md): Computes vertex degree based weights for edges of a mesh.
 

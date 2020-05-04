@@ -28,17 +28,9 @@ from version import __version__  # pylint: disable=g-import-not-at-top
 
 tensorflow_version = '1.13.1'
 
-INSTALL_PACKAGES = [
-    'absl-py >= 0.6.1',
-    'numpy >= 1.15.4',
-    'scipy >= 1.1.0',
-    'six >= 1.11.0',
-    'setuptools >= 41.0.0',
-    'tensorflow_datasets >= 2.1.0',
-    'matplotlib >= 2.2.5',
-    'tqdm >= 4.45.0',
-    'psutil >= 5.7.0',
-]
+INSTALL_PACKAGES = [line.strip() for line in open('requirements.txt')]
+INSTALL_PACKAGES = [line for line in INSTALL_PACKAGES \
+                    if not line.startswith('#')]
 
 if '--compute_platform' in sys.argv:
   compute_platform_idx = sys.argv.index('--compute_platform')

@@ -240,25 +240,25 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
         neighbor of vertex `i`, and `neighbors[A1, ..., An, i, i] > 0` for all
         `i`, and `sum(neighbors, axis=-1)[A1, ..., An, i] == 1.0` for all `i`.
         These requirements are relaxed in this implementation.
-      sizes: An `int` tensor of shape `[A1, ..., An]` indicating the true input
-        sizes in case of padding (`sizes=None` indicates no padding).
-        `sizes[A1, ..., An] <= V`. If `data` and `neighbors` are 2-D, `sizes`
-        will be ignored. As an example usage of `sizes`, consider an input
-        consisting of three graphs `G0`, `G1`, and `G2` with `V0`, `V1`, and
-        `V2` vertices respectively. The padded input would have the shapes
-        `data.shape = [3, V, C]`, and `neighbors.shape = [3, V, V]`,
-        where `V = max([V0, V1, V2])`. The true sizes of each graph will be
-        specified by `sizes=[V0, V1, V2]`. `data[i, :Vi, :]` and
-        `neighbors[i, :Vi, :Vi]` will be the vertex and neighborhood data of
-        graph `Gi`. The `SparseTensor` `neighbors` should have no nonzero
-        entries in the padded regions.
+      **kwargs: A dictionary containing the key `sizes`, which is an `int` tensor
+        of shape `[A1, ..., An]` indicating the true input sizes in case of
+        padding (`sizes=None` indicates no padding). `sizes[A1, ..., An] <= V`.
+        If `data` and `neighbors` are 2-D, `sizes` will be ignored. As an
+        example usage of `sizes`, consider an input consisting of three graphs
+        `G0`, `G1`, and `G2` with `V0`, `V1`, and `V2` vertices respectively.
+        The padded input would have the shapes `data.shape = [3, V, C]`, and
+        `neighbors.shape = [3, V, V]`, where `V = max([V0, V1, V2])`. The true
+        sizes of each graph will be specified by `sizes=[V0, V1, V2]`.
+        `data[i, :Vi, :]` and `neighbors[i, :Vi, :Vi]` will be the vertex and
+        neighborhood data of graph `Gi`. The `SparseTensor` `neighbors` should
+        have no nonzero entries in the padded regions.
 
     Returns:
       Tensor with shape `[A1, ..., An, V, num_output_channels]`.
     """
 
     # pyformat: enable
-    sizes = kwargs.get("sizes", None)
+    sizes = kwargs.get('sizes', None)
     return gc.feature_steered_convolution(
         data=inputs[0],
         neighbors=inputs[1],
@@ -383,8 +383,9 @@ class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
         `sum(neighbors, axis=-1)[A1, ..., An, i] == 1.0` for all `i`, although
         this is not enforced in the implementation in case different neighbor
         weighting schemes are desired.
-      sizes: An `int` tensor of shape `[A1, ..., An]` indicating the true input
-        sizes in case of padding (`sizes=None` indicates no padding).
+      **kwargs: A dictionary containing the key `sizes`, which is an `int`
+        tensor of shape `[A1, ..., An]` indicating the true input sizes in case
+        of padding (`sizes=None` indicates no padding).
         `sizes[A1, ..., An] <= V`. If `data` and `neighbors` are 2-D, `sizes`
         will be ignored. As an example usage of `sizes`, consider an input
         consisting of three graphs `G0`, `G1`, and `G2` with `V0`, `V1`, and

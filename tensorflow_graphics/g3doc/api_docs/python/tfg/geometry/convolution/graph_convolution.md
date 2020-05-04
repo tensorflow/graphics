@@ -5,15 +5,17 @@
 
 # Module: tfg.geometry.convolution.graph_convolution
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/convolution/graph_convolution.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/convolution/graph_convolution.py">View source</a>
+
+
 
 This module implements various graph convolutions in TensorFlow.
 
-<!-- Placeholder for "Used in" -->
 
 
 ## Functions

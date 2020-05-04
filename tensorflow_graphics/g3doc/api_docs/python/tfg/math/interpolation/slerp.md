@@ -5,15 +5,17 @@
 
 # Module: tfg.math.interpolation.slerp
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View source</a>
+
+
 
 Tensorflow.graphics slerp interpolation module.
 
-<!-- Placeholder for "Used in" -->
 
 Spherical linear interpolation (slerp) is defined for both quaternions and for
 regular M-D vectors, and act slightly differently because of inherent

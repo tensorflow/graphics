@@ -5,18 +5,20 @@
 
 # tfg.math.spherical_harmonics.generate_l_m_permutations
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View source</a>
+
+
 
 Generates permutations of degree l and order m for spherical harmonics.
 
-``` python
+```python
 tfg.math.spherical_harmonics.generate_l_m_permutations(
-    max_band,
-    name=None
+    max_band, name=None
 )
 ```
 
@@ -24,7 +26,9 @@ tfg.math.spherical_harmonics.generate_l_m_permutations(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Args:
+
 
 * <b>`max_band`</b>: An integer scalar storing the highest band.
 * <b>`name`</b>: A name for this op. Defaults to

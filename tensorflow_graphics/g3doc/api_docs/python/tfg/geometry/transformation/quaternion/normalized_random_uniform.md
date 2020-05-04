@@ -5,18 +5,20 @@
 
 # tfg.geometry.transformation.quaternion.normalized_random_uniform
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View source</a>
+
+
 
 Random normalized quaternion following a uniform distribution law on SO(3).
 
-``` python
+```python
 tfg.geometry.transformation.quaternion.normalized_random_uniform(
-    quaternion_shape,
-    name=None
+    quaternion_shape, name=None
 )
 ```
 
@@ -24,7 +26,9 @@ tfg.geometry.transformation.quaternion.normalized_random_uniform(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Args:
+
 
 * <b>`quaternion_shape`</b>: A list representing the shape of the output tensor.
 * <b>`name`</b>: A name for this op that defaults to

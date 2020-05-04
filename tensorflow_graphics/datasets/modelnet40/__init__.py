@@ -53,9 +53,6 @@ _LABELS = [
 # --- registers the checksum
 _CHECKSUM_DIR = os.path.join(os.path.dirname(__file__), 'checksums/')
 _CHECKSUM_DIR = os.path.normpath(_CHECKSUM_DIR)
-# # BEGIN GOOGLE-INTERNAL
-# _CHECKSUM_DIR = 'google3/third_party/py/tensorflow_graphics/datasets/modelnet40/checksums'
-# # END GOOGLE-INTERNAL
 tfds.download.add_checksums_dir(_CHECKSUM_DIR)
 
 
@@ -113,22 +110,15 @@ class ModelNet40(tfds.core.GeneratorBasedBuilder):
     example_key = -1  # as yield exists, need to pre-increment
     for filename in filename_list:
       h5path = os.path.join(ancestor_path, filename)
-      h5file = h5py.File(h5path, 'r')
 
-      # BEGIN GOOGLE-INTERNAL
-      # h5file = tfds.core.lazy_imports.h5py.File(h5path, 'r')
-      # TODO(b/154806738): needed for CNS
-      # with tf.io.gfile.GFile(h5path, mode='rb') as binary_fid:
-      #   h5file = tfds.core.lazy_imports.h5py.File(binary_fid, 'r')
-      # END GOOGLE-INTERNAL
+      with h5py.File(h5path, 'r') as h5file:
+        points = h5file['data'][:]  # shape=(2048, 2048, 3)
+        label = h5file['label'][:]  # shape=(2048, )
 
-      points = h5file['data'][:]  # shape=(2048, 2048, 3)
-      label = h5file['label'][:]  # shape=(2048, )
-
-      models_per_file = points.shape[0]
-      for imodel in range(models_per_file):
-        example_key += 1
-        yield example_key, {
-            'points': points[imodel, :, :],
-            'label': int(label[imodel])
-        }
+        models_per_file = points.shape[0]
+        for imodel in range(models_per_file):
+          example_key += 1
+          yield example_key, {
+              'points': points[imodel, :, :],
+              'label': int(label[imodel])
+          }

@@ -13,7 +13,7 @@
 # limitations under the License.
 # Mesh functionalities for tf-graphics.
 
-# google internal package dependency 8)
+# google internal package dependency 8
 # google internal package dependency 10
 
 licenses(["notice"])  # Apache 2.0
@@ -58,6 +58,21 @@ py_library(
     ],
 )
 
+py_library(
+    name = "sampler",
+    srcs = ["sampler.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 1
+    deps = [
+        # google internal package dependency 1,
+        "//tensorflow_graphics/geometry/representation:triangle",
+        "//tensorflow_graphics/geometry/representation/mesh:normals",
+        "//tensorflow_graphics/util:asserts",
+        "//tensorflow_graphics/util:safe_ops",
+        "//tensorflow_graphics/util:shape",
+    ],
+)
+
 py_test(
     name = "normals_test",
     srcs = ["tests/normals_test.py"],
@@ -96,6 +111,30 @@ py_test(
         ":utils",
         # google internal package dependency 2
         # google internal package dependency 6
+        "//tensorflow_graphics/util:test_case",
+    ],
+)
+
+py_test(
+    name = "sampler_test",
+    srcs = [
+        "tests/mesh_test_utils.py",
+        "tests/sampler_test.py",
+    ],
+    srcs_version = "PY2AND3",
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 7
+    # google internal rule 8
+    # google internal rule 9
+    # google internal rule 10
+    # google internal rule 11
+    deps = [
+        ":sampler",
+        # google internal package dependency 2
+        # google internal package dependency 6
+        # google internal package dependency 1,
         "//tensorflow_graphics/util:test_case",
     ],
 )

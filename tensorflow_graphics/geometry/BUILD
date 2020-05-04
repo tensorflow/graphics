@@ -13,7 +13,7 @@
 # limitations under the License.
 # Geometry utils for tf-graphics.
 
-# google internal package dependency 8)
+# google internal package dependency 8
 
 licenses(["notice"])  # Apache 2.0
 

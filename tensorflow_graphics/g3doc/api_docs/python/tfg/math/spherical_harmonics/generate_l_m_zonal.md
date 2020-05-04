@@ -5,18 +5,20 @@
 
 # tfg.math.spherical_harmonics.generate_l_m_zonal
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View source</a>
+
+
 
 Generates l and m coefficients for zonal harmonics.
 
-``` python
+```python
 tfg.math.spherical_harmonics.generate_l_m_zonal(
-    max_band,
-    name=None
+    max_band, name=None
 )
 ```
 
@@ -24,7 +26,9 @@ tfg.math.spherical_harmonics.generate_l_m_zonal(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Args:
+
 
 * <b>`max_band`</b>: An integer scalar storing the highest band.
 * <b>`name`</b>: A name for this op. Defaults to

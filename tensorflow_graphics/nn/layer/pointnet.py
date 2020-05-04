@@ -63,9 +63,8 @@ class PointNetConv2Layer(tf.keras.layers.Layer):
 
   def build(self, input_shape):
     """Builds the layer with a specified input_shape."""
-    self.conv = tf.keras.layers.Conv2D(self.channels,
-                                       (1, 1),
-                                       input_shape=input_shape)
+    self.conv = tf.keras.layers.Conv2D(
+        self.channels, (1, 1), input_shape=input_shape)
     self.bn = tf.keras.layers.BatchNormalization(momentum=self.momentum)
 
   def call(self, inputs, training=None):  # pylint: disable=arguments-differ

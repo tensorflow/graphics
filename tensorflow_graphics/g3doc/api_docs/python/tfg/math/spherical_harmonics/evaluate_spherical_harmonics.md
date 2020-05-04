@@ -5,21 +5,20 @@
 
 # tfg.math.spherical_harmonics.evaluate_spherical_harmonics
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/spherical_harmonics.py">View source</a>
+
+
 
 Evaluates a point sample of a Spherical Harmonic basis function.
 
-``` python
+```python
 tfg.math.spherical_harmonics.evaluate_spherical_harmonics(
-    degree_l,
-    order_m,
-    theta,
-    phi,
-    name=None
+    degree_l, order_m, theta, phi, name=None
 )
 ```
 
@@ -27,16 +26,22 @@ tfg.math.spherical_harmonics.evaluate_spherical_harmonics(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Note:
 
 This function is implementating the algorithm and variable names described
 p. 12 of 'Spherical Harmonic Lighting: The Gritty Details.
 
+
+
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`degree_l`</b>: An integer tensor of shape `[A1, ..., An, C]`, where the last
   dimension represents the band of the spherical harmonics. Note that
@@ -57,7 +62,10 @@ In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An, C]` containing the evaluation of each basis
 of the spherical harmonics.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: if the shape of `theta` or `phi` is not supported.
 * <b>`InvalidArgumentError`</b>: if at least an element of `l`, `m`, `theta` or `phi`

@@ -5,18 +5,20 @@
 
 # tfg.geometry.transformation.quaternion.from_euler
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/quaternion.py">View source</a>
+
+
 
 Converts an Euler angle representation to a quaternion.
 
-``` python
+```python
 tfg.geometry.transformation.quaternion.from_euler(
-    angles,
-    name=None
+    angles, name=None
 )
 ```
 
@@ -24,15 +26,21 @@ tfg.geometry.transformation.quaternion.from_euler(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Note:
 
 Uses the z-y-x rotation convention (Tait-Bryan angles).
+
+
 
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`angles`</b>: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
   represents the three Euler angles. `[..., 0]` is the angle about `x` in
@@ -46,6 +54,9 @@ In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An, 4]`, where the last dimension represents
 a normalized quaternion.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `angles` is not supported.

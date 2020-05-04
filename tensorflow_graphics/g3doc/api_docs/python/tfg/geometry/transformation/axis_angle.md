@@ -5,15 +5,17 @@
 
 # Module: tfg.geometry.transformation.axis_angle
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/axis_angle.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/transformation/axis_angle.py">View source</a>
+
+
 
 This module implements axis-angle functionalities.
 
-<!-- Placeholder for "Used in" -->
 
 The axis-angle representation is defined as $$\theta\mathbf{a}$$, where
 $$\mathbf{a}$$ is a unit vector indicating the direction of rotation and

@@ -5,20 +5,20 @@
 
 # tfg.math.vector.reflect
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/vector.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/vector.py">View source</a>
+
+
 
 Computes the reflection direction for an incident vector.
 
-``` python
+```python
 tfg.math.vector.reflect(
-    vector,
-    normal,
-    axis=-1,
-    name=None
+    vector, normal, axis=-1, name=None
 )
 ```
 
@@ -35,7 +35,10 @@ function computes the reflected vector as
 In the following, A1 to An are optional batch dimensions, which should be
 broadcast compatible.
 
+
+
 #### Args:
+
 
 * <b>`vector`</b>: A tensor of shape `[A1, ..., Ai, ..., An]`, where the dimension i =
   axis represents a vector.

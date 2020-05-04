@@ -5,20 +5,20 @@
 
 # tfg.geometry.representation.mesh.normals.vertex_normals
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/representation/mesh/normals.py">View source</a>
+
+
 
 Computes vertex normals from a mesh.
 
-``` python
+```python
 tfg.geometry.representation.mesh.normals.vertex_normals(
-    vertices,
-    indices,
-    clockwise=True,
-    name=None
+    vertices, indices, clockwise=True, name=None
 )
 ```
 
@@ -36,7 +36,10 @@ normals.
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`vertices`</b>: A tensor of shape `[A1, ..., An, V, 3]`, where V is the number of
   vertices.
@@ -54,6 +57,9 @@ vertices and indices have different batch dimensions, this function
 broadcasts them into the same batch dimensions and the output batch
 dimensions are the broadcasted.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `vertices`, `indices` is not supported.

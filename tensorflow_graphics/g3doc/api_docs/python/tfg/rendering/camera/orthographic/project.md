@@ -5,18 +5,20 @@
 
 # tfg.rendering.camera.orthographic.project
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/orthographic.py">View source</a>
+
+
 
 Projects a 3d point onto the 2d camera plane.
 
-``` python
+```python
 tfg.rendering.camera.orthographic.project(
-    point_3d,
-    name=None
+    point_3d, name=None
 )
 ```
 
@@ -37,7 +39,10 @@ $$
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`point_3d`</b>: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
   represents a 3d point to project.
@@ -49,6 +54,9 @@ In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An, 2]`, where the last dimension represents
 a 2d point.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `point_3d` is not supported.

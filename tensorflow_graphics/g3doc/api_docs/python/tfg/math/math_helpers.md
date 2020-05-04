@@ -5,15 +5,17 @@
 
 # Module: tfg.math.math_helpers
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/math_helpers.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/math_helpers.py">View source</a>
+
+
 
 This module contains math routines that are shared by across different modules.
 
-<!-- Placeholder for "Used in" -->
 
 
 ## Functions

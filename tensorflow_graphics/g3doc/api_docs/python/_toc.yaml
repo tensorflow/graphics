@@ -11,431 +11,488 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Automatically generated file; please do not edit
 toc:
-  - title: tfg
+- title: tfg
+  section:
+  - title: Overview
+    path: /graphics/api_docs/python/tfg
+- title: tfg.geometry
+  section:
+  - title: Overview
+    path: /graphics/api_docs/python/tfg/geometry
+  - title: convolution
     section:
     - title: Overview
-      path: /graphics/api_docs/python/tfg
-  - title: tfg.geometry
-    section:
-    - title: Overview
-      path: /graphics/api_docs/python/tfg/geometry
-    - title: convolution
+      path: /graphics/api_docs/python/tfg/geometry/convolution
+    - title: graph_convolution
       section:
       - title: Overview
-        path: /graphics/api_docs/python/tfg/geometry/convolution
-      - title: graph_convolution
+        path: /graphics/api_docs/python/tfg/geometry/convolution/graph_convolution
+      - title: edge_convolution_template
+        path: /graphics/api_docs/python/tfg/geometry/convolution/graph_convolution/edge_convolution_template
+      - title: feature_steered_convolution
+        path: /graphics/api_docs/python/tfg/geometry/convolution/graph_convolution/feature_steered_convolution
+    - title: graph_pooling
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling
+      - title: pool
+        path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling/pool
+      - title: unpool
+        path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling/unpool
+      - title: upsample_transposed_convolution
+        path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling/upsample_transposed_convolution
+    - title: utils
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/convolution/utils
+  - title: deformation_energy
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/geometry/deformation_energy
+    - title: as_conformal_as_possible
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/deformation_energy/as_conformal_as_possible
+      - title: energy
+        path: /graphics/api_docs/python/tfg/geometry/deformation_energy/as_conformal_as_possible/energy
+  - title: representation
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/geometry/representation
+    - title: grid
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/representation/grid
+      - title: generate
+        path: /graphics/api_docs/python/tfg/geometry/representation/grid/generate
+    - title: mesh
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/representation/mesh
+      - title: normals
         section:
         - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_convolution
-        - title: edge_convolution_template
-          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_convolution/edge_convolution_template
-        - title: feature_steered_convolution
-          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_convolution/feature_steered_convolution
-      - title: graph_pooling
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling
-        - title: pool
-          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling/pool
-        - title: unpool
-          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling/unpool
-        - title: upsample_transposed_convolution
-          path: /graphics/api_docs/python/tfg/geometry/convolution/graph_pooling/upsample_transposed_convolution
+          path: /graphics/api_docs/python/tfg/geometry/representation/mesh/normals
+        - title: face_normals
+          path: /graphics/api_docs/python/tfg/geometry/representation/mesh/normals/face_normals
+        - title: gather_faces
+          path: /graphics/api_docs/python/tfg/geometry/representation/mesh/normals/gather_faces
+        - title: vertex_normals
+          path: /graphics/api_docs/python/tfg/geometry/representation/mesh/normals/vertex_normals
       - title: utils
         section:
         - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils
-        - title: check_valid_graph_convolution_input
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/check_valid_graph_convolution_input
-        - title: check_valid_graph_pooling_input
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/check_valid_graph_pooling_input
-        - title: check_valid_graph_unpooling_input
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/check_valid_graph_unpooling_input
-        - title: convert_to_block_diag_2d
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/convert_to_block_diag_2d
-        - title: flatten_batch_to_2d
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/flatten_batch_to_2d
-        - title: partition_sums_2d
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/partition_sums_2d
-        - title: unflatten_2d_to_batch
-          path: /graphics/api_docs/python/tfg/geometry/convolution/utils/unflatten_2d_to_batch
-    - title: deformation_energy
+          path: /graphics/api_docs/python/tfg/geometry/representation/mesh/utils
+    - title: point
       section:
       - title: Overview
-        path: /graphics/api_docs/python/tfg/geometry/deformation_energy
-      - title: as_conformal_as_possible
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/deformation_energy/as_conformal_as_possible
-        - title: energy
-          path: /graphics/api_docs/python/tfg/geometry/deformation_energy/as_conformal_as_possible/energy
-    - title: representation
+        path: /graphics/api_docs/python/tfg/geometry/representation/point
+      - title: distance_to_ray
+        path: /graphics/api_docs/python/tfg/geometry/representation/point/distance_to_ray
+      - title: project_to_ray
+        path: /graphics/api_docs/python/tfg/geometry/representation/point/project_to_ray
+    - title: ray
       section:
       - title: Overview
-        path: /graphics/api_docs/python/tfg/geometry/representation
-      - title: grid
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/representation/grid
-        - title: generate
-          path: /graphics/api_docs/python/tfg/geometry/representation/grid/generate
-      - title: mesh
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/representation/mesh
-        - title: normals
-          section:
-          - title: Overview
-            path: /graphics/api_docs/python/tfg/geometry/representation/mesh/normals
-          - title: face_normals
-            path: /graphics/api_docs/python/tfg/geometry/representation/mesh/normals/face_normals
-          - title: gather_faces
-            path: /graphics/api_docs/python/tfg/geometry/representation/mesh/normals/gather_faces
-          - title: vertex_normals
-            path: /graphics/api_docs/python/tfg/geometry/representation/mesh/normals/vertex_normals
-        - title: utils
-          section:
-          - title: Overview
-            path: /graphics/api_docs/python/tfg/geometry/representation/mesh/utils
-          - title: extract_unique_edges_from_triangular_mesh
-            path: /graphics/api_docs/python/tfg/geometry/representation/mesh/utils/extract_unique_edges_from_triangular_mesh
-          - title: get_degree_based_edge_weights
-            path: /graphics/api_docs/python/tfg/geometry/representation/mesh/utils/get_degree_based_edge_weights
-      - title: point
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/representation/point
-        - title: distance_to_ray
-          path: /graphics/api_docs/python/tfg/geometry/representation/point/distance_to_ray
-        - title: project_to_ray
-          path: /graphics/api_docs/python/tfg/geometry/representation/point/project_to_ray
+        path: /graphics/api_docs/python/tfg/geometry/representation/ray
+      - title: intersection_ray_sphere
+        path: /graphics/api_docs/python/tfg/geometry/representation/ray/intersection_ray_sphere
+      - title: triangulate
+        path: /graphics/api_docs/python/tfg/geometry/representation/ray/triangulate
+    - title: triangle
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/representation/triangle
+      - title: area
+        path: /graphics/api_docs/python/tfg/geometry/representation/triangle/area
+      - title: normal
+        path: /graphics/api_docs/python/tfg/geometry/representation/triangle/normal
+  - title: transformation
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/geometry/transformation
+    - title: axis_angle
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle
+      - title: from_euler
+        path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/from_euler
+      - title: from_euler_with_small_angles_approximation
+        path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/from_euler_with_small_angles_approximation
+      - title: from_quaternion
+        path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/from_quaternion
+      - title: from_rotation_matrix
+        path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/from_rotation_matrix
+      - title: inverse
+        path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/inverse
+      - title: is_normalized
+        path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/is_normalized
+      - title: rotate
+        path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/rotate
+    - title: euler
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/transformation/euler
+      - title: from_axis_angle
+        path: /graphics/api_docs/python/tfg/geometry/transformation/euler/from_axis_angle
+      - title: from_quaternion
+        path: /graphics/api_docs/python/tfg/geometry/transformation/euler/from_quaternion
+      - title: from_rotation_matrix
+        path: /graphics/api_docs/python/tfg/geometry/transformation/euler/from_rotation_matrix
+      - title: inverse
+        path: /graphics/api_docs/python/tfg/geometry/transformation/euler/inverse
+    - title: linear_blend_skinning
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/transformation/linear_blend_skinning
+      - title: blend
+        path: /graphics/api_docs/python/tfg/geometry/transformation/linear_blend_skinning/blend
+    - title: quaternion
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion
+      - title: between_two_vectors_3d
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/between_two_vectors_3d
+      - title: conjugate
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/conjugate
+      - title: from_axis_angle
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/from_axis_angle
+      - title: from_euler
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/from_euler
+      - title: from_euler_with_small_angles_approximation
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/from_euler_with_small_angles_approximation
+      - title: from_rotation_matrix
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/from_rotation_matrix
+      - title: inverse
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/inverse
+      - title: is_normalized
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/is_normalized
+      - title: multiply
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/multiply
+      - title: normalize
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/normalize
+      - title: normalized_random_uniform
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/normalized_random_uniform
+      - title: normalized_random_uniform_initializer
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/normalized_random_uniform_initializer
+      - title: relative_angle
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/relative_angle
+      - title: rotate
+        path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/rotate
+    - title: rotation_matrix_2d
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d
+      - title: from_euler
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d/from_euler
+      - title: from_euler_with_small_angles_approximation
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d/from_euler_with_small_angles_approximation
+      - title: inverse
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d/inverse
+      - title: is_valid
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d/is_valid
+      - title: rotate
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d/rotate
+    - title: rotation_matrix_3d
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d
+      - title: assert_rotation_matrix_normalized
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/assert_rotation_matrix_normalized
+      - title: from_axis_angle
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/from_axis_angle
+      - title: from_euler
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/from_euler
+      - title: from_euler_with_small_angles_approximation
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/from_euler_with_small_angles_approximation
+      - title: from_quaternion
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/from_quaternion
+      - title: inverse
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/inverse
+      - title: is_valid
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/is_valid
+      - title: rotate
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/rotate
+    - title: rotation_matrix_common
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_common
+      - title: is_valid
+        path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_common/is_valid
+- title: tfg.image
+  section:
+  - title: Overview
+    path: /graphics/api_docs/python/tfg/image
+  - title: color_space
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/image/color_space
+    - title: constants
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/image/color_space/constants
+    - title: linear_rgb
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/image/color_space/linear_rgb
+      - title: from_srgb
+        path: /graphics/api_docs/python/tfg/image/color_space/linear_rgb/from_srgb
+    - title: srgb
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/image/color_space/srgb
+      - title: from_linear_rgb
+        path: /graphics/api_docs/python/tfg/image/color_space/srgb/from_linear_rgb
+  - title: matting
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/image/matting
+    - title: build_matrices
+      path: /graphics/api_docs/python/tfg/image/matting/build_matrices
+    - title: linear_coefficients
+      path: /graphics/api_docs/python/tfg/image/matting/linear_coefficients
+    - title: loss
+      path: /graphics/api_docs/python/tfg/image/matting/loss
+    - title: reconstruct
+      path: /graphics/api_docs/python/tfg/image/matting/reconstruct
+  - title: pyramid
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/image/pyramid
+    - title: downsample
+      path: /graphics/api_docs/python/tfg/image/pyramid/downsample
+    - title: merge
+      path: /graphics/api_docs/python/tfg/image/pyramid/merge
+    - title: split
+      path: /graphics/api_docs/python/tfg/image/pyramid/split
+    - title: upsample
+      path: /graphics/api_docs/python/tfg/image/pyramid/upsample
+- title: tfg.math
+  section:
+  - title: Overview
+    path: /graphics/api_docs/python/tfg/math
+  - title: interpolation
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/math/interpolation
+    - title: bspline
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/math/interpolation/bspline
+      - title: Degree
+        path: /graphics/api_docs/python/tfg/math/interpolation/bspline/Degree
+      - title: interpolate
+        path: /graphics/api_docs/python/tfg/math/interpolation/bspline/interpolate
+      - title: interpolate_with_weights
+        path: /graphics/api_docs/python/tfg/math/interpolation/bspline/interpolate_with_weights
+      - title: knot_weights
+        path: /graphics/api_docs/python/tfg/math/interpolation/bspline/knot_weights
+    - title: slerp
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/math/interpolation/slerp
+      - title: interpolate
+        path: /graphics/api_docs/python/tfg/math/interpolation/slerp/interpolate
+      - title: interpolate_with_weights
+        path: /graphics/api_docs/python/tfg/math/interpolation/slerp/interpolate_with_weights
+      - title: InterpolationType
+        path: /graphics/api_docs/python/tfg/math/interpolation/slerp/InterpolationType
+      - title: quaternion_weights
+        path: /graphics/api_docs/python/tfg/math/interpolation/slerp/quaternion_weights
+      - title: vector_weights
+        path: /graphics/api_docs/python/tfg/math/interpolation/slerp/vector_weights
+    - title: weighted
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/math/interpolation/weighted
+      - title: get_barycentric_coordinates
+        path: /graphics/api_docs/python/tfg/math/interpolation/weighted/get_barycentric_coordinates
+      - title: interpolate
+        path: /graphics/api_docs/python/tfg/math/interpolation/weighted/interpolate
+  - title: math_helpers
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/math/math_helpers
+    - title: cartesian_to_spherical_coordinates
+      path: /graphics/api_docs/python/tfg/math/math_helpers/cartesian_to_spherical_coordinates
+    - title: double_factorial
+      path: /graphics/api_docs/python/tfg/math/math_helpers/double_factorial
+    - title: factorial
+      path: /graphics/api_docs/python/tfg/math/math_helpers/factorial
+    - title: spherical_to_cartesian_coordinates
+      path: /graphics/api_docs/python/tfg/math/math_helpers/spherical_to_cartesian_coordinates
+    - title: square_to_spherical_coordinates
+      path: /graphics/api_docs/python/tfg/math/math_helpers/square_to_spherical_coordinates
+  - title: optimizer
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/math/optimizer
+    - title: levenberg_marquardt
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/math/optimizer/levenberg_marquardt
+      - title: minimize
+        path: /graphics/api_docs/python/tfg/math/optimizer/levenberg_marquardt/minimize
+  - title: spherical_harmonics
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/math/spherical_harmonics
+    - title: evaluate_legendre_polynomial
+      path: /graphics/api_docs/python/tfg/math/spherical_harmonics/evaluate_legendre_polynomial
+    - title: evaluate_spherical_harmonics
+      path: /graphics/api_docs/python/tfg/math/spherical_harmonics/evaluate_spherical_harmonics
+    - title: generate_l_m_permutations
+      path: /graphics/api_docs/python/tfg/math/spherical_harmonics/generate_l_m_permutations
+    - title: generate_l_m_zonal
+      path: /graphics/api_docs/python/tfg/math/spherical_harmonics/generate_l_m_zonal
+    - title: integration_product
+      path: /graphics/api_docs/python/tfg/math/spherical_harmonics/integration_product
+    - title: rotate_zonal_harmonics
+      path: /graphics/api_docs/python/tfg/math/spherical_harmonics/rotate_zonal_harmonics
+    - title: tile_zonal_coefficients
+      path: /graphics/api_docs/python/tfg/math/spherical_harmonics/tile_zonal_coefficients
+  - title: vector
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/math/vector
+    - title: cross
+      path: /graphics/api_docs/python/tfg/math/vector/cross
+    - title: dot
+      path: /graphics/api_docs/python/tfg/math/vector/dot
+    - title: reflect
+      path: /graphics/api_docs/python/tfg/math/vector/reflect
+- title: tfg.nn
+  section:
+  - title: Overview
+    path: /graphics/api_docs/python/tfg/nn
+  - title: layer
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/nn/layer
+    - title: graph_convolution
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution
+      - title: DynamicGraphConvolutionKerasLayer
+        path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution/DynamicGraphConvolutionKerasLayer
+      - title: FeatureSteeredConvolutionKerasLayer
+        path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution/FeatureSteeredConvolutionKerasLayer
+      - title: feature_steered_convolution_layer
+        path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution/feature_steered_convolution_layer
+  - title: loss
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/nn/loss
+    - title: chamfer_distance
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/nn/loss/chamfer_distance
+      - title: evaluate
+        path: /graphics/api_docs/python/tfg/nn/loss/chamfer_distance/evaluate
+  - title: metric
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/nn/metric
+    - title: fscore
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/nn/metric/fscore
+      - title: evaluate
+        path: /graphics/api_docs/python/tfg/nn/metric/fscore/evaluate
+    - title: intersection_over_union
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/nn/metric/intersection_over_union
+      - title: evaluate
+        path: /graphics/api_docs/python/tfg/nn/metric/intersection_over_union/evaluate
+    - title: precision
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/nn/metric/precision
+      - title: evaluate
+        path: /graphics/api_docs/python/tfg/nn/metric/precision/evaluate
+    - title: recall
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/nn/metric/recall
+      - title: evaluate
+        path: /graphics/api_docs/python/tfg/nn/metric/recall/evaluate
+- title: tfg.rendering
+  section:
+  - title: Overview
+    path: /graphics/api_docs/python/tfg/rendering
+  - title: camera
+    section:
+    - title: Overview
+      path: /graphics/api_docs/python/tfg/rendering/camera
+    - title: orthographic
+      section:
+      - title: Overview
+        path: /graphics/api_docs/python/tfg/rendering/camera/orthographic
+      - title: project
+        path: /graphics/api_docs/python/tfg/rendering/camera/orthographic/project
       - title: ray
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/representation/ray
-        - title: intersection_ray_sphere
-          path: /graphics/api_docs/python/tfg/geometry/representation/ray/intersection_ray_sphere
-        - title: triangulate
-          path: /graphics/api_docs/python/tfg/geometry/representation/ray/triangulate
-      - title: triangle
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/representation/triangle
-        - title: normal
-          path: /graphics/api_docs/python/tfg/geometry/representation/triangle/normal
-    - title: transformation
+        path: /graphics/api_docs/python/tfg/rendering/camera/orthographic/ray
+      - title: unproject
+        path: /graphics/api_docs/python/tfg/rendering/camera/orthographic/unproject
+    - title: perspective
       section:
       - title: Overview
-        path: /graphics/api_docs/python/tfg/geometry/transformation
-      - title: axis_angle
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle
-        - title: from_euler
-          path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/from_euler
-        - title: from_euler_with_small_angles_approximation
-          path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/from_euler_with_small_angles_approximation
-        - title: from_quaternion
-          path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/from_quaternion
-        - title: from_rotation_matrix
-          path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/from_rotation_matrix
-        - title: inverse
-          path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/inverse
-        - title: is_normalized
-          path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/is_normalized
-        - title: rotate
-          path: /graphics/api_docs/python/tfg/geometry/transformation/axis_angle/rotate
-      - title: euler
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/transformation/euler
-        - title: from_axis_angle
-          path: /graphics/api_docs/python/tfg/geometry/transformation/euler/from_axis_angle
-        - title: from_quaternion
-          path: /graphics/api_docs/python/tfg/geometry/transformation/euler/from_quaternion
-        - title: from_rotation_matrix
-          path: /graphics/api_docs/python/tfg/geometry/transformation/euler/from_rotation_matrix
-        - title: inverse
-          path: /graphics/api_docs/python/tfg/geometry/transformation/euler/inverse
-      - title: quaternion
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion
-        - title: between_two_vectors_3d
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/between_two_vectors_3d
-        - title: conjugate
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/conjugate
-        - title: from_axis_angle
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/from_axis_angle
-        - title: from_euler
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/from_euler
-        - title: from_euler_with_small_angles_approximation
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/from_euler_with_small_angles_approximation
-        - title: from_rotation_matrix
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/from_rotation_matrix
-        - title: inverse
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/inverse
-        - title: is_normalized
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/is_normalized
-        - title: multiply
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/multiply
-        - title: normalize
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/normalize
-        - title: normalized_random_uniform
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/normalized_random_uniform
-        - title: normalized_random_uniform_initializer
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/normalized_random_uniform_initializer
-        - title: relative_angle
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/relative_angle
-        - title: rotate
-          path: /graphics/api_docs/python/tfg/geometry/transformation/quaternion/rotate
-      - title: rotation_matrix_2d
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d
-        - title: from_euler
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d/from_euler
-        - title: from_euler_with_small_angles_approximation
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d/from_euler_with_small_angles_approximation
-        - title: inverse
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d/inverse
-        - title: is_valid
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d/is_valid
-        - title: rotate
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_2d/rotate
-      - title: rotation_matrix_3d
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d
-        - title: assert_rotation_matrix_normalized
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/assert_rotation_matrix_normalized
-        - title: from_axis_angle
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/from_axis_angle
-        - title: from_euler
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/from_euler
-        - title: from_euler_with_small_angles_approximation
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/from_euler_with_small_angles_approximation
-        - title: from_quaternion
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/from_quaternion
-        - title: inverse
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/inverse
-        - title: is_valid
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/is_valid
-        - title: rotate
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_3d/rotate
-      - title: rotation_matrix_common
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_common
-        - title: is_valid
-          path: /graphics/api_docs/python/tfg/geometry/transformation/rotation_matrix_common/is_valid
-  - title: tfg.image
+        path: /graphics/api_docs/python/tfg/rendering/camera/perspective
+      - title: intrinsics_from_matrix
+        path: /graphics/api_docs/python/tfg/rendering/camera/perspective/intrinsics_from_matrix
+      - title: matrix_from_intrinsics
+        path: /graphics/api_docs/python/tfg/rendering/camera/perspective/matrix_from_intrinsics
+      - title: project
+        path: /graphics/api_docs/python/tfg/rendering/camera/perspective/project
+      - title: ray
+        path: /graphics/api_docs/python/tfg/rendering/camera/perspective/ray
+      - title: unproject
+        path: /graphics/api_docs/python/tfg/rendering/camera/perspective/unproject
+  - title: opengl
     section:
     - title: Overview
-      path: /graphics/api_docs/python/tfg/image
-    - title: color_space
+      path: /graphics/api_docs/python/tfg/rendering/opengl
+    - title: math
       section:
       - title: Overview
-        path: /graphics/api_docs/python/tfg/image/color_space
-      - title: constants
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/image/color_space/constants
-      - title: linear_rgb
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/image/color_space/linear_rgb
-        - title: from_srgb
-          path: /graphics/api_docs/python/tfg/image/color_space/linear_rgb/from_srgb
-      - title: srgb
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/image/color_space/srgb
-        - title: from_linear_rgb
-          path: /graphics/api_docs/python/tfg/image/color_space/srgb/from_linear_rgb
-    - title: matting
-      section:
-      - title: Overview
-        path: /graphics/api_docs/python/tfg/image/matting
-      - title: laplacian_weights
-        path: /graphics/api_docs/python/tfg/image/matting/laplacian_weights
-      - title: loss
-        path: /graphics/api_docs/python/tfg/image/matting/loss
-    - title: pyramid
-      section:
-      - title: Overview
-        path: /graphics/api_docs/python/tfg/image/pyramid
-      - title: downsample
-        path: /graphics/api_docs/python/tfg/image/pyramid/downsample
-      - title: merge
-        path: /graphics/api_docs/python/tfg/image/pyramid/merge
-      - title: split
-        path: /graphics/api_docs/python/tfg/image/pyramid/split
-      - title: upsample
-        path: /graphics/api_docs/python/tfg/image/pyramid/upsample
-  - title: tfg.math
+        path: /graphics/api_docs/python/tfg/rendering/opengl/math
+      - title: clip_to_ndc
+        path: /graphics/api_docs/python/tfg/rendering/opengl/math/clip_to_ndc
+      - title: eye_to_clip
+        path: /graphics/api_docs/python/tfg/rendering/opengl/math/eye_to_clip
+      - title: look_at_right_handed
+        path: /graphics/api_docs/python/tfg/rendering/opengl/math/look_at_right_handed
+      - title: model_to_eye
+        path: /graphics/api_docs/python/tfg/rendering/opengl/math/model_to_eye
+      - title: model_to_screen
+        path: /graphics/api_docs/python/tfg/rendering/opengl/math/model_to_screen
+      - title: ndc_to_screen
+        path: /graphics/api_docs/python/tfg/rendering/opengl/math/ndc_to_screen
+      - title: perspective_correct_interpolation
+        path: /graphics/api_docs/python/tfg/rendering/opengl/math/perspective_correct_interpolation
+      - title: perspective_right_handed
+        path: /graphics/api_docs/python/tfg/rendering/opengl/math/perspective_right_handed
+  - title: reflectance
     section:
     - title: Overview
-      path: /graphics/api_docs/python/tfg/math
-    - title: interpolation
+      path: /graphics/api_docs/python/tfg/rendering/reflectance
+    - title: blinn_phong
       section:
       - title: Overview
-        path: /graphics/api_docs/python/tfg/math/interpolation
-      - title: bspline
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/math/interpolation/bspline
-        - title: Degree
-          path: /graphics/api_docs/python/tfg/math/interpolation/bspline/Degree
-        - title: interpolate
-          path: /graphics/api_docs/python/tfg/math/interpolation/bspline/interpolate
-        - title: interpolate_with_weights
-          path: /graphics/api_docs/python/tfg/math/interpolation/bspline/interpolate_with_weights
-        - title: knot_weights
-          path: /graphics/api_docs/python/tfg/math/interpolation/bspline/knot_weights
-      - title: slerp
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/math/interpolation/slerp
-        - title: interpolate
-          path: /graphics/api_docs/python/tfg/math/interpolation/slerp/interpolate
-        - title: interpolate_with_weights
-          path: /graphics/api_docs/python/tfg/math/interpolation/slerp/interpolate_with_weights
-        - title: InterpolationType
-          path: /graphics/api_docs/python/tfg/math/interpolation/slerp/InterpolationType
-        - title: quaternion_weights
-          path: /graphics/api_docs/python/tfg/math/interpolation/slerp/quaternion_weights
-        - title: vector_weights
-          path: /graphics/api_docs/python/tfg/math/interpolation/slerp/vector_weights
-      - title: weighted
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/math/interpolation/weighted
-        - title: interpolate
-          path: /graphics/api_docs/python/tfg/math/interpolation/weighted/interpolate
-    - title: math_helpers
+        path: /graphics/api_docs/python/tfg/rendering/reflectance/blinn_phong
+      - title: brdf
+        path: /graphics/api_docs/python/tfg/rendering/reflectance/blinn_phong/brdf
+    - title: lambertian
       section:
       - title: Overview
-        path: /graphics/api_docs/python/tfg/math/math_helpers
-      - title: cartesian_to_spherical_coordinates
-        path: /graphics/api_docs/python/tfg/math/math_helpers/cartesian_to_spherical_coordinates
-      - title: double_factorial
-        path: /graphics/api_docs/python/tfg/math/math_helpers/double_factorial
-      - title: factorial
-        path: /graphics/api_docs/python/tfg/math/math_helpers/factorial
-      - title: spherical_to_cartesian_coordinates
-        path: /graphics/api_docs/python/tfg/math/math_helpers/spherical_to_cartesian_coordinates
-      - title: square_to_spherical_coordinates
-        path: /graphics/api_docs/python/tfg/math/math_helpers/square_to_spherical_coordinates
-    - title: optimizer
+        path: /graphics/api_docs/python/tfg/rendering/reflectance/lambertian
+      - title: brdf
+        path: /graphics/api_docs/python/tfg/rendering/reflectance/lambertian/brdf
+    - title: phong
       section:
       - title: Overview
-        path: /graphics/api_docs/python/tfg/math/optimizer
-      - title: levenberg_marquardt
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/math/optimizer/levenberg_marquardt
-        - title: minimize
-          path: /graphics/api_docs/python/tfg/math/optimizer/levenberg_marquardt/minimize
-    - title: spherical_harmonics
-      section:
-      - title: Overview
-        path: /graphics/api_docs/python/tfg/math/spherical_harmonics
-      - title: evaluate_legendre_polynomial
-        path: /graphics/api_docs/python/tfg/math/spherical_harmonics/evaluate_legendre_polynomial
-      - title: evaluate_spherical_harmonics
-        path: /graphics/api_docs/python/tfg/math/spherical_harmonics/evaluate_spherical_harmonics
-      - title: generate_l_m_permutations
-        path: /graphics/api_docs/python/tfg/math/spherical_harmonics/generate_l_m_permutations
-      - title: generate_l_m_zonal
-        path: /graphics/api_docs/python/tfg/math/spherical_harmonics/generate_l_m_zonal
-      - title: integration_product
-        path: /graphics/api_docs/python/tfg/math/spherical_harmonics/integration_product
-      - title: rotate_zonal_harmonics
-        path: /graphics/api_docs/python/tfg/math/spherical_harmonics/rotate_zonal_harmonics
-      - title: tile_zonal_coefficients
-        path: /graphics/api_docs/python/tfg/math/spherical_harmonics/tile_zonal_coefficients
-    - title: vector
-      section:
-      - title: Overview
-        path: /graphics/api_docs/python/tfg/math/vector
-      - title: cross
-        path: /graphics/api_docs/python/tfg/math/vector/cross
-      - title: dot
-        path: /graphics/api_docs/python/tfg/math/vector/dot
-      - title: reflect
-        path: /graphics/api_docs/python/tfg/math/vector/reflect
-  - title: tfg.nn
-    section:
-    - title: Overview
-      path: /graphics/api_docs/python/tfg/nn
-    - title: layer
-      section:
-      - title: Overview
-        path: /graphics/api_docs/python/tfg/nn/layer
-      - title: graph_convolution
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution
-        - title: DynamicGraphConvolutionKerasLayer
-          path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution/DynamicGraphConvolutionKerasLayer
-        - title: FeatureSteeredConvolutionKerasLayer
-          path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution/FeatureSteeredConvolutionKerasLayer
-        - title: feature_steered_convolution_layer
-          path: /graphics/api_docs/python/tfg/nn/layer/graph_convolution/feature_steered_convolution_layer
-  - title: tfg.rendering
-    section:
-    - title: Overview
-      path: /graphics/api_docs/python/tfg/rendering
-    - title: camera
-      section:
-      - title: Overview
-        path: /graphics/api_docs/python/tfg/rendering/camera
-      - title: orthographic
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/rendering/camera/orthographic
-        - title: project
-          path: /graphics/api_docs/python/tfg/rendering/camera/orthographic/project
-        - title: ray
-          path: /graphics/api_docs/python/tfg/rendering/camera/orthographic/ray
-        - title: unproject
-          path: /graphics/api_docs/python/tfg/rendering/camera/orthographic/unproject
-      - title: perspective
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/rendering/camera/perspective
-        - title: intrinsics_from_matrix
-          path: /graphics/api_docs/python/tfg/rendering/camera/perspective/intrinsics_from_matrix
-        - title: matrix_from_intrinsics
-          path: /graphics/api_docs/python/tfg/rendering/camera/perspective/matrix_from_intrinsics
-        - title: project
-          path: /graphics/api_docs/python/tfg/rendering/camera/perspective/project
-        - title: ray
-          path: /graphics/api_docs/python/tfg/rendering/camera/perspective/ray
-        - title: unproject
-          path: /graphics/api_docs/python/tfg/rendering/camera/perspective/unproject
-    - title: reflectance
-      section:
-      - title: Overview
-        path: /graphics/api_docs/python/tfg/rendering/reflectance
-      - title: blinn_phong
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/rendering/reflectance/blinn_phong
-        - title: brdf
-          path: /graphics/api_docs/python/tfg/rendering/reflectance/blinn_phong/brdf
-      - title: lambertian
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/rendering/reflectance/lambertian
-        - title: brdf
-          path: /graphics/api_docs/python/tfg/rendering/reflectance/lambertian/brdf
-      - title: phong
-        section:
-        - title: Overview
-          path: /graphics/api_docs/python/tfg/rendering/reflectance/phong
-        - title: brdf
-          path: /graphics/api_docs/python/tfg/rendering/reflectance/phong/brdf
+        path: /graphics/api_docs/python/tfg/rendering/reflectance/phong
+      - title: brdf
+        path: /graphics/api_docs/python/tfg/rendering/reflectance/phong/brdf

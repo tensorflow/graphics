@@ -5,21 +5,20 @@
 
 # tfg.rendering.camera.perspective.unproject
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py">View source</a>
+
+
 
 Unprojects a 2d point in 3d.
 
-``` python
+```python
 tfg.rendering.camera.perspective.unproject(
-    point_2d,
-    depth,
-    focal,
-    principal_point,
-    name=None
+    point_2d, depth, focal, principal_point, name=None
 )
 ```
 
@@ -43,7 +42,10 @@ point.
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`point_2d`</b>: A tensor of shape `[A1, ..., An, 2]`, where the last dimension
   represents a 2d point to unproject.
@@ -61,7 +63,10 @@ In the following, A1 to An are optional batch dimensions.
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
 a 3d point.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `point_2d`, `depth`, `focal`, or
 `principal_point` is not supported.

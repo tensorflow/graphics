@@ -22,13 +22,9 @@ before_install:
   - sudo apt-get -y install libgles2-mesa-dev
   - sudo apt-get -y install libc-ares-dev
   - sudo apt-get -y install pylint
-  - pip install -U absl-py
-  - pip install -U scipy
-  - pip install -U OpenEXR
-  - pip install -U pylint
-  - pip install -U flake8
   - pip install -U python-coveralls
-  - pip install -U tensorflow_datasets
+  - pip install -U flake8
+  - pip install -r requirements.txt
 
 jobs:
   include:

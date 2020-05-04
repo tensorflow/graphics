@@ -5,18 +5,20 @@
 
 # tfg.rendering.camera.perspective.intrinsics_from_matrix
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/camera/perspective.py">View source</a>
+
+
 
 Extracts intrinsic parameters from a calibration matrix.
 
-``` python
+```python
 tfg.rendering.camera.perspective.intrinsics_from_matrix(
-    matrix,
-    name=None
+    matrix, name=None
 )
 ```
 
@@ -40,7 +42,10 @@ $$
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`matrix`</b>: A tensor of shape `[A1, ..., An, 3, 3]`, where the last two
   dimensions represent a camera calibration matrix.
@@ -53,6 +58,9 @@ In the following, A1 to An are optional batch dimensions.
 Tuple of two tensors, each one of shape `[A1, ..., An, 2]`. The first
 tensor represents the focal length, and the second one the principle point.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: If the shape of `matrix` is not supported.

@@ -5,21 +5,21 @@
 
 # tfg.math.interpolation.slerp.interpolate
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/slerp.py">View source</a>
+
+
 
 Applies slerp to vectors or quaternions.
 
-``` python
+```python
 tfg.math.interpolation.slerp.interpolate(
-    vector1,
-    vector2,
-    percent,
-    method=tfg.math.interpolation.slerp.InterpolationType.QUATERNION,
-    eps=None,
+    vector1, vector2, percent,
+    method=tfg.math.interpolation.slerp.InterpolationType.QUATERNION, eps=None,
     name=None
 )
 ```
@@ -28,7 +28,9 @@ tfg.math.interpolation.slerp.interpolate(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Args:
+
 
 * <b>`vector1`</b>: A tensor of shape `[A1, ... , An, M]`, which stores a normalized
   vector in its last dimension.
@@ -50,7 +52,10 @@ tfg.math.interpolation.slerp.interpolate(
 A tensor of shape [A1, ... , An, M]` which stores the result of the
 interpolation.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: if method is not amongst enumerated constants defined in
   InterpolationType.

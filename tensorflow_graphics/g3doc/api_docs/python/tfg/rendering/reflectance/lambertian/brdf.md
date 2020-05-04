@@ -5,20 +5,20 @@
 
 # tfg.rendering.reflectance.lambertian.brdf
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/lambertian.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/lambertian.py">View source</a>
+
+
 
 Evaluates the brdf of a Lambertian surface.
 
-``` python
+```python
 tfg.rendering.reflectance.lambertian.brdf(
-    direction_incoming_light,
-    direction_outgoing_light,
-    surface_normal,
-    albedo,
+    direction_incoming_light, direction_outgoing_light, surface_normal, albedo,
     name=None
 )
 ```
@@ -27,17 +27,23 @@ tfg.rendering.reflectance.lambertian.brdf(
 
 <!-- Placeholder for "Used in" -->
 
+
 #### Note:
 
 In the following, A1 to An are optional batch dimensions, which must be
 broadcast compatible.
+
+
 
 #### Note:
 
 The gradient of this function is not smooth when the dot product of the
 normal with any light is 0.0.
 
+
+
 #### Args:
+
 
 * <b>`direction_incoming_light`</b>: A tensor of shape `[A1, ..., An, 3]`, where the
   last dimension represents a normalized incoming light vector.
@@ -55,7 +61,10 @@ normal with any light is 0.0.
 A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
   the amount of reflected light in any outgoing direction.
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: if the shape of `direction_incoming_light`,
 `direction_outgoing_light`, `surface_normal`, `shininess` or `albedo` is not

@@ -15,16 +15,15 @@
 """Tests the ModelNet40 dataset with fake data."""
 
 import os
-from absl import logging
 import tensorflow_datasets as tfds
-from tensorflow_graphics.datasets.modelnet40 import ModelNet40
+from tensorflow_graphics.datasets import modelnet40
 
 _EXAMPLE_DIR = os.path.join(os.path.dirname(__file__), "fakes")
 
 
 class ModelNet40Test(tfds.testing.DatasetBuilderTestCase):
   """Tests the ModelNet40 dataset with fake data."""
-  DATASET_CLASS = ModelNet40
+  DATASET_CLASS = modelnet40.ModelNet40
   SPLITS = {
       "train": 24,  # Number of fake train example
       "test": 16,  # Number of fake test example
@@ -40,5 +39,4 @@ class ModelNet40Test(tfds.testing.DatasetBuilderTestCase):
 
 
 if __name__ == "__main__":
-  logging.info("Fakes loaded from: %s", _EXAMPLE_DIR)
   tfds.testing.test_main()

@@ -5,15 +5,17 @@
 
 # Module: tfg.math.interpolation
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/__init__.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/__init__.py">View source</a>
+
+
 
 Interpolation module.
 
-<!-- Placeholder for "Used in" -->
 
 
 ## Modules

@@ -5,21 +5,20 @@
 
 # tfg.math.interpolation.weighted.interpolate
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/weighted.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/math/interpolation/weighted.py">View source</a>
+
+
 
 Weighted interpolation for M-D point sets.
 
-``` python
+```python
 tfg.math.interpolation.weighted.interpolate(
-    points,
-    weights,
-    indices,
-    normalize=True,
-    allow_negative_weights=False,
+    points, weights, indices, normalize=True, allow_negative_weights=False,
     name=None
 )
 ```
@@ -35,7 +34,10 @@ that is formed by interpolating a subset of points in the set.
 
 In the following, A1 to An, and B1 to Bk are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`points`</b>: A tensor with shape `[B1, ..., Bk, M] and rank R > 1, where M is the
   dimensionality of the points.
@@ -55,5 +57,5 @@ In the following, A1 to An, and B1 to Bk are optional batch dimensions.
 
 #### Returns:
 
-A tensor of shape `[A1, ..., An, M]` storing the interpolated M-D points. The
-first n dimensions will be the same as weights and indices.
+A tensor of shape `[A1, ..., An, M]` storing the interpolated M-D
+points. The first n dimensions will be the same as weights and indices.

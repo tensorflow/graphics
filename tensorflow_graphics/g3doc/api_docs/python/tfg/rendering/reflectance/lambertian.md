@@ -5,15 +5,17 @@
 
 # Module: tfg.rendering.reflectance.lambertian
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/lambertian.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/rendering/reflectance/lambertian.py">View source</a>
+
+
 
 This module implements the Lambertian reflectance.
 
-<!-- Placeholder for "Used in" -->
 
 
 ## Functions

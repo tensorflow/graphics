@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-load("@python_deps//:requirements.bzl", "requirement")
+# google internal package dependency 8
+# google internal package dependency 10
 
 licenses(["notice"])  # Apache 2.0
 
@@ -23,9 +23,10 @@ py_library(
     srcs = ["__init__.py"],
     data = [":url_checksums"],
     deps = [
+        # google internal package dependency 11
         # google internal package dependency 6
         # google internal package dependency 1,
-        requirement("tensorflow_datasets"),
+        # google internal package dependency 5,
     ],
 )
 
@@ -43,12 +44,13 @@ filegroup(
 
 py_test(
     name = "modelnet40_test",
+    size = "small",
     srcs = ["modelnet40_test.py"],
     data = [":fake_examples"],
-    python_version = "PY3",
-    size = "small",
     deps = [
         ":modelnet40",
+        # google internal package dependency 5,
+        # google internal package dependency 12
     ],
 )
 
@@ -59,7 +61,7 @@ py_binary(
     visibility = ["//visibility:private"],
     deps = [
         ":modelnet40",
-        requirement("tensorflow_datasets"),
+        # google internal package dependency 5,
     ],
 )
 
@@ -69,9 +71,9 @@ py_binary(
     python_version = "PY3",
     deps = [
         ":modelnet40",
-        requirement("absl-py"),
+        # google internal package dependency 14,
         # google internal package dependency 4,
-        requirement("tensorflow_datasets"),
+        # google internal package dependency 5,
     ],
 )
 
@@ -84,7 +86,7 @@ py_binary(
 #         ":modelnet40",
 #         requirement("absl-py"),
 #         requirement("matplotlib"),
-#         requirement("tensorflow_datasets"),
+#         # google internal package dependency 5,
 #     ],
 # )
 
@@ -94,8 +96,8 @@ py_binary(
     python_version = "PY3",
     deps = [
         ":modelnet40",
-        requirement("absl-py"),
+        # google internal package dependency 14,
         # google internal package dependency 4,
-        requirement("tensorflow_datasets"),
+        # google internal package dependency 5,
     ],
 )

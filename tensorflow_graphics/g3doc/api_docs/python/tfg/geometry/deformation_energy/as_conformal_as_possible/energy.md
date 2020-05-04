@@ -5,25 +5,22 @@
 
 # tfg.geometry.deformation_energy.as_conformal_as_possible.energy
 
+<!-- Insert buttons and diff -->
+
 <table class="tfo-notebook-buttons tfo-api" align="left">
 </table>
 
-<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/deformation_energy/as_conformal_as_possible.py">View
-source</a>
+<a target="_blank" href="https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/geometry/deformation_energy/as_conformal_as_possible.py">View source</a>
+
+
 
 Estimates an As Conformal As Possible (ACAP) fitting energy.
 
-``` python
+```python
 tfg.geometry.deformation_energy.as_conformal_as_possible.energy(
-    vertices_rest_pose,
-    vertices_deformed_pose,
-    quaternions,
-    edges,
-    vertex_weight=None,
-    edge_weight=None,
-    conformal_energy=True,
-    aggregate_loss=True,
-    name=None
+    vertices_rest_pose, vertices_deformed_pose, quaternions, edges,
+    vertex_weight=None, edge_weight=None, conformal_energy=True,
+    aggregate_loss=True, name=None
 )
 ```
 
@@ -51,11 +48,16 @@ In the description of the arguments, V corresponds to
   the number of vertices in the mesh, and E to the number of edges in this
   mesh.
 
+
+
 #### Note:
 
 In the following, A1 to An are optional batch dimensions.
 
+
+
 #### Args:
+
 
 * <b>`vertices_rest_pose`</b>: A tensor of shape `[V, 3]` containing the position of
   all the vertices of the mesh in rest pose.
@@ -88,7 +90,10 @@ containing the ACAP energies. When aggregate_loss is `False`, returns a
 tensor of shape `[A1, ..., An, 2*E]` containing each term of the summation
 described in the equation 7 of [2].
 
+
+
 #### Raises:
+
 
 * <b>`ValueError`</b>: if the shape of `vertices_rest_pose`, `vertices_deformed_pose`,
 `quaternions`, `edges`, `vertex_weight`, or `edge_weight` is not supported.
