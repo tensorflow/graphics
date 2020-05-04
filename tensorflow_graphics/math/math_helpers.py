@@ -29,18 +29,22 @@ from tensorflow_graphics.util import shape
 def cartesian_to_spherical_coordinates(point_cartesian, name=None):
   """Function to transform Cartesian coordinates to spherical coordinates.
 
+  This function assumes a right handed coordinate system with `z` pointing up.
+  When `x` and `y` are both `0`, the function outputs `0` for `phi`. Note that
+  the function is not smooth when `x = y = 0`.
+
   Note:
     In the following, A1 to An are optional batch dimensions.
 
   Args:
     point_cartesian: A tensor of shape `[A1, ..., An, 3]`. In the last
-      dimension, the data follows the x,y,z order.
-    name: A name for this op. Defaults to 'cartesian_to_spherical_coordinates'.
+      dimension, the data follows the `x`, `y`, `z` order.
+    name: A name for this op. Defaults to `cartesian_to_spherical_coordinates`.
 
   Returns:
     A tensor of shape `[A1, ..., An, 3]`. The last dimensions contains
-    (r,theta,phi), where r is the sphere radius, theta the polar angle and phi
-    the azimuthal angle.
+    (`r`,`theta`,`phi`), where `r` is the sphere radius, `theta` is the polar
+    angle and `phi` is the azimuthal angle.
   """
   with tf.compat.v1.name_scope(name, "cartesian_to_spherical_coordinates",
                                [point_cartesian]):
@@ -53,7 +57,7 @@ def cartesian_to_spherical_coordinates(point_cartesian, name=None):
 
     x, y, z = tf.unstack(point_cartesian, axis=-1)
     radius = tf.norm(tensor=point_cartesian, axis=-1)
-    theta = tf.acos(safe_ops.safe_signed_div(z, radius))
+    theta = tf.acos(safe_ops.safe_unsigned_div(z, radius))
     phi = tf.atan2(y, x)
     return tf.stack((radius, theta, phi), axis=-1)
 
