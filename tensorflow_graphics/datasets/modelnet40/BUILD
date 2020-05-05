@@ -71,7 +71,7 @@ py_binary(
     python_version = "PY3",
     deps = [
         ":modelnet40",
-        # google internal package dependency 14,
+        # google internal package dependency 13,
         # google internal package dependency 4,
         # google internal package dependency 5,
     ],
@@ -96,7 +96,7 @@ py_binary(
     python_version = "PY3",
     deps = [
         ":modelnet40",
-        # google internal package dependency 14,
+        # google internal package dependency 13,
         # google internal package dependency 4,
         # google internal package dependency 5,
     ],

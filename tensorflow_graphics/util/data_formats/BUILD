@@ -14,7 +14,7 @@
 # Data format utilities for tf-graphics.
 
 # google internal package dependency 8
-# google internal package dependency 13
+# google internal package dependency 10
 
 licenses(["notice"])  # Apache 2.0
 
@@ -39,6 +39,11 @@ py_library(
 py_test(
     name = "exr_test",
     srcs = ["tests/exr_test.py"],
+    srcs_version = "PY2AND3",
+    # google internal rule 2
+    # google internal rule 3
+    # google internal rule 4
+    # google internal rule 11
     deps = [
         ":exr",
         # google internal package dependency 2
