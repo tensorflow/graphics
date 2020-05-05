@@ -13,7 +13,7 @@
 # limitations under the License.
 # Convolutions and related tools for tf-graphics.
 
-# google internal package dependency 8)
+# google internal package dependency 8
 
 licenses(["notice"])  # Apache 2.0
 

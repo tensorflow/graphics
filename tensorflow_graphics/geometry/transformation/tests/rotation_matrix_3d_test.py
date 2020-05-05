@@ -41,7 +41,7 @@ class RotationMatrix3dTest(test_case.TestCase):
     matrix_output = rotation_matrix_3d.assert_rotation_matrix_normalized(
         matrix_input)
 
-    self.assertTrue(matrix_input is matrix_output)
+    self.assertTrue(matrix_input is matrix_output)  # pylint: disable=g-generic-assert
 
   @parameterized.parameters((np.float32), (np.float64))
   def test_assert_rotation_matrix_normalized_preset(self, dtype):
@@ -54,10 +54,9 @@ class RotationMatrix3dTest(test_case.TestCase):
         matrix)
     self.evaluate(matrix_normalized)
 
-    with self.assertRaises(tf.errors.InvalidArgumentError):
-      rescaled_normalized = rotation_matrix_3d.assert_rotation_matrix_normalized(
-          matrix_rescaled)
-      self.evaluate(rescaled_normalized)
+    with self.assertRaises(tf.errors.InvalidArgumentError):  # pylint: disable=g-error-prone-assert-raises
+      self.evaluate(rotation_matrix_3d.assert_rotation_matrix_normalized(
+          matrix_rescaled))
 
   @parameterized.parameters(
       ((3, 3),),

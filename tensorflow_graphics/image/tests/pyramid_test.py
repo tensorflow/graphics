@@ -189,7 +189,7 @@ class PyramidTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 5, size=4).tolist()
     image_random_init = np.random.uniform(size=tensor_shape)
 
-    for level in range(4):
+    for level in range(4):  # pylint: disable=unused-variable
       self.assert_jacobian_is_correct_fn(
           lambda x, level=level: split(x)[level], [image_random_init])
 

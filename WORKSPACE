@@ -29,11 +29,14 @@ http_archive(
 )
 
 http_archive(
-    name = "org_tensorflow",
-    strip_prefix = "tensorflow-2.0.0",
-    url = "https://github.com/tensorflow/tensorflow/archive/v2.0.0.zip",
-    sha256 = "4c13e99a2e5fdddc491e003304141f9d9060e11584499061b1b4224e500dc49a",
+    name = "com_google_googletest",
+    strip_prefix = "googletest-master",
+    urls = ["https://github.com/google/googletest/archive/master.zip"],
 )
 
-load("@org_tensorflow//tensorflow:workspace.bzl", "tf_workspace")
-tf_workspace(tf_repo_name = "org_tensorflow")
+http_archive(
+    name = "rules_cc",
+    strip_prefix = "rules_cc-master",
+    urls = ["https://github.com/bazelbuild/rules_cc/archive/master.zip"],
+)
+

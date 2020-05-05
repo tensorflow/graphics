@@ -13,6 +13,9 @@
 # limitations under the License.
 """Tests for spherical harmonics."""
 
+# pylint: disable=line-too-long
+# pylint: disable=protected-access
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

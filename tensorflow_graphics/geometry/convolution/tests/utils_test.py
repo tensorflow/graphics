@@ -114,7 +114,7 @@ class UtilsCheckValidGraphConvolutionInputTests(test_case.TestCase):
       ((None, None, 3), (None, None, None), (2,)),
       ((1, None, 2, 3), (1, None, None, None), (1, 2)),
   )
-  def test_check_valid_graph_convolution_input_exception_not_raised_dynamic_shapes(
+  def test_check_valid_graph_convolution_input_exception_not_raised_dynshapes(
       self, *shapes):
     """Check that valid dynamic input shapes do not trigger any exceptions."""
     dtypes = [tf.float32, tf.float32]
@@ -427,7 +427,7 @@ class UtilsFlattenBatchTo2dTests(test_case.TestCase):
     self.assertAllEqual(data_unflattened, desired_unflattened)
 
 
-class UtilsUnflatten2dToBatch(test_case.TestCase):
+class UtilsUnflatten2dToBatchTest(test_case.TestCase):
 
   @parameterized.parameters(((3, 2, 4), (3,)), ((5,), (4, 2)))
   def test_input_rank_exception_raised(self, *shapes):

@@ -13,7 +13,7 @@
 # limitations under the License.
 # Voxel rendering functionalities for tf-graphics.
 
-# google internal package dependency 8)
+# google internal package dependency 8
 # google internal package dependency 10
 
 licenses(["notice"])  # Apache 2.0
@@ -88,6 +88,7 @@ py_library(
 
 py_test(
     name = "visual_hull_test",
+    timeout = "short",
     srcs = ["tests/visual_hull_test.py"],
     srcs_version = "PY2AND3",
     # google internal rule 2

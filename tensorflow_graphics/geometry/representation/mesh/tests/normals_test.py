@@ -112,8 +112,9 @@ class MeshTest(test_case.TestCase):
     vertex_init = np.random.random(size=tensor_vertex_shape + [3])
     index_init = np.arange(tensor_vertex_shape[-1])
     np.random.shuffle(index_init)
-    index_init = np.reshape(index_init, newshape=[1] * (tensor_vertex_size - 1) \
-                            + [tensor_index_shape, 3])
+    index_init = np.reshape(index_init, newshape=[1] * \
+                            (tensor_vertex_size - 1) + \
+                            [tensor_index_shape, 3])
     index_init = np.tile(index_init, tensor_vertex_shape[:-1] + [1, 1])
     index_tensor = tf.convert_to_tensor(value=index_init)
 
