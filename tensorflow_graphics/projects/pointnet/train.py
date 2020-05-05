@@ -47,18 +47,6 @@ FLAGS = parser.parse_args()
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-ds_train, info = ModelNet40.load(split="train", with_info=True)
-num_examples = info.splits["train"].num_examples
-ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
-ds_train = ds_train.repeat(FLAGS.num_epochs)
-ds_train = ds_train.batch(FLAGS.batch_size)
-num_classes = info.features["label"].num_classes
-ds_test = ModelNet40.load(split="test").batch(FLAGS.batch_size)
-
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-
 if FLAGS.lr_decay:
   lr_scheduler = tf.keras.optimizers.schedules.ExponentialDecay(
       FLAGS.learning_rate,
@@ -73,7 +61,7 @@ else:
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-model = PointNet(num_classes=num_classes, momentum=FLAGS.bn_decay)
+model = PointNet(num_classes=40, momentum=FLAGS.bn_decay)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -136,15 +124,13 @@ def evaluate():
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-if FLAGS.dryrun:
-  def make_fake_batch(B, N, K): # pylint: disable=invalid-name
-    points = tf.random.normal((B, N, 3))
-    label = tf.random.uniform((B,), minval=0, maxval=K, dtype=tf.int32)
-    return {"points": points, "label": label}
-
-  for i in range(2):
-    batch = make_fake_batch(FLAGS.batch_size, FLAGS.num_points, num_classes)
-    train(batch)
+if not FLAGS.dryrun:
+  ds_train, info = ModelNet40.load(split="train", with_info=True)
+  num_examples = info.splits["train"].num_examples
+  ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
+  ds_train = ds_train.repeat(FLAGS.num_epochs)
+  ds_train = ds_train.batch(FLAGS.batch_size)
+  ds_test = ModelNet40.load(split="test").batch(FLAGS.batch_size)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
