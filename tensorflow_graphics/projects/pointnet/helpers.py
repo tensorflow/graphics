@@ -123,8 +123,8 @@ def setup_tensorboard(flags):
     'CRITICAL: folder {} already exists'.format(flags.logdir)
 
   # --- Log where summary can be found
-  print("View results with: ", end="")
-  cprint("tensorboard --logdir {}".format(flags.logdir), "red")
+  print("View results with: ")
+  cprint("  tensorboard --logdir {}".format(flags.logdir), "red")
   writer = tf.summary.create_file_writer(flags.logdir, flush_millis=10000)
   writer.set_as_default()
 
@@ -141,11 +141,11 @@ def handle_keyboard_interrupt(flags):
   print("Keyboard interrupt by user")
   if len(flags.logdir) > 5 and flags.logdir[0:5] == "gs://":
     bucketpath = flags.logdir[5:]
-    print("Delete these summaries with: ", end="")
-    cprint("gsutil rm -rf {}".format(flags.logdir), "red")
-    baseurl = "https://pantheon.corp.google.com/storage/browser/{}"
-    print("Or by visiting: ", end="")
+    print("Delete these summaries with: ")
+    cprint("  gsutil rm -rf {}".format(flags.logdir), "red")
+    baseurl = "  https://pantheon.corp.google.com/storage/browser/{}"
+    print("Or by visiting: ")
     cprint(baseurl.format(bucketpath), "red")
   else:
-    print("Delete these summaries with: ", end="")
-    cprint("rm -rf {}".format(flags.logdir), "red")
+    print("Delete these summaries with: ")
+    cprint("  rm -rf {}".format(flags.logdir), "red")
