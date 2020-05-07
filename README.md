@@ -230,6 +230,7 @@ Want to reach out? E-mail us at tf-graphics-contact@google.com!
 -   Omar Sanseviero
 -   Aviv Segal
 -   Avneesh Sud
+-   Andrea Tagliasacchi
 -   Anastasia Tkach
 -   Julien Valentin (julienvalentin@google.com)
 -   He Wang
