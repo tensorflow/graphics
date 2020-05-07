@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
 # limitations under the License.
 # Tensorflow-Graphics, a library for differentiable computer graphics and geometry.
 
-# google internal package dependency 9
-# google internal package dependency 7
+load("//configlang/ncl/build_defs:ncl.bzl", "ncl_test")
+load("//devtools/python/blaze:pytype.bzl", "pytype_binary", "pytype_library")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -22,25 +22,52 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files(["LICENSE"])
 
-py_library(
+pytype_library(
     name = "tensorflow_graphics",
     srcs = [
         "__init__.py",
         "version.py",
     ],
     srcs_version = "PY2AND3",
-    # google internal rule 1
+    strict_deps = True,
     visibility = ["//visibility:public"],
     deps = [
-        "//tensorflow_graphics/datasets",
-        "//tensorflow_graphics/geometry",
-        "//tensorflow_graphics/image",
-        "//tensorflow_graphics/math",
-        "//tensorflow_graphics/nn",
-        "//tensorflow_graphics/notebooks",
-        "//tensorflow_graphics/rendering",
-        "//tensorflow_graphics/util",
-        "//tensorflow_graphics/util:doc",
-        "//tensorflow_graphics/util:export_api",
+        "//third_party/py/tensorflow_graphics/datasets",
+        "//third_party/py/tensorflow_graphics/geometry",
+        "//third_party/py/tensorflow_graphics/image",
+        "//third_party/py/tensorflow_graphics/math",
+        "//third_party/py/tensorflow_graphics/nn",
+        "//third_party/py/tensorflow_graphics/notebooks",
+        "//third_party/py/tensorflow_graphics/rendering",
+        "//third_party/py/tensorflow_graphics/util",
+        "//third_party/py/tensorflow_graphics/util:doc",
+        "//third_party/py/tensorflow_graphics/util:export_api",
+    ],
+)
+
+pytype_binary(
+    name = "build_docs",
+    srcs = ["build_docs.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    strict_deps = True,
+    deps = [
+        "//pyglib:file_util",
+        "//third_party/py/absl:app",
+        "//third_party/py/absl/flags",
+        "//third_party/py/tensorflow_docs/api_generator:generate_lib",
+        "//third_party/py/tensorflow_graphics",
+        "//third_party/py/tensorflow_graphics/rendering/opengl:gl_stub_libs",  # Prevent linking issues.
+        "//third_party/py/tensorflow_graphics/util:doc",
+    ],
+)
+
+ncl_test(
+    name = "blueprint_test",
+    srcs = ["tensorflow_graphics.blueprint"],
+    data = [
+        "//devtools/blueprint/ncl:blueprint_file_ncl",
+        "//devtools/blueprint/ncl:sanitizer",
+        "//releasetools/rapid/ncl:rapid_config_ncl",
     ],
 )
