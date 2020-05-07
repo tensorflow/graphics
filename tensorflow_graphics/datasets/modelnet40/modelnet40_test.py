@@ -18,8 +18,6 @@ import os
 import tensorflow_datasets as tfds
 from tensorflow_graphics.datasets import modelnet40
 
-_EXAMPLE_DIR = os.path.join(os.path.dirname(__file__), "fakes")
-
 
 class ModelNet40Test(tfds.testing.DatasetBuilderTestCase):
   """Tests the ModelNet40 dataset with fake data."""
@@ -34,7 +32,7 @@ class ModelNet40Test(tfds.testing.DatasetBuilderTestCase):
   # then the tests needs to provide the fake output paths relative to the
   # fake data directory
   DL_EXTRACT_RESULT = ""
-  EXAMPLE_DIR = _EXAMPLE_DIR
+  EXAMPLE_DIR = os.path.join(os.path.dirname(__file__), "fakes")
   # SKIP_CHECKSUMS = True
 
 

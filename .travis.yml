@@ -47,8 +47,9 @@ script:
   - flake8 --config=.flake8 ./tensorflow_graphics/
   # /usr/bin/pylint --rcfile=.pylintrc ./tensorflow_graphics/
   # --- test the codebase
-  - bazel test //tensorflow_graphics/...
-  # --- build pip package
+  - export PYTHONPATH=$PWD:$PYTHONPATH
+  - pytest tensorflow_graphics
+  # --- build pip package (installs in python path)
   - python setup.py --compute_platform cpu sdist bdist_wheel --universal
   - pip install dist/tensorflow_graphics*.whl
   # --- test the pip package
