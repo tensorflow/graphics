@@ -38,6 +38,7 @@ if _import_tfg_docs():
   from tensorflow_graphics import math
   from tensorflow_graphics import nn
   from tensorflow_graphics import notebooks
+  from tensorflow_graphics import projects
   from tensorflow_graphics import rendering
   from tensorflow_graphics import util
 
