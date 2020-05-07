@@ -23,11 +23,11 @@ jobs:
       python: 3.6
       before_install:
         - pip install -U tensorflow
-    - name: TensorFlow Nightly
-      os: linux
-      python: 3.6
-      before_install:
-        - pip install -U tf-nightly
+    # - name: TensorFlow Nightly
+    #   os: linux
+    #   python: 3.6
+    #   before_install:
+    #     - pip install -U tf-nightly
 
 before_script:
   - wget -O install.sh "https://github.com/bazelbuild/bazel/releases/download/0.26.1/bazel-0.26.1-installer-linux-x86_64.sh"
