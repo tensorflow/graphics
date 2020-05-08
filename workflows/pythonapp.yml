@@ -1,0 +1,46 @@
+# see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python application
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7.7
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get -y install libopenexr-dev
+        sudo apt-get -y install libgles2-mesa-dev
+        sudo apt-get -y install libc-ares-dev
+    - name: Linter
+      run: |
+        # python -m pip install --upgrade pip
+        # pip install pytest
+        pip install flake8
+        flake8 --config=.flake8 tensorflow_graphics/
+    - name: Requirement
+      run: |
+        pip install tensorflow
+        pip install -r requirements.txt
+    - name: Pytest
+      run: |
+        pytest tensorflow_graphics
+    - name: Install
+      run: |
+        python setup.py --compute_platform cpu sdist bdist_wheel --universal
+        pip install dist/tensorflow_graphics*.whl
+    - name: Test install
+        cd $(mktemp -d) && python -c 'import tensorflow_graphics as tfg'
