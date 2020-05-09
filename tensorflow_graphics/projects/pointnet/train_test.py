@@ -16,21 +16,26 @@
 import sys
 import tempfile
 
+
+import tensorflow_datasets as tfds
 from tensorflow_graphics.util import test_case
+from tensorflow_graphics.datasets import testing
 
 
 class TrainTest(test_case.TestCase):
 
   def test_train(self):
-    with tempfile.TemporaryDirectory() as logdir:
-      sys.argv = [
-          "train.py",
-          "--num_epochs", "2",
-          "--assert_gpu", "False",
-          "--dryrun",
-          "--logdir", logdir
-          ]
-      import tensorflow_graphics.projects.pointnet.train  # pylint: disable=import-outside-toplevel, unused-import, g-import-not-at-top
+    batch_size = 8
+    with tfds.testing.mock_data(batch_size * 2, data_dir=testing.DATA_DIR):
+      with tempfile.TemporaryDirectory() as logdir:
+        sys.argv = [
+            "train.py",
+            "--num_epochs", "2",
+            "--assert_gpu", "False",
+            "--logdir", logdir,
+            "--batch_size", str(batch_size),
+            ]
+        import tensorflow_graphics.projects.pointnet.train  # pylint: disable=import-outside-toplevel, unused-import, g-import-not-at-top
 
 
 
