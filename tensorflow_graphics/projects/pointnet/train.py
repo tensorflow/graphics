@@ -13,14 +13,14 @@
 # limitations under the License.
 """Training loop for PointNet v1 on modelnet40."""
 # pylint: disable=missing-function-docstring
-
+import functools
 import tensorflow as tf
 
+from tqdm import tqdm
 from tensorflow_graphics.datasets.modelnet40 import ModelNet40
 from tensorflow_graphics.nn.layer.pointnet import PointNetVanillaClassifier as PointNet
-from tensorflow_graphics.projects.pointnet import augment
+from tensorflow_graphics.projects.pointnet import augment as augment_lib
 from tensorflow_graphics.projects.pointnet import helpers
-from tqdm import tqdm
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -66,17 +66,18 @@ model = PointNet(num_classes=40, momentum=FLAGS.bn_decay)
 # ------------------------------------------------------------------------------
 
 
+def preprocess(example, augment):
+  points = example["points"][:FLAGS.num_points]
+  if augment:
+    points = augment_lib.rotate(points)
+    points = augment_lib.jitter(points)
+  example["points"] = points
+  return example
+
+
 @tf.function
 def wrapped_tf_function(points, label):
   """Performs one step of minimization of the loss."""
-  # --- subsampling (order DO matter)
-  points = points[0:FLAGS.num_points, ...]
-
-  # --- augmentation
-  if FLAGS.augment:
-    points = tf.map_fn(augment.rotate, points)
-    points = augment.jitter(points)
-
   # --- training
   with tf.GradientTape() as tape:
     logits = model(points, training=True)
@@ -135,8 +136,15 @@ if not FLAGS.dryrun:
   num_examples = info.splits["train"].num_examples
   ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
   ds_train = ds_train.repeat(FLAGS.num_epochs)
-  ds_train = ds_train.batch(FLAGS.batch_size)
-  ds_test = ModelNet40.load(split="test").batch(FLAGS.batch_size)
+  ds_train = ds_train.map(functools.partial(preprocess, augment=FLAGS.augment),
+                          tf.data.experimental.AUTOTUNE)
+  ds_train = ds_train.batch(FLAGS.batch_size).prefetch(
+      tf.data.experimental.AUTOTUNE)
+  ds_test = ModelNet40.load(split="test")
+  ds_test = ds_test.map(functools.partial(preprocess, augment=False),
+                        tf.data.experimental.AUTOTUNE)
+  ds_test = ds_test.batch(FLAGS.batch_size).prefetch(
+      tf.data.experimental.AUTOTUNE)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
