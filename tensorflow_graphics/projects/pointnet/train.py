@@ -150,8 +150,8 @@ if not FLAGS.dryrun:
     pbar = tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
     for train_example in pbar:
       train(train_example)
-      best_accuracy = evaluate()
-      pbar.set_postfix_str("best accuracy: {:.3f}".format(best_accuracy))
+    best_accuracy = evaluate()
+    pbar.set_postfix_str("best accuracy: {:.3f}".format(best_accuracy))
 
   except KeyboardInterrupt:
     helpers.handle_keyboard_interrupt(FLAGS)
