@@ -16,11 +16,13 @@
 
 import tensorflow as tf
 
+import tensorflow_datasets as tfds
+from tqdm import tqdm
+from tensorflow_graphics.datasets import testing
 from tensorflow_graphics.datasets.modelnet40 import ModelNet40
 from tensorflow_graphics.nn.layer.pointnet import PointNetVanillaClassifier as PointNet
 from tensorflow_graphics.projects.pointnet import augment
 from tensorflow_graphics.projects.pointnet import helpers
-from tqdm import tqdm
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -130,28 +132,38 @@ def evaluate():
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-if not FLAGS.dryrun:
-  ds_train, info = ModelNet40.load(split="train", with_info=True)
+def load_datasets():
+  """Load train / test datasets."""
+  train_dataset, info = ModelNet40.load(split="train", with_info=True)
   num_examples = info.splits["train"].num_examples
-  ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
-  ds_train = ds_train.repeat(FLAGS.num_epochs)
-  ds_train = ds_train.batch(FLAGS.batch_size)
-  ds_test = ModelNet40.load(split="test").batch(FLAGS.batch_size)
+  train_dataset = train_dataset.shuffle(
+      num_examples, reshuffle_each_iteration=True)
+  train_dataset = train_dataset.repeat(FLAGS.num_epochs)
+  train_dataset = train_dataset.batch(FLAGS.batch_size)
+  test_dataset = ModelNet40.load(split="test").batch(FLAGS.batch_size)
+  return train_dataset, test_dataset
+
+
+if FLAGS.dryrun:
+  # use epochs with 2 batches of mocked data
+  with tfds.testing.mock_data(FLAGS.batch_size * 2, data_dir=testing.DATA_DIR):
+    ds_train, ds_test = load_datasets()
+else:
+  ds_train, ds_test = load_datasets()
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-if not FLAGS.dryrun:
-  try:
-    helpers.setup_tensorboard(FLAGS)
-    helpers.summary_command(parser, FLAGS)
-    total = tf.data.experimental.cardinality(ds_train).numpy()
-    pbar = tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
-    for train_example in pbar:
-      train(train_example)
-      best_accuracy = evaluate()
-      pbar.set_postfix_str("best accuracy: {:.3f}".format(best_accuracy))
+try:
+  helpers.setup_tensorboard(FLAGS)
+  helpers.summary_command(parser, FLAGS)
+  total = tf.data.experimental.cardinality(ds_train).numpy()
+  pbar = tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
+  for train_example in pbar:
+    train(train_example)
+    best_accuracy = evaluate()
+    pbar.set_postfix_str("best accuracy: {:.3f}".format(best_accuracy))
 
-  except KeyboardInterrupt:
-    helpers.handle_keyboard_interrupt(FLAGS)
+except KeyboardInterrupt:
+  helpers.handle_keyboard_interrupt(FLAGS)

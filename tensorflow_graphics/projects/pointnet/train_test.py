@@ -14,25 +14,23 @@
 """Tests of pointnet module."""
 
 import sys
-import tensorflow as tf
+import tempfile
 
 from tensorflow_graphics.util import test_case
-
-
-def make_fake_batch(dimension_1, dimension_2):
-  points = tf.random.normal((dimension_1, dimension_2, 3))
-  label = tf.random.uniform((dimension_1,), minval=0, maxval=40, dtype=tf.int32)
-  return {"points": points, "label": label}
 
 
 class TrainTest(test_case.TestCase):
 
   def test_train(self):
-    sys.argv = ["train.py", "--dryrun", "--assert_gpu", "False"]
-    from tensorflow_graphics.projects.pointnet import train  # pylint: disable=import-outside-toplevel, unused-import, g-import-not-at-top
-    for _ in range(2):
-      batch = make_fake_batch(32, 1024)
-      train.train(batch)
+    with tempfile.TemporaryDirectory() as logdir:
+      sys.argv = [
+          *sys.argv,
+          "--num_epochs", "2",
+          "--assert_gpu", "False",
+          "--dryrun",
+          "--logdir", logdir]
+      import tensorflow_graphics.projects.pointnet.train  # pylint: disable=import-outside-toplevel, unused-import, g-import-not-at-top
+
 
 
 if __name__ == "__main__":
