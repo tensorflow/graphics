@@ -1,5 +1,3 @@
-# Copyright 2020 Google LLC
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,6 +17,7 @@ import tempfile
 import tensorflow_datasets as tfds
 from tensorflow_graphics.util import test_case
 from tensorflow_graphics.datasets import testing  # will fail until #310 merge
+from tensorflow_graphics.projects.pointnet import fit
 
 
 class TrainTest(test_case.TestCase):
@@ -42,7 +41,6 @@ class TrainTest(test_case.TestCase):
             "--batch_size",
             str(batch_size),
         ]
-        from tensorflow_graphics.projects.pointnet import fit  # pylint:disable=import-outside-toplevel
         fit.main()
 
 

@@ -1,5 +1,3 @@
-# Copyright 2020 Google LLC
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,7 +15,7 @@ import functools
 import tensorflow as tf
 
 from tensorflow_graphics.datasets.modelnet40 import ModelNet40
-from tensorflow_graphics.nn.layer.pointnet import PointNetVanillaClassifier as PointNet
+from tensorflow_graphics.nn.layer.pointnet import VanillaClassifier
 from tensorflow_graphics.projects.pointnet import augment as augment_lib
 from tensorflow_graphics.projects.pointnet import helpers
 
@@ -49,17 +47,19 @@ def preprocess(points, labels, num_points, augment):
   return points, labels
 
 
-def get_datasets(batch_size, augment):
+def get_datasets(num_points, batch_size, augment):
   (ds_train, ds_test), info = ModelNet40.load(as_supervised=True,
                                               split=("train", "test"),
                                               with_info=True)
   num_examples = info.splits["train"].num_examples
   ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
-  ds_train = ds_train.map(functools.partial(preprocess, augment=augment),
-                          tf.data.experimental.AUTOTUNE)
+  ds_train = ds_train.map(
+      functools.partial(preprocess, num_points=num_points, augment=augment),
+      tf.data.experimental.AUTOTUNE)
   ds_train = ds_train.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
-  ds_test = ds_test.map(functools.partial(preprocess, augment=False),
-                        tf.data.experimental.AUTOTUNE)
+  ds_test = ds_test.map(
+      functools.partial(preprocess, num_points=num_points, augment=False),
+      tf.data.experimental.AUTOTUNE)
   ds_test = ds_test.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
   return ds_train, ds_test
 
@@ -76,15 +76,17 @@ def get_optimizer(learning_rate, lr_decay=None):
 
 
 def main():
-  FLAGS = parser.parse_args()
+  FLAGS = parser.parse_args()  # pylint:disable=invalid-name
   points = tf.keras.Input((FLAGS.num_points, 3), dtype=tf.float32)
-  logits = PointNet(momentum=FLAGS.bn_decay)(points)
+  logits = VanillaClassifier(num_classes=40, momentum=FLAGS.bn_decay)(points)
   model = tf.keras.Model(points, logits)
   model.compile(
-      optimizer=get_optimizer(),
+      optimizer=get_optimizer(learning_rate=FLAGS.learning_rate,
+                              lr_decay=FLAGS.lr_decay),
       loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
       metrics=tf.keras.metrics.SparseCategoricalAccuracy())
-  ds_train, ds_test = get_datasets()
+  ds_train, ds_test = get_datasets(FLAGS.num_points, FLAGS.batch_size,
+                                   FLAGS.augment)
   history = model.fit(ds_train,
                       epochs=FLAGS.num_epochs,
                       validation_freq=FLAGS.ev_every,

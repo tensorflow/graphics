@@ -17,7 +17,7 @@
 import tensorflow as tf
 
 from tensorflow_graphics.datasets.modelnet40 import ModelNet40
-from tensorflow_graphics.nn.layer.pointnet import PointNetVanillaClassifier as PointNet
+from tensorflow_graphics.nn.layer.pointnet import VanillaClassifier
 from tensorflow_graphics.projects.pointnet import augment
 from tensorflow_graphics.projects.pointnet import helpers
 from tqdm import tqdm
@@ -59,7 +59,7 @@ else:
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-model = PointNet(num_classes=40, momentum=FLAGS.bn_decay)
+model = VanillaClassifier(num_classes=40, momentum=FLAGS.bn_decay)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

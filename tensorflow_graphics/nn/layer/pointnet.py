@@ -195,7 +195,7 @@ class ClassificationHead(tf.keras.layers.Layer):
     return self.dense3(x)  # [B,num_classes)
 
 
-class PointNetVanillaClassifier(tf.keras.layers.Layer):
+class VanillaClassifier(tf.keras.layers.Layer):
   """The PointNet 'Vanilla' classifier (i.e. without spatial transformer)."""
 
   def __init__(self, num_classes=40, momentum=.5, dropout_rate=.3):
@@ -206,7 +206,7 @@ class PointNetVanillaClassifier(tf.keras.layers.Layer):
       momentum: the momentum used for the batch normalization layer.
       dropout_rate: the dropout rate for the classification head.
     """
-    super(PointNetVanillaClassifier, self).__init__()
+    super(VanillaClassifier, self).__init__()
     self.encoder = VanillaEncoder(momentum)
     self.classifier = ClassificationHead(num_classes=num_classes,
                                          momentum=momentum,
