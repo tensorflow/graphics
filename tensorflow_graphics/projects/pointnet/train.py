@@ -35,7 +35,6 @@ parser.add("--lr_decay", True, help="enable learning rate decay")
 parser.add("--bn_decay", .5, help="batch norm decay momentum")
 parser.add("--tb_every", 100, help="tensorboard frequency (iterations)")
 parser.add("--ev_every", 308, help="evaluation frequency (iterations)")
-parser.add("--tfds", True, help="use TFDS dataset loader")
 parser.add("--augment", True, help="use augmentations")
 parser.add("--tqdm", True, help="enable the progress bar")
 FLAGS = parser.parse_args()
@@ -131,8 +130,7 @@ def evaluate():
 
 ds_train, info = ModelNet40.load(split="train", with_info=True)
 num_examples = info.splits["train"].num_examples
-ds_train = ds_train.shuffle(
-    num_examples, reshuffle_each_iteration=True)
+ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
 ds_train = ds_train.repeat(FLAGS.num_epochs)
 ds_train = ds_train.batch(FLAGS.batch_size)
 ds_test = ModelNet40.load(split="test").batch(FLAGS.batch_size)

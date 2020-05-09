@@ -30,13 +30,19 @@ class TrainTest(test_case.TestCase):
       with tempfile.TemporaryDirectory() as logdir:
         sys.argv = [
             "train.py",
-            "--num_epochs", "2",
-            "--assert_gpu", "False",
-            "--ev_every", "1",
-            "--tb_every", "1",
-            "--logdir", logdir,
-            "--batch_size", str(batch_size),
-            ]
+            "--num_epochs",
+            "2",
+            "--assert_gpu",
+            "False",
+            "--ev_every",
+            "1",
+            "--tb_every",
+            "1",
+            "--logdir",
+            logdir,
+            "--batch_size",
+            str(batch_size),
+        ]
         importlib.import_module("tensorflow_graphics.projects.pointnet.train")
 
 
