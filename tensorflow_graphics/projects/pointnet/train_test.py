@@ -15,7 +15,7 @@
 
 import sys
 import tempfile
-
+import importlib
 
 import tensorflow_datasets as tfds
 from tensorflow_graphics.util import test_case
@@ -32,11 +32,12 @@ class TrainTest(test_case.TestCase):
             "train.py",
             "--num_epochs", "2",
             "--assert_gpu", "False",
+            "--ev_every", "1",
+            "--tb_every", "1",
             "--logdir", logdir,
             "--batch_size", str(batch_size),
             ]
-        import tensorflow_graphics.projects.pointnet.train  # pylint: disable=import-outside-toplevel, unused-import, g-import-not-at-top
-
+        importlib.import_module("tensorflow_graphics.projects.pointnet.train")
 
 
 if __name__ == "__main__":
