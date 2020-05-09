@@ -63,8 +63,8 @@ class PointNetConv2Layer(tf.keras.layers.Layer):
 
   def build(self, input_shape):
     """Builds the layer with a specified input_shape."""
-    self.conv = tf.keras.layers.Conv2D(
-        self.channels, (1, 1), input_shape=input_shape)
+    self.conv = tf.keras.layers.Conv2D(self.channels, (1, 1),
+                                       input_shape=input_shape)
     self.bn = tf.keras.layers.BatchNormalization(momentum=self.momentum)
 
   def call(self, inputs, training=None):  # pylint: disable=arguments-differ
@@ -154,7 +154,7 @@ class VanillaEncoder(tf.keras.layers.Layer):
     x = self.conv4(x, training)  # [B,N,1,128]
     x = self.conv5(x, training)  # [B,N,1,1024]
     x = tf.math.reduce_max(input_tensor=x, axis=1)  # [B,1,1024]
-    return tf.squeeze(x)  # [B,1024]
+    return tf.squeeze(x, axis=1)  # [B,1024]
 
 
 class ClassificationHead(tf.keras.layers.Layer):
@@ -208,8 +208,9 @@ class PointNetVanillaClassifier(tf.keras.layers.Layer):
     """
     super(PointNetVanillaClassifier, self).__init__()
     self.encoder = VanillaEncoder(momentum)
-    self.classifier = ClassificationHead(
-        num_classes=num_classes, momentum=momentum, dropout_rate=dropout_rate)
+    self.classifier = ClassificationHead(num_classes=num_classes,
+                                         momentum=momentum,
+                                         dropout_rate=dropout_rate)
 
   def call(self, points, training=None):  # pylint: disable=arguments-differ
     """Computes the classifiation logits of a point set.
