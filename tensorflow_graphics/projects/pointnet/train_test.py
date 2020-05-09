@@ -24,11 +24,12 @@ class TrainTest(test_case.TestCase):
   def test_train(self):
     with tempfile.TemporaryDirectory() as logdir:
       sys.argv = [
-          *sys.argv,
+          "train.py",
           "--num_epochs", "2",
           "--assert_gpu", "False",
           "--dryrun",
-          "--logdir", logdir]
+          "--logdir", logdir
+          ]
       import tensorflow_graphics.projects.pointnet.train  # pylint: disable=import-outside-toplevel, unused-import, g-import-not-at-top
 
 
