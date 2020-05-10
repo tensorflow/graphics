@@ -16,12 +16,16 @@
 from __future__ import print_function
 
 import argparse
+import functools
 import os
 import tempfile
 import time
 
 import tensorflow as tf
 import termcolor
+
+from tensorflow_graphics.datasets.modelnet40 import ModelNet40
+from tensorflow_graphics.projects.pointnet import augment
 
 
 class ArgumentParser(argparse.ArgumentParser):
@@ -59,8 +63,11 @@ class ArgumentParser(argparse.ArgumentParser):
     if isinstance(default, bool):
       mytype = str2bool
 
-    self.add_argument(
-        name, metavar=metavar, default=default, help=helpstring, type=mytype)
+    self.add_argument(name,
+                      metavar=metavar,
+                      default=default,
+                      help=helpstring,
+                      type=mytype)
 
   def parse_args(self, args=None, namespace=None):
     """WARNING: programmatically changes the logdir flags."""
@@ -109,8 +116,8 @@ def summary_command(parser, flags, log_to_file=True, log_to_summary=True):
       exec_string += " \\\n"
   exec_string += "\n"
   if log_to_file:
-    with tf.io.gfile.GFile(
-        os.path.join(flags.logdir, "command.txt"), mode="w") as fid:
+    with tf.io.gfile.GFile(os.path.join(flags.logdir, "command.txt"),
+                           mode="w") as fid:
       fid.write(exec_string)
   if log_to_summary and flags.tensorboard:
     tf.summary.text("command", exec_string, step=0)
@@ -153,3 +160,106 @@ def handle_keyboard_interrupt(flags):
   else:
     print("Delete these summaries with: ")
     termcolor.cprint("  rm -rf {}".format(flags.logdir), "red")
+
+
+def preprocess(points,
+               labels,
+               num_points,
+               augment_jitter=False,
+               augment_rotate=False):
+  """
+  Preprocess point cloud data.
+
+  Example usage:
+  ```python
+  ds_train, ds_test = ModelNet40.load(
+      as_supervised=True, split=("train", "test")
+
+  num_points = 1024
+  ds_train = ds_train.map(
+      lambda points, labels: preprocess(points, labels, num_points, True, True))
+  ```
+
+  Args:
+    points: [N, 3] input pointcloud coordinates
+    labels: presumably scalar int labels, but is left untouched.
+    num_points: number of points to take from `points`
+    augment_jitter: bool indicating whether to jitter points randomly
+    augment_rotate: bool indicating whether to rotate points about z-axis
+      randomly
+
+  Returns:
+    out_points: [num_points, 3] potentially augmented point cloud
+    labels: same as input.
+  """
+  points = points[:num_points]
+  if augment_rotate:
+    points = augment.rotate(points)
+  if augment_jitter:
+    points = augment.jitter(points)
+  return points, labels
+
+
+def get_modelnet40_datasets(num_points=2048,
+                            batch_size=32,
+                            augment_jitter=True,
+                            augment_rotate=True,
+                            num_epochs=1):
+  """
+  Get potentially augmented train and test datasets for ModelNet40.
+
+  Args:
+    num_points: number of points in each example in the output datasets.
+    batch_size: size of each batch
+    augment_jitter: if True, training points are independently randomly
+      perturbed.
+    augment_rotate: if True, training clouds are randomly rotated about the
+      z-axis.
+    num_epochs: number of epochs to repeat training dataset for. If 1, no
+      repeat is performed. If None, repeats indefinitely. Test dataset is not
+      repeated.
+
+  Returns:
+    (train dataset, test dataset), with batched `(points, labels)` elements.
+  """
+  (ds_train, ds_test), info = ModelNet40.load(as_supervised=True,
+                                              split=("train", "test"),
+                                              with_info=True)
+  num_examples = info.splits["train"].num_examples
+  ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
+  if num_epochs != 1:
+    ds_train = ds_train.repeat(num_epochs)
+  ds_train = ds_train.map(
+      functools.partial(preprocess,
+                        num_points=num_points,
+                        augment_jitter=augment_jitter,
+                        augment_rotate=augment_rotate),
+      tf.data.experimental.AUTOTUNE)
+  ds_train = ds_train.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
+  ds_test = ds_test.map(functools.partial(preprocess, num_points=num_points),
+                        tf.data.experimental.AUTOTUNE)
+  ds_test = ds_test.batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
+  return ds_train, ds_test
+
+
+def decayed_learning_rate(
+    learning_rate=1e-3,
+    decay_steps=6250,  # 200000 examples / 32 batch size
+    decay_rate=0.7,
+    staircase=True):
+  """
+  Get potentially exponentially decaysed learning rate.
+
+  Default args are those used in original pointnet implementation.
+
+  Args:
+    learning_rate: float initial learning rate
+    decay_steps, decay_rate, staircase:
+      see `tf.keras.optimizers.schedules.ExponentialDecay`
+
+  Returns:
+    `ExponentialDecay` schedule.
+  """
+  return tf.keras.optimizers.schedules.ExponentialDecay(learning_rate,
+                                                        decay_steps, decay_rate,
+                                                        staircase)

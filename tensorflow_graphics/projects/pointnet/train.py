@@ -16,9 +16,7 @@
 
 import tensorflow as tf
 
-from tensorflow_graphics.datasets.modelnet40 import ModelNet40
 from tensorflow_graphics.nn.layer.pointnet import VanillaClassifier
-from tensorflow_graphics.projects.pointnet import augment
 from tensorflow_graphics.projects.pointnet import helpers
 from tqdm import tqdm
 
@@ -36,7 +34,8 @@ parser.add("--bn_decay", .5, help="batch norm decay momentum")
 parser.add("--tb_every", 100, help="tensorboard frequency (iterations)")
 parser.add("--ev_every", 308, help="evaluation frequency (iterations)")
 parser.add("--tfds", True, help="use TFDS dataset loader")
-parser.add("--augment", True, help="use augmentations")
+parser.add("--augment_jitter", True, help="use jitter augmentation")
+parser.add("--augment_rotate", True, help="use rotate augmentation")
 parser.add("--tqdm", True, help="enable the progress bar")
 parser.add_argument("--dryrun", action="store_true")
 FLAGS = parser.parse_args()
@@ -45,19 +44,9 @@ FLAGS = parser.parse_args()
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-if FLAGS.lr_decay:
-  lr_scheduler = tf.keras.optimizers.schedules.ExponentialDecay(
-      FLAGS.learning_rate,
-      decay_steps=6250,  #< 200.000 / 32 (batch size) (from original pointnet)
-      decay_rate=0.7,
-      staircase=True)
-  optimizer = tf.keras.optimizers.Adam(learning_rate=lr_scheduler)
-else:
-  optimizer = tf.keras.optimizers.Adam(learning_rate=FLAGS.learning_rate)
-
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+optimizer = tf.keras.optimizers.Adam(
+    learning_rate=helpers.decayed_learning_rate(FLAGS.learning_rate) if FLAGS.
+    lr_decay else FLAGS.learning_rate)
 
 model = VanillaClassifier(num_classes=40, momentum=FLAGS.bn_decay)
 
@@ -69,14 +58,6 @@ model = VanillaClassifier(num_classes=40, momentum=FLAGS.bn_decay)
 @tf.function
 def wrapped_tf_function(points, label):
   """Performs one step of minimization of the loss."""
-  # --- subsampling (order DO matter)
-  points = points[0:FLAGS.num_points, ...]
-
-  # --- augmentation
-  if FLAGS.augment:
-    points = tf.map_fn(augment.rotate, points)
-    points = augment.jitter(points)
-
   # --- training
   with tf.GradientTape() as tape:
     logits = model(points, training=True)
@@ -89,8 +70,7 @@ def wrapped_tf_function(points, label):
 
 def train(example):
   """Performs one step of minimization of the loss and populates the summary."""
-  points = example["points"]
-  label = example["label"]
+  points, label = example
   step = optimizer.iterations.numpy()
 
   # --- optimize
@@ -100,7 +80,9 @@ def train(example):
 
   # --- report rate in summaries
   if FLAGS.lr_decay and step % FLAGS.tb_every == 0:
-    tf.summary.scalar(name="learning_rate", data=lr_scheduler(step), step=step)
+    tf.summary.scalar(name="learning_rate",
+                      data=optimizer.learning_rate(step),
+                      step=step)
 
 
 # ------------------------------------------------------------------------------
@@ -116,8 +98,7 @@ def evaluate():
   if step % FLAGS.ev_every != 0:
     return evaluate.best_accuracy
   aggregator = tf.keras.metrics.SparseCategoricalAccuracy()
-  for example in ds_test:
-    points, labels = example["points"], example["label"]
+  for points, labels in ds_test:
     logits = model(points, training=False)
     aggregator.update_state(labels, logits)
   accuracy = aggregator.result()
@@ -131,12 +112,11 @@ def evaluate():
 # ------------------------------------------------------------------------------
 
 if not FLAGS.dryrun:
-  ds_train, info = ModelNet40.load(split="train", with_info=True)
-  num_examples = info.splits["train"].num_examples
-  ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
-  ds_train = ds_train.repeat(FLAGS.num_epochs)
-  ds_train = ds_train.batch(FLAGS.batch_size)
-  ds_test = ModelNet40.load(split="test").batch(FLAGS.batch_size)
+  ds_train, ds_test = helpers.get_modelnet40_datasets(FLAGS.num_points,
+                                                      FLAGS.batch_size,
+                                                      FLAGS.augment_jitter,
+                                                      FLAGS.augment_rotate,
+                                                      FLAGS.num_epochs)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

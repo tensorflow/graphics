@@ -22,7 +22,7 @@ from tensorflow_graphics.util import test_case
 def make_fake_batch(dimension_1, dimension_2):
   points = tf.random.normal((dimension_1, dimension_2, 3))
   label = tf.random.uniform((dimension_1,), minval=0, maxval=40, dtype=tf.int32)
-  return {"points": points, "label": label}
+  return points, label
 
 
 class TrainTest(test_case.TestCase):
