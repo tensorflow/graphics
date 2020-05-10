@@ -28,21 +28,17 @@ class TrainTest(test_case.TestCase):
     batch_size = 8
     with tfds.testing.mock_data(batch_size * 2, data_dir=testing.DATA_DIR):
       with tempfile.TemporaryDirectory() as logdir:
+        # yapf: disable
         sys.argv = [
             "train.py",
-            "--num_epochs",
-            "2",
-            "--assert_gpu",
-            "False",
-            "--ev_every",
-            "1",
-            "--tb_every",
-            "1",
-            "--logdir",
-            logdir,
-            "--batch_size",
-            str(batch_size),
+            "--num_epochs", "2",
+            "--assert_gpu", "False",
+            "--ev_every", "1",
+            "--tb_every", "1",
+            "--logdir", logdir,
+            "--batch_size", str(batch_size),
         ]
+        # yapf: enable
         importlib.import_module("tensorflow_graphics.projects.pointnet.train")
 
 
