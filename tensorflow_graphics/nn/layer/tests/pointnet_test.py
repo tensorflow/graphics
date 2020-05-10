@@ -18,9 +18,9 @@
 from absl.testing import parameterized
 import tensorflow as tf
 from tensorflow_graphics.nn.layer.pointnet import ClassificationHead
-from tensorflow_graphics.nn.layer.pointnet import PointNetConv2Layer
-from tensorflow_graphics.nn.layer.pointnet import PointNetDenseLayer
-from tensorflow_graphics.nn.layer.pointnet import PointNetVanillaClassifier
+from tensorflow_graphics.nn.layer.pointnet import PointNetConv2D
+from tensorflow_graphics.nn.layer.pointnet import PointNetDense
+from tensorflow_graphics.nn.layer.pointnet import VanillaClassifier
 from tensorflow_graphics.nn.layer.pointnet import VanillaEncoder
 from tensorflow_graphics.util import test_case
 
@@ -35,7 +35,7 @@ class RandomForwardExecutionTest(test_case.TestCase):
   def test_conv2(self, input_shape, channels, momentum, training):
     B, N, X, _ = input_shape
     inputs = tf.random.uniform(input_shape)
-    layer = PointNetConv2Layer(channels, momentum)
+    layer = PointNetConv2D(channels, momentum)
     outputs = layer(inputs, training=training)
     assert outputs.shape == (B, N, X, channels)
 
@@ -47,7 +47,7 @@ class RandomForwardExecutionTest(test_case.TestCase):
   def test_dense(self, input_shape, channels, momentum, training):
     B, _ = input_shape
     inputs = tf.random.uniform(input_shape)
-    layer = PointNetDenseLayer(channels, momentum)
+    layer = PointNetDense(channels, momentum)
     outputs = layer(inputs, training=training)
     assert outputs.shape == (B, channels)
 
@@ -86,11 +86,11 @@ class RandomForwardExecutionTest(test_case.TestCase):
     B = input_shape[0]
     C = num_classes
     inputs = tf.random.uniform(input_shape)
-    model = PointNetVanillaClassifier(num_classes, momentum=.5)
+    model = VanillaClassifier(num_classes, momentum=.5)
     logits = model(inputs, training)
     assert logits.shape == (B, C)
     labels = tf.random.uniform((B,), minval=0, maxval=C, dtype=tf.int64)
-    PointNetVanillaClassifier.loss(labels, logits)
+    VanillaClassifier.loss(labels, logits)
 
 
 if __name__ == "__main__":
