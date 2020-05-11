@@ -33,6 +33,7 @@ except ImportError:
 # pylint: disable=g-statement-before-imports,g-import-not-at-top,ungrouped-imports
 from tensorflow_graphics.util.doc import _import_tfg_docs
 if _import_tfg_docs():
+  from tensorflow_graphics import datasets
   from tensorflow_graphics import geometry
   from tensorflow_graphics import image
   from tensorflow_graphics import math

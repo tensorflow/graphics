@@ -11,19 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-absl-py >= 0.6.1
-h5py >= 2.10.0
-matplotlib >= 2.2.5
-numpy >= 1.15.4
-psutil >= 5.7.0
-scipy >= 1.1.0
-setuptools >= 41.0.0
-six >= 1.11.0
-# tensorflow_datasets>2 not compatible with py3!
-tensorflow_datasets == 2.0.0
-tqdm >= 4.45.0
-OpenEXR >= 1.3.2
-termcolor >= 1.1.0
-trimesh >= 2.37.22
-# Required by trimesh.
-networkx
+# Lint as: python3
+"""`tensorflow_graphics.io` module."""
+
+# pylint: disable=g-import-not-at-top
+from tensorflow_graphics.util.doc import _import_tfg_docs
+if _import_tfg_docs():
+  from tensorflow.io import triangle_mesh
+  from tensorflow_graphics.util import export_api as _export_api
+
+  # API contains submodules of tensorflow_graphics.rendering.reflectance.
+  __all__ = _export_api.get_modules()
+
+# pylint: enable=g-import-not-at-top
