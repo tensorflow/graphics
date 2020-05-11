@@ -15,10 +15,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.7.7
+    - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7.7
+        python-version: 3.8
 
     - name: Install system dependencies
       run: |
@@ -27,8 +27,8 @@ jobs:
         sudo apt-get -y install libc-ares-dev
     - name: Linter
       run: |
-        # python -m pip install --upgrade pip
-        # pip install pytest
+        python -m pip install --upgrade pip
+        pip install pytest
         pip install flake8
         flake8 --config=.flake8 tensorflow_graphics/
     - name: Requirement
@@ -40,7 +40,8 @@ jobs:
         pytest tensorflow_graphics
     - name: Install
       run: |
-        python setup.py --compute_platform cpu sdist bdist_wheel --universal
+        python setup.py --compute_platform cpu sdist bdist_wheel
         pip install dist/tensorflow_graphics*.whl
     - name: Test install
+      run: |
         cd $(mktemp -d) && python -c 'import tensorflow_graphics as tfg'
