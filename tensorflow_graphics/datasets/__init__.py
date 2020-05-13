@@ -12,4 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Datasets module."""
-# NOTE: needed by pytest
+
+# pylint: disable=g-import-not-at-top
+from tensorflow_graphics.util.doc import _import_tfg_docs
+if _import_tfg_docs():
+  from tensorflow_graphics.datasets import features
+  from tensorflow_graphics.datasets import modelnet40
+  from tensorflow_graphics.datasets import shapenet
+  from tensorflow_graphics.util import export_api as _export_api
+
+  # API contains submodules of tensorflow_graphics.image.
+  __all__ = _export_api.get_modules()
+
+# pylint: enable=g-import-not-at-top
