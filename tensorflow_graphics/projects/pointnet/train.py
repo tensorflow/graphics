@@ -19,7 +19,7 @@ import tensorflow as tf
 from tqdm import tqdm
 from tensorflow_graphics.datasets.modelnet40 import ModelNet40
 from tensorflow_graphics.nn.layer.pointnet import PointNetVanillaClassifier as PointNet
-from tensorflow_graphics.projects.pointnet import augment as augment_lib
+from tensorflow_graphics.projects.pointnet import augment
 from tensorflow_graphics.projects.pointnet import helpers
 
 # ------------------------------------------------------------------------------
@@ -36,7 +36,8 @@ parser.add("--bn_decay", .5, help="batch norm decay momentum")
 parser.add("--tb_every", 100, help="tensorboard frequency (iterations)")
 parser.add("--ev_every", 308, help="evaluation frequency (iterations)")
 parser.add("--tfds", True, help="use TFDS dataset loader")
-parser.add("--augment", True, help="use augmentations")
+parser.add("--augment_rotation", True, help="use rotation augmentations")
+parser.add("--augment_jitter", True, help="use jitter augmentations")
 parser.add("--tqdm", True, help="enable the progress bar")
 parser.add_argument("--dryrun", action="store_true")
 FLAGS = parser.parse_args()
@@ -64,15 +65,6 @@ model = PointNet(num_classes=40, momentum=FLAGS.bn_decay)
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
-
-
-def preprocess(example, augment):
-  points = example["points"][:FLAGS.num_points]
-  if augment:
-    points = augment_lib.rotate(points)
-    points = augment_lib.jitter(points)
-  example["points"] = points
-  return example
 
 
 @tf.function
@@ -131,18 +123,31 @@ def evaluate():
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
+
+def preprocess(example, augment_rotation=False, augment_jitter=False):
+  points = example["points"][:FLAGS.num_points]
+  if augment_rotation:
+    points = augment.rotate(points)
+  if augment_jitter:
+    points = augment.jitter(points)
+  example["points"] = points
+  return example
+
+
 if not FLAGS.dryrun:
   ds_train, info = ModelNet40.load(split="train", with_info=True)
   num_examples = info.splits["train"].num_examples
   ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
   ds_train = ds_train.repeat(FLAGS.num_epochs)
-  ds_train = ds_train.map(functools.partial(preprocess, augment=FLAGS.augment),
-                          tf.data.experimental.AUTOTUNE)
+  ds_train = ds_train.map(
+      functools.partial(preprocess,
+                        augment_jitter=FLAGS.augment_jitter,
+                        augment_rotation=FLAGS.augment_rotation),
+      tf.data.experimental.AUTOTUNE)
   ds_train = ds_train.batch(FLAGS.batch_size).prefetch(
       tf.data.experimental.AUTOTUNE)
   ds_test = ModelNet40.load(split="test")
-  ds_test = ds_test.map(functools.partial(preprocess, augment=False),
-                        tf.data.experimental.AUTOTUNE)
+  ds_test = ds_test.map(preprocess, tf.data.experimental.AUTOTUNE)
   ds_test = ds_test.batch(FLAGS.batch_size).prefetch(
       tf.data.experimental.AUTOTUNE)
 
