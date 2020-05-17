@@ -37,7 +37,7 @@ script:
   - export PYTHONPATH=$PWD:$PYTHONPATH
   - pytest tensorflow_graphics
   # --- build pip package (installs in python path)
-  - python setup.py --compute_platform cpu sdist bdist_wheel --universal
+  - python setup.py sdist bdist_wheel
   - pip install dist/tensorflow_graphics*.whl
   # --- test the pip package
   - cd $(mktemp -d) && python -c 'import tensorflow_graphics as tfg'
