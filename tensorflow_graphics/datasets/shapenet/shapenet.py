@@ -55,6 +55,7 @@ _SPLIT_FILE_URL = \
 
 _CHECKSUMS_DIR = os.path.normpath(
     os.path.join(os.path.dirname(__file__), 'checksums/'))
+tfds.download.add_checksums_dir(_CHECKSUMS_DIR)
 
 
 class ShapenetConfig(tfds.core.BuilderConfig):
@@ -211,10 +212,6 @@ class Shapenet(tfds.core.GeneratorBasedBuilder):
   You need to register on https://shapenet.org/download/shapenetcore in order
   to get the link to download the dataset.
   """)
-
-  def __init__(self, *args, **kwargs):
-    super(Shapenet, self).__init__(*args, **kwargs)
-    tfds.download.add_checksums_dir(_CHECKSUMS_DIR)
 
   def _info(self):
     return self.builder_config.info(self)
