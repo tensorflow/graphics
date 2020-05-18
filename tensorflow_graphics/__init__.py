@@ -16,9 +16,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow_graphics import version
-__version__ = version.__version__
-
 # pylint: disable=g-statement-before-imports,g-import-not-at-top
 try:
   import tensorflow as tf
@@ -51,3 +48,5 @@ if _import_tfg_docs():
   __all__.remove("util")
   __all__.remove("version")
 # pylint: enable=g-statement-before-imports,g-import-not-at-top
+
+__version__ = "HEAD"

@@ -1,6 +1,7 @@
+# Continuous integration tests executed on push and pull request actions
 # see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python application
+name: Build
 
 on:
   push:
@@ -10,15 +11,14 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.8
+
+    - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: 3.8
+        python-version: 3.x
 
     - name: Install system dependencies
       run: |
@@ -31,14 +31,13 @@ jobs:
         pip install pytest
         pip install flake8
         flake8 --config=.flake8 tensorflow_graphics/
-    - name: Requirement
+    - name: Install pip requirements
       run: |
-        pip install tensorflow
         pip install -r requirements.txt
-    - name: Pytest
+    - name: Test
       run: |
         pytest tensorflow_graphics
-    - name: Install
+    - name: Build and Install
       run: |
         python setup.py sdist bdist_wheel
         pip install dist/tensorflow_graphics*.whl

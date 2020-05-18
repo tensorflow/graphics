@@ -14,50 +14,64 @@
 """Setup for pip package.
 
 Usage:
-  python setup.py sdist bdist_wheel
+  python setup.py sdist bdist_wheel [--nightly]
+
+Note:
+  assumes setup.py file lives at the root of the project.
 """
 
-
+import datetime
 import os
 import sys
 import setuptools
 
+# --- Name to use in PyPi
+if "--nightly" in sys.argv:
+  sys.argv.remove("--nightly")
+  NAME = "tfg-nightly"
+else:
+  NAME = "tensorflow-graphics"
 
-def get_version():
-  """NOTE: assumes this file lives at the root of the project."""
-  version_path = os.path.join(os.path.dirname(__file__), 'tensorflow_graphics')
-  sys.path.append(version_path)
-  from version import __version__  # pylint: disable=g-import-not-at-top
-  return __version__
+# --- compute the version (for both nightly and normal)
+now = datetime.datetime.now()
+VERSION = "{}.{}.{}".format(now.year, now.month, now.day)
+curr_path = os.path.dirname(__file__)
+ini_file_path = os.path.join(curr_path, "tensorflow_graphics/__init__.py")
+ini_file_lines = list(open(ini_file_path))
+with open(ini_file_path, "w") as f:
+  for line in ini_file_lines:
+    f.write(line.replace("__version__ = \"HEAD\"",
+                         "__version__ = \"{}\"".format(VERSION)))
 
-INSTALL_PACKAGES = [line.strip() for line in open('requirements.txt')]
-INSTALL_PACKAGES = [line for line in INSTALL_PACKAGES \
-                    if not line.startswith('#')]
+# --- Extract the dependencies
+REQS = [line.strip() for line in open("requirements.txt")]
+INSTALL_PACKAGES = [line for line in REQS if not line.startswith("#")]
 
+# --- Build the whl file
 setuptools.setup(
-    name='tensorflow-graphics',
-    version=get_version(),
-    description=('A library that contains well defined, reusable and cleanly '
-                 'written graphics related ops and utility functions for '
-                 'TensorFlow.'),
-    long_description='',
-    url='https://github.com/tensorflow/graphics',
-    author='Google LLC',
-    author_email='tf-graphics-eng@google.com',
+    name=NAME,
+    version=VERSION,
+    description=("A library that contains well defined, reusable and cleanly "
+                 "written graphics related ops and utility functions for "
+                 "TensorFlow."),
+    long_description="",
+    url="https://github.com/tensorflow/graphics",
+    author="Google LLC",
+    author_email="tf-graphics-eng@google.com",
     install_requires=INSTALL_PACKAGES,
     packages=setuptools.find_packages(),
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Programming Language :: Python :: 3',
-        'Topic :: Scientific/Engineering :: Mathematics',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        "Development Status :: 5 - Production/Stable",
+        "Programming Language :: Python :: 3",
+        "Topic :: Scientific/Engineering :: Mathematics",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
-    license='Apache 2.0',
+    license="Apache 2.0",
     keywords=[
-        'machine learning',
-        'tensorflow',
-        'graphics',
-        'geometry',
-        '3D',
+        "machine learning",
+        "tensorflow",
+        "graphics",
+        "geometry",
+        "3D",
     ],
 )
