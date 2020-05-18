@@ -147,7 +147,7 @@ def handle_keyboard_interrupt(flags):
     bucketpath = flags.logdir[5:]
     print("Delete these summaries with: ")
     termcolor.cprint("  gsutil rm -rf {}".format(flags.logdir), "red")
-    baseurl = "  https://pantheon.corp.google.com/storage/browser/{}"
+    baseurl = "  https://pantheon.google.com/storage/browser/{}"
     print("Or by visiting: ")
     termcolor.cprint(baseurl.format(bucketpath), "red")
   else:

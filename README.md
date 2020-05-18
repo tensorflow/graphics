@@ -61,8 +61,8 @@ and debug your machine learning models of choice.
 
 ## Installing TensorFlow Graphics
 
-See the [install](tensorflow_graphics/g3doc/install.md) documentation for instructions on how to
-install TensorFlow Graphics.
+See the [install](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/g3doc/install.md)
+documentation for instructions on how to install TensorFlow Graphics.
 
 ## API Documentation
 

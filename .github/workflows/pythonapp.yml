@@ -40,7 +40,7 @@ jobs:
         pytest tensorflow_graphics
     - name: Install
       run: |
-        python setup.py --compute_platform cpu sdist bdist_wheel
+        python setup.py sdist bdist_wheel
         pip install dist/tensorflow_graphics*.whl
     - name: Test install
       run: |
