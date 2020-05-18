@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Lint as: python3
-"""ModelNet40 classification dataset fom https://modelnet.cs.princeton.edu."""
+"""ModelNet40 classification dataset from https://modelnet.cs.princeton.edu."""
 
 import os
 import h5py
