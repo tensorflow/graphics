@@ -1,0 +1,105 @@
+{
+  "citation": "\n@inproceedings{qi2017pointnet,\n  title={Pointnet: Deep learning on point sets for 3d classification and segmentation},\n  author={Qi, Charles R and Su, Hao and Mo, Kaichun and Guibas, Leonidas J},\n  booktitle={Proceedings of the IEEE conference on computer vision and pattern recognition},\n  pages={652--660},\n  year={2017}\n}\n",
+  "description": "\nThe dataset contains point clouds sampling CAD models from 40 different categories.\nThe files have been retrieved from https://modelnet.cs.princeton.edu\n\nTo generate each example, the authors first uniformly sampled a modelnet40 mesh\nwith 10000 uniform samples, and then employed furthest point sampling to downsample\nto 2048 points. The procedure is explained [here](https://github.com/charlesq34/pointnet2/blob/master/tf_ops/sampling/tf_sampling.py)\n",
+  "location": {
+    "urls": [
+      "https://modelnet.cs.princeton.edu"
+    ]
+  },
+  "name": "model_net40",
+  "schema": {
+    "feature": [
+      {
+        "name": "label",
+        "type": "INT"
+      },
+      {
+        "name": "points",
+        "shape": {
+          "dim": [
+            {
+              "size": "2048"
+            },
+            {
+              "size": "3"
+            }
+          ]
+        },
+        "type": "FLOAT"
+      }
+    ]
+  },
+  "sizeInBytes": "435212151",
+  "splits": [
+    {
+      "name": "test",
+      "numShards": "1",
+      "shardLengths": [
+        "2468"
+      ],
+      "statistics": {
+        "features": [
+          {
+            "name": "label",
+            "numStats": {
+              "commonStats": {
+                "numNonMissing": "2468"
+              },
+              "max": 39.0
+            }
+          },
+          {
+            "name": "points",
+            "numStats": {
+              "commonStats": {
+                "numNonMissing": "2468"
+              },
+              "max": 0.9999974370002747,
+              "min": -0.9999753832817078
+            },
+            "type": "FLOAT"
+          }
+        ],
+        "numExamples": "2468"
+      }
+    },
+    {
+      "name": "train",
+      "numShards": "1",
+      "shardLengths": [
+        "4920",
+        "4920"
+      ],
+      "statistics": {
+        "features": [
+          {
+            "name": "label",
+            "numStats": {
+              "commonStats": {
+                "numNonMissing": "9840"
+              },
+              "max": 39.0
+            }
+          },
+          {
+            "name": "points",
+            "numStats": {
+              "commonStats": {
+                "numNonMissing": "9840"
+              },
+              "max": 0.9999983310699463,
+              "min": -0.9999980926513672
+            },
+            "type": "FLOAT"
+          }
+        ],
+        "numExamples": "9840"
+      }
+    }
+  ],
+  "supervisedKeys": {
+    "input": "points",
+    "output": "label"
+  },
+  "version": "1.0.0"
+}

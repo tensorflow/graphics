@@ -122,7 +122,8 @@ def setup_tensorboard(flags):
     return
 
   # --- Do not allow experiment with same name
-  assert not tf.io.gfile.exists(flags.logdir), \
+  assert (not tf.io.gfile.exists(flags.logdir) or
+          not tf.io.gfile.listdir(flags.logdir)), \
     "CRITICAL: folder {} already exists".format(flags.logdir)
 
   # --- Log where summary can be found
