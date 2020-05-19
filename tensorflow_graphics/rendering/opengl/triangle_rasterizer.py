@@ -189,7 +189,7 @@ class TriangleRasterizer(object):
       bottom_left: A Tensor of shape `[A1, ..., An, 2]`, where the last axis
         captures the position (in pixels) of the lower left corner of the
         screen. Defaults to (0.0, 0.0).
-        name: A name for this op. Defaults to 'triangle_rasterizer_init'.
+      name: A name for this op. Defaults to 'triangle_rasterizer_init'.
     """
     with tf.compat.v1.name_scope(
         name, "triangle_rasterizer_init",
