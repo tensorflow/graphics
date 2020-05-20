@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Training loop for PointNet v1 on modelnet40."""
-# pylint: disable=missing-function-docstring
-
 import tensorflow as tf
+
+from tqdm import tqdm
 
 from tensorflow_graphics.nn.layer.pointnet import VanillaClassifier
 from tensorflow_graphics.projects.pointnet import helpers
-from tqdm import tqdm
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -33,11 +32,9 @@ parser.add("--lr_decay", True, help="enable learning rate decay")
 parser.add("--bn_decay", .5, help="batch norm decay momentum")
 parser.add("--tb_every", 100, help="tensorboard frequency (iterations)")
 parser.add("--ev_every", 308, help="evaluation frequency (iterations)")
-parser.add("--tfds", True, help="use TFDS dataset loader")
 parser.add("--augment_jitter", True, help="use jitter augmentation")
 parser.add("--augment_rotate", True, help="use rotate augmentation")
 parser.add("--tqdm", True, help="enable the progress bar")
-parser.add_argument("--dryrun", action="store_true")
 FLAGS = parser.parse_args()
 
 # ------------------------------------------------------------------------------
@@ -111,27 +108,25 @@ def evaluate():
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-if not FLAGS.dryrun:
-  ds_train, ds_test = helpers.get_modelnet40_datasets(FLAGS.num_points,
-                                                      FLAGS.batch_size,
-                                                      FLAGS.augment_jitter,
-                                                      FLAGS.augment_rotate,
-                                                      FLAGS.num_epochs)
+ds_train, ds_test = helpers.get_modelnet40_datasets(FLAGS.num_points,
+                                                    FLAGS.batch_size,
+                                                    FLAGS.augment_jitter,
+                                                    FLAGS.augment_rotate,
+                                                    FLAGS.num_epochs)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-if not FLAGS.dryrun:
-  try:
-    helpers.setup_tensorboard(FLAGS)
-    helpers.summary_command(parser, FLAGS)
-    total = tf.data.experimental.cardinality(ds_train).numpy()
-    pbar = tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
-    for train_example in pbar:
-      train(train_example)
-      best_accuracy = evaluate()
-      pbar.set_postfix_str("best accuracy: {:.3f}".format(best_accuracy))
+try:
+  helpers.setup_tensorboard(FLAGS)
+  helpers.summary_command(parser, FLAGS)
+  total = tf.data.experimental.cardinality(ds_train).numpy()
+  pbar = tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
+  for train_example in pbar:
+    train(train_example)
+    best_accuracy = evaluate()
+    pbar.set_postfix_str("best accuracy: {:.3f}".format(best_accuracy))
 
-  except KeyboardInterrupt:
-    helpers.handle_keyboard_interrupt(FLAGS)
+except KeyboardInterrupt:
+  helpers.handle_keyboard_interrupt(FLAGS)

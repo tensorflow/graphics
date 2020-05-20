@@ -15,8 +15,9 @@ import sys
 import tempfile
 
 import tensorflow_datasets as tfds
+
+from tensorflow_graphics.datasets import testing
 from tensorflow_graphics.util import test_case
-from tensorflow_graphics.datasets import testing  # will fail until #310 merge
 
 
 class FitTest(test_case.TestCase):
@@ -30,7 +31,7 @@ class FitTest(test_case.TestCase):
             "fit.py",
             "--num_epochs", "2",
             "--assert_gpu", "False",
-            "--ev_every",  "1",
+            "--ev_every", "1",
             "--logdir", logdir,
             "--batch_size", str(batch_size),
         ]

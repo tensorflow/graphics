@@ -1,0 +1,46 @@
+# Continuous integration tests executed on push and pull request actions
+# see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.x
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get -y install libopenexr-dev
+        sudo apt-get -y install libgles2-mesa-dev
+        sudo apt-get -y install libc-ares-dev
+    - name: Linter
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+        pip install flake8
+        flake8 --config=.flake8 tensorflow_graphics/
+    - name: Install pip requirements
+      run: |
+        pip install -r requirements.txt
+    - name: Test
+      run: |
+        pytest tensorflow_graphics
+    - name: Build and Install
+      run: |
+        python setup.py sdist bdist_wheel
+        pip install dist/tensorflow_graphics*.whl
+    - name: Test install
+      run: |
+        cd $(mktemp -d) && python -c 'import tensorflow_graphics as tfg'

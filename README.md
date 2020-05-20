@@ -1,7 +1,7 @@
 # TensorFlow Graphics
 
 [![PyPI project status](https://img.shields.io/pypi/status/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
-[![Travis build status](https://img.shields.io/travis/tensorflow/graphics.svg)](https://travis-ci.org/tensorflow/graphics)
+[![Travis build status](https://img.shields.io/travis/tensorflow/graphics.svg?branch=master)](https://travis-ci.org/tensorflow/graphics)
 [![Supported Python version](https://img.shields.io/pypi/pyversions/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
 [![PyPI release version](https://img.shields.io/pypi/v/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
 
@@ -61,8 +61,8 @@ and debug your machine learning models of choice.
 
 ## Installing TensorFlow Graphics
 
-See the [install](tensorflow_graphics/g3doc/install.md) documentation for instructions on how to
-install TensorFlow Graphics.
+See the [install](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/g3doc/install.md)
+documentation for instructions on how to install TensorFlow Graphics.
 
 ## API Documentation
 

@@ -13,26 +13,34 @@
 # limitations under the License.
 """Tests of pointnet module."""
 
+import importlib
 import sys
-import tensorflow as tf
+import tempfile
 
+import tensorflow_datasets as tfds
+
+from tensorflow_graphics.datasets import testing
 from tensorflow_graphics.util import test_case
-
-
-def make_fake_batch(dimension_1, dimension_2):
-  points = tf.random.normal((dimension_1, dimension_2, 3))
-  label = tf.random.uniform((dimension_1,), minval=0, maxval=40, dtype=tf.int32)
-  return points, label
 
 
 class TrainTest(test_case.TestCase):
 
   def test_train(self):
-    sys.argv = ["train.py", "--dryrun", "--assert_gpu", "False"]
-    from tensorflow_graphics.projects.pointnet import train  # pylint: disable=import-outside-toplevel, unused-import, g-import-not-at-top
-    for _ in range(2):
-      batch = make_fake_batch(32, 1024)
-      train.train(batch)
+    batch_size = 8
+    with tfds.testing.mock_data(batch_size * 2, data_dir=testing.DATA_DIR):
+      with tempfile.TemporaryDirectory() as logdir:
+        # yapf: disable
+        sys.argv = [
+            "train.py",
+            "--num_epochs", "2",
+            "--assert_gpu", "False",
+            "--ev_every", "1",
+            "--tb_every", "1",
+            "--logdir", logdir,
+            "--batch_size", str(batch_size),
+        ]
+        # yapf: enable
+        importlib.import_module("tensorflow_graphics.projects.pointnet.train")
 
 
 if __name__ == "__main__":

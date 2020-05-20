@@ -129,7 +129,8 @@ def setup_tensorboard(flags):
     return
 
   # --- Do not allow experiment with same name
-  assert not tf.io.gfile.exists(flags.logdir), \
+  assert (not tf.io.gfile.exists(flags.logdir) or
+          not tf.io.gfile.listdir(flags.logdir)), \
     "CRITICAL: folder {} already exists".format(flags.logdir)
 
   # --- Log where summary can be found
@@ -154,7 +155,7 @@ def handle_keyboard_interrupt(flags):
     bucketpath = flags.logdir[5:]
     print("Delete these summaries with: ")
     termcolor.cprint("  gsutil rm -rf {}".format(flags.logdir), "red")
-    baseurl = "  https://pantheon.corp.google.com/storage/browser/{}"
+    baseurl = "  https://pantheon.google.com/storage/browser/{}"
     print("Or by visiting: ")
     termcolor.cprint(baseurl.format(bucketpath), "red")
   else:

@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """keras Model.fit loop for PointNet v1 on modelnet40."""
-# pylint: disable=missing-function-docstring
 import tensorflow as tf
 
 from tensorflow_graphics.nn.layer.pointnet import VanillaClassifier
@@ -58,7 +57,7 @@ ds_train, ds_test = helpers.get_modelnet40_datasets(FLAGS.num_points,
                                                     FLAGS.augment)
 
 callbacks = [
-    tf.keras.callbacks.TensorBoard(FLAGS.logdir),
+    tf.keras.callbacks.TensorBoard(FLAGS.logdir, profile_batch='2,12'),
     tf.keras.callbacks.ModelCheckpoint(FLAGS.logdir, save_best_only=True),
 ]
 
