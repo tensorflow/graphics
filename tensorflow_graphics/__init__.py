@@ -49,4 +49,4 @@ if _import_tfg_docs():
   __all__.remove("version")
 # pylint: enable=g-statement-before-imports,g-import-not-at-top
 
-__version__ = "2020.5.20"
+__version__ = "HEAD"
