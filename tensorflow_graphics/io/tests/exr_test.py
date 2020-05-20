@@ -26,8 +26,8 @@ import Imath
 import numpy as np
 import OpenEXR
 
+from tensorflow_graphics.io import exr
 from tensorflow_graphics.util import test_case
-from tensorflow_graphics.util.data_formats import exr
 
 
 def _WriteMixedDatatypesExr(filename):
