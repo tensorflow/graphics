@@ -63,7 +63,7 @@ def load(file_obj, file_type=None, **kwargs):
           resolver=GFileResolver(file_obj),
           **kwargs)
 
-  if isinstance(file_obj, tf.io.gfile.GFile):
+  if trimesh.util.is_file(file_obj):
     if not hasattr(file_obj, 'name') or not file_obj.name:
       raise ValueError(
           'file_obj must have attribute "name". Try passing the file name instead.'
@@ -76,7 +76,7 @@ def load(file_obj, file_type=None, **kwargs):
         resolver=GFileResolver(file_obj.name),
         **kwargs)
 
-  raise ValueError('file_obj should be either a tf.io.gfile.GFile or a string')
+  raise ValueError('file_obj should be either a file object or a string')
 
 
 __all__ = ['load', 'Trimesh', 'Scene']

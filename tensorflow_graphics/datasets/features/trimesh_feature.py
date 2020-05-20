@@ -61,12 +61,20 @@ class TriangleMesh(features.FeaturesDict):
   def encode_example(self, path_or_trianglemesh):
     """Convert the given triangle mesh into a dict convertible to tf example."""
     if isinstance(path_or_trianglemesh, six.string_types):
+      # The parameter is a path.
       with tf.io.gfile.GFile(path_or_trianglemesh, 'rb') as tmesh_file:
         features_dict = self._convert_to_trimesh_feature(
             triangle_mesh.load(tmesh_file))
+    elif hasattr(path_or_trianglemesh, 'read') and hasattr(
+        path_or_trianglemesh, 'name'):
+      # The parameter is a file object.
+      features_dict = self._convert_to_trimesh_feature(
+          triangle_mesh.load(path_or_trianglemesh))
     elif isinstance(path_or_trianglemesh, dict):
+      # The parameter is already a Trimesh dictionary.
       features_dict = path_or_trianglemesh
     else:
+      # The parameter is a Trimesh or a Scene.
       features_dict = self._convert_to_trimesh_feature(path_or_trianglemesh)
 
     return super(TriangleMesh, self).encode_example(features_dict)
