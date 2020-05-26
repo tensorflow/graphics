@@ -22,9 +22,7 @@ jobs:
 
     - name: Install system dependencies
       run: |
-        sudo apt-get -y install libopenexr-dev
-        sudo apt-get -y install libgles2-mesa-dev
-        sudo apt-get -y install libc-ares-dev
+        sudo xargs apt-get -y install < ~/tfg/requirements.unix
     - name: Linter
       run: |
         python -m pip install --upgrade pip
