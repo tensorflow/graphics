@@ -1,6 +1,8 @@
 workspace(name = "tensorflow_graphics")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@third_party:tf.bzl", "tf_configure")
+
 
 http_archive(
     name = "bazel_skylib",
@@ -26,4 +28,7 @@ http_archive(
     strip_prefix = "rules_cc-master",
     urls = ["https://github.com/bazelbuild/rules_cc/archive/master.zip"],
 )
+
+# Set up dependency to tensorflow pip package.
+tf_configure()
 
