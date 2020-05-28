@@ -1,6 +1,6 @@
 # TensorFlow Graphics
 
-[![Build](https://github.com/tensorflow/graphics/workflows/Build/badge.svg?branch=master)
+[![Build](https://github.com/tensorflow/graphics/workflows/Build/badge.svg?branch=master)](https://github.com/tensorflow/graphics/workflows/Build)
 [![PyPI project status](https://img.shields.io/pypi/status/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
 [![Supported Python version](https://img.shields.io/pypi/pyversions/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
 [![PyPI release version](https://img.shields.io/pypi/v/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
