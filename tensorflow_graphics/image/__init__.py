@@ -22,6 +22,7 @@ if _import_tfg_docs():
   from tensorflow_graphics.image import color_space
   from tensorflow_graphics.image import matting
   from tensorflow_graphics.image import pyramid
+  from tensorflow_graphics.image import transformer
   from tensorflow_graphics.util import export_api as _export_api
 
   # API contains submodules of tensorflow_graphics.image.
