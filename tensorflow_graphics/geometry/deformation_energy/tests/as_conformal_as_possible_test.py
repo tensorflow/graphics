@@ -106,6 +106,7 @@ class AsConformalAsPossibleTest(test_case.TestCase):
       ((1, 3), (None, 1, 3), (None, 1, 4), (1, 2), (1,), (1,)),
       ((1, 3), (2, None, 1, 3), (2, None, 1, 4), (1, 2), (1,), (1,)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_energy_not_raised(self, *shapes):
     """Tests that the shape exceptions are not raised."""
     self.assert_exception_is_not_raised(
@@ -171,6 +172,7 @@ class AsConformalAsPossibleTest(test_case.TestCase):
       ("must have the same number of dimensions",
        (1, 3), (1, 3), (1, 4), (1, 2), (1,), (2,)),
   )  # pyformat: disable
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_energy_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are raised."""
     self.assert_exception_is_raised(

@@ -30,15 +30,17 @@ from tensorflow_graphics.util import test_case
 class RotationMatrix2dTest(test_case.TestCase):
 
   @parameterized.parameters(
-      ((1,)),
+      ((1,),),
       ((None, 1),),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_from_euler_exception_not_raised(self, *shapes):
     """Tests that the shape exceptions are not raised."""
     self.assert_exception_is_not_raised(rotation_matrix_2d.from_euler, shapes)
 
   @parameterized.parameters(
       ("must have exactly 1 dimensions in axis -1", (None,)),)
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_from_euler_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised."""
     self.assert_exception_is_raised(rotation_matrix_2d.from_euler, error_msg,

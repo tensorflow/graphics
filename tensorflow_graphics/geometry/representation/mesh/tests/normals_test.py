@@ -17,6 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from absl.testing import flagsaver
 from absl.testing import parameterized
 import numpy as np
 import tensorflow as tf
@@ -88,6 +89,7 @@ class MeshTest(test_case.TestCase):
       (((4, 3),), (tf.float32,)),
       (((3, 4, 3),), (tf.float32,)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_face_normals_exception_not_raised(self, shapes, dtypes):
     """Tests that the shape exceptions are not raised."""
     self.assert_exception_is_not_raised(normals.face_normals, shapes, dtypes)
@@ -97,6 +99,7 @@ class MeshTest(test_case.TestCase):
       ("faces must have greater than 2 dimensions in axis -2", (2, 3)),
       ("faces must have exactly 3 dimensions in axis -1.", (5, 2)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_face_normals_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised."""
     self.assert_exception_is_raised(normals.face_normals, error_msg, shapes)
@@ -174,6 +177,7 @@ class MeshTest(test_case.TestCase):
       (((3, None, 3), (3, None, 5)), (tf.float32, tf.int32)),
       (((3, 6, 3), (3, 5, 5)), (tf.float32, tf.int32)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_vertex_normals_exception_not_raised(self, shapes, dtypes):
     """Tests that the shape exceptions are not raised."""
     self.assert_exception_is_not_raised(normals.vertex_normals, shapes, dtypes)
@@ -196,6 +200,7 @@ class MeshTest(test_case.TestCase):
       ("'indices' must have specified batch dimensions.", (None, 6, 3),
        (None, 5, 5)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_vertex_normals_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised."""
     self.assert_exception_is_raised(normals.vertex_normals, error_msg, shapes)

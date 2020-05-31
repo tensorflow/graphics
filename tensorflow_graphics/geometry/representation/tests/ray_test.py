@@ -66,6 +66,7 @@ class RayTest(test_case.TestCase):
       ("must have greater than 1 dimensions in axis -2", (1, 3), (1, 3), (1,)),
       ("Not all batch dimensions are identical.", (2, 4, 3), (2, 4, 3), (2, 5)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_triangulate_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised."""
     self.assert_exception_is_raised(ray.triangulate, error_msg, shapes)
@@ -75,6 +76,7 @@ class RayTest(test_case.TestCase):
       ((5, 4, 3), (5, 4, 3), (5, 4)),
       ((6, 5, 4, 3), (6, 5, 4, 3), (6, 5, 4)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_triangulate_exception_is_not_raised(self, *shapes):
     """Tests that the shape exceptions are properly raised."""
     self.assert_exception_is_not_raised(ray.triangulate, shapes)
@@ -151,6 +153,7 @@ class RayTest(test_case.TestCase):
       ("must have exactly 3 dimensions in axis -1", (3,), (1,), (3,), (2,)),
       ("Not all batch dimensions are identical.", (3,), (1,), (3,), (2, 3)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_intersection_ray_sphere_shape_raised(self, error_msg, *shapes):
     """tests that exceptions are raised when shapes are not supported."""
     self.assert_exception_is_raised(ray.intersection_ray_sphere, error_msg,
@@ -158,8 +161,9 @@ class RayTest(test_case.TestCase):
 
   @parameterized.parameters(
       ((3,), (1,), (3,), (3,)),
-      ((3), (1), (None, 3), (None, 3)),
+      ((3,), (1,), (None, 3), (None, 3)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_intersection_ray_sphere_shape_not_raised(self, *shapes):
     """Tests that the shape exceptions are not raised on supported shapes."""
     self.assert_exception_is_not_raised(ray.intersection_ray_sphere, shapes)

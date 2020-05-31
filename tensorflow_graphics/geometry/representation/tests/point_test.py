@@ -37,6 +37,7 @@ class PointTest(test_case.TestCase):
       ((2, 3), (2, 3), (2, 3)),
       ((1, 2, 3), (2, 2, 3), (2, 3)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_distance_to_ray_exception_not_raised(self, *shapes):
     """Tests that the shape exceptions are not raised."""
     self.assert_exception_is_not_raised(point.distance_to_ray, shapes)
@@ -53,6 +54,7 @@ class PointTest(test_case.TestCase):
       ("Not all batch dimensions are broadcast-compatible.", (1, 3), (2, 3),
        (3, 3)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_distance_to_ray_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised."""
     self.assert_exception_is_raised(point.distance_to_ray, error_msg, shapes)
@@ -114,6 +116,7 @@ class PointTest(test_case.TestCase):
       ((2, 3), (2, 3), (2, 3)),
       ((1, 2, 3), (2, 2, 3), (2, 3)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_project_to_ray_exception_not_raised(self, *shapes):
     """Tests that the shape exceptions are not raised."""
     self.assert_exception_is_not_raised(point.project_to_ray, shapes)
@@ -130,6 +133,7 @@ class PointTest(test_case.TestCase):
       ("Not all batch dimensions are broadcast-compatible.", (1, 3), (2, 3),
        (3, 3)),
   )
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_project_to_ray_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised."""
     self.assert_exception_is_raised(point.project_to_ray, error_msg, shapes)
