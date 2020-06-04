@@ -43,10 +43,12 @@ class Pose(features.FeaturesDict):
   """
   def __init__(self):
     super(Pose, self).__init__({
-        'rotation': features.Tensor(shape=(3, 3), dtype=tf.float32),
-        'translation': features.Tensor(shape=(3,), dtype=tf.float32),
+        'R': features.Tensor(shape=(3, 3), dtype=tf.float32),
+        't': features.Tensor(shape=(3,), dtype=tf.float32),
     })
 
   def encode_example(self, pose_dict):
     """Convert the given pose into a dict convertible to tf example."""
+    assert list(pose_dict.keys()) == ['R', 't'], "Missing keys in provided dictionary! Expecting 'R' and 't'."
+
     return super(Pose, self).encode_example(pose_dict)
