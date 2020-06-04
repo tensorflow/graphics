@@ -13,3 +13,47 @@
 # limitations under the License.
 # Lint as: python3
 """Tests for tensorflow_graphics.datasets.features.pose_feature."""
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import os
+
+import numpy as np
+import tensorflow.compat.v2 as tf
+from tensorflow_graphics.geometry.transformation import rotation_matrix_3d
+from tensorflow_graphics.datasets.features import pose_feature
+import tensorflow_datasets as tfds
+
+
+class PoseFeatureTest(tfds.testing.FeatureExpectationsTestCase):
+
+  def test_pose_feature(self):
+    expected_rotation = np.eye(3)
+    expected_translation = np.zeros(3)
+
+    expected_pose = {'R': expected_rotation.astype(np.float32), 't': expected_translation.astype(np.float32)}
+
+    self.assertFeature(
+        feature=pose_feature.Pose(),
+        shape={
+            'R': (3, 3),
+            't': (3,)
+        },
+        dtype={
+            'R': tf.float32,
+            't': tf.float32
+        },
+        tests=[
+            # FeaturesDict
+            tfds.testing.FeatureExpectationItem(
+                value=expected_pose,
+                expected=expected_pose,
+            ),
+        ],
+    )
+
+
+if __name__ == '__main__':
+  tfds.testing.test_main()
