@@ -18,13 +18,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import numpy as np
 import tensorflow.compat.v2 as tf
 from tensorflow_datasets import features
 
 from tensorflow_graphics.datasets.features import pose_feature
 
 
-class CameraFeature(features.FeaturesDict):
+class Camera(features.FeaturesDict):
   """`FeatureConnector` for camera calibration (extrinsic and intrinsic).
 
   During `_generate_examples`, the feature connector accepts as input any of:
@@ -60,24 +61,24 @@ class CameraFeature(features.FeaturesDict):
   """
 
   def __init__(self):
-    super(CameraFeature, self).__init__({
+    super(Camera, self).__init__({
       'pose': pose_feature.Pose(),
       'K': features.Tensor(shape=(3, 3), dtype=tf.float32),
     })
 
   def encode_example(self, parameter_dict):
     """Convert the given parameters into a dict convertible to tf example."""
-    REQUIRED_KEYS = ['rotation', 'translation', 'f', 'optical_center']
-    assert parameter_dict.keys() >= REQUIRED_KEYS, "Missing keys in provided dictionary!" # Todo: Probably not the best option here.
+    REQUIRED_KEYS = ['R', 't', 'f', 'optical_center']
+    assert list(parameter_dict.keys()) >= REQUIRED_KEYS, "Missing keys in provided dictionary!" # Todo: Probably not the best option here.
 
     features_dict = {'pose': self._feature_dict['pose'].encode_example({
-      'rotation': parameter_dict['rotation'],
-      'translation': parameter_dict['translation']
+      'R': parameter_dict['R'],
+      't': parameter_dict['t']
     })}
     aspect_ratio = 1
     skew = 0
     if 'aspect_ratio' in parameter_dict.keys():
-      assert isinstance(parameter_dict['f'], tf.float32), "If aspect ratio is provided, f needs to be a single float"
+      assert isinstance(parameter_dict['f'], float), "If aspect ratio is provided, f needs to be a single float"
       aspect_ratio = parameter_dict['aspect_ratio']
 
     if 'skew' in parameter_dict.keys():
@@ -90,7 +91,7 @@ class CameraFeature(features.FeaturesDict):
       skew
     )
 
-    return super(CameraFeature, self).encode_example(features_dict)
+    return super(Camera, self).encode_example(features_dict)
 
   def _create_calibration_matrix(self, f, optical_center, aspect_ratio=1, skew=0):
     """Constructs the 3x3 calibration matrix K.
@@ -113,7 +114,7 @@ class CameraFeature(features.FeaturesDict):
       f_x = f
       f_y = aspect_ratio * f
 
-    return tf.constant([[f_x, skew, optical_center[0]],
+    return np.asarray([[f_x, skew, optical_center[0]],
                         [0, f_y, optical_center[1]],
                         [0, 0, 1]
-                        ], dtype=tf.float32)
+                        ], dtype=np.float32)
