@@ -49,6 +49,6 @@ class Pose(features.FeaturesDict):
 
   def encode_example(self, pose_dict):
     """Convert the given pose into a dict convertible to tf example."""
-    assert list(pose_dict.keys()) == ['R', 't'], "Missing keys in provided dictionary! Expecting 'R' and 't'."
+    assert list(pose_dict.keys()) >= ['R', 't'], "Missing keys in provided dictionary! Expecting 'R' and 't'."
 
     return super(Pose, self).encode_example(pose_dict)
