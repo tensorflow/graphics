@@ -78,7 +78,7 @@ class Camera(features.FeaturesDict):
     aspect_ratio = 1
     skew = 0
     if 'aspect_ratio' in parameter_dict.keys():
-      assert isinstance(parameter_dict['f'], float), "If aspect ratio is provided, f needs to be a single float"
+      assert isinstance(parameter_dict['f'], float), "If aspect ratio is provided, f needs to be a single float."
       aspect_ratio = parameter_dict['aspect_ratio']
 
     if 'skew' in parameter_dict.keys():
