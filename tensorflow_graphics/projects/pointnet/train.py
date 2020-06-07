@@ -142,7 +142,7 @@ ds_test = ModelNet40.load(split="test").batch(FLAGS.batch_size)
 try:
   helpers.setup_tensorboard(FLAGS)
   helpers.summary_command(parser, FLAGS)
-  total = tf.data.experimental.cardinality(ds_train).numpy()
+  total = ds_train.cardinality().numpy()
   pbar = tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
   for train_example in pbar:
     train(train_example)
