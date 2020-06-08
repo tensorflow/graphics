@@ -17,164 +17,19 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import math
 import tensorflow as tf
 
-from tensorflow_graphics.math import vector
+from tensorflow_graphics.geometry.transformation import look_at
 from tensorflow_graphics.math.interpolation import weighted
+from tensorflow_graphics.rendering.camera import perspective
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def perspective_right_handed(vertical_field_of_view,
-                             aspect_ratio,
-                             near,
-                             far,
-                             name=None):
-  """Generates the matrix for a right handed perspective projection.
-
-  Note:
-    In the following, A1 to An are optional batch dimensions.
-
-  Args:
-    vertical_field_of_view: A tensor of shape `[A1, ..., An, 1]`, where the last
-      dimension represents the vertical field of view of the frustum expressed
-      in radians. Note that values for `vertical_field_of_view` must be in the
-      range (0,pi).
-    aspect_ratio: A tensor of shape `[A1, ..., An, 1]`, where the last dimension
-      stores the width over height ratio of the frustum. Note that values for
-      `aspect_ratio` must be non-negative.
-    near:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
-      captures the distance between the viewer and the near clipping plane. Note
-      that values for `near` must be non-negative.
-    far:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
-      captures the distance between the viewer and the far clipping plane. Note
-      that values for `far` must be greater than those of `near`.
-    name: A name for this op. Defaults to 'perspective_rh'.
-
-  Raises:
-    InvalidArgumentError: if any input contains data not in the specified range
-      of valid values.
-    ValueError: if the all the inputs are not of the same shape.
-
-  Returns:
-    A tensor of shape `[A1, ..., An, 4, 4]`, containing matrices of right
-    handed perspective-view frustum.
-  """
-  with tf.compat.v1.name_scope(
-      name, "perspective_rh",
-      [vertical_field_of_view, aspect_ratio, near, far]):
-    vertical_field_of_view = tf.convert_to_tensor(value=vertical_field_of_view)
-    aspect_ratio = tf.convert_to_tensor(value=aspect_ratio)
-    near = tf.convert_to_tensor(value=near)
-    far = tf.convert_to_tensor(value=far)
-
-    shape.check_static(
-        tensor=vertical_field_of_view,
-        tensor_name="vertical_field_of_view",
-        has_dim_equals=(-1, 1))
-    shape.check_static(
-        tensor=aspect_ratio, tensor_name="aspect_ratio", has_dim_equals=(-1, 1))
-    shape.check_static(tensor=near, tensor_name="near", has_dim_equals=(-1, 1))
-    shape.check_static(tensor=far, tensor_name="far", has_dim_equals=(-1, 1))
-    shape.compare_batch_dimensions(
-        tensors=(vertical_field_of_view, aspect_ratio, near, far),
-        last_axes=-2,
-        tensor_names=("vertical_field_of_view", "aspect_ratio", "near", "far"),
-        broadcast_compatible=False)
-
-    vertical_field_of_view = asserts.assert_all_in_range(
-        vertical_field_of_view, 0.0, math.pi, open_bounds=True)
-    aspect_ratio = asserts.assert_all_above(aspect_ratio, 0.0, open_bound=True)
-    near = asserts.assert_all_above(near, 0.0, open_bound=True)
-    far = asserts.assert_all_above(far, near, open_bound=True)
-
-    inverse_tan_half_vertical_field_of_view = 1.0 / tf.tan(
-        vertical_field_of_view * 0.5)
-    zero = tf.zeros_like(inverse_tan_half_vertical_field_of_view)
-    one = tf.ones_like(inverse_tan_half_vertical_field_of_view)
-    near_minus_far = near - far
-    matrix = tf.concat(
-        (inverse_tan_half_vertical_field_of_view / aspect_ratio, zero, zero,
-         zero, zero, inverse_tan_half_vertical_field_of_view, zero, zero, zero,
-         zero, (far + near) / near_minus_far, 2.0 * far * near / near_minus_far,
-         zero, zero, -one, zero),
-        axis=-1)
-    matrix_shape = tf.shape(input=matrix)
-    output_shape = tf.concat((matrix_shape[:-1], (4, 4)), axis=-1)
-    return tf.reshape(matrix, shape=output_shape)
-
-
-def look_at_right_handed(camera_position, look_at, up_vector, name=None):
-  """Builds a right handed look at view matrix.
-
-  Note:
-    In the following, A1 to An are optional batch dimensions.
-
-  Args:
-    camera_position: A tensor of shape `[A1, ..., An, 3]`, where the last
-      dimension represents the 3D position of the camera.
-    look_at: A tensor of shape `[A1, ..., An, 3]`, with the last dimension
-      storing the position where the camera is looking at.
-    up_vector: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
-      defines the up vector of the camera.
-    name: A name for this op. Defaults to 'look_at_right_handed'.
-
-  Raises:
-    ValueError: if the all the inputs are not of the same shape, or if any input
-    of of an unsupported shape.
-
-  Returns:
-    A tensor of shape `[A1, ..., An, 4, 4]`, containing right handed look at
-    matrices.
-  """
-  with tf.compat.v1.name_scope(name, "look_at_right_handed",
-                               [camera_position, look_at, up_vector]):
-    camera_position = tf.convert_to_tensor(value=camera_position)
-    look_at = tf.convert_to_tensor(value=look_at)
-    up_vector = tf.convert_to_tensor(value=up_vector)
-
-    shape.check_static(
-        tensor=camera_position,
-        tensor_name="camera_position",
-        has_dim_equals=(-1, 3))
-    shape.check_static(
-        tensor=look_at, tensor_name="look_at", has_dim_equals=(-1, 3))
-    shape.check_static(
-        tensor=up_vector, tensor_name="up_vector", has_dim_equals=(-1, 3))
-    shape.compare_batch_dimensions(
-        tensors=(camera_position, look_at, up_vector),
-        last_axes=-2,
-        tensor_names=("camera_position", "look_at", "up_vector"),
-        broadcast_compatible=False)
-
-    z_axis = tf.linalg.l2_normalize(look_at - camera_position, axis=-1)
-    horizontal_axis = tf.linalg.l2_normalize(
-        vector.cross(z_axis, up_vector), axis=-1)
-    vertical_axis = vector.cross(horizontal_axis, z_axis)
-
-    batch_shape = tf.shape(input=horizontal_axis)[:-1]
-    zeros = tf.zeros(
-        shape=tf.concat((batch_shape, (3,)), axis=-1),
-        dtype=horizontal_axis.dtype)
-    one = tf.ones(
-        shape=tf.concat((batch_shape, (1,)), axis=-1),
-        dtype=horizontal_axis.dtype)
-
-    matrix = tf.concat(
-        (horizontal_axis, -vector.dot(horizontal_axis, camera_position),
-         vertical_axis, -vector.dot(vertical_axis, camera_position), -z_axis,
-         vector.dot(z_axis, camera_position), zeros, one),
-        axis=-1)
-    matrix_shape = tf.shape(input=matrix)
-    output_shape = tf.concat((matrix_shape[:-1], (4, 4)), axis=-1)
-    return tf.reshape(matrix, shape=output_shape)
-
-
 def model_to_eye(point_model_space,
                  camera_position,
-                 look_at,
+                 look_at_point,
                  up_vector,
                  name=None):
   """Transforms points from model to eye coordinates.
@@ -188,7 +43,7 @@ def model_to_eye(point_model_space,
       dimension represents the 3D points in model space.
     camera_position: A tensor of shape `[A1, ..., An, 3]`, where the last
       dimension represents the 3D position of the camera.
-    look_at: A tensor of shape `[A1, ..., An, 3]`, with the last dimension
+    look_at_point: A tensor of shape `[A1, ..., An, 3]`, with the last dimension
       storing the position where the camera is looking at.
     up_vector: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
       defines the up vector of the camera.
@@ -204,10 +59,10 @@ def model_to_eye(point_model_space,
   """
   with tf.compat.v1.name_scope(
       name, "model_to_eye",
-      [point_model_space, camera_position, look_at, up_vector]):
+      [point_model_space, camera_position, look_at_point, up_vector]):
     point_model_space = tf.convert_to_tensor(value=point_model_space)
     camera_position = tf.convert_to_tensor(value=camera_position)
-    look_at = tf.convert_to_tensor(value=look_at)
+    look_at_point = tf.convert_to_tensor(value=look_at_point)
     up_vector = tf.convert_to_tensor(value=up_vector)
 
     shape.check_static(
@@ -220,7 +75,7 @@ def model_to_eye(point_model_space,
         tensor_names=("point_model_space", "camera_position"),
         broadcast_compatible=True)
 
-    model_to_eye_matrix = look_at_right_handed(camera_position, look_at,
+    model_to_eye_matrix = look_at.right_handed(camera_position, look_at_point,
                                                up_vector)
     batch_shape = tf.shape(input=point_model_space)[:-1]
     one = tf.ones(
@@ -297,7 +152,7 @@ def eye_to_clip(point_eye_space,
                       "aspect_ratio", "near", "far"),
         broadcast_compatible=True)
 
-    perspective_matrix = perspective_right_handed(vertical_field_of_view,
+    perspective_matrix = perspective.right_handed(vertical_field_of_view,
                                                   aspect_ratio, near, far)
     batch_shape = tf.shape(input=point_eye_space)[:-1]
     one = tf.ones(
@@ -427,7 +282,7 @@ def ndc_to_screen(point_ndc_space,
 
 def model_to_screen(point_model_space,
                     camera_position,
-                    look_at,
+                    look_at_point,
                     up_vector,
                     vertical_field_of_view,
                     screen_dimensions,
@@ -450,7 +305,7 @@ def model_to_screen(point_model_space,
       dimension represents the 3D points in model space.
     camera_position: A tensor of shape `[A1, ..., An, 3]`, where the last
       dimension represents the 3D position of the camera.
-    look_at: A tensor of shape `[A1, ..., An, 3]`, with the last dimension
+    look_at_point: A tensor of shape `[A1, ..., An, 3]`, with the last dimension
       storing the position where the camera is looking at.
     up_vector: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
       defines the up vector of the camera.
@@ -483,7 +338,7 @@ def model_to_screen(point_model_space,
     represents the 'w' component of `point_model_space` in clip space.
   """
   with tf.compat.v1.name_scope(name, "model_to_screen", [
-      point_model_space, camera_position, look_at, up_vector,
+      point_model_space, camera_position, look_at_point, up_vector,
       vertical_field_of_view, screen_dimensions, near, far, lower_left_corner
   ]):
     point_model_space = tf.convert_to_tensor(value=point_model_space)
@@ -497,8 +352,8 @@ def model_to_screen(point_model_space,
         tensor_name="screen_dimensions",
         has_dim_equals=(-1, 2))
 
-    point_eye_space = model_to_eye(point_model_space, camera_position, look_at,
-                                   up_vector)
+    point_eye_space = model_to_eye(point_model_space, camera_position,
+                                   look_at_point, up_vector)
     point_clip_space = eye_to_clip(
         point_eye_space, vertical_field_of_view,
         screen_dimensions[..., 0:1] / screen_dimensions[..., 1:2], near, far)
@@ -512,7 +367,7 @@ def perspective_correct_interpolation(triangle_vertices_model_space,
                                       attribute,
                                       pixel_position,
                                       camera_position,
-                                      look_at,
+                                      look_at_point,
                                       up_vector,
                                       vertical_field_of_view,
                                       screen_dimensions,
@@ -536,8 +391,8 @@ def perspective_correct_interpolation(triangle_vertices_model_space,
       requested.
     camera_position: A tensor of shape `[A1, ..., An, 3]`, where the last
       dimension represents the 3D position of the camera.
-    look_at: A tensor of shape `[A1, ..., An, 3, 3]`, with the last dimension
-      storing the position where the camera is looking at.
+    look_at_point: A tensor of shape `[A1, ..., An, 3, 3]`, with the last
+      dimension storing the position where the camera is looking at.
     up_vector: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
       defines the up vector of the camera.
     vertical_field_of_view: A tensor of shape `[A1, ..., An, 1]`, where the last
@@ -567,16 +422,19 @@ def perspective_correct_interpolation(triangle_vertices_model_space,
   """
   with tf.compat.v1.name_scope(name, "perspective_correct_interpolation", [
       triangle_vertices_model_space, attribute, pixel_position, camera_position,
-      look_at, up_vector, vertical_field_of_view, screen_dimensions, near, far,
-      lower_left_corner
+      look_at_point, up_vector, vertical_field_of_view, screen_dimensions, near,
+      far, lower_left_corner
   ]):
     attribute = tf.convert_to_tensor(value=attribute)
     shape.check_static(
         tensor=attribute, tensor_name="attribute", has_dim_equals=(-2, 3))
 
-    vertices_screen, vertices_w = model_to_screen(
-        triangle_vertices_model_space, camera_position, look_at, up_vector,
-        vertical_field_of_view, screen_dimensions, near, far, lower_left_corner)
+    vertices_screen, vertices_w = model_to_screen(triangle_vertices_model_space,
+                                                  camera_position,
+                                                  look_at_point, up_vector,
+                                                  vertical_field_of_view,
+                                                  screen_dimensions, near, far,
+                                                  lower_left_corner)
     vertices_w = tf.squeeze(vertices_w, axis=-1)
     pixel_position = tf.expand_dims(pixel_position, axis=-2)
     barycentric_coordinates, _ = weighted.get_barycentric_coordinates(
