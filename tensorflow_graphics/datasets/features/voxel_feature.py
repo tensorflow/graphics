@@ -19,10 +19,10 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import six
-import tensorflow.compat.v2 as tf
-from tensorflow_datasets import features
 from scipy.io import loadmat
+import tensorflow.compat.v2 as tf
+
+from tensorflow_datasets import features
 
 
 class VoxelGrid(features.Tensor):

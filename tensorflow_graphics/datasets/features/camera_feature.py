@@ -69,7 +69,7 @@ class Camera(features.FeaturesDict):
   def encode_example(self, parameter_dict):
     """Convert the given parameters into a dict convertible to tf example."""
     REQUIRED_KEYS = ['R', 't', 'f', 'optical_center']
-    assert list(parameter_dict.keys()) >= REQUIRED_KEYS, "Missing keys in provided dictionary!" # Todo: Probably not the best option here.
+    assert list(parameter_dict.keys()) >= REQUIRED_KEYS, "Missing keys in provided dictionary!"
 
     features_dict = {'pose': self._feature_dict['pose'].encode_example({
       'R': parameter_dict['R'],
@@ -115,6 +115,6 @@ class Camera(features.FeaturesDict):
       f_y = aspect_ratio * f
 
     return np.asarray([[f_x, skew, optical_center[0]],
-                        [0, f_y, optical_center[1]],
-                        [0, 0, 1]
-                        ], dtype=np.float32)
+                       [0, f_y, optical_center[1]],
+                       [0, 0, 1]
+                       ], dtype=np.float32)
