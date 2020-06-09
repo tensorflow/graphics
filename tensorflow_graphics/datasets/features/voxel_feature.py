@@ -43,7 +43,7 @@ class VoxelGrid(features.Tensor):
     voxel grid.
 
   Output:
-    A float32 Tensor with shape [X,Y,Z]containing the voxels occupancies.
+    A float32 Tensor with shape [X,Y,Z] containing the voxel occupancies.
   """
 
   def __init__(self, shape):
