@@ -3,7 +3,3 @@ bazel-out
 bazel-testlogs
 bazel-graphics
 bazel-bin
-build/
-dist/
-tensorflow_graphics.egg-info/
-.eggs/
