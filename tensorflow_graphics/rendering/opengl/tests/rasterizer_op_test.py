@@ -22,8 +22,9 @@ import numpy as np
 import six
 import tensorflow as tf
 
+from tensorflow_graphics.geometry.transformation import look_at
+from tensorflow_graphics.rendering.camera import perspective
 from tensorflow_graphics.rendering.opengl import gen_rasterizer_op as rasterizer
-from tensorflow_graphics.rendering.opengl import math as glm
 from tensorflow_graphics.util import test_case
 
 # Empty vertex shader
@@ -120,16 +121,16 @@ class RasterizerOPTest(test_case.TestCase):
     width = 640
     camera_origin = (0.0, 0.0, 0.0)
     camera_up = (0.0, 1.0, 0.0)
-    look_at = (0.0, 0.0, 1.0)
+    look_at_point = (0.0, 0.0, 1.0)
     fov = (60.0 * np.math.pi / 180,)
     near_plane = (1.0,)
     far_plane = (10.0,)
     batch_shape = tf.convert_to_tensor(
         value=(2, (max_depth - min_depth) // 2), dtype=tf.int32)
 
-    world_to_camera = glm.look_at_right_handed(camera_origin, look_at,
-                                               camera_up)
-    perspective_matrix = glm.perspective_right_handed(
+    world_to_camera = look_at.right_handed(camera_origin, look_at_point,
+                                           camera_up)
+    perspective_matrix = perspective.right_handed(
         fov, (float(width) / float(height),), near_plane, far_plane)
     view_projection_matrix = tf.matmul(perspective_matrix, world_to_camera)
     view_projection_matrix = tf.squeeze(view_projection_matrix)

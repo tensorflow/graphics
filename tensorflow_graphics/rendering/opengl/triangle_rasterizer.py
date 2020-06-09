@@ -25,6 +25,8 @@ from __future__ import print_function
 
 import tensorflow.compat.v2 as tf
 
+from tensorflow_graphics.geometry.transformation import look_at
+from tensorflow_graphics.rendering.camera import perspective
 from tensorflow_graphics.rendering.opengl import gen_rasterizer_op as render_ops
 from tensorflow_graphics.rendering.opengl import math as glm
 from tensorflow_graphics.util import export_api
@@ -142,7 +144,7 @@ class TriangleRasterizer(object):
                background_attributes,
                background_triangles,
                camera_origin,
-               look_at,
+               look_at_point,
                camera_up,
                field_of_view,
                image_size,
@@ -170,8 +172,8 @@ class TriangleRasterizer(object):
         image.
       camera_origin: A Tensor of shape `[A1, ..., An, 3]`, where the last axis
         represents the 3D position of the camera.
-      look_at: A Tensor of shape `[A1, ..., An, 3]`, with the last axis storing
-        the position where the camera is looking at.
+      look_at_point: A Tensor of shape `[A1, ..., An, 3]`, with the last axis
+        storing the position where the camera is looking at.
       camera_up: A Tensor of shape `[A1, ..., An, 3]`, where the last axis
         defines the up vector of the camera.
       field_of_view:  A Tensor of shape `[A1, ..., An, 1]`, where the last axis
@@ -194,7 +196,7 @@ class TriangleRasterizer(object):
     with tf.compat.v1.name_scope(
         name, "triangle_rasterizer_init",
         (background_vertices, background_attributes, background_triangles,
-         camera_origin, look_at, camera_up, field_of_view, near_plane,
+         camera_origin, look_at_point, camera_up, field_of_view, near_plane,
          far_plane, bottom_left)):
 
       background_vertices = tf.convert_to_tensor(value=background_vertices)
@@ -233,7 +235,7 @@ class TriangleRasterizer(object):
           background_attributes, background_triangles, axis=-2)
 
       self._camera_origin = tf.convert_to_tensor(value=camera_origin)
-      self._look_at = tf.convert_to_tensor(value=look_at)
+      self._look_at_point = tf.convert_to_tensor(value=look_at_point)
       self._camera_up = tf.convert_to_tensor(value=camera_up)
       self._field_of_view = tf.convert_to_tensor(value=field_of_view)
       self._image_size_glm = tf.convert_to_tensor(value=(width, height))
@@ -250,11 +252,11 @@ class TriangleRasterizer(object):
       self._pixel_position = tf.stack((xv, yv), axis=-1)
 
       # Construct the view projection matrix.
-      world_to_camera = glm.look_at_right_handed(camera_origin, look_at,
-                                                 camera_up)
-      perspective_matrix = glm.perspective_right_handed(field_of_view,
-                                                        (width / height,),
-                                                        near_plane, far_plane)
+      world_to_camera = look_at.right_handed(camera_origin, look_at_point,
+                                             camera_up)
+      perspective_matrix = perspective.right_handed(field_of_view,
+                                                    (width / height,),
+                                                    near_plane, far_plane)
       perspective_matrix = tf.squeeze(perspective_matrix)
       self._view_projection_matrix = tf.linalg.matmul(perspective_matrix,
                                                       world_to_camera)
@@ -357,7 +359,7 @@ class TriangleRasterizer(object):
           attributes, triangle_index, axis=-3, batch_dims=len(batch_shape))
       return glm.perspective_correct_interpolation(
           vertices_per_pixel, attributes_per_pixel, self._pixel_position,
-          self._camera_origin, self._look_at, self._camera_up,
+          self._camera_origin, self._look_at_point, self._camera_up,
           self._field_of_view, self._image_size_glm, self._near_plane,
           self._far_plane, self._bottom_left)
 
