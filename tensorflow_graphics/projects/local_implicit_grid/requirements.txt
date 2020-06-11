@@ -1,0 +1,7 @@
+absl-py>=0.7.1
+numpy>=1.16.4
+plyfile>=0.7.1
+scipy>=1.3.1
+scikit-image>==0.15.0
+trimesh>=3.2.12
+tensorflow>=1.14.0
