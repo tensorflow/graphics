@@ -18,6 +18,7 @@ from __future__ import division
 from __future__ import print_function
 
 import math
+import sys
 
 from absl.testing import parameterized
 import numpy as np
@@ -28,6 +29,92 @@ from tensorflow_graphics.util import test_case
 
 
 class PerspectiveTest(test_case.TestCase):
+
+  @parameterized.parameters(
+      ("must have exactly 4 dimensions in axis -1", (4, 3)),
+      ("must have exactly 4 dimensions in axis -2", (5, 4)),
+      ("must have exactly 4 dimensions in axis -2", (None, 4)),
+      ("must have exactly 4 dimensions in axis -1", (4, None)),
+  )
+  def test_parameters_from_right_handed_shape_exception_raised(
+      self, error_msg, *shapes):
+    """Checks the inputs of the from_right_handed_shape function."""
+    self.assert_exception_is_raised(perspective.parameters_from_right_handed,
+                                    error_msg, shapes)
+
+  @parameterized.parameters(
+      ((4, 4),),
+      ((None, 4, 4),),
+      ((None, None, 4, 4),),
+  )
+  def test_parameters_from_right_handed_shape_exception_not_raised(
+      self, *shapes):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(
+        perspective.parameters_from_right_handed, shapes)
+
+  def test_parameters_from_right_handed_random(self):
+    """Tests that parameters_from_right_handed returns the expected values."""
+    tensor_size = np.random.randint(2, 4)
+    tensor_shape = np.random.randint(2, 5, size=(tensor_size)).tolist()
+    vertical_field_of_view_gt = np.random.uniform(
+        sys.float_info.epsilon, np.pi - sys.float_info.epsilon,
+        tensor_shape + [1])
+    aspect_ratio_gt = np.random.uniform(0.1, 10.0, tensor_shape + [1])
+    near_gt = np.random.uniform(0.1, 100.0, tensor_shape + [1])
+    far_gt = near_gt + np.random.uniform(0.1, 100.0, tensor_shape + [1])
+    projection_matrix = perspective.right_handed(vertical_field_of_view_gt,
+                                                 aspect_ratio_gt, near_gt,
+                                                 far_gt)
+
+    vertical_field_of_view_pred, aspect_ratio_pred, near_pred, far_pred = perspective.parameters_from_right_handed(
+        projection_matrix)
+
+    with self.subTest(name="vertical_field_of_view"):
+      self.assertAllClose(vertical_field_of_view_gt,
+                          vertical_field_of_view_pred)
+
+    with self.subTest(name="aspect_ratio"):
+      self.assertAllClose(aspect_ratio_gt, aspect_ratio_pred)
+
+    with self.subTest(name="near_plane"):
+      self.assertAllClose(near_gt, near_pred)
+
+    with self.subTest(name="far_plane"):
+      self.assertAllClose(far_gt, far_pred)
+
+  def test_parameters_from_right_handed_jacobian_random(self):
+    """Tests the Jacobian of parameters_from_right_handed."""
+    tensor_size = np.random.randint(2, 4)
+    tensor_shape = np.random.randint(2, 5, size=(tensor_size)).tolist()
+    vertical_field_of_view = np.random.uniform(sys.float_info.epsilon,
+                                               np.pi - sys.float_info.epsilon,
+                                               tensor_shape + [1])
+    aspect_ratio = np.random.uniform(0.1, 10.0, tensor_shape + [1])
+    near = np.random.uniform(0.1, 100.0, tensor_shape + [1])
+    far = near + np.random.uniform(0.1, 100.0, tensor_shape + [1])
+    projection_matrix = perspective.right_handed(vertical_field_of_view,
+                                                 aspect_ratio, near, far)
+
+    with self.subTest(name="vertical_field_of_view"):
+      self.assert_jacobian_is_finite_fn(
+          lambda x: perspective.parameters_from_right_handed(x)[0],
+          [projection_matrix])
+
+    with self.subTest(name="aspect_ratio"):
+      self.assert_jacobian_is_finite_fn(
+          lambda x: perspective.parameters_from_right_handed(x)[1],
+          [projection_matrix])
+
+    with self.subTest(name="near_plane"):
+      self.assert_jacobian_is_finite_fn(
+          lambda x: perspective.parameters_from_right_handed(x)[2],
+          [projection_matrix])
+
+    with self.subTest(name="far_plane"):
+      self.assert_jacobian_is_finite_fn(
+          lambda x: perspective.parameters_from_right_handed(x)[3],
+          [projection_matrix])
 
   def test_perspective_right_handed_preset(self):
     """Tests that perspective_right_handed generates expected results."""
