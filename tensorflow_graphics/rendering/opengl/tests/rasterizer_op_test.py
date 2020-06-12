@@ -137,7 +137,7 @@ class RasterizerOPTest(test_case.TestCase):
 
     # Generate triangles at different depths and associated ground truth.
     tris = np.zeros((max_depth - min_depth, 9), dtype=np.float32)
-    gt = np.zeros((max_depth - min_depth, width, height, 2), dtype=np.float32)
+    gt = np.zeros((max_depth - min_depth, height, width, 2), dtype=np.float32)
     for idx in range(max_depth - min_depth):
       tris[idx, :] = (-100.0, 100.0, idx + min_depth, 100.0, 100.0,
                       idx + min_depth, 0.0, -100.0, idx + min_depth)
