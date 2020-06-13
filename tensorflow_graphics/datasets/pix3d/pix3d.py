@@ -34,7 +34,6 @@ bounding-box, segmentation mask, intrinsic and extrinsic camera parameters and 2
 _TRAIN_SPLIT_IDX = np.load("splits/pix3d_train.npy")
 _TEST_SPLIT_IDX = np.load("splits/pix3d_test.npy")
 
-
 class Pix3d(tfds.core.GeneratorBasedBuilder):
   """Pix3D is a large-scale dataset of diverse image-shape pairs with pixel-level 2D-3D alignment."""
 
@@ -53,14 +52,14 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         'image/filename': tfds_features.Text(),
         'image/source': tfds_features.Text(),
         '2d_keypoints': tfds_features.Tensor(shape=(None, None, 2), dtype=tf.float32),
-        'mask': tfds_features.Image(shape=(None, None, 1), dtype=tf.float32),
+        'mask': tfds_features.Image(shape=(None, None, 1), dtype=tf.uint8),
         'model': tfg_features.TriangleMesh(),
         'model/source': tfds_features.Text(),
         '3d_keypoints': tfds_features.Tensor(shape=(None, 3), dtype=tf.float32),
         'voxel': tfg_features.VoxelGrid(shape=(128, 128, 128)),
         'pose': tfg_features.Pose(),
         'camera': tfg_features.Camera(),
-        'category': tfds_features.ClassLabel(shape=(), dtype=tf.int64, num_classes=9),
+        'category': tfds_features.ClassLabel(num_classes=9),
         'bbox': tfds_features.BBoxFeature(),
         'truncated': tf.bool,
         'occluded': tf.bool,
@@ -69,7 +68,7 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       # If there's a common (input, target) tuple from the features,
       # specify them here. They'll be used if as_supervised=True in
       # builder.as_dataset.
-      supervised_keys=(),
+      supervised_keys=None,
       # Homepage of the dataset for documentation
       homepage='http://pix3d.csail.mit.edu/',
       citation=_CITATION,
@@ -113,7 +112,7 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
 
     # TODO(pix3d): Yields (key, example) tuples from the dataset
 
-    pix3d = json.load(open(os.path.join(samples_directory, 'pix3d.json')))
+    pix3d = json.load(tf.io.gfile.GFile((os.path.join(samples_directory, 'pix3d.json'))))
 
     if is_train_split:
       split_samples = map(pix3d.__getitem__, _TRAIN_SPLIT_IDX)
@@ -124,6 +123,8 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       return [box[1], box[0], box[3], box[2]]
 
     def _build_camera(f, position, rotation, img_size):
+      position = tf.convert_to_tensor(position)
+      rotation = tf.convert_to_tensor(rotation)
       return {
         'R': rotation_matrix_3d.from_axis_angle(-position / np.linalg.norm(position), rotation),
         't': position,
@@ -133,15 +134,15 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
 
     for sample in split_samples:
       example = {
-        'image': sample['image'],
-        'image/filename': sample['image'],
+        'image': os.path.join(samples_directory, sample['img']),
+        'image/filename': sample['img'],
         'image/source': sample['img_source'],
         '2d_keypoints': np.asarray(sample['2d_keypoints']),
         'mask': sample['mask'],
-        'model': sample['model'],
+        'model': os.path.join(samples_directory, sample['model']),
         'model/source': sample['model_source'],
-        '3d_keypoints': np.loadtxt(sample['3d_keypoints'], dtype=np.float32),
-        'voxel': sample['voxel'],
+        '3d_keypoints': np.loadtxt(os.path.join(samples_directory, sample['3d_keypoints']), dtype=np.float32),
+        'voxel': os.path.join(samples_directory, sample['voxel']),
         'pose': {
           'R': sample['rot_mat'],
           't': sample['trans_mat']
