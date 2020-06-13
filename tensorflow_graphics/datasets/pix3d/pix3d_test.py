@@ -25,6 +25,12 @@ class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
 
   DL_EXTRACT_RESULT = ""
   EXAMPLE_DIR = os.path.join(os.path.dirname(__file__), "fakes")
+  MOCK_OUT_FORBIDDEN_OS_FUNCTIONS = False
+
+  def setUp(self):
+    super(Pix3dTest, self).setUp()
+    self.builder._TRAIN_SPLIT_IDX = "fakes/pix3d_train.npy"
+    self.builder._TEST_SPLIT_IDX = "fakes/pix3d_test.npy"
 
 
 if __name__ == "__main__":
