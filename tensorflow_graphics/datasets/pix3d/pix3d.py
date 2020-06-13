@@ -31,14 +31,15 @@ Each sample comprises of an image, 3D shape represented as (non-watertight) tria
 bounding-box, segmentation mask, intrinsic and extrinsic camera parameters and 2D and 3D key points. 
 """
 
-_TRAIN_SPLIT_IDX = np.load("splits/pix3d_train.npy")
-_TEST_SPLIT_IDX = np.load("splits/pix3d_test.npy")
 
 class Pix3d(tfds.core.GeneratorBasedBuilder):
   """Pix3D is a large-scale dataset of diverse image-shape pairs with pixel-level 2D-3D alignment."""
 
   # TODO(pix3d): Set up version.
   VERSION = tfds.core.Version('0.1.0')
+
+  _TRAIN_SPLIT_IDX = "splits/pix3d_train.npy"
+  _TEST_SPLIT_IDX = "splits/pix3d_test.npy"
 
   def _info(self):
     # TODO(pix3d): Specifies the tfds.core.DatasetInfo object
@@ -87,47 +88,47 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         name=tfds.Split.TRAIN,
         gen_kwargs={
           'samples_directory': pix3d_dir,
-          'is_train_split': True
+          'split_file': self._TRAIN_SPLIT_IDX
         },
       ),
       tfds.core.SplitGenerator(
         name=tfds.Split.TEST,
         gen_kwargs={
           'samples_directory': pix3d_dir,
-          'is_train_split': False
+          'split_file': self._TEST_SPLIT_IDX
         },
       ),
     ]
 
-  def _generate_examples(self, samples_directory, is_train_split):
+  def _generate_examples(self, samples_directory, split_file):
     """Yields examples.
 
     As Pix3D does not come with a predefined train/test split, we adopt one from Mesh R-CNN. The split ensures
     that the 3D models appearing in the train and test sets are disjoint.
 
     Args:
-      samples_directory: path to the directory where Pix3D is stored.
-      is_train_split: bool, if true, generates the train split, else generates the test split.
+      samples_directory: `str`, path to the directory where Pix3D is stored.
+      split_file: `str`, path to .npy file containing the indices of the current split.
     """
 
     # TODO(pix3d): Yields (key, example) tuples from the dataset
 
-    pix3d = json.load(tf.io.gfile.GFile((os.path.join(samples_directory, 'pix3d.json'))))
+    with tf.io.gfile.GFile(os.path.join(samples_directory, 'pix3d.json'), mode='r') as pix3d_index:
+      pix3d = json.load(pix3d_index)
 
-    if is_train_split:
-      split_samples = map(pix3d.__getitem__, _TRAIN_SPLIT_IDX)
-    else:
-      split_samples = map(pix3d.__getitem__, _TEST_SPLIT_IDX)
+    split_samples = map(pix3d.__getitem__, np.load(split_file))
 
     def _build_bbox(box):
       return [box[1], box[0], box[3], box[2]]
 
     def _build_camera(f, position, rotation, img_size):
       position = tf.convert_to_tensor(position)
+      position = tf.expand_dims(position, 0)
       rotation = tf.convert_to_tensor(rotation)
+      rotation = tf.expand_dims(rotation, 0)
       return {
-        'R': rotation_matrix_3d.from_axis_angle(-position / np.linalg.norm(position), rotation),
-        't': position,
+        'R': rotation_matrix_3d.from_axis_angle(-position / np.linalg.norm(position), rotation).numpy().reshape(3, 3),
+        't': position.numpy().reshape(3,),
         'optical_center': (img_size[0] / 2, img_size[1] / 2),
         'f': f
       }
