@@ -165,7 +165,7 @@ class MathTest(test_case.TestCase):
             point_init, vertical_field_of_view_init, aspect_ratio_init,
             near_init, far_init
         ],
-        atol=5e-06)
+        atol=1e-03)
 
   def test_clip_to_ndc_preset(self):
     """Tests that clip_to_ndc generates expected results."""
@@ -202,7 +202,8 @@ class MathTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 5, size=(tensor_size)).tolist()
     point_init = np.random.uniform(size=tensor_shape + [4])
 
-    self.assert_jacobian_is_correct_fn(glm.clip_to_ndc, [point_init])
+    self.assert_jacobian_is_correct_fn(
+        glm.clip_to_ndc, [point_init], atol=1e-04)
 
   def test_ndc_to_screen_preset(self):
     """Tests that ndc_to_screen generates expected results."""
@@ -623,12 +624,14 @@ class MathTest(test_case.TestCase):
         0.1, 1.0, size=tensor_shape + [3, 1])
     lower_left_corner_init = np.random.uniform(size=tensor_shape + [3, 2])
 
-    self.assert_jacobian_is_correct_fn(glm.perspective_correct_interpolation, [
-        vertices_init, attributes_init, pixel_position_init,
-        camera_position_init, look_at_init, up_vector_init,
-        vertical_field_of_view_init, screen_dimensions_init, near_init,
-        far_init, lower_left_corner_init
-    ])
+    self.assert_jacobian_is_correct_fn(
+        glm.perspective_correct_interpolation, [
+            vertices_init, attributes_init, pixel_position_init,
+            camera_position_init, look_at_init, up_vector_init,
+            vertical_field_of_view_init, screen_dimensions_init, near_init,
+            far_init, lower_left_corner_init
+        ],
+        atol=1e-4)
 
 
 if __name__ == "__main__":
