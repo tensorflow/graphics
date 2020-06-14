@@ -55,7 +55,8 @@ class EmissionAbsorptionTest(test_case.TestCase):
 
     self.assert_jacobian_is_correct_fn(
         emission_absorption.render,
-        [voxels_init, absorption_factor_init, cell_size_init])
+        [voxels_init, absorption_factor_init, cell_size_init],
+        atol=1e-4)
 
   def test_render_preset(self):
     """Checks that render returns the expected value."""
@@ -68,6 +69,7 @@ class EmissionAbsorptionTest(test_case.TestCase):
     y = emission_absorption.render(voxels, absorption_factor=0.1, cell_size=0.1)
 
     self.assertAllClose(y_images, y)
+
 
 if __name__ == "__main__":
   test_case.main()
