@@ -1,0 +1,14 @@
+#
+## Alias OBJ Material File
+# Exported from SketchUp, (c) 2000-2006 Google, Inc.
+
+newmtl matress_white
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.330000 0.330000 0.330000
+
+newmtl Material15
+Ka 0.000000 0.000000 0.000000
+Kd 0.109804 0.094118 0.086275
+Ks 0.330000 0.330000 0.330000
+
