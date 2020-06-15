@@ -52,7 +52,7 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         'image': tfds_features.Image(shape=(None, None, 3), dtype=tf.uint8),
         'image/filename': tfds_features.Text(),
         'image/source': tfds_features.Text(),
-        '2d_keypoints': tfds_features.Tensor(shape=(None, None, 2), dtype=tf.float32),
+        '2d_keypoints': tfds_features.Tensor(shape=(None, 2), dtype=tf.float32),
         'mask': tfds_features.Image(shape=(None, None, 1), dtype=tf.uint8),
         'model': tfg_features.TriangleMesh(),
         'model/source': tfds_features.Text(),
@@ -60,7 +60,8 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         'voxel': tfg_features.VoxelGrid(shape=(128, 128, 128)),
         'pose': tfg_features.Pose(),
         'camera': tfg_features.Camera(),
-        'category': tfds_features.ClassLabel(num_classes=9),
+        'category': tfds_features.ClassLabel(names=['bed', 'bookcase', 'chair', 'desk', 'misc', 'sofa', 'table', 'tool',
+                                                    'wardrobe']),
         'bbox': tfds_features.BBoxFeature(),
         'truncated': tf.bool,
         'occluded': tf.bool,
@@ -118,17 +119,29 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
 
     split_samples = map(pix3d.__getitem__, np.load(split_file))
 
-    def _build_bbox(box):
-      return [box[1], box[0], box[3], box[2]]
+    def _build_bbox(box, img_size):
+      """Create a BBox with correct order of coordinates.
+
+      Args:
+        box: Bounding box of the object as provided by Pix3d
+        img_size:  size of the image, in the format of [width, height]
+
+      Returns:
+        tfds.features.BBox.
+      """
+      xmin, ymin, xmax, ymax = box
+      width, height = img_size
+      return tfds_features.BBox(ymin=ymin/height, xmin=xmin/width, ymax=ymax/height, xmax=xmax/width)
 
     def _build_camera(f, position, rotation, img_size):
-      position = tf.convert_to_tensor(position)
+      """Prepare features for `Camera` FeatureConnector."""
+      position = tf.convert_to_tensor(position, dtype=tf.float32)
       position = tf.expand_dims(position, 0)
-      rotation = tf.convert_to_tensor(rotation)
+      rotation = tf.convert_to_tensor(rotation, dtype=tf.float32)
       rotation = tf.expand_dims(rotation, 0)
       return {
         'R': rotation_matrix_3d.from_axis_angle(-position / np.linalg.norm(position), rotation).numpy().reshape(3, 3),
-        't': position.numpy().reshape(3,),
+        't': position.numpy().reshape(3, ),
         'optical_center': (img_size[0] / 2, img_size[1] / 2),
         'f': f
       }
@@ -138,12 +151,15 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         'image': os.path.join(samples_directory, sample['img']),
         'image/filename': sample['img'],
         'image/source': sample['img_source'],
-        '2d_keypoints': np.asarray(sample['2d_keypoints']),
-        'mask': sample['mask'],
+        '2d_keypoints': np.asarray(sample['2d_keypoints'], dtype=np.float32).reshape(-1, 2),
+        'mask': os.path.join(samples_directory, sample['mask']),
         'model': os.path.join(samples_directory, sample['model']),
         'model/source': sample['model_source'],
         '3d_keypoints': np.loadtxt(os.path.join(samples_directory, sample['3d_keypoints']), dtype=np.float32),
-        'voxel': os.path.join(samples_directory, sample['voxel']),
+        'voxel': {
+          'path': os.path.join(samples_directory, sample['voxel']),
+          'key': 'voxel'
+        },
         'pose': {
           'R': sample['rot_mat'],
           't': sample['trans_mat']
@@ -155,10 +171,10 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
           sample['img_size'],
         ),
         'category': sample['category'],
-        'bbox': _build_bbox(sample['bbox']),
+        'bbox': _build_bbox(sample['bbox'], sample['img_size']),
         'truncated': sample['truncated'],
         'occluded': sample['occluded'],
         'slightly_occluded': sample['slightly_occluded']
       }
 
-      yield example
+      yield sample['img'], example
