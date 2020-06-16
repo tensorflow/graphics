@@ -157,8 +157,8 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
         ),
         tfds.testing.FeatureExpectationItem(
           value=raising_inputs,
-          raise_cls=AssertionError,
-          raise_msg='If aspect ratio is provided, f needs to be a single float.',
+          raise_cls=ValueError,
+          raise_msg='If aspect ratio is provided, f needs to be a single float',
         ),
       ],
     )
