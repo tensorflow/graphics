@@ -14,16 +14,12 @@
 # Lint as: python3
 """3D Pose feature."""
 
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
-import six
 import tensorflow.compat.v2 as tf
 from tensorflow_datasets import features
-from tensorflow_graphics.io import triangle_mesh
 
 
 class Pose(features.FeaturesDict):
@@ -31,24 +27,30 @@ class Pose(features.FeaturesDict):
 
   During `_generate_examples`, the feature connector accepts as input any of:
 
-    * `dict:` A dictionary containing the rotation and translation of the object (see
-       output format below).
+    * `dict:` A dictionary containing the rotation and translation of the
+    object (see output format below).
 
   Output:
     A dictionary containing:
 
-    * 'rotation': A `float32` tensor with shape `[3, 3]` denoting the 3D rotation matrix.
-    * 'translation': A `float32` tensor with shape `[3,]` denoting the translation vector.
+    * 'rotation': A `float32` tensor with shape `[3, 3]` denoting the
+    3D rotation matrix.
+    * 'translation': A `float32` tensor with shape `[3,]` denoting the
+    translation vector.
 
   """
+
   def __init__(self):
     super(Pose, self).__init__({
-        'R': features.Tensor(shape=(3, 3), dtype=tf.float32),
-        't': features.Tensor(shape=(3,), dtype=tf.float32),
+      'R': features.Tensor(shape=(3, 3), dtype=tf.float32),
+      't': features.Tensor(shape=(3,), dtype=tf.float32),
     })
 
   def encode_example(self, pose_dict):
     """Convert the given pose into a dict convertible to tf example."""
-    assert list(pose_dict.keys()) >= ['R', 't'], "Missing keys in provided dictionary! Expecting 'R' and 't'."
+    if not all(key in pose_dict for key in ['R', 't']):
+      raise ValueError(
+        f"Missing keys in provided dictionary! Expecting 'R' and 't', "
+        f"but {pose_dict.keys()} were given.")
 
     return super(Pose, self).encode_example(pose_dict)

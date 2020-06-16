@@ -21,10 +21,11 @@ from __future__ import print_function
 import os
 
 import numpy as np
+import scipy.io
 import tensorflow.compat.v2 as tf
 import tensorflow_datasets as tfds
+
 from tensorflow_graphics.datasets.features import voxel_feature
-import scipy.io
 
 _TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'test_data')
 
@@ -38,7 +39,10 @@ class VoxelGridFeatureTest(tfds.testing.FeatureExpectationsTestCase):
     expected_voxel[4:12, 4:12, 4:12] = 1.
 
     mat_dict = {'path': mat_file_path, 'key': 'voxels'}
-
+    raising_inputs = {'path': mat_file_path, 'foo': 'voxels'}
+    wrong_key = {'path': mat_file_path, 'key': 'foo'}
+    wrong_path = {'path': "/somewhere/wrong", 'key': 'voxels'}
+    wrong_dim = np.ones((1, 1, 1, 1))
     self.assertFeature(
       feature=voxel_feature.VoxelGrid((16, 16, 16)),
       shape=(16, 16, 16),
@@ -51,8 +55,28 @@ class VoxelGridFeatureTest(tfds.testing.FeatureExpectationsTestCase):
         ),
         # Voxel Grid
         tfds.testing.FeatureExpectationItem(
-          value=voxel_mat['voxels'].astype(np.float32),
+          value=expected_voxel,
           expected=expected_voxel,
+        ),
+        tfds.testing.FeatureExpectationItem(
+          value=raising_inputs,
+          raise_cls=ValueError,
+          raise_msg='Missing keys in provided dictionary!',
+        ),
+        tfds.testing.FeatureExpectationItem(
+          value=wrong_key,
+          raise_cls=ValueError,
+          raise_msg='Key `foo` not found in .mat file',
+        ),
+        tfds.testing.FeatureExpectationItem(
+          value=wrong_path,
+          raise_cls=FileNotFoundError,
+          raise_msg='File `/somewhere/wrong` does not exist.',
+        ),
+        tfds.testing.FeatureExpectationItem(
+          value=wrong_dim,
+          raise_cls=ValueError,
+          raise_msg='Only 3D Voxel Grids are supported.',
         ),
       ],
     )

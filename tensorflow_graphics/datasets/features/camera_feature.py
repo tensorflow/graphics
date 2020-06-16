@@ -28,23 +28,28 @@ from tensorflow_graphics.datasets.features import pose_feature
 class Camera(features.FeaturesDict):
   """`FeatureConnector` for camera calibration (extrinsic and intrinsic).
 
-  During `_generate_examples`, the feature connector accepts as input any of:
+  During `_generate_examples`, the feature connector accepts as input:
 
-    * `parameter_dict:` A dictionary containing the extrinsic and instrinsic  parameters of the camera as:
+    * `parameter_dict:` A dictionary containing the extrinsic and instrinsic
+    parameters of the camera as:
       - 'rotation': 3x3 rotation matrix with float32 values.
       - 'translation': 3x1 translation vector.
-      - 'f': focal length of the camera (either single float32 value or tuple of float32 as (f_x, f_y).
-      - 'optical_center': Optical center of the camera in pixel coordinates as tuple (c_x, c_y)
+      - 'f': focal length of the camera in mm (either single float32 value
+      or tuple of float32 as (f_x, f_y).
+      - 'optical_center': Optical center of the camera
+      in pixel coordinates as tuple (c_x, c_y)
       Optional parameters:
       - 'skew': float32 denoting the skew of the camera axes.
-      - 'aspect_ratio': float32 denoting the aspect_ratio, if single fixed focal length is provided.
+      - 'aspect_ratio': float32 denoting the aspect_ratio,
+      if single fixed focal length is provided.
 
 
   Output:
     A dictionary containing:
 
-    * 'pose': A `tensorflow_graphics.datasets.features.Pose` FetureConnector the 3D pose of the camera.
-    * 'K': A `float32` tensor with shape `[3,3]` denoting the calibration matrix.
+    * 'pose': A `tensorflow_graphics.datasets.features.Pose` FeatureConnector
+    representing the 3D pose of the camera.
+    * 'K': A `float32` tensor with shape `[3,3]` denoting the intrinsic matrix.
 
   Example:
     Default values for skew (s) and aspect_ratio(a) are 0 and 1, respectively.
@@ -69,7 +74,10 @@ class Camera(features.FeaturesDict):
   def encode_example(self, parameter_dict):
     """Convert the given parameters into a dict convertible to tf example."""
     REQUIRED_KEYS = ['R', 't', 'f', 'optical_center']
-    assert list(parameter_dict.keys()) >= REQUIRED_KEYS, "Missing keys in provided dictionary!"
+    if not all(key in parameter_dict for key in REQUIRED_KEYS):
+      raise ValueError(f"Missing keys in provided dictionary! "
+                       f"Expected {REQUIRED_KEYS}, "
+                       f"but {parameter_dict.keys()} were given.")
 
     features_dict = {'pose': self._feature_dict['pose'].encode_example({
       'R': parameter_dict['R'],
@@ -78,7 +86,9 @@ class Camera(features.FeaturesDict):
     aspect_ratio = 1
     skew = 0
     if 'aspect_ratio' in parameter_dict.keys():
-      assert isinstance(parameter_dict['f'], float), "If aspect ratio is provided, f needs to be a single float."
+      if not isinstance(parameter_dict['f'], float):
+        raise ValueError("If aspect ratio is provided, "
+                         "f needs to be a single float.")
       aspect_ratio = parameter_dict['aspect_ratio']
 
     if 'skew' in parameter_dict.keys():
@@ -93,20 +103,26 @@ class Camera(features.FeaturesDict):
 
     return super(Camera, self).encode_example(features_dict)
 
-  def _create_calibration_matrix(self, f, optical_center, aspect_ratio=1, skew=0):
+  def _create_calibration_matrix(self, f, optical_center, aspect_ratio=1,
+                                 skew=0):
     """Constructs the 3x3 calibration matrix K.
 
     Args:
-      f: Focal length of the camera. Either single float.32 value or tuple of float32 when different focal lengths for
-      each axis are provided (f_x, f_y).
-      optical_center: Tuple (c_x, c_y) containing the optical center of the camera in pixel coordinates.
-      aspect_ratio: Optional parameter, if fixed focal length for both dimensions is used. Defaults to 1.
+      f: Focal length of the camera. Either single float.32 value or tuple of
+      float32 when different focal lengths for each axis are provided (f_x, f_y).
+      optical_center: Tuple (c_x, c_y) containing the optical center
+      of the camera in pixel coordinates.
+      aspect_ratio: Optional parameter, if fixed focal length for both
+      dimensions is used. Defaults to 1.
       skew: Optional parameter denoting the skew between the camera axes.
 
     Returns:
-      float32 Tensor of shape [3,3] containing the upper triangular calibration matrix K.
+      float32 Tensor of shape [3,3] containing the upper triangular
+      calibration matrix K.
     """
-    assert isinstance(optical_center, tuple), "Optical center of camera needs to be a tuple of (c_x, c_y)."
+    if not isinstance(optical_center, tuple):
+      raise ValueError("Optical center of camera needs "
+                       "to be a tuple of (c_x, c_y).")
 
     if isinstance(f, tuple):
       f_x, f_y = f

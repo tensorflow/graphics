@@ -28,7 +28,8 @@ from tensorflow_graphics.datasets.features import camera_feature
 class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
 
   def __get_basic_camera_params(self):
-    pose = {'R': np.eye(3).astype(np.float32), 't': np.zeros(3).astype(np.float32)}
+    pose = {'R': np.eye(3).astype(np.float32),
+            't': np.zeros(3).astype(np.float32)}
     f = 35.
     optical_center = (640 / 2, 480 / 2)
 
@@ -43,7 +44,8 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
                              [0, 0, 1]], dtype=np.float32)
 
     expected_camera = {'pose': expected_pose, 'K': expected_K}
-    inputs = dict({'f': expected_f, 'optical_center': expected_optical_center}, **expected_pose)
+    inputs = dict({'f': expected_f, 'optical_center': expected_optical_center},
+                  **expected_pose)
 
     self.assertFeature(
       feature=camera_feature.Camera(),
@@ -73,11 +75,13 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
     """Tests camera parameters with fixed focal length, aspect_ratio and skew."""
 
     expected_pose, expected_f, expected_optical_center = self.__get_basic_camera_params()
-    expected_aspect_ratio = expected_optical_center[0] / expected_optical_center[1]
+    expected_aspect_ratio = expected_optical_center[0] / \
+                            expected_optical_center[1]
     expected_skew = 0.6
-    expected_K = np.asarray([[expected_f, expected_skew, expected_optical_center[0]],
-                             [0, expected_aspect_ratio * expected_f, expected_optical_center[1]],
-                             [0, 0, 1]], dtype=np.float32)
+    expected_K = np.asarray(
+      [[expected_f, expected_skew, expected_optical_center[0]],
+       [0, expected_aspect_ratio * expected_f, expected_optical_center[1]],
+       [0, 0, 1]], dtype=np.float32)
 
     expected_camera = {'pose': expected_pose, 'K': expected_K}
     inputs = dict({'f': expected_f,
@@ -110,14 +114,16 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
     )
 
   def test_full_camera_calibration_matrix(self):
-    """Tests camera parameters with different focal lengthper camera axis and skew."""
+    """Tests camera parameters with different focal length per camera
+    axis and skew."""
 
     expected_pose, _, expected_optical_center = self.__get_basic_camera_params()
     expected_skew = 0.6
     expected_f = (35., 40.)
-    expected_K = np.asarray([[expected_f[0], expected_skew, expected_optical_center[0]],
-                             [0, expected_f[1], expected_optical_center[1]],
-                             [0, 0, 1]], dtype=np.float32)
+    expected_K = np.array(
+      [[expected_f[0], expected_skew, expected_optical_center[0]],
+       [0, expected_f[1], expected_optical_center[1]],
+       [0, 0, 1]], dtype=np.float32)
 
     expected_camera = {'pose': expected_pose, 'K': expected_K}
     inputs = dict({'f': expected_f,

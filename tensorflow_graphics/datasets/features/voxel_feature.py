@@ -18,10 +18,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
-from scipy.io import loadmat
-import tensorflow.compat.v2 as tf
+import os
 
+import numpy as np
+import tensorflow.compat.v2 as tf
+from scipy.io import loadmat
 from tensorflow_datasets import features
 
 
@@ -30,13 +31,16 @@ class VoxelGrid(features.Tensor):
 
   During `_generate_examples`, the feature connector accepts as input any of:
 
-    * `dict`: dictionary containing the path to a {.mat} file and the key under which the voxel grid
-    is accessible inside the file. Structure of the dictionary:
+    * `dict`: dictionary containing the path to a {.mat} file and the key under
+    which the voxel grid is accessible inside the file.
+    Structure of the dictionary:
       {
       'path': 'path/to/file.mat',
       'key': 'foo'
       }
-    * `np.ndarray`: A voxel grid as numpy array.
+
+    * `np.ndarray`: float32 numpy array of shape [X,Y,Z] representing the
+    voxel grid.
 
   Output:
     A float32 Tensor with shape [X,Y,Z]containing the voxels occupancies.
@@ -48,10 +52,28 @@ class VoxelGrid(features.Tensor):
   def encode_example(self, example_data):
     # Path to .mat file
     if isinstance(example_data, dict):
-      voxels = loadmat(example_data['path'])[example_data['key']].astype(np.float32)
+
+      if not all(key in example_data for key in ['path', 'key']):
+        raise ValueError(
+          f"Missing keys in provided dictionary! Expecting 'path'"
+          f" and 'key', but {example_data.keys()} were given.")
+
+      if not os.path.exists(example_data['path']):
+        raise FileNotFoundError(
+          f"File `{example_data['path']}` does not exist.")
+
+      voxel_mat = loadmat(example_data['path'])
+
+      if not example_data['key'] in voxel_mat:
+        raise ValueError(f"Key `{example_data['key']}` not found in .mat file. "
+                         f"Available keys in file: {voxel_mat.keys()}")
+
+      voxel_grid = voxel_mat[example_data['key']].astype(np.float32)
+
     else:
       if not example_data.ndim == 3:
         raise ValueError("Only 3D Voxel Grids are supported.")
-      voxels = example_data
 
-    return super(VoxelGrid, self).encode_example(voxels)
+      voxel_grid = example_data
+
+    return super(VoxelGrid, self).encode_example(voxel_grid)
