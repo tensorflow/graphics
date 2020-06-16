@@ -46,23 +46,29 @@ def generate_ground_image(height,
                           camera_translation_vector,
                           ground_color=(0.43, 0.43, 0.8)):
   """Generate an image depicting only the ground."""
-  background_image = np.ones((height, width, 1, 1), dtype=np.float32)
-  background_image[-1, ...] = 0  # Set the bottom line to 0 for proper sampling
+  batch_size = camera_rotation_matrix.shape[0]
+  background_image = np.ones((batch_size, height, width, 1, 1),
+                             dtype=np.float32)
+  background_image[:, -1, ...] = 0  # Zero the bottom line for proper sampling
 
   # The projection of the ground depends on the top right corner (approximation)
-  plane_point_np = np.array([[3.077984, 2.905388, 0.]], dtype=np.float32)
+  plane_point_np = np.tile(np.array([[3.077984, 2.905388, 0.]],
+                                    dtype=np.float32), (batch_size, 1))
+  plane_point_rotated = rotation_matrix_3d.rotate(plane_point_np,
+                                                  camera_rotation_matrix)
+  plane_point_translated = plane_point_rotated + camera_translation_vector
   plane_point2d = \
-    perspective.project(rotation_matrix_3d.rotate(plane_point_np,
-                                                  camera_rotation_matrix) +
-                        camera_translation_vector.T, focal, principal_point)
+    perspective.project(plane_point_translated, focal, principal_point)
   _, y = tf.split(plane_point2d, [1, 1], axis=-1)
-  sfactor = y/256.
-  transformation_matrix = (1/sfactor)*np.array([[1, 0, 0],
-                                                [0, 0, 0],
-                                                [0, 0, 0]]) + \
-                          np.array([[0, 0, 0],
-                                    [0, 1, 0],
-                                    [0, 0, 1]])
+  sfactor = height/y
+  helper_matrix1 = np.tile(np.array([[[1, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0]]]), (batch_size, 1, 1))
+  helper_matrix2 = np.tile(np.array([[[0, 0, 0],
+                                      [0, 1, 0],
+                                      [0, 0, 1]]]), (batch_size, 1, 1))
+  transformation_matrix = tf.multiply(tf.expand_dims(sfactor, -1),
+                                      helper_matrix1) + helper_matrix2
   plane_points = grid.generate((0., 0., 0.),
                                (float(height), float(width), 0.),
                                (height, width, 1))
@@ -71,9 +77,11 @@ def generate_ground_image(height,
                                   plane_points,
                                   transpose_b=True)
   interpolated_points = \
-    trilinear.interpolate(background_image, tf.transpose(transf_plane_points))
-  ground_alpha = (1- tf.reshape(interpolated_points, [256, 256, 1]))
-  ground_image = tf.ones((256, 256, 3))*ground_color
+    trilinear.interpolate(background_image,
+                          tf.linalg.matrix_transpose(transf_plane_points))
+  ground_alpha = (1- tf.reshape(interpolated_points,
+                                [batch_size, height, width, 1]))
+  ground_image = tf.ones((batch_size, height, width, 3))*ground_color
   return ground_image, ground_alpha
 
 
@@ -98,18 +106,18 @@ def sampling_points_from_frustum(height,
                                  principal_point,
                                  depth_min=0.0,
                                  depth_max=5.,
-                                 depth_step=256):
+                                 frustum_size=(256, 256, 256)):
   """Generates samples from a camera frustum."""
 
   # ------------------ Get the rays from the camera ----------------------------
   sampling_points = grid.generate((0., 0.),
                                   (float(width)-1, float(height)-1),
-                                  (width, height))
+                                  (frustum_size[0], frustum_size[1]))
   sampling_points = tf.reshape(sampling_points, [-1, 2])  # [h*w, 2]
   rays = perspective.ray(sampling_points, focal, principal_point)  # [h*w, 3]
 
   # ------------------ Extract a volume in front of the camera -----------------
-  depth_tensor = grid.generate((depth_min,), (depth_max,), (depth_step,))
+  depth_tensor = grid.generate((depth_min,), (depth_max,), (frustum_size[2],))
   sampling_volume = tf.multiply(tf.expand_dims(rays, axis=-1),
                                 tf.transpose(depth_tensor))  # [h*w, 3, dstep]
   sampling_volume = tf.transpose(sampling_volume, [0, 2, 1])  # [h*w, dstep, 3]
@@ -171,6 +179,8 @@ def object_rotation_in_blender_world(voxels, object_rotation):
 def render_voxels_from_blender_camera(voxels,
                                       object_rotation,
                                       object_translation,
+                                      height,
+                                      width,
                                       focal,
                                       principal_point,
                                       camera_rotation_matrix,
@@ -181,29 +191,31 @@ def render_voxels_from_blender_camera(voxels,
                                       depth_min=0.0,
                                       depth_max=5.0):
   """Renders the voxels according to their position in the world."""
-
-  sampling_volume = sampling_points_from_frustum(frustum_size[0],
-                                                 frustum_size[1],
+  batch_size = voxels.shape[0]
+  voxel_size = voxels.shape[1]
+  sampling_volume = sampling_points_from_frustum(height,
+                                                 width,
                                                  focal,
                                                  principal_point,
                                                  depth_min=depth_min,
                                                  depth_max=depth_max,
-                                                 depth_step=frustum_size[2])
+                                                 frustum_size=frustum_size)
   sampling_volume = \
     place_frustum_sampling_points_at_blender_camera(sampling_volume,
                                                     camera_rotation_matrix,
                                                     camera_translation_vector)
 
-  interpolated_voxels = object_rotation_in_blender_world(voxels,
-                                                         object_rotation)
+  interpolated_voxels = \
+    object_rotation_in_blender_world(voxels, object_rotation)
 
   # Adjust the camera (translate the camera instead of the object)
   sampling_volume = sampling_volume - object_translation
   sampling_volume = sampling_volume/CUBE_BOX_DIM
-  sampling_volume = sampling_points_to_voxel_index(sampling_volume, 128)
+  sampling_volume = sampling_points_to_voxel_index(sampling_volume, voxel_size)
 
   camera_voxels = trilinear.interpolate(interpolated_voxels, sampling_volume)
-  camera_voxels = tf.reshape(camera_voxels, list(frustum_size) + [4])
+  camera_voxels = tf.reshape(camera_voxels,
+                             [batch_size] + list(frustum_size) + [4])
   voxel_image = emission_absorption.render(camera_voxels,
                                            absorption_factor=absorption_factor,
                                            cell_size=cell_size)

@@ -1,0 +1,35 @@
+syntax = "proto2";
+
+package giotto_blender;
+
+message BlenderSample {
+  optional string name = 1;
+  optional bytes image_data = 2;
+  optional int32 height = 3;
+  optional int32 width = 4;
+  optional string obj = 5;
+  optional float rotation = 6;
+  repeated float translation = 7;
+  repeated float obj_color = 8;
+  repeated float floor_color = 9;
+  repeated float light = 10;
+  optional string envmap = 11;
+  optional float elevation = 12;
+  repeated float rt = 13;
+  repeated float k = 14;
+}
+
+message VoxelSample {
+  optional string name = 1;
+  optional bytes voxel_data = 2;
+  repeated int32 size = 3;
+  repeated float obj_bbox = 5;
+}
+
+message NeuralVoxelPlusSample {
+  optional string name = 1;
+  repeated bytes voxel_data = 2;
+  repeated bytes rerendering_data = 3;
+  repeated bytes image_data = 4;
+  repeated float light_position = 5;
+}
