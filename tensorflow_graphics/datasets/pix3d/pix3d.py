@@ -31,6 +31,10 @@ Each sample comprises of an image, 3D shape represented as (non-watertight) tria
 bounding-box, segmentation mask, intrinsic and extrinsic camera parameters and 2D and 3D key points. 
 """
 
+_CHECKSUMS_DIR = os.path.normpath(
+    os.path.join(os.path.dirname(__file__), 'checksums/'))
+tfds.download.add_checksums_dir(_CHECKSUMS_DIR)
+
 
 class Pix3d(tfds.core.GeneratorBasedBuilder):
   """Pix3D is a large-scale dataset of diverse image-shape pairs with pixel-level 2D-3D alignment."""
@@ -38,8 +42,8 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
   # TODO(pix3d): Set up version.
   VERSION = tfds.core.Version('0.1.0')
 
-  _TRAIN_SPLIT_IDX = "splits/pix3d_train.npy"
-  _TEST_SPLIT_IDX = "splits/pix3d_test.npy"
+  _TRAIN_SPLIT_IDX = os.path.join(os.path.dirname(__file__), 'splits/pix3d_train.npy')
+  _TEST_SPLIT_IDX = os.path.join(os.path.dirname(__file__), 'splits/pix3d_test.npy')
 
   def _info(self):
     # TODO(pix3d): Specifies the tfds.core.DatasetInfo object
@@ -133,15 +137,38 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       width, height = img_size
       return tfds_features.BBox(ymin=ymin/height, xmin=xmin/width, ymax=ymax/height, xmax=xmax/width)
 
-    def _build_camera(f, position, rotation, img_size):
+    def _build_camera(f, position, angle, img_size):
       """Prepare features for `Camera` FeatureConnector."""
-      position = tf.convert_to_tensor(position, dtype=tf.float32)
-      position = tf.expand_dims(position, 0)
-      rotation = tf.convert_to_tensor(rotation, dtype=tf.float32)
-      rotation = tf.expand_dims(rotation, 0)
+
+      def __matrix_from_axis_angle(axis, angle):
+        """ Computes rotation matrix from provided axis and inplane rotation."""
+        matrix = np.eye(3, dtype=np.float32)
+        ca = np.cos(angle)
+        sa = np.sin(angle)
+        C = 1 - ca
+
+        x, y, z = axis
+        xs, ys, zs = [a * sa for a in axis]
+        xC, yC, zC = [a * C for a in axis]
+        xyC = x * yC
+        yzC = y * zC
+        zxC = z * xC
+
+        matrix[0, 0] = x * xC + ca
+        matrix[0, 1] = xyC - zs
+        matrix[0, 2] = zxC + ys
+        matrix[1, 0] = xyC + zs
+        matrix[1, 1] = y * yC + ca
+        matrix[1, 2] = yzC - xs
+        matrix[2, 0] = zxC - ys
+        matrix[2, 1] = yzC + xs
+        matrix[2, 2] = z * zC + ca
+
+        return matrix
+
       return {
-        'R': rotation_matrix_3d.from_axis_angle(-position / np.linalg.norm(position), rotation).numpy().reshape(3, 3),
-        't': position.numpy().reshape(3, ),
+        'R': __matrix_from_axis_angle(-np.array(position, dtype=np.float32), angle),
+        't': position,
         'optical_center': (img_size[0] / 2, img_size[1] / 2),
         'f': f
       }
