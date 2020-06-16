@@ -34,7 +34,6 @@ class VoxelGridFeatureTest(tfds.testing.FeatureExpectationsTestCase):
 
   def test_voxel(self):
     mat_file_path = os.path.join(_TEST_DATA_DIR, 'cube.mat')
-    voxel_mat = scipy.io.loadmat(mat_file_path)
     expected_voxel = np.zeros((16, 16, 16), dtype=np.float32)
     expected_voxel[4:12, 4:12, 4:12] = 1.
 
