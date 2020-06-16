@@ -36,7 +36,8 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
     return pose, f, optical_center
 
   def test_simple_camera(self):
-    """Tests camera parameters with fixed focal length, no skew and no aspect ratio."""
+    """Tests camera parameters with fixed focal length,
+    no skew and no aspect ratio."""
     expected_pose, expected_f, expected_optical_center = self.__get_basic_camera_params()
 
     expected_K = np.asarray([[expected_f, 0, expected_optical_center[0]],
@@ -74,18 +75,17 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
   def test_camera_with_aspect_ratio_and_skew(self):
     """Tests camera parameters with fixed focal length, aspect_ratio and skew."""
 
-    expected_pose, expected_f, expected_optical_center = self.__get_basic_camera_params()
-    expected_aspect_ratio = expected_optical_center[0] / \
-                            expected_optical_center[1]
+    expected_pose, expected_f, expected_center = self.__get_basic_camera_params()
+    expected_aspect_ratio = expected_center[0] / expected_center[1]
     expected_skew = 0.6
     expected_K = np.asarray(
-      [[expected_f, expected_skew, expected_optical_center[0]],
-       [0, expected_aspect_ratio * expected_f, expected_optical_center[1]],
+      [[expected_f, expected_skew, expected_center[0]],
+       [0, expected_aspect_ratio * expected_f, expected_center[1]],
        [0, 0, 1]], dtype=np.float32)
 
     expected_camera = {'pose': expected_pose, 'K': expected_K}
     inputs = dict({'f': expected_f,
-                   'optical_center': expected_optical_center,
+                   'optical_center': expected_center,
                    'skew': expected_skew,
                    'aspect_ratio': expected_aspect_ratio}, **expected_pose)
 
