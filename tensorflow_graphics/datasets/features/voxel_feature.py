@@ -22,7 +22,7 @@ import os
 
 import numpy as np
 import tensorflow.compat.v2 as tf
-from scipy.io import loadmat
+from scipy import io as sio
 from tensorflow_datasets import features
 
 
@@ -62,7 +62,8 @@ class VoxelGrid(features.Tensor):
         raise FileNotFoundError(
           f"File `{example_data['path']}` does not exist.")
 
-      voxel_mat = loadmat(example_data['path'])
+      with tf.io.gfile.GFile(example_data['path'], 'rb') as mat_file:
+        voxel_mat = sio.loadmat(mat_file)
 
       if not example_data['key'] in voxel_mat:
         raise ValueError(f"Key `{example_data['key']}` not found in .mat file. "
