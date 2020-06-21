@@ -13,7 +13,6 @@ import tensorflow_datasets.public_api as tfds
 from tensorflow_datasets import features as tfds_features
 
 from tensorflow_graphics.datasets import features as tfg_features
-from tensorflow_graphics.geometry.transformation import rotation_matrix_3d
 
 _CITATION = """@inproceedings{pix3d,
   title={Pix3D: Dataset and Methods for Single-Image 3D Shape Modeling},
@@ -32,7 +31,7 @@ bounding-box, segmentation mask, intrinsic and extrinsic camera parameters and 2
 """
 
 _CHECKSUMS_DIR = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), 'checksums/'))
+  os.path.join(os.path.dirname(__file__), 'checksums/'))
 tfds.download.add_checksums_dir(_CHECKSUMS_DIR)
 
 
@@ -42,8 +41,10 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
   # TODO(pix3d): Set up version.
   VERSION = tfds.core.Version('0.1.0')
 
-  _TRAIN_SPLIT_IDX = os.path.join(os.path.dirname(__file__), 'splits/pix3d_train.npy')
-  _TEST_SPLIT_IDX = os.path.join(os.path.dirname(__file__), 'splits/pix3d_test.npy')
+  _TRAIN_SPLIT_IDX = os.path.join(os.path.dirname(__file__),
+                                  'splits/pix3d_train.npy')
+  _TEST_SPLIT_IDX = os.path.join(os.path.dirname(__file__),
+                                 'splits/pix3d_test.npy')
 
   def _info(self):
     # TODO(pix3d): Specifies the tfds.core.DatasetInfo object
@@ -56,25 +57,27 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         'image': tfds_features.Image(shape=(None, None, 3), dtype=tf.uint8),
         'image/filename': tfds_features.Text(),
         'image/source': tfds_features.Text(),
-        'objects': tfds_features.Sequence({
-          '2d_keypoints': tfds_features.Tensor(shape=(None, 2),
-                                               dtype=tf.float32),
-          'mask': tfds_features.Image(shape=(None, None, 1), dtype=tf.uint8),
-          'model': tfg_features.TriangleMesh(),
-          'model/source': tfds_features.Text(),
-          '3d_keypoints': tfds_features.Tensor(shape=(None, 3),
-                                               dtype=tf.float32),
-          'voxel': tfg_features.VoxelGrid(shape=(128, 128, 128)),
-          'pose': tfg_features.Pose(),
-          'camera': tfg_features.Camera(),
-          'category': tfds_features.ClassLabel(
-            names=['bed', 'bookcase', 'chair', 'desk', 'misc', 'sofa', 'table',
-                   'tool', 'wardrobe']),
-          'bbox': tfds_features.BBoxFeature(),
-          'truncated': tf.bool,
-          'occluded': tf.bool,
-          'slightly_occluded': tf.bool
-        })
+        '2d_keypoints': tfds_features.FeaturesDict({
+          'num_annotators': tf.uint8,
+          'num_keypoints': tf.uint8,
+          'keypoints': tfds_features.Tensor(shape=(None,),
+                                            dtype=tf.float32),
+        }),
+        'mask': tfds_features.Image(shape=(None, None, 1), dtype=tf.uint8),
+        'model': tfg_features.TriangleMesh(),
+        'model/source': tfds_features.Text(),
+        '3d_keypoints': tfds_features.Tensor(shape=(None, 3),
+                                             dtype=tf.float32),
+        'voxel': tfg_features.VoxelGrid(shape=(128, 128, 128)),
+        'pose': tfg_features.Pose(),
+        'camera': tfg_features.Camera(),
+        'category': tfds_features.ClassLabel(
+          names=['bed', 'bookcase', 'chair', 'desk', 'misc', 'sofa', 'table',
+                 'tool', 'wardrobe']),
+        'bbox': tfds_features.BBoxFeature(),
+        'truncated': tf.bool,
+        'occluded': tf.bool,
+        'slightly_occluded': tf.bool
       }),
       # If there's a common (input, target) tuple from the features,
       # specify them here. They'll be used if as_supervised=True in
@@ -91,7 +94,8 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
     # dl_manager is a tfds.download.DownloadManager that can be used to
     # download and extract URLs
 
-    pix3d_dir = dl_manager.download_and_extract('http://pix3d.csail.mit.edu/data/pix3d.zip')
+    pix3d_dir = dl_manager.download_and_extract(
+      'http://pix3d.csail.mit.edu/data/pix3d.zip')
 
     return [
       tfds.core.SplitGenerator(
@@ -123,7 +127,8 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
 
     # TODO(pix3d): Yields (key, example) tuples from the dataset
 
-    with tf.io.gfile.GFile(os.path.join(samples_directory, 'pix3d.json'), mode='r') as pix3d_index:
+    with tf.io.gfile.GFile(os.path.join(samples_directory, 'pix3d.json'),
+                           mode='r') as pix3d_index:
       pix3d = json.load(pix3d_index)
 
     split_samples = map(pix3d.__getitem__, np.load(split_file))
@@ -140,7 +145,8 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       """
       xmin, ymin, xmax, ymax = box
       width, height = img_size
-      return tfds_features.BBox(ymin=ymin/height, xmin=xmin/width, ymax=ymax/height, xmax=xmax/width)
+      return tfds_features.BBox(ymin=ymin / height, xmin=xmin / width,
+                                ymax=ymax / height, xmax=xmax / width)
 
     def _build_camera(f, position, angle, img_size):
       """Prepare features for `Camera` FeatureConnector."""
@@ -172,10 +178,25 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         return matrix
 
       return {
-        'R': __matrix_from_axis_angle(-np.array(position, dtype=np.float32), angle),
+        'R': __matrix_from_axis_angle(-np.array(position, dtype=np.float32),
+                                      angle),
         't': position,
         'optical_center': (img_size[0] / 2, img_size[1] / 2),
         'f': f
+      }
+
+    def _build_2d_keypoints(keypoints):
+      """
+      Wraps keypoint feature in dict, because TFDS does not allow more than
+      one unknown dimensions.
+      """
+      if keypoints.ndim != 3 or keypoints.shape[-1] != 2:
+        raise ValueError("2D keypoints should be in shape (N, M, 2).")
+
+      return {
+        'num_annotators': keypoints.shape[0],
+        'num_keypoints': keypoints.shape[1],
+        'keypoints': keypoints.ravel()
       }
 
     for sample in split_samples:
@@ -183,11 +204,14 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         'image': os.path.join(samples_directory, sample['img']),
         'image/filename': sample['img'],
         'image/source': sample['img_source'],
-        '2d_keypoints': np.asarray(sample['2d_keypoints'], dtype=np.float32).reshape(-1, 2),
+                '2d_keypoints': _build_2d_keypoints(np.asarray(sample['2d_keypoints'],
+                                                       dtype=np.float32)),
         'mask': os.path.join(samples_directory, sample['mask']),
         'model': os.path.join(samples_directory, sample['model']),
         'model/source': sample['model_source'],
-        '3d_keypoints': np.loadtxt(os.path.join(samples_directory, sample['3d_keypoints']), dtype=np.float32),
+        '3d_keypoints': np.loadtxt(
+          os.path.join(samples_directory, sample['3d_keypoints']),
+          dtype=np.float32),
         'voxel': {
           'path': os.path.join(samples_directory, sample['voxel']),
           'key': 'voxel'
