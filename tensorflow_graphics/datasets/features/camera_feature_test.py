@@ -45,8 +45,38 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
                              [0, 0, 1]], dtype=np.float32)
 
     expected_camera = {'pose': expected_pose, 'K': expected_K}
-    inputs = dict({'f': expected_f, 'optical_center': expected_optical_center},
-                  **expected_pose)
+    inputs = {'f': expected_f, 'optical_center': expected_optical_center,
+              'pose': expected_pose}
+    lookat_inputs = {
+      'f': expected_f,
+      'optical_center': expected_optical_center,
+      'pose': {
+        'look_at': np.array([0, 0, -1], dtype=np.float32),
+        'up': np.array([0, 1, 0], dtype=np.float32),
+        'position': np.array([0, 0, 0], dtype=np.float32)
+      }
+    }
+
+    raising_pose_entry = {
+      'f': expected_f,
+      'optical_center': expected_optical_center,
+      'pose': np.eye(4)
+    }
+
+    raising_Rt_inputs = {
+      'f': expected_f,
+      'optical_center': expected_optical_center,
+      'pose': {'rot': np.eye(3), 'trans': np.zeros(3)}
+    }
+    raising_lookat_inputs = {
+      'f': expected_f,
+      'optical_center': expected_optical_center,
+      'pose': {
+        'l': np.array([0, 0, -1], dtype=np.float32),
+        'up': np.array([0, 1, 0], dtype=np.float32),
+        'C': np.array([0, 0, 0], dtype=np.float32)
+      }
+    }
 
     self.assertFeature(
       feature=camera_feature.Camera(),
@@ -69,6 +99,25 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
           value=inputs,
           expected=expected_camera,
         ),
+        tfds.testing.FeatureExpectationItem(
+          value=lookat_inputs,
+          expected=expected_camera
+        ),
+        tfds.testing.FeatureExpectationItem(
+          value=raising_Rt_inputs,
+          raise_cls=ValueError,
+          raise_msg="Wrong keys for pose feature provided"
+        ),
+        tfds.testing.FeatureExpectationItem(
+          value=raising_lookat_inputs,
+          raise_cls=ValueError,
+          raise_msg="Wrong keys for pose feature provided"
+        ),
+        tfds.testing.FeatureExpectationItem(
+          value=raising_pose_entry,
+          raise_cls=ValueError,
+          raise_msg="Pose needs to be a dictionary"
+        ),
       ],
     )
 
@@ -84,10 +133,11 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
        [0, 0, 1]], dtype=np.float32)
 
     expected_camera = {'pose': expected_pose, 'K': expected_K}
-    inputs = dict({'f': expected_f,
-                   'optical_center': expected_center,
-                   'skew': expected_skew,
-                   'aspect_ratio': expected_aspect_ratio}, **expected_pose)
+    inputs = {'f': expected_f,
+              'optical_center': expected_center,
+              'skew': expected_skew,
+              'aspect_ratio': expected_aspect_ratio,
+              'pose': expected_pose}
 
     self.assertFeature(
       feature=camera_feature.Camera(),
@@ -126,14 +176,14 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
        [0, 0, 1]], dtype=np.float32)
 
     expected_camera = {'pose': expected_pose, 'K': expected_K}
-    inputs = dict({'f': expected_f,
-                   'optical_center': expected_optical_center,
-                   'skew': expected_skew}, **expected_pose)
+    inputs = {'f': expected_f,
+              'optical_center': expected_optical_center,
+              'skew': expected_skew, 'pose': expected_pose}
 
-    raising_inputs = dict({'f': expected_f,
-                           'aspect_ratio': 1.5,
-                           'optical_center': expected_optical_center,
-                           'skew': expected_skew}, **expected_pose)
+    raising_inputs = {'f': expected_f,
+                      'aspect_ratio': 1.5,
+                      'optical_center': expected_optical_center,
+                      'skew': expected_skew, 'pose': expected_pose}
     self.assertFeature(
       feature=camera_feature.Camera(),
       shape={
