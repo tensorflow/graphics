@@ -70,7 +70,10 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
                                              dtype=tf.float32),
         'voxel': tfg_features.VoxelGrid(shape=(128, 128, 128)),
         'pose': tfg_features.Pose(),
-        'camera': tfg_features.Camera(),
+        'camera': tfds_features.FeaturesDict({
+          'parameters': tfg_features.Camera(),
+          'inplane_rotation': tf.float32,
+        }),
         'category': tfds_features.ClassLabel(
           names=['bed', 'bookcase', 'chair', 'desk', 'misc', 'sofa', 'table',
                  'tool', 'wardrobe']),
@@ -148,39 +151,15 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       return tfds_features.BBox(ymin=ymin / height, xmin=xmin / width,
                                 ymax=ymax / height, xmax=xmax / width)
 
-    def _build_camera(f, position, angle, img_size):
+    def _build_camera(f, position, img_size):
       """Prepare features for `Camera` FeatureConnector."""
 
-      def __matrix_from_axis_angle(axis, angle):
-        """ Computes rotation matrix from provided axis and inplane rotation."""
-        matrix = np.eye(3, dtype=np.float32)
-        ca = np.cos(angle)
-        sa = np.sin(angle)
-        C = 1 - ca
-
-        x, y, z = axis
-        xs, ys, zs = [a * sa for a in axis]
-        xC, yC, zC = [a * C for a in axis]
-        xyC = x * yC
-        yzC = y * zC
-        zxC = z * xC
-
-        matrix[0, 0] = x * xC + ca
-        matrix[0, 1] = xyC - zs
-        matrix[0, 2] = zxC + ys
-        matrix[1, 0] = xyC + zs
-        matrix[1, 1] = y * yC + ca
-        matrix[1, 2] = yzC - xs
-        matrix[2, 0] = zxC - ys
-        matrix[2, 1] = yzC + xs
-        matrix[2, 2] = z * zC + ca
-
-        return matrix
-
       return {
-        'R': __matrix_from_axis_angle(-np.array(position, dtype=np.float32),
-                                      angle),
-        't': position,
+        'pose': {
+          'look_at': np.array([0, 0, 0], dtype=np.float32),
+          'position': np.array(position, dtype=np.float32),
+          'up': np.array([0, 1, 0], dtype=np.float32)
+        },
         'optical_center': (img_size[0] / 2, img_size[1] / 2),
         'f': f
       }
@@ -204,7 +183,7 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         'image': os.path.join(samples_directory, sample['img']),
         'image/filename': sample['img'],
         'image/source': sample['img_source'],
-                '2d_keypoints': _build_2d_keypoints(np.asarray(sample['2d_keypoints'],
+        '2d_keypoints': _build_2d_keypoints(np.asarray(sample['2d_keypoints'],
                                                        dtype=np.float32)),
         'mask': os.path.join(samples_directory, sample['mask']),
         'model': os.path.join(samples_directory, sample['model']),
@@ -220,12 +199,14 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
           'R': sample['rot_mat'],
           't': sample['trans_mat']
         },
-        'camera': _build_camera(
-          sample['focal_length'],
-          sample['cam_position'],
-          sample['inplane_rotation'],
-          sample['img_size'],
-        ),
+        'camera': {
+          'parameters': _build_camera(
+            sample['focal_length'],
+            sample['cam_position'],
+            sample['img_size'],
+          ),
+          'inplane_rotation': sample['inplane_rotation'],
+        },
         'category': sample['category'],
         'bbox': _build_bbox(sample['bbox'], sample['img_size']),
         'truncated': sample['truncated'],
