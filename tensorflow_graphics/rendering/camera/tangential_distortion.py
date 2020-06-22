@@ -11,9 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Tangential lens distortion and un-distortion functions.
+"""Tangential lens distortion function.
 
-TODO
+Given a vector in homogeneous coordinates, `(x/z, y/z, 1)`, we define
+`r^2 = (x/z)^2 + (y/z)^2`. Let `u = x/z` and `v = y/z`. We use the tangential
+distortion functions `f(u) = 2 * p1 * u * v + p2 * (r^2 + 2 * u^2)` and
+`f(v) = p1 * (r^2 + 2 * v^2) + 2 * p2 * u * v`. The distorted vector is given by
+`(x/z + f(x/z), y/z + f(y/z), 1)`.
+
+TODO: Undistortion
 """
 
 from __future__ import absolute_import
@@ -25,7 +31,6 @@ import tensorflow as tf
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
-
 def distortion_terms(squared_radius,
                      projective_x,
                      projective_y,
@@ -33,10 +38,48 @@ def distortion_terms(squared_radius,
                      distortion_coefficient_2,
                      name=None):
   """Calculates a tangential distortion terms given normalized image coordinates.
-  TODO:
+
+  Given a vector describing a location in camera space in homogeneous
+  coordinates, `(x/z, y/z, 1)`, squared_radius is `r^2 = (x/z)^2 + (y/z)^2`.
+  distortion_terms are added to `x/z` and `y/z` to obtain the distorted
+  coordinates. In this function, `x_distortion_term` is given by
+  `2 * distortion_coefficient_1 * projective_x * projective_y +
+  distortion coefficient_2 * (squared_radius + 2 * squared_projective_x)`, and
+  `y_distortion_term` is given by
+  `distortion_coefficient_1 * (squared_radius + 2 * squared_projective_y) +
+  2 * distortion_coefficient_2 * projective_x * projective_y`.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions, which must be
+    broadcast compatible.
+
+  Args:
+    squared_radius: A tensor of shape `[A1, ..., An, H, W]`, containing the
+      radii of the image pixels computed as `(x/z)^2 + (y/z)^2`. We use squared
+      radius rather than the radius itself to avoid an unnecessary `sqrt`, which
+      may introduce gradient singularities. The non-negativity of squared radius
+      is only enforced in debug mode.
+    projective_x: A tensor of shape `[A1, ..., An, H, W]`, containing the
+      undistorted projective coordinates `(x/z)` of the image pixels.
+    projective_y: A tensor of shape `[A1, ..., An, H, W]`, containing the
+      undistorted projective coordinates `(y/z)` of the image pixels.
+    distortion_coefficient_1: A `scalar` or a tensor of shape `[A1, ..., An]`,
+      which contains the first tangential distortion coefficients of each image.
+    distortion_coefficient_2: A `scalar` or a tensor of shape `[A1, ..., An]`,
+      which contains the second tangential distortion coefficients of each image.
+    name: A name for this op. Defaults to
+      "tangential_distortion_distortion_terms".
+
+  Returns:
+    x_distortion_term: A tensor of shape `[A1, ..., An, H, W]`, the correction
+      terms that should be added to the projective coordinates (x/z) to apply
+      the distortion along the x-axis of the image.
+    y_distortion_term: A tensor of shape `[A1, ..., An, H, W]`, the correction
+      terms that should be added to the projective coordinates (y/z) to apply
+      the distortion along the y-axis of the image.
   """
   with tf.compat.v1.name_scope(name,
-                               "tangential_distortion_distortion_term",
+                               "tangential_distortion_distortion_terms",
                                [squared_radius,
                                 projective_x,
                                 projective_y,
@@ -92,16 +135,16 @@ def distortion_terms(squared_radius,
       squared_radius + double_squared_projective_x)
     squared_radius_plus_double_squared_projective_y = (
       squared_radius + double_squared_projective_y)
-    projective_x_distortion_term_ = (
+    x_distortion_term = (
       double_distortion_coefficient_1 * projective_x * projective_y +
       distortion_coefficient_2 *
       squared_radius_plus_double_squared_projective_x)
-    projective_y_distortion_term_ = (
+    y_distortion_term = (
       distortion_coefficient_1 *
       squared_radius_plus_double_squared_projective_y +
       double_distortion_coefficient_2 * projective_x * projective_y)
-    # TODO: overflow_mask
-    return projective_x_distortion_term_, projective_y_distortion_term_
+    # TODO: overflow mask
+    return x_distortion_term, y_distortion_term
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
