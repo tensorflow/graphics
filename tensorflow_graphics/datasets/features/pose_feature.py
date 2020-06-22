@@ -37,8 +37,10 @@ class Pose(features.FeaturesDict):
   Output:
     A dictionary containing:
 
-    * 'rotation': A `float32` tensor with shape `[3, 3]` denoting the 3D rotation matrix.
-    * 'translation': A `float32` tensor with shape `[3,]` denoting the translation vector.
+    * 'R': A `float32` tensor with shape `[3, 3]` denoting the
+    3D rotation matrix.
+    * 't': A `float32` tensor with shape `[3,]` denoting the
+    translation vector.
 
   """
   def __init__(self):

@@ -30,11 +30,27 @@ class Camera(features.FeaturesDict):
 
   During `_generate_examples`, the feature connector accepts as input any of:
 
-    * `parameter_dict:` A dictionary containing the extrinsic and instrinsic  parameters of the camera as:
-      - 'rotation': 3x3 rotation matrix with float32 values.
-      - 'translation': 3x1 translation vector.
-      - 'f': focal length of the camera (either single float32 value or tuple of float32 as (f_x, f_y).
-      - 'optical_center': Optical center of the camera in pixel coordinates as tuple (c_x, c_y)
+    * `parameter_dict:` A dictionary containing the extrinsic and instrinsic
+    parameters of the camera as:
+      - 'pose': Dictionary containing
+          * Either 3x3 rotation matrix and translation vector:
+            {
+              'R': A `float32` tensor with shape `[3, 3]` denoting the
+                   3D rotation matrix.
+              't': A `float32` tensor with shape `[3,]` denoting the
+                   translation vector.
+            }
+      OR
+         * look_at, position and up-vector:
+            {
+              'look_at': float32 vector of shape (3,).
+              'position': float32 vector of shape (3,).
+              'up': float32 vector of shape (3,).
+            }
+      - 'f': focal length of the camera in mm (either single float32 value
+      or tuple of float32 as (f_x, f_y).
+      - 'optical_center': Optical center of the camera
+      in pixel coordinates as tuple (c_x, c_y)
       Optional parameters:
       - 'skew': float32 denoting the skew of the camera axes.
       - 'aspect_ratio': float32 denoting the aspect_ratio, if single fixed focal length is provided.
@@ -68,13 +84,36 @@ class Camera(features.FeaturesDict):
 
   def encode_example(self, parameter_dict):
     """Convert the given parameters into a dict convertible to tf example."""
-    REQUIRED_KEYS = ['R', 't', 'f', 'optical_center']
-    assert list(parameter_dict.keys()) >= REQUIRED_KEYS, "Missing keys in provided dictionary!"
+    REQUIRED_KEYS = ['pose', 'f', 'optical_center']
+    if not all(key in parameter_dict for key in REQUIRED_KEYS):
+      raise ValueError(f"Missing keys in provided dictionary! "
+                       f"Expected {REQUIRED_KEYS}, "
+                       f"but {parameter_dict.keys()} were given.")
 
-    features_dict = {'pose': self._feature_dict['pose'].encode_example({
-      'R': parameter_dict['R'],
-      't': parameter_dict['t']
-    })}
+    if not isinstance(parameter_dict['pose'], dict):
+      raise ValueError("Pose needs to be a dictionary containing either "
+                       "rotation and translation or look at, "
+                       "up vector and position.")
+    features_dict = {}
+    pose_dict = parameter_dict['pose']
+    if all(key in pose_dict for key in ['R', 't']):
+      features_dict['pose'] = {
+        'R': pose_dict['R'],
+        't': pose_dict['t']
+      }
+    elif all(key in pose_dict for key in ['look_at', 'position', 'up']):
+      rotation = self._create_rotation_from_look_at(pose_dict['look_at'],
+                                                    pose_dict['position'],
+                                                    pose_dict['up'])
+      translation = (-rotation) @ pose_dict['position']
+
+      features_dict['pose'] = {
+        'R': rotation,
+        't': translation
+      }
+    else:
+      raise ValueError("Wrong keys for pose feature provided!")
+
     aspect_ratio = 1
     skew = 0
     if 'aspect_ratio' in parameter_dict.keys():
@@ -93,7 +132,23 @@ class Camera(features.FeaturesDict):
 
     return super(Camera, self).encode_example(features_dict)
 
-  def _create_calibration_matrix(self, f, optical_center, aspect_ratio=1, skew=0):
+  def _create_rotation_from_look_at(self, look_at, position, up):
+    """
+    Creates rotation matrix according to OpenGL gluLookAt convention.
+    (https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml)
+    """
+    L = look_at - position
+    L /= np.linalg.norm(L)
+    s = np.cross(L, up)
+    s /= np.linalg.norm(s)
+    u = np.cross(s, L)
+
+    matrix = np.array([s, u, -L])
+
+    return matrix
+
+  def _create_calibration_matrix(self, f, optical_center, aspect_ratio=1,
+                                 skew=0):
     """Constructs the 3x3 calibration matrix K.
 
     Args:
