@@ -54,11 +54,6 @@ def distortion_terms(squared_radius,
     broadcast compatible.
 
   Args:
-    squared_radius: A tensor of shape `[A1, ..., An, H, W]`, containing the
-      radii of the image pixels computed as `(x/z)^2 + (y/z)^2`. We use squared
-      radius rather than the radius itself to avoid an unnecessary `sqrt`, which
-      may introduce gradient singularities. The non-negativity of squared radius
-      is only enforced in debug mode.
     projective_x: A tensor of shape `[A1, ..., An, H, W]`, containing the
       undistorted projective coordinates `(x/z)` of the image pixels.
     projective_y: A tensor of shape `[A1, ..., An, H, W]`, containing the
@@ -77,15 +72,21 @@ def distortion_terms(squared_radius,
     y_distortion_term: A tensor of shape `[A1, ..., An, H, W]`, the correction
       terms that should be added to the projective coordinates (y/z) to apply
       the distortion along the y-axis of the image.
+    x_overflow_mask: A boolean tensor of shape `[A1, ..., An, H, W]`, `True`
+      where `projective_x` is beyond the range where the distortion function is
+      monotonically increasing. Wherever `overflow_mask` is True,
+      `x_distortion_term`'s value is meaningless.
+    y_overflow_mask: A boolean tensor of shape `[A1, ..., An, H, W]`, `True`
+      where `projective_y` is beyond the range where the distortion function is
+      monotonically increasing. Wherever `overflow_mask` is True,
+      `y_distortion_term`'s value is meaningless.
   """
   with tf.compat.v1.name_scope(name,
                                "tangential_distortion_distortion_terms",
-                               [squared_radius,
-                                projective_x,
+                               [projective_x,
                                 projective_y,
                                 distortion_coefficient_1,
                                 distortion_coefficient_2]):
-    squared_radius = tf.convert_to_tensor(value=squared_radius)
     projective_x = tf.convert_to_tensor(value=projective_x)
     projective_y = tf.convert_to_tensor(value=projective_y)
     distortion_coefficient_1 = tf.convert_to_tensor(
@@ -98,10 +99,6 @@ def distortion_terms(squared_radius,
     if distortion_coefficient_2.shape.ndims == 0:
       distortion_coefficient_2 = tf.expand_dims(distortion_coefficient_2, axis=0)
     shape.check_static(
-      tensor=squared_radius,
-      tensor_name="squared_radius",
-      has_rank_greater_than=1)
-    shape.check_static(
       tensor=projective_x,
       tensor_name="projective_x",
       has_rank_greater_than=1)
@@ -110,15 +107,12 @@ def distortion_terms(squared_radius,
       tensor_name="projective_y",
       has_rank_greater_than=1)
     shape.compare_batch_dimensions(
-      tensors=(squared_radius,
-               projective_x,
+      tensors=(projective_x,
                projective_y,
                distortion_coefficient_1,
                distortion_coefficient_2),
-      last_axes=(-3, -3, -3, -1, -1),
+      last_axes=(-3, -3, -1, -1),
       broadcast_compatible=True)
-    squared_radius = asserts.assert_all_above(
-      squared_radius, 0.0, open_bound=False)
     projective_x = asserts.assert_all_above(
       projective_x, 0.0, open_bound=False)
     projective_y = asserts.assert_all_above(
@@ -127,6 +121,7 @@ def distortion_terms(squared_radius,
     distortion_coefficient_1 = tf.expand_dims(distortion_coefficient_1, axis=-1)
     distortion_coefficient_2 = tf.expand_dims(distortion_coefficient_2, axis=-1)
     distortion_coefficient_2 = tf.expand_dims(distortion_coefficient_2, axis=-1)
+    squared_radius = projective_x ** 2.0 + projective_y ** 2.0
     double_squared_projective_x = 2.0 * projective_x ** 2.0
     double_squared_projective_y = 2.0 * projective_y ** 2.0
     double_distortion_coefficient_1 = 2.0 * distortion_coefficient_1
