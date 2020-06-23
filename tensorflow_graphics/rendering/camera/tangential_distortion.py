@@ -143,8 +143,18 @@ def distortion_terms(squared_radius,
       distortion_coefficient_1 *
       squared_radius_plus_double_squared_projective_y +
       double_distortion_coefficient_2 * projective_x * projective_y)
-    # TODO: overflow mask
-    return x_distortion_term, y_distortion_term
+    x_overflow_mask = tf.less(
+      1.0 + 2.0 * distortion_coefficient_1 * projective_y + 6.0 *
+      distortion_coefficient_2 * projective_x + squared_radius +
+      double_squared_projective_x, 0.0)
+    y_overflow_mask = tf.less(
+      1.0 + 2.0 * distortion_coefficient_2 * projective_x + 6.0 *
+      distortion_coefficient_1 * projective_y + squared_radius +
+      double_squared_projective_y, 0.0)
+    return (x_distortion_term,
+            y_distortion_term,
+            x_overflow_mask,
+            y_overflow_mask)
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
