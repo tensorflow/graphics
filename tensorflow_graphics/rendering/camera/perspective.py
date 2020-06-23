@@ -53,6 +53,54 @@ from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
 
 
+def parameters_from_right_handed(projection_matrix, name=None):
+  """Recovers the parameters used to contruct a right handed projection matrix.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    projection_matrix: A tensor of shape `[A1, ..., An, 4, 4]`, containing
+      matrices of right handed perspective-view frustum.
+    name: A name for this op. Defaults to
+      'perspective_parameters_from_right_handed'.
+
+  Raises:
+    InvalidArgumentError: if `projection_matrix` is not of the expected shape.
+
+  Returns:
+    Tuple of 4 tensors of shape `[A1, ..., An, 1]`, where the first tensor
+    represents the vertical field of view used to contruct `projection_matrix,
+    the second tensor represents the ascpect ratio used to construct
+    `projection_matrix`, and the third and fourth parameters repectively
+    represent the near and far clipping planes used to construct
+    `projection_matrix`.
+  """
+  with tf.compat.v1.name_scope(name, "perspective_parameters_from_right_handed",
+                               [projection_matrix]):
+    projection_matrix = tf.convert_to_tensor(value=projection_matrix)
+
+    shape.check_static(
+        tensor=projection_matrix,
+        tensor_name="projection_matrix",
+        has_rank_greater_than=1,
+        has_dim_equals=((-2, 4), (-1, 4)))
+
+    inverse_tan_half_vertical_field_of_view = projection_matrix[..., 1, 1:2]
+    vertical_field_of_view = 2.0 * tf.atan(
+        1.0 / inverse_tan_half_vertical_field_of_view)
+    aspect_ratio = inverse_tan_half_vertical_field_of_view / projection_matrix[
+        ..., 0, 0:1]
+
+    a = projection_matrix[..., 2, 2:3]
+    b = projection_matrix[..., 2, 3:4]
+
+    far = b / (a + 1.0)
+    near = (a + 1.0) / (a - 1.0) * far
+
+    return vertical_field_of_view, aspect_ratio, near, far
+
+
 def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
   """Generates the matrix for a right handed perspective projection.
 
@@ -73,7 +121,7 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
     far:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
       captures the distance between the viewer and the far clipping plane. Note
       that values for `far` must be greater than those of `near`.
-    name: A name for this op. Defaults to 'perspective_rh'.
+    name: A name for this op. Defaults to 'perspective_right_handed'.
 
   Raises:
     InvalidArgumentError: if any input contains data not in the specified range

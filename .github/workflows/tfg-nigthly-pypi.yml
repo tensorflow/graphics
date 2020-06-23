@@ -9,6 +9,7 @@ on:
 
 jobs:
   deploy:
+    if: github.repository == 'tensorflow/graphics'  # prevents action from running on forks
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -25,7 +26,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install setuptools wheel twine pytest
-        sed -i '/tensorflow /c tf-nightly >= 2.3.0.dev20200528' requirements.txt
         pip install -r requirements.txt
 
     - name: Test

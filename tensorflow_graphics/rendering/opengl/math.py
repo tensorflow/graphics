@@ -342,7 +342,14 @@ def model_to_screen(point_model_space,
       vertical_field_of_view, screen_dimensions, near, far, lower_left_corner
   ]):
     point_model_space = tf.convert_to_tensor(value=point_model_space)
+    camera_position = tf.convert_to_tensor(value=camera_position)
+    look_at_point = tf.convert_to_tensor(value=look_at_point)
+    up_vector = tf.convert_to_tensor(value=up_vector)
+    vertical_field_of_view = tf.convert_to_tensor(value=vertical_field_of_view)
+    near = tf.convert_to_tensor(value=near)
+    far = tf.convert_to_tensor(value=far)
     screen_dimensions = tf.convert_to_tensor(value=screen_dimensions)
+
     shape.check_static(
         tensor=point_model_space,
         tensor_name="point_model_space",
@@ -351,12 +358,37 @@ def model_to_screen(point_model_space,
         tensor=screen_dimensions,
         tensor_name="screen_dimensions",
         has_dim_equals=(-1, 2))
+    shape.check_static(
+        tensor=point_model_space,
+        tensor_name="point_model_space",
+        has_dim_equals=(-1, 3))
+    shape.compare_batch_dimensions(
+        tensors=(point_model_space, camera_position, vertical_field_of_view,
+                 near, far),
+        last_axes=-2,
+        tensor_names=("point_model_space", "camera_position",
+                      "vertical_field_of_view", "aspect_ratio", "near", "far"),
+        broadcast_compatible=True)
 
-    point_eye_space = model_to_eye(point_model_space, camera_position,
-                                   look_at_point, up_vector)
-    point_clip_space = eye_to_clip(
-        point_eye_space, vertical_field_of_view,
+    batch_shape = tf.shape(input=point_model_space)[:-1]
+    one = tf.ones(
+        shape=tf.concat((batch_shape, (1,)), axis=-1),
+        dtype=point_model_space.dtype)
+    point_model_space = tf.concat((point_model_space, one), axis=-1)
+    point_model_space = tf.expand_dims(point_model_space, axis=-1)
+
+    # The following block performs the equivalent of model_to_eye followed by
+    # eye_to_clip.
+    model_to_eye_matrix = look_at.right_handed(camera_position, look_at_point,
+                                               up_vector)
+    perspective_matrix = perspective.right_handed(
+        vertical_field_of_view,
         screen_dimensions[..., 0:1] / screen_dimensions[..., 1:2], near, far)
+    view_projection_matrix = tf.linalg.matmul(perspective_matrix,
+                                              model_to_eye_matrix)
+    point_clip_space = tf.squeeze(
+        tf.matmul(view_projection_matrix, point_model_space), axis=-1)
+
     point_ndc_space = clip_to_ndc(point_clip_space)
     point_screen_space = ndc_to_screen(point_ndc_space, lower_left_corner,
                                        screen_dimensions, near, far)
