@@ -53,9 +53,9 @@ tfds.download.add_checksums_dir(_CHECKSUMS_DIR)
 
 
 class Pix3d(tfds.core.GeneratorBasedBuilder):
-  """Pix3D is a large-scale dataset of diverse image-shape pairs with pixel-level 2D-3D alignment."""
+  """Pix3D is a large-scale dataset of diverse image-shape pairs
+  with pixel-level 2D-3D alignment."""
 
-  # TODO(pix3d): Set up version.
   VERSION = tfds.core.Version('0.1.0')
 
   _TRAIN_SPLIT_IDX = os.path.join(os.path.dirname(__file__),
@@ -67,7 +67,6 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
                  'tool', 'wardrobe']
 
   def _info(self):
-    # TODO(pix3d): Specifies the tfds.core.DatasetInfo object
     return tfds.core.DatasetInfo(
       builder=self,
       # This is the description that will appear on the datasets page.
@@ -113,9 +112,6 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
 
   def _split_generators(self, dl_manager):
     """Returns SplitGenerators."""
-    # TODO(pix3d): Downloads the data and defines the splits
-    # dl_manager is a tfds.download.DownloadManager that can be used to
-    # download and extract URLs
 
     pix3d_dir = dl_manager.download_and_extract(
       'http://pix3d.csail.mit.edu/data/pix3d.zip')
@@ -140,12 +136,14 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
   def _generate_examples(self, samples_directory, split_file):
     """Yields examples.
 
-    As Pix3D does not come with a predefined train/test split, we adopt one from Mesh R-CNN. The split ensures
+    As Pix3D does not come with a predefined train/test split, we adopt one from
+    Mesh R-CNN. The split ensures
     that the 3D models appearing in the train and test sets are disjoint.
 
     Args:
       samples_directory: `str`, path to the directory where Pix3D is stored.
-      split_file: `str`, path to .npy file containing the indices of the current split.
+      split_file: `str`, path to .npy file containing the indices of the current
+      split.
     """
 
     with tf.io.gfile.GFile(os.path.join(samples_directory, 'pix3d.json'),
