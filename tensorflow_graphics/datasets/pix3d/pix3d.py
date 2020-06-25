@@ -16,18 +16,35 @@ from tensorflow_graphics.datasets import features as tfg_features
 
 _CITATION = """@inproceedings{pix3d,
   title={Pix3D: Dataset and Methods for Single-Image 3D Shape Modeling},
-  author={Sun, Xingyuan and Wu, Jiajun and Zhang, Xiuming and Zhang, Zhoutong and Zhang, Chengkai and Xue, Tianfan and Tenenbaum, Joshua B and Freeman, William T},
+  author={Sun, Xingyuan and Wu, Jiajun and Zhang, Xiuming and Zhang, Zhoutong 
+  and Zhang, Chengkai and Xue, Tianfan and Tenenbaum, Joshua B and 
+  Freeman, William T},
   booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
   year={2018}
 }
 """
 
-_DESCRIPTION = """Pix3D is a large-scale dataset of diverse image-shape pairs with pixel-level 2D-3D alignment. 
-It has wide applications in shape-related tasks including reconstruction, retrieval, viewpoint estimation, etc.
+_DESCRIPTION = """Pix3D is a large-scale dataset of diverse image-shape pairs 
+with pixel-level 2D-3D alignment. It has wide applications in shape-related 
+tasks including reconstruction, retrieval, viewpoint estimation, etc.
 
-Pix3D contains 10,069 2D-3D pairs of 395 distinct 3D shapes, categorised into nine object categories. 
-Each sample comprises of an image, 3D shape represented as (non-watertight) triangle mesh and voxel grid, 
-bounding-box, segmentation mask, intrinsic and extrinsic camera parameters and 2D and 3D key points. 
+Pix3D contains 10,069 2D-3D pairs of 395 distinct 3D shapes, categorised into 
+nine object categories. Each sample comprises of an image, 3D shape represented 
+as (non-watertight) triangle mesh and voxel grid, bounding-box, 
+segmentation mask, intrinsic and extrinsic camera parameters and 2D and 3D key 
+points. 
+
+Note:
+  The object and camera poses are provided with respect to the scene, whereas the
+  camera is placed at the origin. Pix3D also provides the features
+  `camera/position_with_respect_to_object` and `camera/inplane_rotation`. 
+  Those values are defined in object coordinates and will reproduce an image 
+  that is equivalent to the original image under a homography transformation. 
+  They are defined for viewer-centered algorithms whose predictions need to be 
+  rotated back to the canonical view for evaluations against ground truth shapes.
+  This is necessary as most algorithms assume that the camera is looking at the 
+  object's center, the raw input images are usually cropped or transformed
+  before sending into their pipeline.
 """
 
 _CHECKSUMS_DIR = os.path.normpath(
@@ -45,6 +62,9 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
                                   'splits/pix3d_train.npy')
   _TEST_SPLIT_IDX = os.path.join(os.path.dirname(__file__),
                                  'splits/pix3d_test.npy')
+
+  CLASS_INDEX = ['bed', 'bookcase', 'chair', 'desk', 'misc', 'sofa', 'table',
+                 'tool', 'wardrobe']
 
   def _info(self):
     # TODO(pix3d): Specifies the tfds.core.DatasetInfo object
@@ -72,11 +92,11 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         'pose': tfg_features.Pose(),
         'camera': tfds_features.FeaturesDict({
           'parameters': tfg_features.Camera(),
+          'position_with_respect_to_object': tfds_features.Tensor(
+            shape=(3,), dtype=tf.float32),
           'inplane_rotation': tf.float32,
         }),
-        'category': tfds_features.ClassLabel(
-          names=['bed', 'bookcase', 'chair', 'desk', 'misc', 'sofa', 'table',
-                 'tool', 'wardrobe']),
+        'category': tfds_features.ClassLabel(num_classes=len(self.CLASS_INDEX)),
         'bbox': tfds_features.BBoxFeature(),
         'truncated': tf.bool,
         'occluded': tf.bool,
@@ -128,8 +148,6 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       split_file: `str`, path to .npy file containing the indices of the current split.
     """
 
-    # TODO(pix3d): Yields (key, example) tuples from the dataset
-
     with tf.io.gfile.GFile(os.path.join(samples_directory, 'pix3d.json'),
                            mode='r') as pix3d_index:
       pix3d = json.load(pix3d_index)
@@ -151,17 +169,28 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       return tfds_features.BBox(ymin=ymin / height, xmin=xmin / width,
                                 ymax=ymax / height, xmax=xmax / width)
 
-    def _build_camera(f, position, img_size):
-      """Prepare features for `Camera` FeatureConnector."""
+    def _build_camera(f, img_size):
+      """
+      Prepare features for `Camera` FeatureConnector.
 
+      The pose originates from the official Pix3D GitHub repository and
+      describes the cameras position with respect to the scene.
+
+      The focal length is originally provided in mm, but will be converted to
+      pixel here using the fixed sensor with of 32 mm, which also originates
+      from the Pix3D GitHub repository.
+
+      Link to the official Pix3D repository: https://github.com/xingyuansun/pix3d
+      """
+      PIX3D_SENSOR_WIDTH = 32.
       return {
         'pose': {
-          'look_at': np.array([0, 0, 0], dtype=np.float32),
-          'position': np.array(position, dtype=np.float32),
-          'up': np.array([0, 1, 0], dtype=np.float32)
+          'R': np.array([[-1., 0., 0.], [0., -1., 0.], [0., 0., 1.]],
+                        dtype=np.float32),
+          't': np.zeros(3, dtype=np.float32)
         },
         'optical_center': (img_size[0] / 2, img_size[1] / 2),
-        'f': f
+        'f': (f / PIX3D_SENSOR_WIDTH * img_size[0])
       }
 
     def _build_2d_keypoints(keypoints):
@@ -202,12 +231,12 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         'camera': {
           'parameters': _build_camera(
             sample['focal_length'],
-            sample['cam_position'],
             sample['img_size'],
           ),
+          'position_with_respect_to_object': sample['cam_position'],
           'inplane_rotation': sample['inplane_rotation'],
         },
-        'category': sample['category'],
+        'category': self.CLASS_INDEX.index(sample['category']),
         'bbox': _build_bbox(sample['bbox'], sample['img_size']),
         'truncated': sample['truncated'],
         'occluded': sample['occluded'],
