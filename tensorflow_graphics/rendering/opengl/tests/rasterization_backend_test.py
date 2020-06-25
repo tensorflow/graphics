@@ -11,10 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import parameterized
 import numpy as np
 import tensorflow as tf
@@ -122,13 +118,13 @@ class RasterizationBackendTest(test_case.TestCase):
     far_plane = (400.0,)
 
     # Construct the view projection matrix.
-    world_to_camera = look_at.right_handed(camera_origin, look_at_point,
-                                           camera_up)
+    model_to_eye_matrix = look_at.right_handed(camera_origin, look_at_point,
+                                               camera_up)
     perspective_matrix = perspective.right_handed(
         field_of_view, (float(_IMAGE_WIDTH) / float(_IMAGE_HEIGHT),),
         near_plane, far_plane)
     view_projection_matrix = tf.linalg.matmul(perspective_matrix,
-                                              world_to_camera)
+                                              model_to_eye_matrix)
 
     depth = 1.0
     vertices = ((-2.0 * _TRIANGLE_SIZE, 0.0, depth), (0.0, _TRIANGLE_SIZE,
@@ -155,10 +151,9 @@ class RasterizationBackendTest(test_case.TestCase):
     attributes = np.array(
         ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))).astype(np.float32)
     perspective_correct_interpolation = lambda geometry, pixels: glm.perspective_correct_interpolation(  # pylint: disable=g-long-lambda,line-too-long
-        geometry, attributes, pixels, camera_origin, look_at_point, camera_up,
-        field_of_view,
-        np.array((_IMAGE_WIDTH, _IMAGE_HEIGHT)).astype(np.float32), near_plane,
-        far_plane, np.array((0.0, 0.0)).astype(np.float32))
+        geometry, attributes, pixels, model_to_eye_matrix, perspective_matrix,
+        np.array((_IMAGE_WIDTH, _IMAGE_HEIGHT)).astype(np.float32),
+        np.array((0.0, 0.0)).astype(np.float32))
     with self.subTest(name="barycentric_coordinates_triangle_0"):
       geometry_0 = tf.gather(vertices, triangles[0, :])
       pixels_0 = tf.transpose(
