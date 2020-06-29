@@ -1,3 +1,7 @@
+*.ply
+*.blend
+*.png
+.DS_Store
 **/__pycache__/
 bazel-out
 bazel-testlogs
