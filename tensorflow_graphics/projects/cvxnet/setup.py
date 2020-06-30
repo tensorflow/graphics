@@ -11,16 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Interpolation module."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+"""Set-up script for installing extension modules."""
+from Cython.Build import cythonize
+import numpy
+from setuptools import Extension
+from setuptools import setup
 
-from tensorflow_graphics.math.interpolation import bspline
-from tensorflow_graphics.math.interpolation import slerp
-from tensorflow_graphics.math.interpolation import trilinear
-from tensorflow_graphics.math.interpolation import weighted
-from tensorflow_graphics.util import export_api as _export_api
+# Get the numpy include directory.
+numpy_include_dir = numpy.get_include()
 
-# API contains submodules of tensorflow_graphics.math.
-__all__ = _export_api.get_modules()
+# mise (efficient mesh extraction)
+mise_module = Extension(
+    "lib.libmise.mise",
+    sources=["lib/libmise/mise.pyx"],
+)
+
+# Gather all extension modules
+ext_modules = [
+    mise_module,
+]
+
+setup(ext_modules=cythonize(ext_modules),)

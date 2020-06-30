@@ -13,10 +13,6 @@
 # limitations under the License.
 """OpenGL rasterization backend for TF Graphics."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import tensorflow as tf
 
 from tensorflow_graphics.rendering.opengl import gen_rasterizer_op as render_ops
@@ -134,7 +130,7 @@ def rasterize(vertices,
       associated with 3 vertices from `scene_vertices`
     view_projection_matrices: A tensor of shape `[A1, ..., An, 4, 4]` containing
       batches of view projection matrices
-    image_size: An tuple of integers (height, width) containing the dimensions
+    image_size: An tuple of integers (width, height) containing the dimensions
       in pixels of the rasterized image.
     name: A name for this op. Defaults to 'rasterization_backend_rasterize'.
 
@@ -144,8 +140,8 @@ def rasterize(vertices,
     is associated to a pixel, the index is set to -1.
     The second element in the tuple is of shape `[A1, ..., An, H, W, 3]` and
     correspond to barycentric coordinates per pixel. The last element in the
-    tuple is of shape `[A1, ..., An, H, W, 1]` and stores a value of `0` of the
-    pixel is assciated with the background, and `1` with the foreground
+    tuple is of shape `[A1, ..., An, H, W]` and stores a value of `0` of the
+    pixel is assciated with the background, and `1` with the foreground.
   """
   with tf.compat.v1.name_scope(name, "rasterization_backend_rasterize",
                                (vertices, triangles, view_projection_matrices)):
