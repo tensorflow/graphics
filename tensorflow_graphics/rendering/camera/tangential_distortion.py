@@ -31,8 +31,7 @@ import tensorflow as tf
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
-def distortion_terms(squared_radius,
-                     projective_x,
+def distortion_terms(projective_x,
                      projective_y,
                      distortion_coefficient_1,
                      distortion_coefficient_2,
@@ -140,12 +139,10 @@ def distortion_terms(squared_radius,
       double_distortion_coefficient_2 * projective_x * projective_y)
     x_overflow_mask = tf.less(
       1.0 + 2.0 * distortion_coefficient_1 * projective_y + 6.0 *
-      distortion_coefficient_2 * projective_x + squared_radius +
-      double_squared_projective_x, 0.0)
+      distortion_coefficient_2 * projective_x, 0.0)
     y_overflow_mask = tf.less(
       1.0 + 2.0 * distortion_coefficient_2 * projective_x + 6.0 *
-      distortion_coefficient_1 * projective_y + squared_radius +
-      double_squared_projective_y, 0.0)
+      distortion_coefficient_1 * projective_y, 0.0)
     return (x_distortion_term,
             y_distortion_term,
             x_overflow_mask,
