@@ -33,7 +33,7 @@ class BlenderRenderer(Renderer):
     bpy.context.scene.render.resolution_x = self.width
     bpy.context.scene.render.resolution_y = self.height
     bpy.context.scene.render.film_transparent = True
-    # bpy.context.scene.cycles.film_transparent = True # TODO derek?
+    # bpy.context.scene.cycles.film_transparent = True # TODO(derek) why is this necessary?
     bpy.context.scene.cycles.samples = numSamples
     bpy.context.scene.cycles.max_bounces = 6
     bpy.context.scene.cycles.film_exposure = exposure
@@ -49,6 +49,7 @@ class BlenderRenderer(Renderer):
         dev.use = True
     bpy.context.scene.cycles.device = 'GPU'
 
+    # TODO derek?
     for dev in cyclePref.devices:
       print (dev)
       print (dev.use)

@@ -19,7 +19,9 @@ from .renderers import BlenderRenderer
 from .cameras import PerspectiveCamera
 from .cameras import OrthographicCamera
 from .geometry import BoxGeometry
+from .geometry import BufferGeometry
 from .materials import MeshBasicMaterial
+from .bufferattributes import Float32BufferAttribute
 from .lights import AmbientLight
 from .lights import DirectionalLight
 from .mesh import Mesh

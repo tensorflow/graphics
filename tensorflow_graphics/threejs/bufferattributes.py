@@ -11,16 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-class Material():
+class BufferAttribute(object):
+  """https://threejs.org/docs/#api/en/core/BufferAttribute"""
   pass
 
-class MeshBasicMaterial(Material):
-  def __init__(self, specs):
-    self.specs = specs  # TODO: parse & use
-
-  def blender(self):
-    # TODO: shading
-    import bpy
-    bpy.ops.object.shade_smooth() # Option1: Gouraud shading
-    # bpy.ops.object.shade_flat() # Option2: Flat shading
-    # edgeNormals(mesh, angle = 10) # Option3: Edge normal shading)
+class Float32BufferAttribute(BufferAttribute):
+  def __init__(self, array, itemSize, normalized=None):
+    self.array = array  # TODO: convert to @property

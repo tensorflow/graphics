@@ -23,6 +23,7 @@ def hex_to_rgba(hexint: int):
 
 class Light(THREE.Object3D):
   def __init__(self, color=(0.1, 0.1, 0.1, 1.0), intensity=2):
+    super().__init__()
     self.color = color
     self.intensity = intensity # TODO convert intensity into a property (check ranges)
 
@@ -56,16 +57,14 @@ class DirectionalLight(Light):
     self.shadow_softness = shadow_softness #TODO: @property to check ranges
 
   def blender(self):
-    print("TODO directional")
     import bpy
     x = self.target.position.x
     y = self.target.position.y
     z = self.target.position.z
     self.look_at(x,y,z)
-    rotation = self.quaternion.to_euler()
-    bpy.ops.object.light_add(type='SUN', rotation=rotation, location=self.position)
-    lamp = bpy.data.lights['Sun']
-    lamp.use_nodes = True
-    lamp.angle = self.shadow_softness
-    lamp.node_tree.nodes["Emission"].inputs['Strength'].default_value = self.intensity
-    return lamp
+    bpy.ops.object.light_add(type='SUN')
+    blender_object = super().blender()
+    blender_object.data.use_nodes = True
+    blender_object.data.angle = self.shadow_softness
+    blender_object.data.node_tree.nodes["Emission"].inputs['Strength'].default_value = self.intensity
+    return blender_object

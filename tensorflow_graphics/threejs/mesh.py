@@ -15,6 +15,7 @@ import tensorflow_graphics.threejs as THREE
 
 class Mesh(THREE.Object3D):
   def __init__(self, geometry, material):
+    super().__init__()
     self.geometry = geometry
     self.material = material
 
@@ -23,10 +24,11 @@ class Mesh(THREE.Object3D):
     self.material.blender()
 
 
-# TODO: this object merges a plane with a transparent material, should be factored into two components
 class InvisibleGround(Mesh):
-
-  def __init__(self, location=(0, 0, 0), size=20, shadow_brightness=.7 ):
+  # TODO: this object merges a plane with a transparent material, should be factored into two components
+  
+  def __init__(self, location=(0, 0, 0), size=20, shadow_brightness=.7):
+    super().__init__(None, None)  # TODO: fix after factorization!
     self.location = location
     self.size = size
     self.shadow_brightness = shadow_brightness

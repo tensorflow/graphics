@@ -20,33 +20,32 @@ See:
 """
 import tensorflow_graphics.threejs as THREE
 
-
 class Camera(THREE.Object3D):
   def __init__(self):
+    super().__init__()
     self.zoom = 1
 
   def update_projection_matrix(self):
     # TODO: why is this needed by 3js? (assumption: performance)
     pass
 
-
 class OrthographicCamera(Camera):
   def __init__(self, left=-1, right=+1, top=+1, bottom=-1, near=.1, far=2000):
-    # TODO: how to set camera limits in blender?
+    # TODO(Derek): how to set camera limits in blender?
     super().__init__()
 
   def blender(self):
     import bpy
-    bpy.ops.object.camera_add(location=self.position) # name 'Camera'
-    cam = bpy.context.object
-    cam.data.type = 'ORTHO'
-    cam.data.ortho_scale = 1.0 / self.zoom
-    cam.rotation_euler = self.quaternion.to_euler()
-    return cam
+    bpy.ops.object.camera_add() # name 'Camera'
+    blender_object = super().blender()
+    blender_object.data.type = 'ORTHO'
+    blender_object.data.ortho_scale = 1.0 / self.zoom
+    return blender_object 
 
 
 class PerspectiveCamera(Camera):
   def __init__(self, fov=75, aspect=1, near=0.1, far=1000):
+    super().__init__()
     raise NotImplementedError
 
   def blender(self):
