@@ -33,13 +33,27 @@ class OrthographicCamera(Camera):
   def __init__(self, left=-1, right=+1, top=+1, bottom=-1, near=.1, far=2000):
     # TODO(Derek): how to set camera limits in blender?
     super().__init__()
+    self.left = left
+    self.right = right
+    self.top = top
+    self.bottom = bottom
+#     self.neat
+#     self.far
 
   def blender(self):
     import bpy
+    # adjust resolution according to aspect ratio 
+    assert(right > left)
+    assert(top > bottom)
+    aspectRatio = (right - left)*1.0 / (top - bottom)
+    bpy.context.scene.render.resolution_y = bpy.context.scene.render.resolution_x / aspectRatio # not sure whether accessing "scene.render" is the same here?
+    
     bpy.ops.object.camera_add() # name 'Camera'
     blender_object = super().blender()
     blender_object.data.type = 'ORTHO'
-    blender_object.data.ortho_scale = 1.0 / self.zoom
+    blender_object.data.ortho_scale = right - left
+    
+    # TODO: not sure whether "lookAt.py" has transfered
     return blender_object 
 
 
