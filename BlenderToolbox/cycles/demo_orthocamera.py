@@ -19,12 +19,12 @@ import bpy
 
 import numpy as np
 
-outputPath = './results/demo_orthocameraFromMat.png'
+outputPath = './results/demo_orthocamera.png'
 
 # # init blender
 imgRes_x = 720  # increase this for paper figures
 imgRes_y = 720  # increase this for paper figures
-numSamples = 50 # usually increase it to >200 for paper figures
+numSamples = 20 # usually increase it to >200 for paper figures
 exposure = 1.0
 blenderInit(imgRes_x, imgRes_y, numSamples, exposure)
 
@@ -56,19 +56,13 @@ groundSize = 20
 invisibleGround(groundCenter, groundSize, shadowDarkeness)
 
 # # set camera
-# camLocation = (1.9,2,2.2)
-# lookAtLocation = (0,0,0.5)
-# focalLength = 45
-# cam = setCamera(camLocation, lookAtLocation, focalLength)
-
+camLocation = (1.9,2,2.2)
+lookAtLocation = (0,0,0.5)
 left = -1.0
 right = 1.0
 top = 1.0
-bottom = 1.0
-
-bpy.context.object.data.type = 'ORTHO'
-bpy.context.object.data.ortho_scale = 2
-
+bottom = -1.0
+cam = setCamera_orthographic(camLocation, lookAtLocation, top, bottom, left, right)
 
 # # set sunlight
 lightAngle = (-15,-34,-155) 

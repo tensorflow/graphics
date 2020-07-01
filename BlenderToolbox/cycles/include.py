@@ -25,6 +25,7 @@ from utils.renderAnimation import *
 from utils.recalculateNormals import *
 from utils.selectOBJ import *
 from utils.setCamera import *
+from utils.setCamera_orthographic import *
 from utils.setCameraPath import *
 from utils.setLight_sun import *
 from utils.setLight_ambient import *
