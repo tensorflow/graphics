@@ -47,7 +47,7 @@ class Camera(features.FeaturesDict):
               'position': float32 vector of shape (3,).
               'up': float32 vector of shape (3,).
             }
-      - 'f': focal length of the camera in mm (either single float32 value
+      - 'f': focal length of the camera in pixel (either single float32 value
       or tuple of float32 as (f_x, f_y).
       - 'optical_center': Optical center of the camera
       in pixel coordinates as tuple (c_x, c_y)
@@ -62,7 +62,7 @@ class Camera(features.FeaturesDict):
 
     * 'pose': A `tensorflow_graphics.datasets.features.Pose` FeatureConnector
     representing the 3D pose of the camera.
-    * 'K': A `float32` tensor with shape `[3,3]` denoting the intrinsic matrix.
+    * 'intrinsics': A `float32` tensor with shape `[3,3]` denoting the intrinsic matrix.
 
   Example:
     Default values for skew (s) and aspect_ratio(a) are 0 and 1, respectively.
@@ -81,7 +81,7 @@ class Camera(features.FeaturesDict):
   def __init__(self):
     super(Camera, self).__init__({
       'pose': pose_feature.Pose(),
-      'K': features.Tensor(shape=(3, 3), dtype=tf.float32),
+      'intrinsics': features.Tensor(shape=(3, 3), dtype=tf.float32),
     })
 
   def encode_example(self, parameter_dict):
@@ -127,7 +127,7 @@ class Camera(features.FeaturesDict):
     if 'skew' in parameter_dict.keys():
       skew = parameter_dict['skew']
 
-    features_dict['K'] = self._create_calibration_matrix(
+    features_dict['intrinsics'] = self._create_calibration_matrix(
       parameter_dict['f'],
       parameter_dict['optical_center'],
       aspect_ratio,

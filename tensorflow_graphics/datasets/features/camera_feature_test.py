@@ -44,7 +44,7 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
                              [0, expected_f, expected_optical_center[1]],
                              [0, 0, 1]], dtype=np.float32)
 
-    expected_camera = {'pose': expected_pose, 'K': expected_K}
+    expected_camera = {'pose': expected_pose, 'intrinsics': expected_K}
     inputs = {'f': expected_f, 'optical_center': expected_optical_center,
               'pose': expected_pose}
     lookat_inputs = {
@@ -85,14 +85,14 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
           'R': (3, 3),
           't': (3,)
         },
-        'K': (3, 3)
+        'intrinsics': (3, 3)
       },
       dtype={
         'pose': {
           'R': tf.float32,
           't': tf.float32
         },
-        'K': tf.float32
+        'intrinsics': tf.float32
       },
       tests=[
         tfds.testing.FeatureExpectationItem(
@@ -132,7 +132,7 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
        [0, expected_aspect_ratio * expected_f, expected_center[1]],
        [0, 0, 1]], dtype=np.float32)
 
-    expected_camera = {'pose': expected_pose, 'K': expected_K}
+    expected_camera = {'pose': expected_pose, 'intrinsics': expected_K}
     inputs = {'f': expected_f,
               'optical_center': expected_center,
               'skew': expected_skew,
@@ -146,14 +146,14 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
           'R': (3, 3),
           't': (3,)
         },
-        'K': (3, 3)
+        'intrinsics': (3, 3)
       },
       dtype={
         'pose': {
           'R': tf.float32,
           't': tf.float32
         },
-        'K': tf.float32
+        'intrinsics': tf.float32
       },
       tests=[
         tfds.testing.FeatureExpectationItem(
@@ -175,7 +175,7 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
        [0, expected_f[1], expected_optical_center[1]],
        [0, 0, 1]], dtype=np.float32)
 
-    expected_camera = {'pose': expected_pose, 'K': expected_K}
+    expected_camera = {'pose': expected_pose, 'intrinsics': expected_K}
     inputs = {'f': expected_f,
               'optical_center': expected_optical_center,
               'skew': expected_skew, 'pose': expected_pose}
@@ -191,14 +191,14 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
           'R': (3, 3),
           't': (3,)
         },
-        'K': (3, 3)
+        'intrinsics': (3, 3)
       },
       dtype={
         'pose': {
           'R': tf.float32,
           't': tf.float32
         },
-        'K': tf.float32
+        'intrinsics': tf.float32
       },
       tests=[
         tfds.testing.FeatureExpectationItem(
