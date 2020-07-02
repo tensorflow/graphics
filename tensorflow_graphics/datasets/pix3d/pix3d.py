@@ -16,8 +16,8 @@ from tensorflow_graphics.datasets import features as tfg_features
 
 _CITATION = """@inproceedings{pix3d,
   title={Pix3D: Dataset and Methods for Single-Image 3D Shape Modeling},
-  author={Sun, Xingyuan and Wu, Jiajun and Zhang, Xiuming and Zhang, Zhoutong 
-  and Zhang, Chengkai and Xue, Tianfan and Tenenbaum, Joshua B and 
+  author={Sun, Xingyuan and Wu, Jiajun and Zhang, Xiuming and Zhang, Zhoutong
+  and Zhang, Chengkai and Xue, Tianfan and Tenenbaum, Joshua B and
   Freeman, William T},
   booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
   year={2018}
@@ -58,10 +58,10 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
 
   VERSION = tfds.core.Version('0.1.0')
 
-  _TRAIN_SPLIT_IDX = os.path.join(os.path.dirname(__file__),
-                                  'splits/pix3d_train.npy')
-  _TEST_SPLIT_IDX = os.path.join(os.path.dirname(__file__),
-                                 'splits/pix3d_test.npy')
+  TRAIN_SPLIT_IDX = os.path.join(os.path.dirname(__file__),
+                                 'splits/pix3d_train.npy')
+  TEST_SPLIT_IDX = os.path.join(os.path.dirname(__file__),
+                                'splits/pix3d_test.npy')
 
   CLASS_INDEX = ['bed', 'bookcase', 'chair', 'desk', 'misc', 'sofa', 'table',
                  'tool', 'wardrobe']
@@ -121,14 +121,14 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
         name=tfds.Split.TRAIN,
         gen_kwargs={
           'samples_directory': pix3d_dir,
-          'split_file': self._TRAIN_SPLIT_IDX
+          'split_file': self.TRAIN_SPLIT_IDX
         },
       ),
       tfds.core.SplitGenerator(
         name=tfds.Split.TEST,
         gen_kwargs={
           'samples_directory': pix3d_dir,
-          'split_file': self._TEST_SPLIT_IDX
+          'split_file': self.TEST_SPLIT_IDX
         },
       ),
     ]
