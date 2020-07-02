@@ -20,14 +20,15 @@ from __future__ import print_function
 import os
 
 import tensorflow_datasets.public_api as tfds
+
 from tensorflow_graphics.datasets import pix3d
 
 
 class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
   DATASET_CLASS = pix3d.Pix3d
   SPLITS = {
-      "train": 2,  # Number of fake train example
-      "test": 1,  # Number of fake test example
+    "train": 2,  # Number of fake train example
+    "test": 1,  # Number of fake test example
   }
 
   DL_EXTRACT_RESULT = ""
@@ -36,8 +37,8 @@ class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
 
   def setUp(self):
     super(Pix3dTest, self).setUp()
-    self.builder._TRAIN_SPLIT_IDX = "fakes/pix3d_train.npy"
-    self.builder._TEST_SPLIT_IDX = "fakes/pix3d_test.npy"
+    self.builder.TRAIN_SPLIT_IDX = "fakes/pix3d_train.npy"
+    self.builder.TEST_SPLIT_IDX = "fakes/pix3d_test.npy"
 
 
 if __name__ == "__main__":
