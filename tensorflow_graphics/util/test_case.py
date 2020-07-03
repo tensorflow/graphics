@@ -247,10 +247,10 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
     """
     # pylint: disable=no-value-for-parameter
     if tf.executing_eagerly():
-      max_error = _max_error(*tf.compat.v2.test.compute_gradient(f, x, delta))
+      max_error = _max_error(*tf.test.compute_gradient(f, x, delta))
     else:
       with self.cached_session():
-        max_error = _max_error(*tf.compat.v2.test.compute_gradient(f, x, delta))
+        max_error = _max_error(*tf.test.compute_gradient(f, x, delta))
     # pylint: enable=no-value-for-parameter
     self.assertLessEqual(max_error, atol)
 
