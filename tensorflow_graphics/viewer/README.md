@@ -1,3 +1,6 @@
+# general python style guide
+http://google.github.io/styleguide/pyguide.html
+
 # example of threejs in colab
 https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/notebooks/mesh_viewer.py
 

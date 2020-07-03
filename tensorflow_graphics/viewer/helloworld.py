@@ -24,32 +24,34 @@ WARNING: this needs to be executed in either of two ways
 import os, sys
 sys.path.append("/Users/atagliasacchi/dev/graphics")
 
-import tensorflow_graphics.threejs as THREE
+# --- note: this selects blender as the standard backend
+import tensorflow_graphics.viewer.blender as THREE
 
 # --- renderer & scene
-renderer = THREE.BlenderRenderer()
+renderer = THREE.Renderer()
 renderer.set_size(640,480)
 scene = THREE.Scene()
 
 # --- camera
 camera = THREE.OrthographicCamera()
-camera.position = (10, 10, 10)
+camera.position = (2, 2, 2)
 camera.look_at(0, 0, .25)
-camera.update_projection_matrix()
 
-# --- abient light
-amb_light = THREE.AmbientLight(color=0x404040)
+# --- ambient light
+amb_light = THREE.AmbientLight(color=0x0000FF, intensity=1)
 scene.add(amb_light)
 
 # --- sunlight
-dir_light = THREE.DirectionalLight(color=0xffffff, intensity=2)
-dir_light.position = (10, -5, 10)
+dir_light = THREE.DirectionalLight(color=0xFFFFFF, intensity=2)
+dir_light.position = (.5, -.5, 2)
+dir_light.look_at(0,0,0)
 scene.add(dir_light)
 
 # --- instantiate object
-geometry = THREE.BoxGeometry(.05, .05, .05)
+geometry = THREE.BoxGeometry()
+geometry.scale = (.1, .1, .1)
 geometry.position = (0, .2, .05)
-material = THREE.MeshBasicMaterial({"color": 0xFF0000})
+material = THREE.MeshFlatMaterial()
 cube = THREE.Mesh(geometry, material)
 scene.add(cube)
 
@@ -60,22 +62,24 @@ url = "https://storage.googleapis.com/tensorflow-graphics/public/spot.ply"
 mesh = trimesh.load_remote(url)
 faces = np.array(mesh.faces)
 vertices = np.array(mesh.vertices)
-
 # --- mesh from vertices/faces
 import mathutils
 geometry = THREE.BufferGeometry()
 geometry.set_index(faces)
-geometry.position = (-0.14, 0.22, 0)
-geometry.scale = (.5, .5, .5)
-geometry.quaternion = mathutils.Quaternion((1,0,0), np.pi/2) 
 geometry.set_attribute("position", THREE.Float32BufferAttribute(vertices,3))
-material = THREE.MeshBasicMaterial({"color": 0xFF0000})
+material = THREE.MeshPhongMaterial()
 spot = THREE.Mesh(geometry, material)
+spot.position = (-0.14, 0.22, 0)
+spot.scale = (.5, .5, .5)
+spot.quaternion = mathutils.Quaternion((1,0,0), np.pi/2) 
 scene.add(spot)
 
-# --- transparent floor
-ground = THREE.InvisibleGround()
-scene.add(ground)
+# --- Invisible ground
+geometry = THREE.PlaneGeometry()
+geometry.scale = (2, 2, 2)
+material = THREE.ShadowMaterial()
+floor = THREE.Mesh(geometry, material)
+scene.add(floor)
 
 # --- render to PNG or save .blend file (according to extension)
 renderer.render(scene, camera, path="helloworld.png")
