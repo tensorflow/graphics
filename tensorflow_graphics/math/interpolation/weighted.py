@@ -41,7 +41,7 @@ def interpolate(points,
     In the following, A1 to An, and B1 to Bk are optional batch dimensions.
 
   Args:
-    points: A tensor with shape `[B1, ..., Bk, M] and rank R > 1, where M is the
+    points: A tensor with shape `[B1, ..., Bk, M]` and rank R > 1, where M is the
       dimensionality of the points.
     weights: A tensor with shape `[A1, ..., An, P]`, where P is the number of
       points to interpolate for each output point.
