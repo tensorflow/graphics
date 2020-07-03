@@ -15,7 +15,7 @@
 
 import tensorflow as tf
 
-from tensorflow_graphics.rendering.opengl import gen_rasterizer_op as render_ops
+from tensorflow_graphics.rendering.opengl import rasterizer as render_ops
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
