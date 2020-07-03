@@ -63,6 +63,12 @@ def _make_shape_compatible(coefficients):
 def _get_squared_radii(projective_x, projective_y):
   return projective_x ** 2.0 + projective_y ** 2.0
 
+def _get_double_projective_coordinates_squared(coordinates):
+  return 2.0 * coordinates ** 2.0
+
+def _get_projective_x_times_projective_y(projective_x, projective_y):
+  return projective_x * projective_y
+
 
 class TangentialDistortionTest(test_case.TestCase):
 
@@ -84,20 +90,60 @@ class TangentialDistortionTest(test_case.TestCase):
     distortion_coefficient_1 = _make_shape_compatible(distortion_coefficient_1)
     distortion_coefficient_2 = _make_shape_compatible(distortion_coefficient_2)
     squared_radius = _get_squared_radii(projective_x, projective_y)
+    projective_x_times_projective_y = _get_projective_x_times_projective_y(
+      projective_x, projective_y)
+    double_projective_x_squared = _get_double_projective_coordinates_squared(
+      projective_x)
+    double_projective_y_squared = _get_double_projective_coordinates_squared(
+      projective_y)
     with self.subTest(name='distortion'):
-      self.assertAllClose(2.0 * distortion_coefficient_1 * projective_x
-                          * projective_y + distortion_coefficient_2
-                          * (squared_radius + 2.0 * projective_x ** 2.0),
+      self.assertAllClose(2.0 * distortion_coefficient_1
+                          * projective_x_times_projective_y
+                          + distortion_coefficient_2
+                          * (squared_radius + double_projective_x_squared),
                           distortion_x)
-      self.assertAllClose(2.0 * distortion_coefficient_2 * projective_x
-                          * projective_y + distortion_coefficient_1
-                          * (squared_radius + 2.0 * projective_y ** 2.0),
+      self.assertAllClose(2.0 * distortion_coefficient_2
+                          * projective_x_times_projective_y
+                          + distortion_coefficient_1
+                          * (squared_radius + double_projective_y_squared),
                           distortion_y)
 
     # No overflow when distortion coefficients >= 0.0
     with self.subTest(name='mask'):
       self.assertAllInSet(mask_x, (False,))
       self.assertAllInSet(mask_y, (False,))
+
+    def test_distortion_terms_preset_zero_distortion_coefficient_1(self):
+      """Tests distortion_terms with first distortion coefficient at zero."""
+      projective_x = _get_random_coordinates() * 2.0
+      projective_y = _get_random_coordinates() * 2.0
+      distortion_coefficient_2 = _get_random_coefficient() * 2.0
+
+      (distortion_x,
+       distortion_y,
+       mask_x,
+       mask_y) = tangential_distortion.distortion_terms(projective_x,
+                                                        projective_y,
+                                                        0.0,
+                                                        distortion_coefficient_2)
+
+      distortion_coefficient_2 = _make_shape_compatible(distortion_coefficient_2)
+      squared_radius = _get_squared_radii(projective_x, projective_y)
+      projective_x_times_projective_y = _get_projective_x_times_projective_y(
+        projective_x, projective_y)
+      double_projective_x_squared = _get_double_projective_coordinates_squared(
+        projective_x)
+      with self.subTest(name='distortion'):
+        self.assertAllClose(distortion_coefficient_2
+                            * (squared_radius + double_projective_x_squared))
+        self.assertAllClose(2.0 * distortion_coefficient_2
+                            * projective_x_times_projective_y)
+
+      with self.subTest(name="mask"):
+        self.assertAllInSet(mask_x, (False,))
+        self.assertAllInSet(mask_y, (False,))
+
+    # TODO: test_distortion_terms_preset_zero_distortion_coefficient_2
 
     def test_distortion_terms_preset_zero_distortion_coefficients(self):
       """Tests distortion_terms at zero disortion coefficients."""
@@ -121,7 +167,7 @@ class TangentialDistortionTest(test_case.TestCase):
         self.assertAllInSet(mask_x, (False,))
         self.assertAllInSet(mask_y, (False,))
 
-    def test_distortion_factor_random_negative_distortion_coefficients(self):
+    def test_distortion_terms_random_negative_distortion_coefficients(self):
       """Tests that distortion_terms produces the expected outputs."""
       projective_x = _get_random_coordinates() * 2.0
       projective_y = _get_random_coordinates() * 2.0
@@ -165,6 +211,33 @@ class TangentialDistortionTest(test_case.TestCase):
                             actual_x_distortion_when_valid)
         self.assertAllClose(expected_y_distortion_when_valid,
                             actual_y_distortion_when_valid)
+
+      with self.subTest(name='mask'):
+        self.assertAllEqual(expected_overflow_mask_x, mask_x)
+        self.assertAllEqual(expected_overflow_mask_y, mask_y)
+
+    def test_distortion_terms_preset_zero_coordinates(self):
+      """Tests distortion_terms at the corner case of zero-valued coordinates."""
+      projective_x = _get_zeros_coordinates()
+      projective_y = _get_zeros_coordinates()
+      distortion_coefficient_1 = _get_random_coefficient() - 0.5
+      distortion_coefficient_2 = _get_random_coefficient() - 0.5
+
+      (distortion_x,
+       distortion_y,
+       mask_x,
+       mask_y) = tangential_distortion.distortion_terms(projective_x,
+                                                        projective_y,
+                                                        distortion_coefficient_1,
+                                                        distortion_coefficient_2)
+
+      with self.subTest(name='distortion'):
+        self.assertAllClose(tf.zeros_like(projective_x), distortion_x)
+        self.assertAllClose(tf.zeros_like(projective_y), distortion_y)
+
+      with self.subTest(name='mask'):
+        self.assertAllInSet(mask_x, (False,))
+        self.assertAllInSet(mask_y, (False,))
 
 
 if __name__ == '__main__':
