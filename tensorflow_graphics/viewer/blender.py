@@ -26,14 +26,11 @@ class Object3D(interface.Object3D):
     self._blender_object = blender_object
     # if self.name: self._blender_object.name = self.name
 
-  @property
-  def position(self):
-    return super().position
-  @position.setter
+  @interface.Object3D.position.setter
   def position(self, value):
-    interface.Object3D.position.__set__(self, value)
+    interface.Object3D.position.fset(self, value)
     # (UI: click mesh > Transform > Location)
-    self._blender_object.location = self.position 
+    self._blender_object.location = self.position
 
   @property
   def scale(self):

@@ -82,4 +82,4 @@ floor = THREE.Mesh(geometry, material)
 scene.add(floor)
 
 # --- render to PNG or save .blend file (according to extension)
-renderer.render(scene, camera, path="helloworld.png")
+renderer.render(scene, camera, path="helloworld.blend")
