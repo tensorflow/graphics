@@ -32,21 +32,15 @@ class Object3D(interface.Object3D):
     # (UI: click mesh > Transform > Location)
     self._blender_object.location = self.position
 
-  @property
-  def scale(self):
-    return super().scale
-  @scale.setter
+  @interface.Object3D.scale.setter
   def scale(self, value):
-    interface.Object3D.scale.__set__(self, value)
+    interface.Object3D.scale.fset(self, value)
     # (UI: click mesh > Transform > Scale)
     self._blender_object.scale = self.scale
 
-  @property
-  def quaternion(self):
-    return super().quaternion
-  @quaternion.setter
+  @interface.Object3D.quaternion.setter
   def quaternion(self, value):
-    interface.Object3D.quaternion.__set__(self, value)
+    interface.Object3D.quaternion.fset(self, value)
     # (UI: click mesh > Transform > Rotation)
     self._blender_object.rotation_euler = self.quaternion.to_euler()
 
@@ -157,20 +151,14 @@ class AmbientLight(interface.AmbientLight):
     bpy.data.scenes[0].world.use_nodes = True #< TODO: shouldn't use_nodes be moved to scene?
     interface.AmbientLight.__init__(self, color=color, intensity=intensity)
 
-  @property
-  def color(self):
-    return super().color
-  @color.setter
+  @interface.Light.color.setter
   def color(self, value):
-    interface.AmbientLight.color.__set__(self, value)
+    interface.AmbientLight.color.fset(self, value)
     bpy.data.scenes[0].world.node_tree.nodes["Background"].inputs['Color'].default_value = self.color
 
-  @property
-  def intensity(self):
-    return super().intensity
-  @intensity.setter
+  @interface.Light.intensity.setter
   def intensity(self, value):
-    interface.AmbientLight.intensity.__set__(self, value)
+    interface.AmbientLight.intensity.fset(self, value)
     bpy.data.scenes[0].world.node_tree.nodes["Background"].inputs['Strength'].default_value = self.intensity   
 
 # ------------------------------------------------------------------------------
@@ -188,28 +176,19 @@ class DirectionalLight(interface.DirectionalLight, blender.Object3D):
     self._blender_object.data.use_nodes = True
     interface.DirectionalLight.__init__(self, color=color, intensity=intensity, shadow_softness=shadow_softness)
   
-  @property
-  def color(self):
-    return super().color
-  @color.setter
+  @interface.Light.color.setter
   def color(self, value):
-    interface.DirectionalLight.color.__set__(self, value)
+    interface.DirectionalLight.color.fset(self, value)
     self._blender_object.data.node_tree.nodes["Emission"].inputs['Color'].default_value = self.color
 
-  @property
-  def intensity(self):
-    return super().intensity
-  @intensity.setter
+  @interface.Light.intensity.setter
   def intensity(self, value):
-    self._intensity = value
+    interface.DirectionalLight.intensity.fset(self, value)
     self._blender_object.data.node_tree.nodes["Emission"].inputs['Strength'].default_value = self.intensity
 
-  @property
-  def shadow_softness(self):
-    return super().shadow_softness
-  @shadow_softness.setter
+  @interface.DirectionalLight.shadow_softness.setter
   def shadow_softness(self, value):
-    interface.DirectionalLight.shadow_softness.__set__(self, value)
+    interface.DirectionalLight.shadow_softness.fset(self, value)
     self._blender_object.data.angle = self.shadow_softness
 
 # ------------------------------------------------------------------------------

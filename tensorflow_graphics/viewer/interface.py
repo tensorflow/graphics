@@ -98,7 +98,7 @@ class Renderer(object):
     self.height = height
 
 # ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
+# -------------------------------  lights.py   ---------------------------------
 # ------------------------------------------------------------------------------
 
 from tensorflow_graphics.viewer import interface
@@ -127,20 +127,10 @@ class Light(interface.Object3D):
   def intensity(self, val):
     self._intensity = val
 
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-
-from tensorflow_graphics.viewer import interface
 class AmbientLight(interface.Light):
   def __init__(self, color=0x030303, intensity=1):
     interface.Light.__init__(self, color=color, intensity=intensity)
 
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-
-from tensorflow_graphics.viewer import interface
 class DirectionalLight(interface.Light):
   """Slight difference from THREEJS: uses position+lookat."""
   def __init__(self, color=0xffffff, intensity=1, shadow_softness=.1):
