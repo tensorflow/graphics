@@ -27,8 +27,8 @@ from tensorflow_graphics.datasets import pix3d
 class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
   DATASET_CLASS = pix3d.Pix3d
   SPLITS = {
-    "train": 2,  # Number of fake train example
-    "test": 1,  # Number of fake test example
+      "train": 2,  # Number of fake train example
+      "test": 1,  # Number of fake test example
   }
 
   DL_EXTRACT_RESULT = ""
