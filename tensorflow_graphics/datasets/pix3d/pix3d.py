@@ -27,24 +27,24 @@ _CITATION = """
 
 _DESCRIPTION = """
 Pix3D is a large-scale dataset of diverse image-shape pairs
-with pixel-level 2D-3D alignment. It has wide applications in shape-related 
-tasks including reconstruction, retrieval, viewpoint estimation, etc.
+with pixel-level 2D-3D alignment. It has wide applications in shape-related
+ tasks including reconstruction, retrieval, viewpoint estimation, etc.
 
-Pix3D contains 10,069 2D-3D pairs of 395 distinct 3D shapes, categorised into 
-nine object categories. Each sample comprises of an image, 3D shape represented 
-as (non-watertight) triangle mesh and voxel grid, bounding-box, 
-segmentation mask, intrinsic and extrinsic camera parameters and 2D and 3D key 
-points. 
+Pix3D contains 10,069 2D-3D pairs of 395 distinct 3D shapes, categorised into
+nine object categories. Each sample comprises of an image, 3D shape represented
+as (non-watertight) triangle mesh and voxel grid, bounding-box,
+ segmentation mask, intrinsic and extrinsic camera parameters and 2D and 3D key
+ points.
 
 Note:
   The object and camera poses are provided with respect to the scene, whereas the
   camera is placed at the origin. Pix3D also provides the features
-  `camera/position_with_respect_to_object` and `camera/inplane_rotation`. 
-  Those values are defined in object coordinates and will reproduce an image 
-  that is equivalent to the original image under a homography transformation. 
-  They are defined for viewer-centered algorithms whose predictions need to be 
+  `camera/position_with_respect_to_object` and `camera/inplane_rotation`.
+  Those values are defined in object coordinates and will reproduce an image
+  that is equivalent to the original image under a homography transformation.
+  They are defined for viewer-centered algorithms whose predictions need to be
   rotated back to the canonical view for evaluations against ground truth shapes.
-  This is necessary as most algorithms assume that the camera is looking at the 
+  This is necessary as most algorithms assume that the camera is looking at the
   object's center, the raw input images are usually cropped or transformed
   before sending into their pipeline.
 """
@@ -186,7 +186,7 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
 
       Link to the official Pix3D repository: https://github.com/xingyuansun/pix3d
       """
-      PIX3D_SENSOR_WIDTH = 32.
+      sensor_width = 32.
       return {
           'pose': {
               'R': np.array([[-1., 0., 0.], [0., -1., 0.], [0., 0., 1.]],
@@ -194,7 +194,7 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
               't': np.zeros(3, dtype=np.float32)
           },
           'optical_center': (img_size[0] / 2, img_size[1] / 2),
-          'f': (f / PIX3D_SENSOR_WIDTH * img_size[0])
+          'f': (f / sensor_width * img_size[0])
       }
 
     def _build_2d_keypoints(keypoints):
