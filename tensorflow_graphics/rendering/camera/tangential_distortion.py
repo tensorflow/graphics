@@ -31,6 +31,8 @@ import tensorflow as tf
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+
+
 def distortion_terms(projective_x,
                      projective_y,
                      distortion_coefficient_1,
@@ -147,6 +149,7 @@ def distortion_terms(projective_x,
             y_distortion_term,
             x_overflow_mask,
             y_overflow_mask)
+
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
