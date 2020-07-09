@@ -46,7 +46,6 @@ if _import_tfg_docs():
   # Remove modules notebooks, util and version from API.
   __all__.remove("notebooks")
   __all__.remove("util")
-  __all__.remove("version")
 # pylint: enable=g-statement-before-imports,g-import-not-at-top
 
 __version__ = "HEAD"
