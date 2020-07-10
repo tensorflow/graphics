@@ -21,8 +21,7 @@ from __future__ import print_function
 import os
 
 import numpy as np
-import scipy.io
-import tensorflow.compat.v2 as tf
+import tensorflow as tf
 import tensorflow_datasets as tfds
 
 from tensorflow_graphics.datasets.features import voxel_feature
