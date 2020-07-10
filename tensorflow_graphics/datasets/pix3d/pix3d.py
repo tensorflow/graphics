@@ -8,7 +8,7 @@ import json
 import os
 
 import numpy as np
-import tensorflow.compat.v2 as tf
+import tensorflow as tf
 import tensorflow_datasets.public_api as tfds
 from tensorflow_datasets import features as tfds_features
 
@@ -47,6 +47,12 @@ Note:
   This is necessary as most algorithms assume that the camera is looking at the
   object's center, the raw input images are usually cropped or transformed
   before sending into their pipeline.
+  
+Train/Test split:
+  Pix3D does not provide a standard train/test split. Therefore, this
+  implementation adopts the S2 split from Mesh R-CNN
+   (https://arxiv.org/abs/1906.02739, Sec. 4.2). This split ensures that the 3D
+  models appearing in the train and test sets are disjoint.
 """
 
 _CHECKSUMS_DIR = os.path.normpath(
@@ -66,8 +72,8 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
   TEST_SPLIT_IDX = os.path.join(os.path.dirname(__file__),
                                 'splits/pix3d_test.npy')
 
-  CLASS_INDEX = ['bed', 'bookcase', 'chair', 'desk', 'misc', 'sofa', 'table',
-                 'tool', 'wardrobe']
+  CLASS_INDEX = ['background', 'bed', 'bookcase', 'chair', 'desk', 'misc',
+                 'sofa', 'table', 'tool', 'wardrobe']
 
   def _info(self):
     return tfds.core.DatasetInfo(
@@ -91,7 +97,7 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
             '3d_keypoints': tfds_features.Tensor(shape=(None, 3),
                                                  dtype=tf.float32),
             'voxel': tfg_features.VoxelGrid(shape=(128, 128, 128)),
-            'pose': tfg_features.Pose(),
+            'pose': tfg_features.Pose(),  # pose of object w.r.t to world.
             'camera': tfds_features.FeaturesDict({
                 'parameters': tfg_features.Camera(),
                 'position_with_respect_to_object': tfds_features.Tensor(
