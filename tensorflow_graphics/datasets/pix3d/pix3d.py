@@ -47,7 +47,7 @@ Note:
   This is necessary as most algorithms assume that the camera is looking at the
   object's center, the raw input images are usually cropped or transformed
   before sending into their pipeline.
-  
+
 Train/Test split:
   Pix3D does not provide a standard train/test split. Therefore, this
   implementation adopts the S2 split from Mesh R-CNN

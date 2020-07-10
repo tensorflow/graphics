@@ -40,7 +40,7 @@ class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
     self.builder.TRAIN_SPLIT_IDX = os.path.join(self.EXAMPLE_DIR,
                                                 "pix3d_train.npy")
     self.builder.TEST_SPLIT_IDX = os.path.join(self.EXAMPLE_DIR,
-                                                "pix3d_test.npy")
+                                               "pix3d_test.npy")
 
 
 if __name__ == "__main__":
