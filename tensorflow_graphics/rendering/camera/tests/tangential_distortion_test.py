@@ -231,7 +231,7 @@ class TangentialDistortionTest(test_case.TestCase):
                         / (6.0 * distortion_coefficient_2))
     max_projective_y = ((-1.0 - 2.0 * distortion_coefficient_2 * projective_x)
                         / (6.0 * distortion_coefficient_1))
-    expected_overflow_mask_x = projective_x > max_projective_x
+    expected_overflow_mask_x = projective_x < max_projective_x
     expected_overflow_mask_y = projective_y > max_projective_y
     valid_mask_x = np.logical_not(expected_overflow_mask_x)
     valid_mask_y = np.logical_not(expected_overflow_mask_y)
@@ -287,7 +287,7 @@ class TangentialDistortionTest(test_case.TestCase):
     max_projective_y = ((-1.0 - 2.0 * distortion_coefficient_2 * projective_x)
                         / (6.0 * distortion_coefficient_1))
     expected_overflow_mask_x = projective_x > max_projective_x
-    expected_overflow_mask_y = projective_y > max_projective_y
+    expected_overflow_mask_y = projective_y < max_projective_y
     valid_mask_x = np.logical_not(expected_overflow_mask_x)
     valid_mask_y = np.logical_not(expected_overflow_mask_y)
     # We assert correctness of the masks, and of all the pixels that are not
@@ -372,8 +372,8 @@ class TangentialDistortionTest(test_case.TestCase):
     """Tests distortion_terms at the corner case of x coordinates at zero."""
     projective_x = _get_zeros_coordinates()
     projective_y = _get_random_coordinates() * 2.0
-    distortion_coefficient_1 = _get_random_coefficient() - 0.5
-    distortion_coefficient_2 = _get_random_coefficient() - 0.5
+    distortion_coefficient_1 = _get_random_coefficient() * 2.0
+    distortion_coefficient_2 = _get_random_coefficient() * 2.0
 
     (distortion_x,
      distortion_y,
@@ -400,8 +400,8 @@ class TangentialDistortionTest(test_case.TestCase):
     """Tests distortion_terms at the corner case of x coordinates at zero."""
     projective_x = _get_random_coordinates() * 2.0
     projective_y = _get_zeros_coordinates()
-    distortion_coefficient_1 = _get_random_coefficient() - 0.5
-    distortion_coefficient_2 = _get_random_coefficient() - 0.5
+    distortion_coefficient_1 = _get_random_coefficient() * 2.0
+    distortion_coefficient_2 = _get_random_coefficient() * 2.0
 
     (distortion_x,
      distortion_y,
@@ -428,8 +428,8 @@ class TangentialDistortionTest(test_case.TestCase):
     """Tests distortion_terms at corner case of zero-valued coordinates."""
     projective_x = _get_zeros_coordinates()
     projective_y = _get_zeros_coordinates()
-    distortion_coefficient_1 = _get_random_coefficient() - 0.5
-    distortion_coefficient_2 = _get_random_coefficient() - 0.5
+    distortion_coefficient_1 = _get_random_coefficient() * 2.0
+    distortion_coefficient_2 = _get_random_coefficient() * 2.0
 
     (distortion_x,
      distortion_y,
@@ -453,8 +453,8 @@ class TangentialDistortionTest(test_case.TestCase):
     """Tests that an exception is raised for negative projective_x."""
     projective_x = _get_zeros_coordinates() - 0.5
     projective_y = _get_random_coordinates() * 2.0
-    distortion_coefficient_1 = _get_random_coefficient() - 0.5
-    distortion_coefficient_2 = _get_random_coefficient() - 0.5
+    distortion_coefficient_1 = _get_random_coefficient() * 2.0
+    distortion_coefficient_2 = _get_random_coefficient() * 2.0
 
     with self.assertRaises(tf.errors.InvalidArgumentError):
       self.evaluate(tangential_distortion.distortion_terms(
