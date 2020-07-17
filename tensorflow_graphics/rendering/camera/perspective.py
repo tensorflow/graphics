@@ -134,46 +134,45 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
     handed perspective-view frustum.
   """
   with tf.compat.v1.name_scope(
-      name,
-      "perspective_right_handed",
-      [vertical_field_of_view, aspect_ratio, near, far],
-  ):
-      vertical_field_of_view = tf.convert_to_tensor(value=vertical_field_of_view)
-      aspect_ratio = tf.convert_to_tensor(value=aspect_ratio)
-      near = tf.convert_to_tensor(value=near)
-      far = tf.convert_to_tensor(value=far)
+    name,
+    "perspective_right_handed",
+    [vertical_field_of_view, aspect_ratio, near, far]):
+    vertical_field_of_view = tf.convert_to_tensor(value=vertical_field_of_view)
+    aspect_ratio = tf.convert_to_tensor(value=aspect_ratio)
+    near = tf.convert_to_tensor(value=near)
+    far = tf.convert_to_tensor(value=far)
 
-      shape.check_static(
-          tensor=vertical_field_of_view,
-          tensor_name="vertical_field_of_view",
-          has_dim_equals=(-1, 1),
-      )
-      shape.check_static(
-          tensor=aspect_ratio, tensor_name="aspect_ratio", has_dim_equals=(-1, 1)
-      )
-      shape.check_static(tensor=near, tensor_name="near", has_dim_equals=(-1, 1))
-      shape.check_static(tensor=far, tensor_name="far", has_dim_equals=(-1, 1))
-      shape.compare_batch_dimensions(
-          tensors=(vertical_field_of_view, aspect_ratio, near, far),
-          last_axes=-2,
-          tensor_names=("vertical_field_of_view", "aspect_ratio", "near", "far"),
-          broadcast_compatible=False,
-      )
+    shape.check_static(
+        tensor=vertical_field_of_view,
+        tensor_name="vertical_field_of_view",
+        has_dim_equals=(-1, 1),
+    )
+    shape.check_static(
+        tensor=aspect_ratio, tensor_name="aspect_ratio", has_dim_equals=(-1, 1)
+    )
+    shape.check_static(tensor=near, tensor_name="near", has_dim_equals=(-1, 1))
+    shape.check_static(tensor=far, tensor_name="far", has_dim_equals=(-1, 1))
+    shape.compare_batch_dimensions(
+        tensors=(vertical_field_of_view, aspect_ratio, near, far),
+        last_axes=-2,
+        tensor_names=("vertical_field_of_view", "aspect_ratio", "near", "far"),
+        broadcast_compatible=False,
+    )
 
-      vertical_field_of_view = asserts.assert_all_in_range(
-          vertical_field_of_view, 0.0, math.pi, open_bounds=True
-      )
-      aspect_ratio = asserts.assert_all_above(aspect_ratio, 0.0, open_bound=True)
-      near = asserts.assert_all_above(near, 0.0, open_bound=True)
-      far = asserts.assert_all_above(far, near, open_bound=True)
+    vertical_field_of_view = asserts.assert_all_in_range(
+        vertical_field_of_view, 0.0, math.pi, open_bounds=True
+    )
+    aspect_ratio = asserts.assert_all_above(aspect_ratio, 0.0, open_bound=True)
+    near = asserts.assert_all_above(near, 0.0, open_bound=True)
+    far = asserts.assert_all_above(far, near, open_bound=True)
 
-      inverse_tan_half_vertical_field_of_view = 1.0 / tf.tan(
-          vertical_field_of_view * 0.5
-      )
-      zero = tf.zeros_like(inverse_tan_half_vertical_field_of_view)
-      one = tf.ones_like(inverse_tan_half_vertical_field_of_view)
-      near_minus_far = near - far
-      matrix = tf.concat(
+    inverse_tan_half_vertical_field_of_view = 1.0 / tf.tan(
+        vertical_field_of_view * 0.5
+    )
+    zero = tf.zeros_like(inverse_tan_half_vertical_field_of_view)
+    one = tf.ones_like(inverse_tan_half_vertical_field_of_view)
+    near_minus_far = near - far
+    matrix = tf.concat(
           (
               inverse_tan_half_vertical_field_of_view / aspect_ratio,
               zero,
