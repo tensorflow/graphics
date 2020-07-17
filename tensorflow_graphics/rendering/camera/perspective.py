@@ -166,11 +166,11 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
     one = tf.ones_like(inverse_tan_half_vertical_field_of_view)
     near_minus_far = near - far
     matrix = tf.concat(
-          (inverse_tan_half_vertical_field_of_view / aspect_ratio, zero, zero,
-           zero, zero, inverse_tan_half_vertical_field_of_view, zero, zero, zero,
-           zero, (far + near) / near_minus_far, 2.0 * far * near / near_minus_far,
-           zero, zero, -one, zero),
-          axis=-1)
+        (inverse_tan_half_vertical_field_of_view / aspect_ratio, zero, zero,
+         zero, zero, inverse_tan_half_vertical_field_of_view, zero, zero, zero,
+         zero, (far + near) / near_minus_far, 2.0 * far * near / near_minus_far,
+         zero, zero, -one, zero),
+        axis=-1)
     matrix_shape = tf.shape(input=matrix)
     output_shape = tf.concat((matrix_shape[:-1], (4, 4)), axis=-1)
     return tf.reshape(matrix, shape=output_shape)
