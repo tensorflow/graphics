@@ -90,8 +90,7 @@ def parameters_from_right_handed(projection_matrix, name=None):
     vertical_field_of_view = 2.0 * tf.atan(
         1.0 / inverse_tan_half_vertical_field_of_view)
     aspect_ratio = inverse_tan_half_vertical_field_of_view / projection_matrix[
-        ..., 0, 0:1]
-    
+        ..., 0, 0:1]  
 
     a = projection_matrix[..., 2, 2:3]
     b = projection_matrix[..., 2, 3:4]
@@ -153,19 +152,16 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
         tensors=(vertical_field_of_view, aspect_ratio, near, far),
         last_axes=-2,
         tensor_names=("vertical_field_of_view", "aspect_ratio", "near", "far"),
-        broadcast_compatible=False,
-    )
+        broadcast_compatible=False)
 
     vertical_field_of_view = asserts.assert_all_in_range(
-        vertical_field_of_view, 0.0, math.pi, open_bounds=True
-    )
+        vertical_field_of_view, 0.0, math.pi, open_bounds=True)
     aspect_ratio = asserts.assert_all_above(aspect_ratio, 0.0, open_bound=True)
     near = asserts.assert_all_above(near, 0.0, open_bound=True)
     far = asserts.assert_all_above(far, near, open_bound=True)
 
     inverse_tan_half_vertical_field_of_view = 1.0 / tf.tan(
-        vertical_field_of_view * 0.5
-    )
+        vertical_field_of_view * 0.5)
     zero = tf.zeros_like(inverse_tan_half_vertical_field_of_view)
     one = tf.ones_like(inverse_tan_half_vertical_field_of_view)
     near_minus_far = near - far
