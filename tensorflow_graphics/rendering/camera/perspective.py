@@ -90,7 +90,7 @@ def parameters_from_right_handed(projection_matrix, name=None):
     vertical_field_of_view = 2.0 * tf.atan(
         1.0 / inverse_tan_half_vertical_field_of_view)
     aspect_ratio = inverse_tan_half_vertical_field_of_view / projection_matrix[
-        ..., 0, 0:1]  
+        ..., 0, 0:1]
 
     a = projection_matrix[..., 2, 2:3]
     b = projection_matrix[..., 2, 3:4]
@@ -166,29 +166,14 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
     one = tf.ones_like(inverse_tan_half_vertical_field_of_view)
     near_minus_far = near - far
     matrix = tf.concat(
-          (
-              inverse_tan_half_vertical_field_of_view / aspect_ratio,
-              zero,
-              zero,
-              zero,
-              zero,
-              inverse_tan_half_vertical_field_of_view,
-              zero,
-              zero,
-              zero,
-              zero,
-              (far + near) / near_minus_far,
-              2.0 * far * near / near_minus_far,
-              zero,
-              zero,
-              -one,
-              zero,
-          ),
-          axis=-1,
-      )
-      matrix_shape = tf.shape(input=matrix)
-      output_shape = tf.concat((matrix_shape[:-1], (4, 4)), axis=-1)
-      return tf.reshape(matrix, shape=output_shape)
+          (inverse_tan_half_vertical_field_of_view / aspect_ratio, zero, zero,
+           zero, zero, inverse_tan_half_vertical_field_of_view, zero, zero, zero,
+           zero, (far + near) / near_minus_far, 2.0 * far * near / near_minus_far,
+           zero, zero, -one, zero),
+          axis=-1)
+    matrix_shape = tf.shape(input=matrix)
+    output_shape = tf.concat((matrix_shape[:-1], (4, 4)), axis=-1)
+    return tf.reshape(matrix, shape=output_shape)
 
 
 def intrinsics_from_matrix(matrix, name=None):
