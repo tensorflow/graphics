@@ -76,33 +76,32 @@ def parameters_from_right_handed(projection_matrix, name=None):
     represent the near and far clipping planes used to construct
     `projection_matrix`.
   """
-  with tf.compat.v1.name_scope(
-      name, "perspective_parameters_from_right_handed", [projection_matrix]
-  ):
-      projection_matrix = tf.convert_to_tensor(value=projection_matrix)
+  with tf.compat.v1.name_scope(name, "perspective_parameters_from_right_handed",
+                               [projection_matrix]):
+    projection_matrix = tf.convert_to_tensor(value=projection_matrix)
 
-      shape.check_static(
-          tensor=projection_matrix,
-          tensor_name="projection_matrix",
-          has_rank_greater_than=1,
-          has_dim_equals=((-2, 4), (-1, 4)),
-      )
+    shape.check_static(
+        tensor=projection_matrix,
+        tensor_name="projection_matrix",
+        has_rank_greater_than=1,
+        has_dim_equals=((-2, 4), (-1, 4)),
+    )
 
-      inverse_tan_half_vertical_field_of_view = projection_matrix[..., 1, 1:2]
-      vertical_field_of_view = 2.0 * tf.atan(
-          1.0 / inverse_tan_half_vertical_field_of_view
-      )
-      aspect_ratio = (
-          inverse_tan_half_vertical_field_of_view / projection_matrix[..., 0, 0:1]
-      )
+    inverse_tan_half_vertical_field_of_view = projection_matrix[..., 1, 1:2]
+    vertical_field_of_view = 2.0 * tf.atan(
+        1.0 / inverse_tan_half_vertical_field_of_view
+    )
+    aspect_ratio = (
+        inverse_tan_half_vertical_field_of_view / projection_matrix[..., 0, 0:1]
+    )
 
-      a = projection_matrix[..., 2, 2:3]
-      b = projection_matrix[..., 2, 3:4]
+    a = projection_matrix[..., 2, 2:3]
+    b = projection_matrix[..., 2, 3:4]
 
-      far = b / (a + 1.0)
-      near = (a + 1.0) / (a - 1.0) * far
+    far = b / (a + 1.0)
+    near = (a + 1.0) / (a - 1.0) * far
 
-      return vertical_field_of_view, aspect_ratio, near, far
+    return vertical_field_of_view, aspect_ratio, near, far
 
 
 def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
