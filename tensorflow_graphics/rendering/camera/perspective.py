@@ -134,9 +134,9 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
     handed perspective-view frustum.
   """
   with tf.compat.v1.name_scope(
-    name,
-    "perspective_right_handed",
-    [vertical_field_of_view, aspect_ratio, near, far]):
+      name,
+      "perspective_right_handed",
+      [vertical_field_of_view, aspect_ratio, near, far]):
     vertical_field_of_view = tf.convert_to_tensor(value=vertical_field_of_view)
     aspect_ratio = tf.convert_to_tensor(value=aspect_ratio)
     near = tf.convert_to_tensor(value=near)
@@ -145,8 +145,7 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
     shape.check_static(
         tensor=vertical_field_of_view,
         tensor_name="vertical_field_of_view",
-        has_dim_equals=(-1, 1),
-    )
+        has_dim_equals=(-1, 1))
     shape.check_static(
         tensor=aspect_ratio, tensor_name="aspect_ratio", has_dim_equals=(-1, 1)
     )
