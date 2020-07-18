@@ -201,9 +201,9 @@ def intrinsics_from_matrix(matrix, name=None):
       "perspective_intrinsics_from_matrix".
 
   Returns:
-    Tuple of three tensors, the first two of shape `[A1, ..., An, 2]` and 
-    the third of shape `[A1, ..., An, 1]`. The first tensor represents the 
-    focal length, and the second one the principle point and the third one 
+    Tuple of three tensors, the first two of shape `[A1, ..., An, 2]` and
+    the third of shape `[A1, ..., An, 1]`. The first tensor represents the
+    focal length, and the second one the principle point and the third one
     represents the skew coefficient.
 
   Raises:
@@ -229,7 +229,6 @@ def intrinsics_from_matrix(matrix, name=None):
     skew = tf.expand_dims(skew, axis=0)
 
     return focal, principal_point, skew
-
 
 
 def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
@@ -293,7 +292,7 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
         last_axes=-2,
         broadcast_compatible=False,
     )
-    
+
     fx, fy = tf.unstack(focal, axis=-1)
     cx, cy = tf.unstack(principal_point, axis=-1)
     zero = tf.zeros_like(fx)

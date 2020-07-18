@@ -272,8 +272,8 @@ class PerspectiveTest(test_case.TestCase):
                                     error_msg, shapes)
 
   @parameterized.parameters(
-        (((0.0, 0.0), (0.0, 0.0), (0.0,)),(((0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 1.0)),)),
-        (((1.0, 2.0), (3.0, 4.0), (0.0,)),(((1.0, 0.0, 3.0), (0.0, 2.0, 4.0), (0.0, 0.0, 1.0)),)))
+        (((0.0, 0.0), (0.0, 0.0), (0.0,)), (((0.0, 0.0, 0.0), (0.0, 0.0, 0.0), (0.0, 0.0, 1.0)),)),
+        (((1.0, 2.0), (3.0, 4.0), (0.0,)), (((1.0, 0.0, 3.0), (0.0, 2.0, 4.0), (0.0, 0.0, 1.0)),)))
   def test_matrix_from_intrinsics_preset(self, test_inputs, test_outputs):
     """Tests that matrix_from_intrinsics gives the correct result."""
     self.assert_output_is_correct(perspective.matrix_from_intrinsics,
