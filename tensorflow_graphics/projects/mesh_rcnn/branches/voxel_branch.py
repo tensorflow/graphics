@@ -2,8 +2,9 @@
 Created by Robin Baumann <https://github.com/RobinBaumann> at June 26, 2020.
 """
 
+import itertools
 import numpy as np
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 
 def _ravel_index(index, dims):
@@ -18,7 +19,7 @@ def _ravel_index(index, dims):
   Returns:
 
   """
-  strides = tf.cumprod(dims, exclusive=True, reverse=True)
+  strides = tf.math.cumprod(dims, exclusive=True, reverse=True)
   return tf.reduce_sum(index * tf.expand_dims(strides, 1), axis=0)
 
 
@@ -47,8 +48,16 @@ def cubify(voxel_grid, threshold):
 
   N, D, H, W = voxel_grid.shape
   unit_cube_verts = tf.constant(
-    ((np.arange(8)[:, None] & (1 << np.arange(3))) > 0),
-    dtype=tf.uint8)
+      [
+            [0, 0, 0],
+            [0, 0, 1],
+            [0, 1, 0],
+            [0, 1, 1],
+            [1, 0, 0],
+            [1, 0, 1],
+            [1, 1, 0],
+            [1, 1, 1],
+        ], dtype=tf.uint8)
 
   unit_cube_faces = tf.constant(
     [
@@ -69,65 +78,83 @@ def cubify(voxel_grid, threshold):
   )
 
   # binarize voxel occupancy probabilities according to threshold
-  voxel_thresholded = tf.cast(tf.math.greater_equal(voxel_grid, threshold),
-                              dtype=tf.float32)
-  voxel_thresholded = tf.expand_dims(voxel_thresholded, axis=1)
+  voxel_mask = tf.math.greater_equal(voxel_grid, threshold)
+  voxel_thresholded = tf.cast(voxel_mask, dtype=tf.float32)
 
-  kernel_x = tf.constant([.5, .5], shape=(1, 1, 1, 1, 2), dtype=tf.float32)
-  kernel_y = tf.constant([.5, .5], shape=(1, 1, 1, 2, 1), dtype=tf.float32)
-  kernel_z = tf.constant([.5, .5], shape=(1, 1, 2, 1, 1), dtype=tf.float32)
+  if tf.reduce_all(tf.math.logical_not(voxel_mask)):
+    return [tf.constant([], dtype=tf.float32)], [tf.constant([], dtype=tf.float32)]
+
+
+  # NDHWC, since NDCHW is only supported on GPU
+  voxel_thresholded = tf.expand_dims(voxel_thresholded, axis=-1)
+
+  kernel_x = tf.constant([.5, .5], shape=(1, 1, 2, 1, 1), dtype=tf.float32)
+  kernel_y = tf.constant([.5, .5], shape=(1, 2, 1, 1, 1), dtype=tf.float32)
+  kernel_z = tf.constant([.5, .5], shape=(2, 1, 1, 1, 1), dtype=tf.float32)
 
   voxel_thresholded_x = tf.cast(
-    tf.math.greater(
-      tf.nn.conv3d(voxel_thresholded, kernel_x, strides=[1] * 5,
-                   padding="VALID"),
-      0.5),
-    dtype=tf.int32)
+      tf.math.greater(
+          tf.nn.conv3d(voxel_thresholded, kernel_x, strides=[1] * 5,
+                       padding="VALID"),
+          0.5),
+      dtype=tf.float32)
+
   voxel_thresholded_y = tf.cast(
-    tf.math.greater(
-      tf.nn.conv3d(voxel_thresholded, kernel_y, strides=[1] * 5,
-                   padding="VALID"),
-      0.5),
-    dtype=tf.int32)
+      tf.math.greater(
+          tf.nn.conv3d(voxel_thresholded, kernel_y, strides=[1] * 5,
+                       padding="VALID"),
+          0.5),
+      dtype=tf.float32)
+
   voxel_thresholded_z = tf.cast(
-    tf.math.greater(
-      tf.nn.conv3d(voxel_thresholded, kernel_z, strides=[1] * 5, padding="VALID"),
-      0.5),
-    dtype=tf.int32)
+      tf.math.greater(
+          tf.nn.conv3d(voxel_thresholded, kernel_z, strides=[1] * 5,
+                       padding="VALID"),
+          0.5),
+      dtype=tf.float32)
+
+  voxel_thresholded_x = tf.reshape(voxel_thresholded_x, shape=[N, 1, D, H, W-1])
+  voxel_thresholded_y = tf.reshape(voxel_thresholded_y, shape=[N, 1, D, H-1, W])
+  voxel_thresholded_z = tf.reshape(voxel_thresholded_z, shape=[N, 1, D-1, H, W])
+
+  # create masks in x directions
+  x_left_faces = tf.concat([tf.ones((N, 1, D, H, 1), dtype=tf.float32),
+                           1-voxel_thresholded_x], axis=-1)
+  x_right_faces = tf.concat([1-voxel_thresholded_x,
+                             tf.ones((N, 1, D, H, 1), dtype=tf.float32)], axis=-1)
+
+  # create masks in y directions
+  y_bottom_faces = tf.concat([1-voxel_thresholded_y,
+                              tf.ones((N, 1, D, 1, W), dtype=tf.float32)], axis=-2)
+  y_top_faces = tf.concat([tf.ones((N, 1, D, 1, W), dtype=tf.float32),
+                           1-voxel_thresholded_y], axis=-2)
+
+  # create masks in z directions
+  z_front_faces = tf.concat([tf.ones((N, 1, 1, H, W), dtype=tf.float32),
+                             1 - voxel_thresholded_z], axis=-3)
+  z_back_faces = tf.concat([1-voxel_thresholded_z,
+                            tf.ones((N, 1, 1, H, W), dtype=tf.float32)], axis=-3)
+
+  # create list with all faces
+  faces_indices = [
+      x_left_faces,
+      x_left_faces,  # faces 0, 1
+      y_bottom_faces,
+      y_bottom_faces,  # faces 2, 3
+      z_front_faces,
+      z_front_faces,  # faces 4, 5
+      y_top_faces,
+      y_top_faces,  # faces 6, 7
+      x_right_faces,
+      x_right_faces,  # faces 8, 9
+      z_back_faces,
+      z_back_faces,  # faces 10, 11
+  ]
 
   # 12 x N x 1 x D x H x W
-  faces_idx = tf.ones((unit_cube_faces.shape[0], N, 1, D, H, W))
+  faces_idx = tf.stack(faces_indices, axis=0)
 
-  # add left face
-  face_indices = []
-
-  #------
-  # faces_idx[0, :, :, :, :, 1:] = 1 - voxel_thresholded_x
-  face_index = tf.ones((N, 1, D, H, W))
-  face_index = tf.tensor_scatter_sub(face_index[0], list(range(1, W-1)),
-                                           voxel_thresholded_x, axis=-1)
-  face_indices.append(face_index)
-
-  #------
-
-  faces_idx[1, :, :, :, :, 1:] = 1 - voxel_thresholded_x
-  # add bottom face
-  faces_idx[2, :, :, :, :-1, :] = 1 - voxel_thresholded_y
-  faces_idx[3, :, :, :, :-1, :] = 1 - voxel_thresholded_y
-  # add front face
-  faces_idx[4, :, :, 1:, :, :] = 1 - voxel_thresholded_z
-  faces_idx[5, :, :, 1:, :, :] = 1 - voxel_thresholded_z
-  # add up face
-  faces_idx[6, :, :, :, 1:, :] = 1 - voxel_thresholded_y
-  faces_idx[7, :, :, :, 1:, :] = 1 - voxel_thresholded_y
-  # add right face
-  faces_idx[8, :, :, :, :, :-1] = 1 - voxel_thresholded_x
-  faces_idx[9, :, :, :, :, :-1] = 1 - voxel_thresholded_x
-  # add back face
-  faces_idx[10, :, :, :-1, :, :] = 1 - voxel_thresholded_z
-  faces_idx[11, :, :, :-1, :, :] = 1 - voxel_thresholded_z
-
-  faces_idx *= voxel_thresholded
+  faces_idx *= tf.reshape(voxel_thresholded, shape=(N, 1, D, H, W))
 
   # N x H x W x D x 12
   faces_idx = tf.squeeze(tf.transpose(faces_idx, perm=(1, 2, 4, 5, 3, 0)),
@@ -135,14 +162,16 @@ def cubify(voxel_grid, threshold):
   # (NHWD) x 12
   faces_idx = tf.reshape(faces_idx, shape=(-1, unit_cube_faces.shape[0]))
 
-  linear_index = tf.where(tf.greater(tf.math.abs(faces_idx), 0))
+  linear_index = tf.where(tf.not_equal(faces_idx, 0))
   nyxz = tf.unravel_index(linear_index[:, 0], (N, H, W, D))
+  print(len(nyxz))
 
-  if len(nyxz) == 0:
-    return [], []
+  if len(nyxz) == 0:  # ToDo: check, why this is not True for empty voxel grid.
+    return [tf.constant([], dtype=tf.float32)], [tf.constant([], dtype=tf.float32)]
 
   faces = tf.gather(unit_cube_faces, linear_index[:, 1])
 
+  # Convert unit cube coordinates to voxel grid coordinates
   grid_faces = []
   for d in range(unit_cube_faces.shape[1]):
     xyz = tf.gather(unit_cube_verts, faces[:, d])
@@ -164,8 +193,8 @@ def cubify(voxel_grid, threshold):
   n_vertices = grid_vertices.shape[0]
   grid_faces += nyxz[:, 0].reshape(-1, 1) * n_vertices
   idle_vertices = tf.ones(n_vertices * N, dtype=tf.uint8)
-  idle_vertices = tf.tensor_scatter_add(idle_vertices,
-                                        tf.reshape(grid_faces, -1), 0)
+  idle_vertices = tf.tensor_scatter_nd_add(idle_vertices,
+                                        tf.reshape(grid_faces, -1))
   grid_faces -= nyxz[:, 0].reshape((-1, 1)) * n_vertices
   split_size = tf.bincount(nyxz[:, 0], minlength=N)
   faces_list = list(tf.split(grid_faces, split_size.numpy().tolist(), 0))
