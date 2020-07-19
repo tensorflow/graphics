@@ -16,11 +16,19 @@ def _ravel_index(index, dims):
     of dimension dims.
     dims: The shape of the array to be indexed.
 
-  Returns:
+  Note:
+    Only supports dims=(H,W,D)
 
+  Returns:
+    Integer Tensor containing the index into an array of shape dims.
   """
-  strides = tf.math.cumprod(dims, exclusive=True, reverse=True)
-  return tf.reduce_sum(index * tf.expand_dims(strides, 1), axis=0)
+  if len(dims) != 3:
+    raise ValueError("Expects a 3-element list")
+  if index.shape[1] != 3:
+    raise ValueError("Expects an index tensor of shape Nx3")
+  H, W, D = dims
+  linear_index = index[:, 0] * W * D + index[:, 1] * D + index[:, 2]
+  return linear_index
 
 
 def cubify(voxel_grid, threshold):
@@ -57,7 +65,7 @@ def cubify(voxel_grid, threshold):
             [1, 0, 1],
             [1, 1, 0],
             [1, 1, 1],
-        ], dtype=tf.uint8)
+        ], dtype=tf.int32)
 
   unit_cube_faces = tf.constant(
     [
@@ -74,7 +82,7 @@ def cubify(voxel_grid, threshold):
       [1, 7, 3],
       [1, 5, 7],  # back face: 10, 11
     ],
-    dtype=tf.uint8
+    dtype=tf.int32
   )
 
   # binarize voxel occupancy probabilities according to threshold
@@ -155,18 +163,16 @@ def cubify(voxel_grid, threshold):
   faces_idx = tf.stack(faces_indices, axis=0)
 
   faces_idx *= tf.reshape(voxel_thresholded, shape=(N, 1, D, H, W))
-
+  
   # N x H x W x D x 12
   faces_idx = tf.squeeze(tf.transpose(faces_idx, perm=(1, 2, 4, 5, 3, 0)),
                          axis=1)
   # (NHWD) x 12
   faces_idx = tf.reshape(faces_idx, shape=(-1, unit_cube_faces.shape[0]))
-
   linear_index = tf.where(tf.not_equal(faces_idx, 0))
-  nyxz = tf.unravel_index(linear_index[:, 0], (N, H, W, D))
-  print(len(nyxz))
+  nyxz = tf.transpose(tf.unravel_index(linear_index[:, 0], (N, H, W, D)))
 
-  if len(nyxz) == 0:  # ToDo: check, why this is not True for empty voxel grid.
+  if len(nyxz) == 0:
     return [tf.constant([], dtype=tf.float32)], [tf.constant([], dtype=tf.float32)]
 
   faces = tf.gather(unit_cube_faces, linear_index[:, 1])
@@ -184,17 +190,17 @@ def cubify(voxel_grid, threshold):
 
   x, y, z = tf.meshgrid(tf.range(W + 1), tf.range(H + 1), tf.range(D + 1))
 
-  x = x * 2.0 / (W - 1) - 1.0
-  y = y * 2.0 / (H - 1) - 1.0
-  z = z * 2.0 / (D - 1) - 1.0
+  x = x * 2 / (W - 1) - 1.0
+  y = y * 2 / (H - 1) - 1.0
+  z = z * 2 / (D - 1) - 1.0
 
-  grid_vertices = tf.stack((x, y, z), dim=3).reshape((-1, 3))
+  grid_vertices = tf.reshape(tf.stack((x, y, z), axis=3), shape=(-1, 3))
 
   n_vertices = grid_vertices.shape[0]
   grid_faces += nyxz[:, 0].reshape(-1, 1) * n_vertices
   idle_vertices = tf.ones(n_vertices * N, dtype=tf.uint8)
-  idle_vertices = tf.tensor_scatter_nd_add(idle_vertices,
-                                        tf.reshape(grid_faces, -1))
+  # ToDo fix this to be equivalent to torch.scatter_
+  idle_vertices = tf.scatter_nd(idle_vertices, tf.reshape(grid_faces, -1))
   grid_faces -= nyxz[:, 0].reshape((-1, 1)) * n_vertices
   split_size = tf.bincount(nyxz[:, 0], minlength=N)
   faces_list = list(tf.split(grid_faces, split_size.numpy().tolist(), 0))
