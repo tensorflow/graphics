@@ -163,7 +163,7 @@ def cubify(voxel_grid, threshold):
   faces_idx = tf.stack(faces_indices, axis=0)
 
   faces_idx *= tf.reshape(voxel_thresholded, shape=(N, 1, D, H, W))
-  
+
   # N x H x W x D x 12
   faces_idx = tf.squeeze(tf.transpose(faces_idx, perm=(1, 2, 4, 5, 3, 0)),
                          axis=1)
@@ -197,14 +197,18 @@ def cubify(voxel_grid, threshold):
   grid_vertices = tf.reshape(tf.stack((x, y, z), axis=3), shape=(-1, 3))
 
   n_vertices = grid_vertices.shape[0]
-  grid_faces += nyxz[:, 0].reshape(-1, 1) * n_vertices
-  idle_vertices = tf.ones(n_vertices * N, dtype=tf.uint8)
-  # ToDo fix this to be equivalent to torch.scatter_
-  idle_vertices = tf.scatter_nd(idle_vertices, tf.reshape(grid_faces, -1))
-  grid_faces -= nyxz[:, 0].reshape((-1, 1)) * n_vertices
-  split_size = tf.bincount(nyxz[:, 0], minlength=N)
+  grid_faces += tf.reshape(nyxz[:, 0], shape=(-1, 1)) * n_vertices
+  idle_vertices = tf.ones(n_vertices * N, dtype=tf.int32)
+  mask_indices, _ = tf.unique(tf.reshape(grid_faces, -1))
+  mask_indices = tf.expand_dims(mask_indices, -1)
+  idle_vertices = tf.tensor_scatter_nd_update(
+      idle_vertices,
+      mask_indices,
+      tf.zeros((mask_indices.shape[0],), dtype=tf.int32)
+  )
+  grid_faces -= tf.reshape(nyxz[:, 0], shape=(-1, 1)) * n_vertices
+  split_size = tf.math.bincount(nyxz[:, 0], minlength=N, dtype=tf.int32)
   faces_list = list(tf.split(grid_faces, split_size.numpy().tolist(), 0))
-
   idle_vertices = tf.reshape(idle_vertices, (N, n_vertices))
   idle_n = tf.math.cumsum(idle_vertices, axis=1)
 
@@ -215,6 +219,6 @@ def cubify(voxel_grid, threshold):
                            0))) for n in range(N)
   ]
 
-  faces_list = [face - idle_n[n][face] for n, face in enumerate(faces_list)]
+  faces_list = [face_batch - tf.gather(idle_n[n], face_batch, axis=0) for n, face_batch in enumerate(faces_list)]
 
   return verts_list, faces_list
