@@ -1,9 +1,17 @@
-"""
-Created by Robin Baumann <https://github.com/RobinBaumann> at June 26, 2020.
-"""
+# Copyright 2020 The TensorFlow Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-import itertools
-import numpy as np
 import tensorflow as tf
 
 
@@ -31,7 +39,7 @@ def _ravel_index(index, dims):
   return linear_index
 
 
-def cubify(voxel_grid, threshold):
+def cubify(voxel_grid, threshold=0.5):
   """
   Converts voxel occupancy probability grids into a triangle mesh.
 
@@ -45,44 +53,48 @@ def cubify(voxel_grid, threshold):
   Args:
     voxel_grid: flaot32 tensor of shape (N, D, H, W) containing the voxel
     occupancy probabilities.
-    threshold: float32 denoting the threshold above which a voxel is considered occupied.
+    threshold: float32 denoting the threshold above which a voxel is
+    considered occupied. Defaults to 0.5.
 
   Returns:
     A watertight mesh whose topology depends on the voxel occupancy probabilities.
   """
-  # Todo shape tests.
   voxel_grid = tf.convert_to_tensor(voxel_grid)
   threshold = tf.convert_to_tensor(threshold)
+
+  if voxel_grid.shape.rank != 4:
+    raise ValueError("Voxel Occupancy probability grid needs to be a Tensor "
+                     "of Rank 4 with dimension: N, D, H, W.")
 
   N, D, H, W = voxel_grid.shape
   unit_cube_verts = tf.constant(
       [
-            [0, 0, 0],
-            [0, 0, 1],
-            [0, 1, 0],
-            [0, 1, 1],
-            [1, 0, 0],
-            [1, 0, 1],
-            [1, 1, 0],
-            [1, 1, 1],
-        ], dtype=tf.int32)
+          [0, 0, 0],
+          [0, 0, 1],
+          [0, 1, 0],
+          [0, 1, 1],
+          [1, 0, 0],
+          [1, 0, 1],
+          [1, 1, 0],
+          [1, 1, 1],
+      ], dtype=tf.int32)
 
   unit_cube_faces = tf.constant(
-    [
-      [0, 1, 2],
-      [1, 3, 2],  # left face: 0, 1
-      [2, 3, 6],
-      [3, 7, 6],  # bottom face: 2, 3
-      [0, 2, 6],
-      [0, 6, 4],  # front face: 4, 5
-      [0, 5, 1],
-      [0, 4, 5],  # up face: 6, 7
-      [6, 7, 5],
-      [6, 5, 4],  # right face: 8, 9
-      [1, 7, 3],
-      [1, 5, 7],  # back face: 10, 11
-    ],
-    dtype=tf.int32
+      [
+          [0, 1, 2],
+          [1, 3, 2],  # left face: 0, 1
+          [2, 3, 6],
+          [3, 7, 6],  # bottom face: 2, 3
+          [0, 2, 6],
+          [0, 6, 4],  # front face: 4, 5
+          [0, 5, 1],
+          [0, 4, 5],  # up face: 6, 7
+          [6, 7, 5],
+          [6, 5, 4],  # right face: 8, 9
+          [1, 7, 3],
+          [1, 5, 7],  # back face: 10, 11
+      ],
+      dtype=tf.int32
   )
 
   # binarize voxel occupancy probabilities according to threshold
@@ -90,8 +102,8 @@ def cubify(voxel_grid, threshold):
   voxel_thresholded = tf.cast(voxel_mask, dtype=tf.float32)
 
   if tf.reduce_all(tf.math.logical_not(voxel_mask)):
-    return [tf.constant([], dtype=tf.float32)], [tf.constant([], dtype=tf.float32)]
-
+    return [tf.constant([], dtype=tf.float32)], [
+        tf.constant([], dtype=tf.float32)]
 
   # NDHWC, since NDCHW is only supported on GPU
   voxel_thresholded = tf.expand_dims(voxel_thresholded, axis=-1)
@@ -100,6 +112,7 @@ def cubify(voxel_grid, threshold):
   kernel_y = tf.constant([.5, .5], shape=(1, 2, 1, 1, 1), dtype=tf.float32)
   kernel_z = tf.constant([.5, .5], shape=(2, 1, 1, 1, 1), dtype=tf.float32)
 
+  # build filters for masks indicating whether the neighboring voxel is occupied.
   voxel_thresholded_x = tf.cast(
       tf.math.greater(
           tf.nn.conv3d(voxel_thresholded, kernel_x, strides=[1] * 5,
@@ -121,27 +134,33 @@ def cubify(voxel_grid, threshold):
           0.5),
       dtype=tf.float32)
 
-  voxel_thresholded_x = tf.reshape(voxel_thresholded_x, shape=[N, 1, D, H, W-1])
-  voxel_thresholded_y = tf.reshape(voxel_thresholded_y, shape=[N, 1, D, H-1, W])
-  voxel_thresholded_z = tf.reshape(voxel_thresholded_z, shape=[N, 1, D-1, H, W])
+  voxel_thresholded_x = tf.reshape(voxel_thresholded_x,
+                                   shape=[N, 1, D, H, W - 1])
+  voxel_thresholded_y = tf.reshape(voxel_thresholded_y,
+                                   shape=[N, 1, D, H - 1, W])
+  voxel_thresholded_z = tf.reshape(voxel_thresholded_z,
+                                   shape=[N, 1, D - 1, H, W])
 
   # create masks in x directions
   x_left_faces = tf.concat([tf.ones((N, 1, D, H, 1), dtype=tf.float32),
-                           1-voxel_thresholded_x], axis=-1)
-  x_right_faces = tf.concat([1-voxel_thresholded_x,
-                             tf.ones((N, 1, D, H, 1), dtype=tf.float32)], axis=-1)
+                            1 - voxel_thresholded_x], axis=-1)
+  x_right_faces = tf.concat([1 - voxel_thresholded_x,
+                             tf.ones((N, 1, D, H, 1), dtype=tf.float32)],
+                            axis=-1)
 
   # create masks in y directions
-  y_bottom_faces = tf.concat([1-voxel_thresholded_y,
-                              tf.ones((N, 1, D, 1, W), dtype=tf.float32)], axis=-2)
+  y_bottom_faces = tf.concat([1 - voxel_thresholded_y,
+                              tf.ones((N, 1, D, 1, W), dtype=tf.float32)],
+                             axis=-2)
   y_top_faces = tf.concat([tf.ones((N, 1, D, 1, W), dtype=tf.float32),
-                           1-voxel_thresholded_y], axis=-2)
+                           1 - voxel_thresholded_y], axis=-2)
 
   # create masks in z directions
   z_front_faces = tf.concat([tf.ones((N, 1, 1, H, W), dtype=tf.float32),
                              1 - voxel_thresholded_z], axis=-3)
-  z_back_faces = tf.concat([1-voxel_thresholded_z,
-                            tf.ones((N, 1, 1, H, W), dtype=tf.float32)], axis=-3)
+  z_back_faces = tf.concat([1 - voxel_thresholded_z,
+                            tf.ones((N, 1, 1, H, W), dtype=tf.float32)],
+                           axis=-3)
 
   # create list with all faces
   faces_indices = [
@@ -173,7 +192,8 @@ def cubify(voxel_grid, threshold):
   nyxz = tf.transpose(tf.unravel_index(linear_index[:, 0], (N, H, W, D)))
 
   if len(nyxz) == 0:
-    return [tf.constant([], dtype=tf.float32)], [tf.constant([], dtype=tf.float32)]
+    return [tf.constant([], dtype=tf.float32)], [
+        tf.constant([], dtype=tf.float32)]
 
   faces = tf.gather(unit_cube_faces, linear_index[:, 1])
 
@@ -190,12 +210,15 @@ def cubify(voxel_grid, threshold):
 
   x, y, z = tf.meshgrid(tf.range(W + 1), tf.range(H + 1), tf.range(D + 1))
 
+  # alignment, so that the top left corner of each cuboid corresponds to the
+  # pixel coordinate of the input grid.
   x = x * 2 / (W - 1) - 1.0
   y = y * 2 / (H - 1) - 1.0
   z = z * 2 / (D - 1) - 1.0
 
   grid_vertices = tf.reshape(tf.stack((x, y, z), axis=3), shape=(-1, 3))
 
+  # prepare filtering / merge of vertices.
   n_vertices = grid_vertices.shape[0]
   grid_faces += tf.reshape(nyxz[:, 0], shape=(-1, 1)) * n_vertices
   idle_vertices = tf.ones(n_vertices * N, dtype=tf.int32)
@@ -213,10 +236,12 @@ def cubify(voxel_grid, threshold):
   idle_n = tf.math.cumsum(idle_vertices, axis=1)
 
   verts_list = [
-    tf.gather(grid_vertices,
-              tf.where((idle_vertices[n] == 0))[:, 0], axis=0) for n in range(N)
+      tf.gather(grid_vertices,
+                tf.where((idle_vertices[n] == 0))[:, 0], axis=0) for n in
+      range(N)
   ]
 
-  faces_list = [face_batch - tf.gather(idle_n[n], face_batch, axis=0) for n, face_batch in enumerate(faces_list)]
+  faces_list = [face_batch - tf.gather(idle_n[n], face_batch, axis=0) for
+                n, face_batch in enumerate(faces_list)]
 
   return verts_list, faces_list
