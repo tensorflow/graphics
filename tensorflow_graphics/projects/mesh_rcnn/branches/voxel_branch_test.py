@@ -31,8 +31,6 @@ class CufifyTest(test_case.TestCase):
 
     test_data = tf.stack([one_voxel, full_cube])
 
-    self.assertShapeEqual(np.array([N, V, V, V]), test_data)
-
     vertices, faces = cubify(test_data, 0.5)
 
     # ~~~~~~~~~~ Test first batch element ~~~~~~~~~~ #
@@ -66,39 +64,93 @@ class CufifyTest(test_case.TestCase):
         ], dtype=tf.float32
     )
 
-    self.assertAllClose(vertices[0], expected_vertices_topleftnear)
-    self.assertAllClose(faces[0], expected_faces_topleftnear)
+    self.assertAllClose(expected_vertices_topleftnear, vertices[0])
+    self.assertAllClose(expected_faces_topleftnear, faces[0])
 
     # ~~~~~~~~~~ Test second batch element ~~~~~~~~~~ #
     expected_vertices_full = tf.constant(
         [
             [-1.0, -1.0, -1.0],
             [-1.0, -1.0, 1.0],
+            [-1.0, -1.0, 3.0],
             [1.0, -1.0, -1.0],
             [1.0, -1.0, 1.0],
+            [1.0, -1.0, 3.0],
+            [3.0, -1.0, -1.0],
+            [3.0, -1.0, 1.0],
+            [3.0, -1.0, 3.0],
             [-1.0, 1.0, -1.0],
             [-1.0, 1.0, 1.0],
+            [-1.0, 1.0, 3.0],
             [1.0, 1.0, -1.0],
-            [1.0, 1.0, 1.0],
+            [1.0, 1.0, 3.0],
+            [3.0, 1.0, -1.0],
+            [3.0, 1.0, 1.0],
+            [3.0, 1.0, 3.0],
+            [-1.0, 3.0, -1.0],
+            [-1.0, 3.0, 1.0],
+            [-1.0, 3.0, 3.0],
+            [1.0, 3.0, -1.0],
+            [1.0, 3.0, 1.0],
+            [1.0, 3.0, 3.0],
+            [3.0, 3.0, -1.0],
+            [3.0, 3.0, 1.0],
+            [3.0, 3.0, 3.0],
         ], dtype=tf.float32
     )
 
     expected_faces_full = tf.constant(
         [
-            [0, 1, 4],
-            [1, 5, 4],
-            [4, 5, 6],
-            [5, 7, 6],
-            [0, 4, 6],
-            [0, 6, 2],
-            [0, 3, 1],
-            [0, 2, 3],
-            [6, 7, 3],
-            [6, 3, 2],
-            [1, 7, 5],
-            [1, 3, 7],
+            [0, 1, 9],
+            [1, 10, 9],
+            [0, 9, 12],
+            [0, 12, 3],
+            [0, 4, 1],
+            [0, 3, 4],
+            [1, 2, 10],
+            [2, 11, 10],
+            [1, 5, 2],
+            [1, 4, 5],
+            [2, 13, 11],
+            [2, 5, 13],
+            [3, 12, 14],
+            [3, 14, 6],
+            [3, 7, 4],
+            [3, 6, 7],
+            [14, 15, 7],
+            [14, 7, 6],
+            [4, 8, 5],
+            [4, 7, 8],
+            [15, 16, 8],
+            [15, 8, 7],
+            [5, 16, 13],
+            [5, 8, 16],
+            [9, 10, 17],
+            [10, 18, 17],
+            [17, 18, 20],
+            [18, 21, 20],
+            [9, 17, 20],
+            [9, 20, 12],
+            [10, 11, 18],
+            [11, 19, 18],
+            [18, 19, 21],
+            [19, 22, 21],
+            [11, 22, 19],
+            [11, 13, 22],
+            [20, 21, 23],
+            [21, 24, 23],
+            [12, 20, 23],
+            [12, 23, 14],
+            [23, 24, 15],
+            [23, 15, 14],
+            [21, 22, 24],
+            [22, 25, 24],
+            [24, 25, 16],
+            [24, 16, 15],
+            [13, 25, 22],
+            [13, 16, 25],
         ], dtype=tf.float32
     )
 
-    self.assertAllClose(vertices[1], expected_vertices_full)
-    self.assertAllClose(faces[1], expected_faces_full)
+    self.assertAllClose(expected_vertices_full, vertices[1])
+    self.assertAllClose(expected_faces_full, faces[1])

@@ -169,7 +169,7 @@ def cubify(voxel_grid, threshold):
                          axis=1)
   # (NHWD) x 12
   faces_idx = tf.reshape(faces_idx, shape=(-1, unit_cube_faces.shape[0]))
-  linear_index = tf.where(tf.not_equal(faces_idx, 0))
+  linear_index = tf.cast(tf.where(tf.not_equal(faces_idx, 0)), dtype=tf.int32)
   nyxz = tf.transpose(tf.unravel_index(linear_index[:, 0], (N, H, W, D)))
 
   if len(nyxz) == 0:
@@ -214,9 +214,7 @@ def cubify(voxel_grid, threshold):
 
   verts_list = [
     tf.gather(grid_vertices,
-              tf.where(
-                tf.greater(tf.math.abs(idle_vertices[n]),
-                           0))) for n in range(N)
+              tf.where((idle_vertices[n] == 0))[:, 0], axis=0) for n in range(N)
   ]
 
   faces_list = [face_batch - tf.gather(idle_n[n], face_batch, axis=0) for n, face_batch in enumerate(faces_list)]
