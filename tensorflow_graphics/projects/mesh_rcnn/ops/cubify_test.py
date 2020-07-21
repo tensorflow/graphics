@@ -14,7 +14,7 @@
 
 import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.branches.voxel_branch import cubify
+from tensorflow_graphics.projects.mesh_rcnn.ops.cubify import cubify
 from tensorflow_graphics.util import test_case
 
 
