@@ -17,8 +17,8 @@
 # pylint: disable=g-import-not-at-top
 from tensorflow_graphics.util.doc import _import_tfg_docs
 if _import_tfg_docs():
-  from tensorflow.io import triangle_mesh
-  from tensorflow.io import exr
+  from tensorflow_graphics.io import triangle_mesh
+  from tensorflow_graphics.io import exr
   from tensorflow_graphics.util import export_api as _export_api
 
   # API contains submodules of tensorflow_graphics.rendering.reflectance.

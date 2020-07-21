@@ -27,7 +27,8 @@ limitations under the License.
 #include "tensorflow/core/lib/core/status.h"
 
 static tensorflow::Status GetVariablesRank(
-    ::tensorflow::shape_inference::InferenceContext* c, int32* rank) {
+    ::tensorflow::shape_inference::InferenceContext* c,
+    tensorflow::int32* rank) {
   std::vector<std::string> variable_names, variable_kinds;
   TF_RETURN_IF_ERROR(c->GetAttr("variable_names", &variable_names));
   TF_RETURN_IF_ERROR(c->GetAttr("variable_kinds", &variable_kinds));
@@ -118,7 +119,7 @@ rendered_image: A tensor of shape `[A1, ..., An, width, height, 4]`, with the
   width and height defined by `output_resolution`.
     )doc")
     .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c) {
-      int32 variables_rank;
+      tensorflow::int32 variables_rank;
       TF_RETURN_IF_ERROR(GetVariablesRank(c, &variables_rank));
       auto batch_shape = c->UnknownShapeOfRank(variables_rank);
 
@@ -194,10 +195,9 @@ class RasterizeOp : public tensorflow::OpKernel {
     OP_REQUIRES_OK(context, context->allocate_output(0, output_image_shape,
                                                      &output_image));
 
-    // Render.
     std::unique_ptr<RasterizerWithContext> rasterizer;
     float* image_data = output_image->flat<float>().data();
-    const int64 image_size =
+    const tensorflow::int64 image_size =
         output_resolution_.dim_size(0) * output_resolution_.dim_size(1) * 4;
 
     OP_REQUIRES_OK(context, rasterizer_pool_->AcquireResource(&rasterizer));
@@ -215,8 +215,8 @@ class RasterizeOp : public tensorflow::OpKernel {
       std::unique_ptr<RasterizerWithContext>& rasterizer, int outer_dim);
   tensorflow::Status RenderImage(
       tensorflow::OpKernelContext* context,
-      std::unique_ptr<RasterizerWithContext>& rasterizer, int64 image_size,
-      float* image_data);
+      std::unique_ptr<RasterizerWithContext>& rasterizer,
+      tensorflow::int64 image_size, float* image_data);
   tensorflow::Status ValidateVariables(tensorflow::OpKernelContext* context,
                                        tensorflow::TensorShape* batch_shape);
 
@@ -229,8 +229,8 @@ class RasterizeOp : public tensorflow::OpKernel {
 
 tensorflow::Status RasterizeOp::RenderImage(
     tensorflow::OpKernelContext* context,
-    std::unique_ptr<RasterizerWithContext>& rasterizer, const int64 image_size,
-    float* image_data) {
+    std::unique_ptr<RasterizerWithContext>& rasterizer,
+    const tensorflow::int64 image_size, float* image_data) {
   int num_points = context->input(0).scalar<int>()();
 
   TF_RETURN_IF_ERROR(rasterizer->Render(
@@ -261,7 +261,8 @@ tensorflow::Status RasterizeOp::SetVariables(
           absl::MakeConstSpan(value_pointer + num_elements * outer_dim,
                               value_pointer + num_elements * (outer_dim + 1))));
     } else if (kind == "buffer") {
-      const int32 buffer_length = value_shape.dim_size(value_shape.dims() - 1);
+      const tensorflow::int32 buffer_length =
+          value_shape.dim_size(value_shape.dims() - 1);
 
       const auto value_pointer = value.flat<float>().data();
       TF_RETURN_IF_ERROR(rasterizer->SetShaderStorageBuffer(

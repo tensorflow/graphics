@@ -18,10 +18,6 @@ Graphics. These asserts will be activated only if the debug flag
 TFG_ADD_ASSERTS_TO_GRAPH is set to True.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl import flags
 import numpy as np
 import tensorflow as tf
@@ -214,7 +210,7 @@ def assert_nonzero_norm(vector, eps=None, name=None):
       return tf.identity(vector)
 
 
-def assert_normalized(vector, axis=-1, eps=None, name=None):
+def assert_normalized(vector, order='euclidean', axis=-1, eps=None, name=None):
   """Checks whether vector/quaternion is normalized in its last dimension.
 
   Note:
@@ -223,6 +219,7 @@ def assert_normalized(vector, axis=-1, eps=None, name=None):
   Args:
     vector: A tensor of shape `[A1, ..., M, ..., An]`, where the axis of M
       contains the vectors.
+    order: Order of the norm passed to tf.norm.
     axis: The axis containing the vectors.
     eps: A `float` describing the tolerance used to determine if the norm is
       equal to `1.0`.
@@ -243,7 +240,7 @@ def assert_normalized(vector, axis=-1, eps=None, name=None):
       eps = select_eps_for_division(vector.dtype)
     eps = tf.convert_to_tensor(value=eps, dtype=vector.dtype)
 
-    norm = tf.norm(tensor=vector, axis=axis)
+    norm = tf.norm(tensor=vector, ord=order, axis=axis)
     one = tf.constant(1.0, dtype=norm.dtype)
     with tf.control_dependencies(
         [tf.compat.v1.assert_near(norm, one, atol=eps)]):
