@@ -36,8 +36,8 @@ as (non-watertight) triangle mesh and voxel grid, bounding-box,
  segmentation mask, intrinsic and extrinsic camera parameters and 2D and 3D key
  points.
 
-Note:
-  The object and camera poses are provided with respect to the scene, whereas the
+Notes:
+  * The object and camera poses are provided with respect to the scene, whereas the
   camera is placed at the origin. Pix3D also provides the features
   `camera/position_with_respect_to_object` and `camera/inplane_rotation`.
   Those values are defined in object coordinates and will reproduce an image
@@ -47,6 +47,16 @@ Note:
   This is necessary as most algorithms assume that the camera is looking at the
   object's center, the raw input images are usually cropped or transformed
   before sending into their pipeline.
+  * There are two wrong segmentation masks in the annotations of the original
+  Pix3D dataset (See https://github.com/xingyuansun/pix3d/issues/18 for details).
+  We ignore those samples in this version of the dataset. However, if you want
+  to use them, we provide own rendered segmentation masks in
+  `tensorflow_graphics/datasets/pix3d/fixed_masks/`. Feel free to copy those
+  two masks to your local Pix3D directory in `<PIX3D_HOME>/mask/table/`.
+  Additionally, you need to add the indices of these samples to the split files
+  located at `<TF Graphics Repository>/tensorflow_graphics/datasets/pix3d/splits`.
+  The index `7953` needs to be appended to the train index and `9657` belongs
+  to the test index.
 
 Train/Test split:
   Pix3D does not provide a standard train/test split. Therefore, this
