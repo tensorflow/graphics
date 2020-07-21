@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Script to generate external api_docs for tf-graphics."""
+# flake8: noqa
 
 from __future__ import absolute_import
 from __future__ import division
@@ -23,7 +24,10 @@ from absl import app
 from absl import flags
 
 from tensorflow_docs.api_generator import generate_lib
-import tensorflow_graphics as tfg
+
+os.environ["TFG_DOC_IMPORTS"] = "1"
+
+import tensorflow_graphics as tfg       # pylint: disable=g-import-not-at-top
 
 FLAGS = flags.FLAGS
 

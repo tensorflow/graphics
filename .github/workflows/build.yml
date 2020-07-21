@@ -29,6 +29,9 @@ jobs:
         pip install pytest
         pip install flake8
         flake8 --config=.flake8 tensorflow_graphics/
+    - name: Build rasterizer
+      run: |
+        docker run -v ${PWD}:/working_dir -w /working_dir  tensorflow/tensorflow:custom-op-ubuntu16 "./build_rasterizer.sh"
     - name: Install pip requirements
       run: |
         pip install -r requirements.txt
