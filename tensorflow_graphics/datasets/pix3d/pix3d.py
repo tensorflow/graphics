@@ -14,7 +14,7 @@ from tensorflow_datasets import features as tfds_features
 
 from tensorflow_graphics.datasets import features as tfg_features
 
-_CITATION = """
+_CITATION = '''
 @inproceedings{pix3d,
   title={Pix3D: Dataset and Methods for Single-Image 3D Shape Modeling},
   author={Sun, Xingyuan and Wu, Jiajun and Zhang, Xiuming and Zhang, Zhoutong
@@ -23,9 +23,9 @@ _CITATION = """
   booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
   year={2018}
 }
-"""
+'''
 
-_DESCRIPTION = """
+_DESCRIPTION = '''
 Pix3D is a large-scale dataset of diverse image-shape pairs
 with pixel-level 2D-3D alignment. It has wide applications in shape-related
  tasks including reconstruction, retrieval, viewpoint estimation, etc.
@@ -63,7 +63,7 @@ Train/Test split:
   implementation adopts the S2 split from Mesh R-CNN
    (https://arxiv.org/abs/1906.02739, Sec. 4.2). This split ensures that the 3D
   models appearing in the train and test sets are disjoint.
-"""
+'''
 
 _CHECKSUMS_DIR = os.path.normpath(
     os.path.join(os.path.dirname(__file__), 'checksums/')
@@ -219,7 +219,7 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       one unknown dimensions.
       """
       if keypoints.ndim != 3 or keypoints.shape[-1] != 2:
-        raise ValueError("2D keypoints should be in shape (N, M, 2).")
+        raise ValueError('2D keypoints should be in shape (N, M, 2).')
 
       return {
           'num_annotators': keypoints.shape[0],

@@ -89,14 +89,14 @@ class Camera(features.FeaturesDict):
     """Convert the given parameters into a dict convertible to tf example."""
     REQUIRED_KEYS = ['pose', 'f', 'optical_center']
     if not all(key in example_dict for key in REQUIRED_KEYS):
-      raise ValueError(f"Missing keys in provided dictionary! "
-                       f"Expected {REQUIRED_KEYS}, "
-                       f"but {example_dict.keys()} were given.")
+      raise ValueError(f'Missing keys in provided dictionary! '
+                       f'Expected {REQUIRED_KEYS}, '
+                       f'but {example_dict.keys()} were given.')
 
     if not isinstance(example_dict['pose'], dict):
-      raise ValueError("Pose needs to be a dictionary containing either "
-                       "rotation and translation or look at, "
-                       "up vector and position.")
+      raise ValueError('Pose needs to be a dictionary containing either '
+                       'rotation and translation or look at, '
+                       'up vector and position.')
     features_dict = {}
     pose_dict = example_dict['pose']
     if all(key in pose_dict for key in ['R', 't']):
@@ -115,14 +115,14 @@ class Camera(features.FeaturesDict):
           't': translation
       }
     else:
-      raise ValueError("Wrong keys for pose feature provided!")
+      raise ValueError('Wrong keys for pose feature provided!')
 
     aspect_ratio = 1
     skew = 0
     if 'aspect_ratio' in example_dict.keys():
       if not isinstance(example_dict['f'], float):
-        raise ValueError("If aspect ratio is provided, "
-                         "f needs to be a single float.")
+        raise ValueError('If aspect ratio is provided, '
+                         'f needs to be a single float.')
       aspect_ratio = example_dict['aspect_ratio']
 
     if 'skew' in example_dict.keys():
@@ -142,7 +142,7 @@ class Camera(features.FeaturesDict):
     Creates rotation matrix according to OpenGL gluLookAt convention.
     (https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml)
     """
-    L = look_at - position
+    L = look_at - position  # pylint: disable=C0103
     L /= np.linalg.norm(L)
     s = np.cross(L, up)
     s /= np.linalg.norm(s)
@@ -170,8 +170,8 @@ class Camera(features.FeaturesDict):
       calibration matrix K.
     """
     if not isinstance(optical_center, tuple):
-      raise ValueError("Optical center of camera needs "
-                       "to be a tuple of (c_x, c_y).")
+      raise ValueError('Optical center of camera needs '
+                       'to be a tuple of (c_x, c_y).')
 
     if isinstance(f, tuple):
       f_x, f_y = f

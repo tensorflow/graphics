@@ -106,17 +106,17 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
             tfds.testing.FeatureExpectationItem(
                 value=raising_pose_inputs,
                 raise_cls=ValueError,
-                raise_msg="Wrong keys for pose feature provided"
+                raise_msg='Wrong keys for pose feature provided'
             ),
             tfds.testing.FeatureExpectationItem(
                 value=raising_lookat_inputs,
                 raise_cls=ValueError,
-                raise_msg="Wrong keys for pose feature provided"
+                raise_msg='Wrong keys for pose feature provided'
             ),
             tfds.testing.FeatureExpectationItem(
                 value=raising_pose_entry,
                 raise_cls=ValueError,
-                raise_msg="Pose needs to be a dictionary"
+                raise_msg='Pose needs to be a dictionary'
             ),
         ],
     )

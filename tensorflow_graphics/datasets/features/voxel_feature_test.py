@@ -41,7 +41,7 @@ class VoxelGridFeatureTest(tfds.testing.FeatureExpectationsTestCase):
     mat_dict = {'path': mat_file_path, 'key': 'voxels'}
     raising_inputs = {'path': mat_file_path, 'foo': 'voxels'}
     wrong_key = {'path': mat_file_path, 'key': 'foo'}
-    wrong_path = {'path': "/somewhere/wrong", 'key': 'voxels'}
+    wrong_path = {'path': '/somewhere/wrong', 'key': 'voxels'}
     wrong_dim = np.ones((1, 1, 1, 1))
     self.assertFeature(
         feature=voxel_feature.VoxelGrid((16, 16, 16)),

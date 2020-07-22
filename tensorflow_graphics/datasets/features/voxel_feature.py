@@ -55,8 +55,8 @@ class VoxelGrid(features.Tensor):
 
       if not all(key in example_data for key in ['path', 'key']):
         raise ValueError(
-            f"Missing keys in provided dictionary! Expecting 'path'"
-            f" and 'key', but {example_data.keys()} were given.")
+            f'Missing keys in provided dictionary! Expecting \'path\''
+            f' and \'key\', but {example_data.keys()} were given.')
 
       if not os.path.exists(example_data['path']):
         raise FileNotFoundError(
@@ -73,7 +73,7 @@ class VoxelGrid(features.Tensor):
 
     else:
       if not example_data.ndim == 3:
-        raise ValueError("Only 3D Voxel Grids are supported.")
+        raise ValueError('Only 3D Voxel Grids are supported.')
 
       voxel_grid = example_data
 
