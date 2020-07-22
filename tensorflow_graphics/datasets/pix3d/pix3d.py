@@ -9,8 +9,8 @@ import os
 
 import numpy as np
 import tensorflow as tf
-import tensorflow_datasets.public_api as tfds
 from tensorflow_datasets import features as tfds_features
+import tensorflow_datasets.public_api as tfds
 
 from tensorflow_graphics.datasets import features as tfg_features
 
