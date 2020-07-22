@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Test Cases for cubify OP."""
 
 import tensorflow as tf
 
@@ -19,17 +20,19 @@ from tensorflow_graphics.util import test_case
 
 
 class CufifyTest(test_case.TestCase):
+  """Test Cases for cubify OP."""
 
   def test_all_below_threshold(self):
-    N, V = 32, 16
-    voxels = tf.random.uniform((N, V, V, V), minval=0, maxval=0.5,
-                               dtype=tf.float32)
+    """All voxel occupancy probablities below threshold. Expects empty Mesh."""
+    N, V = 32, 16  # pylint: disable=C0103
+    voxels = tf.random.uniform((N, V, V, V), 0, 0.5, tf.float32)
     vertices, faces = cubify(voxels, threshold=0.7)
     self.assertEmpty(vertices[0])
     self.assertEmpty(faces[0])
 
   def test_cubify_on_cube(self):
-    N, V = 2, 2
+    """Test cubify on arbitrary cubes."""
+    V = 2  # pylint: disable=C0103
 
     # top left corner in front plane is 1, everything else empty
     one_voxel = tf.constant([[[1., 0.],
