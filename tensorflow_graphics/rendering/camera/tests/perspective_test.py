@@ -221,10 +221,8 @@ class PerspectiveTest(test_case.TestCase):
                                     error_msg, shapes)
 
   @parameterized.parameters(
-      ((((0., 0., 0.), (0., 0., 0.), (0., 0., 1.)),), ((0., 0.), (0., 0.),
-                                                       (0.0,))),
-      ((((1., 0., 3.), (0., 2., 4.), (0., 0., 1.)),), ((1., 2.), (3., 4.),
-                                                       (0.0,))),
+      ((((0., 0., 0.), (0., 0., 0.), (0., 0., 1.)),), ((0., 0.), (0., 0.))),
+      ((((1., 0., 3.), (0., 2., 4.), (0., 0., 1.)),), ((1., 2.), (3., 4.))),
   )
   def test_intrinsics_from_matrix_preset(self, test_inputs, test_outputs):
     """Tests that intrinsics_from_matrix gives the correct result."""
@@ -237,36 +235,23 @@ class PerspectiveTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
     random_focal = np.random.normal(size=tensor_shape + [2])
     random_principal_point = np.random.normal(size=tensor_shape + [2])
-    random_skew_coeff = np.random.normal(size=tensor_shape + [1])
+    random_skew = np.random.normal(size=tensor_shape + [1])
 
     matrix = perspective.matrix_from_intrinsics(random_focal,
                                                 random_principal_point,
-                                                random_skew_coeff)
-    focal, principal_point, skew_coeff = perspective.intrinsics_from_matrix(
-        matrix)
-    random_skew_coeff = np.reshape(random_skew_coeff, (1, 1))
+                                                random_skew)
+    focal, principal_point, skew = perspective.intrinsics_from_matrix(matrix)
 
     self.assertAllClose(random_focal, focal, rtol=1e-3)
     self.assertAllClose(random_principal_point, principal_point, rtol=1e-3)
-    self.assertAllClose(random_skew_coeff, skew_coeff, rtol=1e-3)
-
-  @parameterized.parameters(
-      ((2,), (2,), (1,)),
-      ((2, 2), (2, 2), (2, 1)),
-      ((None, 2), (None, 2), (None, 1)),
-  )
-  def test_matrix_from_intrinsics_exception_not_raised(self, *shapes):
-    """Tests that the shape exceptions are not raised."""
-    self.assert_exception_is_not_raised(perspective.matrix_from_intrinsics,
-                                        shapes)
+    self.assertAllClose(random_skew, skew, rtol=1e-3)
 
   @parameterized.parameters(
       ((2,), (2,)),
       ((2, 2), (2, 2)),
       ((None, 2), (None, 2)),
   )
-  def test_matrix_from_intrinsics_exception_not_raised_when_skew_not_passed(
-      self, *shapes):
+  def test_matrix_from_intrinsics_exception_not_raised(self, *shapes):
     """Tests that the shape exceptions are not raised."""
     self.assert_exception_is_not_raised(perspective.matrix_from_intrinsics,
                                         shapes)
@@ -282,10 +267,9 @@ class PerspectiveTest(test_case.TestCase):
                                     error_msg, shapes)
 
   @parameterized.parameters(
-      (((0.0, 0.0), (0.0, 0.0), (0.0,)), (((0.0, 0.0, 0.0), (0.0, 0.0, 0.0),
-                                           (0.0, 0.0, 1.0)),)),
-      (((1.0, 2.0), (3.0, 4.0), (0.0,)), (((1.0, 0.0, 3.0), (0.0, 2.0, 4.0),
-                                           (0.0, 0.0, 1.0)),)))
+      (((0., 0.), (0., 0.)), (((0., 0., 0.), (0., 0., 0.), (0., 0., 1.)),)),
+      (((1., 2.), (3., 4.)), (((1., 0., 3.), (0., 2., 4.), (0., 0., 1.)),)),
+  )
   def test_matrix_from_intrinsics_preset(self, test_inputs, test_outputs):
     """Tests that matrix_from_intrinsics gives the correct result."""
     self.assert_output_is_correct(perspective.matrix_from_intrinsics,
@@ -301,16 +285,14 @@ class PerspectiveTest(test_case.TestCase):
     fy = random_focal[..., 1]
     cx = random_principal_point[..., 0]
     cy = random_principal_point[..., 1]
+    skew = np.random.normal(size=tensor_shape)
     zero = np.zeros_like(fx)
     one = np.ones_like(fx)
-    random_matrix = np.stack((fx, zero, cx, zero, fy, cy, zero, zero, one),
+    random_matrix = np.stack((fx, skew, cx, zero, fy, cy, zero, zero, one),
                              axis=-1).reshape(tensor_shape + [3, 3])
 
-    focal, principal_point, skew_coefficient = perspective.intrinsics_from_matrix(
-        random_matrix)
-    matrix = perspective.matrix_from_intrinsics(focal,
-                                                principal_point,
-                                                skew_coefficient)
+    focal, principal_point, skew = perspective.intrinsics_from_matrix(random_matrix)
+    matrix = perspective.matrix_from_intrinsics(focal, principal_point, skew)
 
     self.assertAllClose(random_matrix, matrix, rtol=1e-3)
 
@@ -354,12 +336,13 @@ class PerspectiveTest(test_case.TestCase):
     random_point_3d = np.random.normal(size=tensor_shape + [3])
     random_focal = np.random.normal(size=tensor_shape + [2])
     random_principal_point = np.random.normal(size=tensor_shape + [2])
+    random_skew = np.random.normal(size=tensor_shape + [1])
     random_depth = np.expand_dims(random_point_3d[..., 2], axis=-1)
 
     point_2d = perspective.project(random_point_3d, random_focal,
-                                   random_principal_point)
+                                   random_principal_point, random_skew)
     point_3d = perspective.unproject(point_2d, random_depth, random_focal,
-                                     random_principal_point)
+                                     random_principal_point, random_skew)
 
     self.assertAllClose(random_point_3d, point_3d, rtol=1e-3)
 
@@ -370,11 +353,12 @@ class PerspectiveTest(test_case.TestCase):
     random_point_3d = np.random.normal(size=tensor_shape + [3])
     random_focal = np.random.normal(size=tensor_shape + [2])
     random_principal_point = np.random.normal(size=tensor_shape + [2])
+    random_skew = np.random.normal(size=tensor_shape + [1])
     random_depth = np.expand_dims(random_point_3d[..., 2], axis=-1)
 
     point_2d = perspective.project(random_point_3d, random_focal,
-                                   random_principal_point)
-    ray_3d = perspective.ray(point_2d, random_focal, random_principal_point)
+                                   random_principal_point, random_skew)
+    ray_3d = perspective.ray(point_2d, random_focal, random_principal_point, random_skew)
     ray_3d = random_depth * ray_3d
 
     self.assertAllClose(random_point_3d, ray_3d, rtol=1e-3)
@@ -417,10 +401,12 @@ class PerspectiveTest(test_case.TestCase):
     random_point_2d = np.random.normal(size=tensor_shape + [2])
     random_focal = np.random.normal(size=tensor_shape + [2])
     random_principal_point = np.random.normal(size=tensor_shape + [2])
+    random_skew = np.random.normal(size=tensor_shape + [1])
 
     ray_3d = perspective.ray(random_point_2d, random_focal,
-                             random_principal_point)
-    point_2d = perspective.project(ray_3d, random_focal, random_principal_point)
+                             random_principal_point,
+                             random_skew)
+    point_2d = perspective.project(ray_3d, random_focal, random_principal_point, random_skew)
 
     self.assertAllClose(random_point_2d, point_2d, rtol=1e-3)
 
@@ -464,12 +450,13 @@ class PerspectiveTest(test_case.TestCase):
     random_point_2d = np.random.normal(size=tensor_shape + [2])
     random_focal = np.random.normal(size=tensor_shape + [2])
     random_principal_point = np.random.normal(size=tensor_shape + [2])
+    random_skew = np.random.normal(size=tensor_shape + [1])
     random_depth = np.random.normal(size=tensor_shape + [1])
 
     point_3d = perspective.unproject(random_point_2d, random_depth,
-                                     random_focal, random_principal_point)
+                                     random_focal, random_principal_point, random_skew)
     point_2d = perspective.project(point_3d, random_focal,
-                                   random_principal_point)
+                                   random_principal_point, random_skew)
 
     self.assertAllClose(random_point_2d, point_2d, rtol=1e-3)
 
@@ -480,12 +467,13 @@ class PerspectiveTest(test_case.TestCase):
     random_point_2d = np.random.normal(size=tensor_shape + [2])
     random_focal = np.random.normal(size=tensor_shape + [2])
     random_principal_point = np.random.normal(size=tensor_shape + [2])
+    random_skew = np.random.normal(size=tensor_shape + [1])
     random_depth = np.random.normal(size=tensor_shape + [1])
 
     point_3d = perspective.unproject(random_point_2d, random_depth,
-                                     random_focal, random_principal_point)
+                                     random_focal, random_principal_point, random_skew)
     ray_3d = perspective.ray(random_point_2d, random_focal,
-                             random_principal_point)
+                             random_principal_point, random_skew)
     ray_3d = random_depth * ray_3d
 
     self.assertAllClose(point_3d, ray_3d, rtol=1e-3)
