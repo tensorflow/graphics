@@ -221,8 +221,9 @@ class PerspectiveTest(test_case.TestCase):
                                     error_msg, shapes)
 
   @parameterized.parameters(
-      ((((0., 0., 0.), (0., 0., 0.), (0., 0., 1.)),), ((0., 0.), (0., 0.))),
-      ((((1., 0., 3.), (0., 2., 4.), (0., 0., 1.)),), ((1., 2.), (3., 4.))),
+      ((((0., 0.0, 0.), (0., 0., 0.), (0., 0., 1.)),), ((0., 0.), (0., 0.), (0.,))),
+      ((((1., 0.0, 3.), (0., 2., 4.), (0., 0., 1.)),), ((1., 2.), (3., 4.), (0.,))),
+      ((((1., 0.5, 3.), (0., 2., 4.), (0., 0., 1.)),), ((1., 2.), (3., 4.), (0.5,))),
   )
   def test_intrinsics_from_matrix_preset(self, test_inputs, test_outputs):
     """Tests that intrinsics_from_matrix gives the correct result."""
@@ -248,8 +249,11 @@ class PerspectiveTest(test_case.TestCase):
 
   @parameterized.parameters(
       ((2,), (2,)),
-      ((2, 2), (2, 2)),
+      ((2,), (2,), (1,)),
+      ((2, 2), (2, 2),),
+      ((2, 2), (2, 2), (2, 1)),
       ((None, 2), (None, 2)),
+      ((None, 2), (None, 2), (None, 1)),
   )
   def test_matrix_from_intrinsics_exception_not_raised(self, *shapes):
     """Tests that the shape exceptions are not raised."""
@@ -259,7 +263,8 @@ class PerspectiveTest(test_case.TestCase):
   @parameterized.parameters(
       ("must have exactly 2 dimensions in axis -1", (None,), (2,)),
       ("must have exactly 2 dimensions in axis -1", (2,), (None,)),
-      ("Not all batch dimensions are identical.", (3, 2), (2, 2)),
+      ("must have exactly 1 dimensions in axis -1", (2,), (2,), (None,)),
+      ("Not all batch dimensions are identical.", (3, 2), (2, 2), (4, 1)),
   )
   def test_matrix_from_intrinsics_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised."""
@@ -269,6 +274,7 @@ class PerspectiveTest(test_case.TestCase):
   @parameterized.parameters(
       (((0., 0.), (0., 0.)), (((0., 0., 0.), (0., 0., 0.), (0., 0., 1.)),)),
       (((1., 2.), (3., 4.)), (((1., 0., 3.), (0., 2., 4.), (0., 0., 1.)),)),
+      (((1., 2.), (3., 4.), (5.,)), (((1., 5., 3.), (0., 2., 4.), (0., 0., 1.)),)),
   )
   def test_matrix_from_intrinsics_preset(self, test_inputs, test_outputs):
     """Tests that matrix_from_intrinsics gives the correct result."""
@@ -298,9 +304,13 @@ class PerspectiveTest(test_case.TestCase):
 
   @parameterized.parameters(
       ((3,), (2,), (2,)),
+      ((3,), (2,), (2,), (1,)),
       ((2, 3), (2, 2), (2, 2)),
+      ((2, 3), (2, 2), (2, 2), (2, 1)),
       ((2, 3), (2,), (2,)),
+      ((2, 3), (2,), (2,), (1,)),
       ((None, 3), (None, 2), (None, 2)),
+      ((None, 3), (None, 2), (None, 2), (None, 1)),
   )
   def test_project_exception_not_exception_raised(self, *shapes):
     """Tests that the shape exceptions are not raised."""
@@ -310,8 +320,9 @@ class PerspectiveTest(test_case.TestCase):
       ("must have exactly 3 dimensions in axis -1", (None,), (2,), (2,)),
       ("must have exactly 2 dimensions in axis -1", (3,), (None,), (2,)),
       ("must have exactly 2 dimensions in axis -1", (3,), (2,), (None,)),
+      ("must have exactly 1 dimensions in axis -1", (3,), (2,), (2,), (None,)),
       ("Not all batch dimensions are broadcast-compatible.", (3, 3), (2, 2),
-       (2, 2)),
+       (2, 2), (4, 1)),
   )
   def test_project_exception_raised(self, error_msg, *shape):
     """Tests that the shape exceptions are properly raised."""
@@ -319,10 +330,13 @@ class PerspectiveTest(test_case.TestCase):
 
   @parameterized.parameters(
       (((0., 0., 1.), (1., 1.), (0., 0.)), ((0., 0.),)),
+      (((0., 0., 1.), (1., 1.), (0., 0.), (0.,)), ((0., 0.),)),
       (((4., 2., 1.), (1., 1.), (-4., -2.)), ((0., 0.),)),
       (((4., 2., 10.), (1., 1.), (-.4, -.2)), ((0., 0.),)),
       (((4., 2., 10.), (2., 1.), (-.8, -.2)), ((0., 0.),)),
       (((4., 2., 10.), (2., 1.), (-.8, 0.)), ((0., .2),)),
+      (((4., 2., 10.), (2., 1.), (-.8, 0.), (0.,)), ((0., .2),)),
+      (((4., 2., 10.), (2., 1.), (-.8, 0.), (0.5,)), ((0.1, .2),)),
   )
   def test_project_preset(self, test_inputs, test_outputs):
     """Tests that the project function gives the correct result."""
@@ -365,9 +379,13 @@ class PerspectiveTest(test_case.TestCase):
 
   @parameterized.parameters(
       ((2,), (2,), (2,)),
+      ((2,), (2,), (2,), (1,)),
       ((2, 2), (2, 2), (2, 2)),
-      ((3, 2), (1, 2), (2,)),
+      ((2, 2), (2, 2), (2, 2), (2, 1)),
+      ((3, 2), (1, 2), (2,)),  # Why allow for broadcast compatibility in this function but not others?
+      ((3, 2), (1, 2), (2,), (1,)),
       ((None, 2), (None, 2), (None, 2)),
+      ((None, 2), (None, 2), (None, 2), (None, 1)),
   )
   def test_ray_exception_exception_not_raised(self, *shapes):
     """Tests that the shape exceptions are not raised."""
@@ -377,8 +395,11 @@ class PerspectiveTest(test_case.TestCase):
       ("must have exactly 2 dimensions in axis -1", (None,), (2,), (2,)),
       ("must have exactly 2 dimensions in axis -1", (2,), (None,), (2,)),
       ("must have exactly 2 dimensions in axis -1", (2,), (2,), (None,)),
+      ("must have exactly 1 dimensions in axis -1", (2,), (2,), (2,), (None,)),
       ("Not all batch dimensions are broadcast-compatible.", (3, 2), (1, 2),
        (2, 2)),
+      ("Not all batch dimensions are broadcast-compatible.", (2, 2), (2, 2),
+       (2, 2), (3, 1)),
   )
   def test_ray_exception_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised."""
@@ -388,7 +409,9 @@ class PerspectiveTest(test_case.TestCase):
       (((0., 0.), (1., 1.), (0., 0.)), ((0., 0., 1.),)),
       (((0., 0.), (1., 1.), (-1., -2.)), ((1., 2., 1.),)),
       (((0., 0.), (10., 1.), (-1., -2.)), ((.1, 2., 1.),)),
+      (((0., 0.), (10., 1.), (-1., -2.), (2.,)), ((-.3, 2., 1.),)),
       (((-2., -4.), (10., 1.), (-3., -6.)), ((.1, 2., 1.),)),
+      (((-2., -4.), (10., 1.), (-3., -6.), (0.,)), ((.1, 2., 1.),)),
   )
   def test_ray_preset(self, test_inputs, test_outputs):
     """Tests that the ray function gives the correct result."""
@@ -412,8 +435,11 @@ class PerspectiveTest(test_case.TestCase):
 
   @parameterized.parameters(
       ((2,), (1,), (2,), (2,)),
+      ((2,), (1,), (2,), (2,), (1,)),
       ((2, 2), (2, 1), (2, 2), (2, 2)),
+      ((2, 2), (2, 1), (2, 2), (2, 2), (2, 1)),
       ((None, 2), (None, 1), (None, 2), (None, 2)),
+      ((None, 2), (None, 1), (None, 2), (None, 2), (None, 1)),
   )
   def test_unproject_exception_not_raised(self, *shapes):
     """Tests that the shape exceptions are not raised."""
@@ -433,10 +459,14 @@ class PerspectiveTest(test_case.TestCase):
 
   @parameterized.parameters(
       (((0., 0.), (1.,), (1., 1.), (0., 0.)), ((0., 0., 1.),)),
+      (((0., 0.), (1.,), (1., 1.), (0., 0.), (0.,)), ((0., 0., 1.),)),
       (((0., 0.), (1.,), (1., 1.), (-4., -2.)), ((4., 2., 1.),)),
       (((0., 0.), (10.,), (1., 1.), (-.4, -.2)), ((4., 2., 10.),)),
+      (((0., 0.), (10.,), (1., 1.), (-.4, -.2), (0.5,)), ((3., 2., 10.),)),
       (((0., 0.), (10.,), (2., 1.), (-.8, -.2)), ((4., 2., 10.),)),
+      (((0., 0.), (10.,), (2., 1.), (-.8, -.2), (0.,)), ((4., 2., 10.),)),
       (((0., .2), (10.,), (2., 1.), (-.8, 0.)), ((4., 2., 10.),)),
+      (((0., .2), (10.,), (2., 1.), (-.8, 0.), (2.,)), ((2., 2., 10.),)),
   )
   def test_unproject_preset(self, test_inputs, test_outputs):
     """Tests that the unproject function gives the correct result."""
