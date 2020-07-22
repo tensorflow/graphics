@@ -62,7 +62,8 @@ class Camera(features.FeaturesDict):
 
     * 'pose': A `tensorflow_graphics.datasets.features.Pose` FeatureConnector
     representing the 3D pose of the camera.
-    * 'intrinsics': A `float32` tensor with shape `[3,3]` denoting the intrinsic matrix.
+    * 'intrinsics': A `float32` tensor with shape `[3,3]` denoting the intrinsic
+    matrix.
 
   Example:
     Default values for skew (s) and aspect_ratio(a) are 0 and 1, respectively.
@@ -80,28 +81,28 @@ class Camera(features.FeaturesDict):
 
   def __init__(self):
     super(Camera, self).__init__({
-      'pose': pose_feature.Pose(),
-      'intrinsics': features.Tensor(shape=(3, 3), dtype=tf.float32),
+        'pose': pose_feature.Pose(),
+        'intrinsics': features.Tensor(shape=(3, 3), dtype=tf.float32),
     })
 
-  def encode_example(self, parameter_dict):
+  def encode_example(self, example_dict):
     """Convert the given parameters into a dict convertible to tf example."""
     REQUIRED_KEYS = ['pose', 'f', 'optical_center']
-    if not all(key in parameter_dict for key in REQUIRED_KEYS):
+    if not all(key in example_dict for key in REQUIRED_KEYS):
       raise ValueError(f"Missing keys in provided dictionary! "
                        f"Expected {REQUIRED_KEYS}, "
-                       f"but {parameter_dict.keys()} were given.")
+                       f"but {example_dict.keys()} were given.")
 
-    if not isinstance(parameter_dict['pose'], dict):
+    if not isinstance(example_dict['pose'], dict):
       raise ValueError("Pose needs to be a dictionary containing either "
                        "rotation and translation or look at, "
                        "up vector and position.")
     features_dict = {}
-    pose_dict = parameter_dict['pose']
+    pose_dict = example_dict['pose']
     if all(key in pose_dict for key in ['R', 't']):
       features_dict['pose'] = {
-        'R': pose_dict['R'],
-        't': pose_dict['t']
+          'R': pose_dict['R'],
+          't': pose_dict['t']
       }
     elif all(key in pose_dict for key in ['look_at', 'position', 'up']):
       rotation = self._create_rotation_from_look_at(pose_dict['look_at'],
@@ -110,28 +111,28 @@ class Camera(features.FeaturesDict):
       translation = (-rotation) @ pose_dict['position']
 
       features_dict['pose'] = {
-        'R': rotation,
-        't': translation
+          'R': rotation,
+          't': translation
       }
     else:
       raise ValueError("Wrong keys for pose feature provided!")
 
     aspect_ratio = 1
     skew = 0
-    if 'aspect_ratio' in parameter_dict.keys():
-      if not isinstance(parameter_dict['f'], float):
+    if 'aspect_ratio' in example_dict.keys():
+      if not isinstance(example_dict['f'], float):
         raise ValueError("If aspect ratio is provided, "
                          "f needs to be a single float.")
-      aspect_ratio = parameter_dict['aspect_ratio']
+      aspect_ratio = example_dict['aspect_ratio']
 
-    if 'skew' in parameter_dict.keys():
-      skew = parameter_dict['skew']
+    if 'skew' in example_dict.keys():
+      skew = example_dict['skew']
 
     features_dict['intrinsics'] = self._create_calibration_matrix(
-      parameter_dict['f'],
-      parameter_dict['optical_center'],
-      aspect_ratio,
-      skew
+        example_dict['f'],
+        example_dict['optical_center'],
+        aspect_ratio,
+        skew
     )
 
     return super(Camera, self).encode_example(features_dict)
@@ -157,7 +158,7 @@ class Camera(features.FeaturesDict):
 
     Args:
       f: Focal length of the camera. Either single float.32 value or tuple of
-      float32 when different focal lengths for each axis are provided (f_x, f_y).
+      float32 when different focal lengths for each axis are provided (f_x, f_y)
       optical_center: Tuple (c_x, c_y) containing the optical center
       of the camera in pixel coordinates.
       aspect_ratio: Optional parameter, if fixed focal length for both

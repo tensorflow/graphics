@@ -30,8 +30,10 @@ _TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'test_data')
 
 
 class VoxelGridFeatureTest(tfds.testing.FeatureExpectationsTestCase):
+  """Test Cases for VoxelGrid FeatureConnector."""
 
   def test_voxel(self):
+    """Tests voxel I/O and encoding/decoding to DatasetFeature."""
     mat_file_path = os.path.join(_TEST_DATA_DIR, 'cube.mat')
     expected_voxel = np.zeros((16, 16, 16), dtype=np.float32)
     expected_voxel[4:12, 4:12, 4:12] = 1.
@@ -42,41 +44,41 @@ class VoxelGridFeatureTest(tfds.testing.FeatureExpectationsTestCase):
     wrong_path = {'path': "/somewhere/wrong", 'key': 'voxels'}
     wrong_dim = np.ones((1, 1, 1, 1))
     self.assertFeature(
-      feature=voxel_feature.VoxelGrid((16, 16, 16)),
-      shape=(16, 16, 16),
-      dtype=tf.float32,
-      tests=[
-        # mat file
-        tfds.testing.FeatureExpectationItem(
-          value=mat_dict,
-          expected=expected_voxel,
-        ),
-        # Voxel Grid
-        tfds.testing.FeatureExpectationItem(
-          value=expected_voxel,
-          expected=expected_voxel,
-        ),
-        tfds.testing.FeatureExpectationItem(
-          value=raising_inputs,
-          raise_cls=ValueError,
-          raise_msg='Missing keys in provided dictionary!',
-        ),
-        tfds.testing.FeatureExpectationItem(
-          value=wrong_key,
-          raise_cls=ValueError,
-          raise_msg='Key `foo` not found in .mat file',
-        ),
-        tfds.testing.FeatureExpectationItem(
-          value=wrong_path,
-          raise_cls=FileNotFoundError,
-          raise_msg='File `/somewhere/wrong` does not exist.',
-        ),
-        tfds.testing.FeatureExpectationItem(
-          value=wrong_dim,
-          raise_cls=ValueError,
-          raise_msg='Only 3D Voxel Grids are supported.',
-        ),
-      ],
+        feature=voxel_feature.VoxelGrid((16, 16, 16)),
+        shape=(16, 16, 16),
+        dtype=tf.float32,
+        tests=[
+            # mat file
+            tfds.testing.FeatureExpectationItem(
+                value=mat_dict,
+                expected=expected_voxel,
+            ),
+            # Voxel Grid
+            tfds.testing.FeatureExpectationItem(
+                value=expected_voxel,
+                expected=expected_voxel,
+            ),
+            tfds.testing.FeatureExpectationItem(
+                value=raising_inputs,
+                raise_cls=ValueError,
+                raise_msg='Missing keys in provided dictionary!',
+            ),
+            tfds.testing.FeatureExpectationItem(
+                value=wrong_key,
+                raise_cls=ValueError,
+                raise_msg='Key `foo` not found in .mat file',
+            ),
+            tfds.testing.FeatureExpectationItem(
+                value=wrong_path,
+                raise_cls=FileNotFoundError,
+                raise_msg='File `/somewhere/wrong` does not exist.',
+            ),
+            tfds.testing.FeatureExpectationItem(
+                value=wrong_dim,
+                raise_cls=ValueError,
+                raise_msg='Only 3D Voxel Grids are supported.',
+            ),
+        ],
     )
 
 

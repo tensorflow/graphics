@@ -26,7 +26,7 @@ from tensorflow_graphics.datasets.features import pose_feature
 
 
 class PoseFeatureTest(tfds.testing.FeatureExpectationsTestCase):
-
+  """Test Cases for Pose Feature Connector."""
   def test_pose_feature(self):
     expected_rotation = np.eye(3)
     expected_translation = np.zeros(3)
@@ -37,27 +37,27 @@ class PoseFeatureTest(tfds.testing.FeatureExpectationsTestCase):
                       't': expected_translation.astype(np.float32)}
 
     self.assertFeature(
-      feature=pose_feature.Pose(),
-      shape={
-        'R': (3, 3),
-        't': (3,)
-      },
-      dtype={
-        'R': tf.float32,
-        't': tf.float32
-      },
-      tests=[
-        # FeaturesDict
-        tfds.testing.FeatureExpectationItem(
-          value=expected_pose,
-          expected=expected_pose,
-        ),
-        tfds.testing.FeatureExpectationItem(
-          value=raising_inputs,
-          raise_cls=ValueError,
-          raise_msg='Missing keys in provided dictionary!',
-        ),
-      ],
+        feature=pose_feature.Pose(),
+        shape={
+            'R': (3, 3),
+            't': (3,)
+        },
+        dtype={
+            'R': tf.float32,
+            't': tf.float32
+        },
+        tests=[
+            # FeaturesDict
+            tfds.testing.FeatureExpectationItem(
+                value=expected_pose,
+                expected=expected_pose,
+            ),
+            tfds.testing.FeatureExpectationItem(
+                value=raising_inputs,
+                raise_cls=ValueError,
+                raise_msg='Missing keys in provided dictionary!',
+            ),
+        ],
     )
 
 

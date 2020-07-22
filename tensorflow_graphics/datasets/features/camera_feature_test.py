@@ -26,8 +26,8 @@ from tensorflow_graphics.datasets.features import camera_feature
 
 
 class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
-
-  def __get_basic_camera_params(self):
+  """Test Cases for Camera FeatureConnector."""
+  def __get_camera_params(self):
     pose = {'R': np.eye(3).astype(np.float32),
             't': np.zeros(3).astype(np.float32)}
     f = 35.
@@ -38,99 +38,99 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
   def test_simple_camera(self):
     """Tests camera parameters with fixed focal length,
     no skew and no aspect ratio."""
-    expected_pose, expected_f, expected_optical_center = self.__get_basic_camera_params()
+    expected_pose, expected_f, expected_center = self.__get_camera_params()
 
-    expected_K = np.asarray([[expected_f, 0, expected_optical_center[0]],
-                             [0, expected_f, expected_optical_center[1]],
+    expected_K = np.asarray([[expected_f, 0, expected_center[0]],
+                             [0, expected_f, expected_center[1]],
                              [0, 0, 1]], dtype=np.float32)
 
     expected_camera = {'pose': expected_pose, 'intrinsics': expected_K}
-    inputs = {'f': expected_f, 'optical_center': expected_optical_center,
+    inputs = {'f': expected_f, 'optical_center': expected_center,
               'pose': expected_pose}
     lookat_inputs = {
-      'f': expected_f,
-      'optical_center': expected_optical_center,
-      'pose': {
-        'look_at': np.array([0, 0, -1], dtype=np.float32),
-        'up': np.array([0, 1, 0], dtype=np.float32),
-        'position': np.array([0, 0, 0], dtype=np.float32)
-      }
+        'f': expected_f,
+        'optical_center': expected_center,
+        'pose': {
+            'look_at': np.array([0, 0, -1], dtype=np.float32),
+            'up': np.array([0, 1, 0], dtype=np.float32),
+            'position': np.array([0, 0, 0], dtype=np.float32)
+        }
     }
 
     raising_pose_entry = {
-      'f': expected_f,
-      'optical_center': expected_optical_center,
-      'pose': np.eye(4)
+        'f': expected_f,
+        'optical_center': expected_center,
+        'pose': np.eye(4)
     }
 
-    raising_Rt_inputs = {
-      'f': expected_f,
-      'optical_center': expected_optical_center,
-      'pose': {'rot': np.eye(3), 'trans': np.zeros(3)}
+    raising_pose_inputs = {
+        'f': expected_f,
+        'optical_center': expected_center,
+        'pose': {'rot': np.eye(3), 'trans': np.zeros(3)}
     }
     raising_lookat_inputs = {
-      'f': expected_f,
-      'optical_center': expected_optical_center,
-      'pose': {
-        'l': np.array([0, 0, -1], dtype=np.float32),
-        'up': np.array([0, 1, 0], dtype=np.float32),
-        'C': np.array([0, 0, 0], dtype=np.float32)
-      }
+        'f': expected_f,
+        'optical_center': expected_center,
+        'pose': {
+            'l': np.array([0, 0, -1], dtype=np.float32),
+            'up': np.array([0, 1, 0], dtype=np.float32),
+            'C': np.array([0, 0, 0], dtype=np.float32)
+        }
     }
 
     self.assertFeature(
-      feature=camera_feature.Camera(),
-      shape={
-        'pose': {
-          'R': (3, 3),
-          't': (3,)
+        feature=camera_feature.Camera(),
+        shape={
+            'pose': {
+                'R': (3, 3),
+                't': (3,)
+            },
+            'intrinsics': (3, 3)
         },
-        'intrinsics': (3, 3)
-      },
-      dtype={
-        'pose': {
-          'R': tf.float32,
-          't': tf.float32
+        dtype={
+            'pose': {
+                'R': tf.float32,
+                't': tf.float32
+            },
+            'intrinsics': tf.float32
         },
-        'intrinsics': tf.float32
-      },
-      tests=[
-        tfds.testing.FeatureExpectationItem(
-          value=inputs,
-          expected=expected_camera,
-        ),
-        tfds.testing.FeatureExpectationItem(
-          value=lookat_inputs,
-          expected=expected_camera
-        ),
-        tfds.testing.FeatureExpectationItem(
-          value=raising_Rt_inputs,
-          raise_cls=ValueError,
-          raise_msg="Wrong keys for pose feature provided"
-        ),
-        tfds.testing.FeatureExpectationItem(
-          value=raising_lookat_inputs,
-          raise_cls=ValueError,
-          raise_msg="Wrong keys for pose feature provided"
-        ),
-        tfds.testing.FeatureExpectationItem(
-          value=raising_pose_entry,
-          raise_cls=ValueError,
-          raise_msg="Pose needs to be a dictionary"
-        ),
-      ],
+        tests=[
+            tfds.testing.FeatureExpectationItem(
+                value=inputs,
+                expected=expected_camera,
+            ),
+            tfds.testing.FeatureExpectationItem(
+                value=lookat_inputs,
+                expected=expected_camera
+            ),
+            tfds.testing.FeatureExpectationItem(
+                value=raising_pose_inputs,
+                raise_cls=ValueError,
+                raise_msg="Wrong keys for pose feature provided"
+            ),
+            tfds.testing.FeatureExpectationItem(
+                value=raising_lookat_inputs,
+                raise_cls=ValueError,
+                raise_msg="Wrong keys for pose feature provided"
+            ),
+            tfds.testing.FeatureExpectationItem(
+                value=raising_pose_entry,
+                raise_cls=ValueError,
+                raise_msg="Pose needs to be a dictionary"
+            ),
+        ],
     )
 
   def test_camera_with_aspect_ratio_and_skew(self):
-    """Tests camera parameters with fixed focal length, aspect_ratio and skew."""
-
-    expected_pose, expected_f, expected_center = self.__get_basic_camera_params()
+    """Tests camera parameters with fixed focal length,
+    aspect_ratio and skew."""
+    expected_pose, expected_f, expected_center = self.__get_camera_params()
     expected_aspect_ratio = expected_center[0] / expected_center[1]
     expected_skew = 0.6
     expected_K = np.asarray(
-      [[expected_f, expected_skew, expected_center[0]],
-       [0, expected_aspect_ratio * expected_f, expected_center[1]],
-       [0, 0, 1]], dtype=np.float32)
+        [[expected_f, expected_skew, expected_center[0]],
+         [0, expected_aspect_ratio * expected_f, expected_center[1]],
+         [0, 0, 1]], dtype=np.float32)
 
     expected_camera = {'pose': expected_pose, 'intrinsics': expected_K}
     inputs = {'f': expected_f,
@@ -140,40 +140,40 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
               'pose': expected_pose}
 
     self.assertFeature(
-      feature=camera_feature.Camera(),
-      shape={
-        'pose': {
-          'R': (3, 3),
-          't': (3,)
+        feature=camera_feature.Camera(),
+        shape={
+            'pose': {
+                'R': (3, 3),
+                't': (3,)
+            },
+            'intrinsics': (3, 3)
         },
-        'intrinsics': (3, 3)
-      },
-      dtype={
-        'pose': {
-          'R': tf.float32,
-          't': tf.float32
+        dtype={
+            'pose': {
+                'R': tf.float32,
+                't': tf.float32
+            },
+            'intrinsics': tf.float32
         },
-        'intrinsics': tf.float32
-      },
-      tests=[
-        tfds.testing.FeatureExpectationItem(
-          value=inputs,
-          expected=expected_camera,
-        ),
-      ],
+        tests=[
+            tfds.testing.FeatureExpectationItem(
+                value=inputs,
+                expected=expected_camera,
+            ),
+        ],
     )
 
   def test_full_camera_calibration_matrix(self):
     """Tests camera parameters with different focal length per camera
     axis and skew."""
 
-    expected_pose, _, expected_optical_center = self.__get_basic_camera_params()
+    expected_pose, _, expected_optical_center = self.__get_camera_params()
     expected_skew = 0.6
     expected_f = (35., 40.)
     expected_K = np.array(
-      [[expected_f[0], expected_skew, expected_optical_center[0]],
-       [0, expected_f[1], expected_optical_center[1]],
-       [0, 0, 1]], dtype=np.float32)
+        [[expected_f[0], expected_skew, expected_optical_center[0]],
+         [0, expected_f[1], expected_optical_center[1]],
+         [0, 0, 1]], dtype=np.float32)
 
     expected_camera = {'pose': expected_pose, 'intrinsics': expected_K}
     inputs = {'f': expected_f,
@@ -185,32 +185,33 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
                       'optical_center': expected_optical_center,
                       'skew': expected_skew, 'pose': expected_pose}
     self.assertFeature(
-      feature=camera_feature.Camera(),
-      shape={
-        'pose': {
-          'R': (3, 3),
-          't': (3,)
+        feature=camera_feature.Camera(),
+        shape={
+            'pose': {
+                'R': (3, 3),
+                't': (3,)
+            },
+            'intrinsics': (3, 3)
         },
-        'intrinsics': (3, 3)
-      },
-      dtype={
-        'pose': {
-          'R': tf.float32,
-          't': tf.float32
+        dtype={
+            'pose': {
+                'R': tf.float32,
+                't': tf.float32
+            },
+            'intrinsics': tf.float32
         },
-        'intrinsics': tf.float32
-      },
-      tests=[
-        tfds.testing.FeatureExpectationItem(
-          value=inputs,
-          expected=expected_camera,
-        ),
-        tfds.testing.FeatureExpectationItem(
-          value=raising_inputs,
-          raise_cls=ValueError,
-          raise_msg='If aspect ratio is provided, f needs to be a single float',
-        ),
-      ],
+        tests=[
+            tfds.testing.FeatureExpectationItem(
+                value=inputs,
+                expected=expected_camera,
+            ),
+            tfds.testing.FeatureExpectationItem(
+                value=raising_inputs,
+                raise_cls=ValueError,
+                raise_msg='If aspect ratio is provided, f needs to '
+                          'be a single float',
+            ),
+        ],
     )
 
 

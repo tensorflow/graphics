@@ -25,6 +25,7 @@ from tensorflow_graphics.datasets import pix3d
 
 
 class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
+  """Test Cases for Pix3D Dataset implementation."""
   DATASET_CLASS = pix3d.Pix3d
   SPLITS = {
       "train": 2,  # Number of fake train example
