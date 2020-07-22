@@ -269,30 +269,46 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
     supported.
   """
   with tf.compat.v1.name_scope(name, "perspective_matrix_from_intrinsics",
-                               [focal, principal_point]):
+                               [focal, principal_point, skew]):
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
 
-    shape.check_static(
-        tensor=focal, tensor_name="focal", has_dim_equals=(-1, 2))
+    shape.check_static(tensor=focal, tensor_name="focal", has_dim_equals=(-1, 2))
     shape.check_static(
         tensor=principal_point,
         tensor_name="principal_point",
-        has_dim_equals=(-1, 2))
+        has_dim_equals=(-1, 2),
+    )
     shape.compare_batch_dimensions(
         tensors=(focal, principal_point),
         tensor_names=("focal", "principal_point"),
         last_axes=-2,
-        broadcast_compatible=False)
+        broadcast_compatible=False
+    )
+
+    skew = tf.convert_to_tensor(value=skew, dtype=focal.dtype)
+    shape.check_static(
+        tensor=skew,
+        tensor_name="skew",
+        has_dim_equals=(-1, 1),
+    )
+
+    common_batch_shape = shape.get_broadcasted_shape(focal.shape[:-1], principal_point.shape[:-1])
+
+    def dim_value(dim):
+        return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+    common_batch_shape = [dim_value(dim) for dim in common_batch_shape]
+    skew = tf.broadcast_to(skew, common_batch_shape + [1])
 
     fx, fy = tf.unstack(focal, axis=-1)
     cx, cy = tf.unstack(principal_point, axis=-1)
     zero = tf.zeros_like(fx)
     one = tf.ones_like(fx)
-    matrix = tf.stack((fx, zero, cx,
-                       zero, fy, cy,
-                       zero, zero, one),
-                      axis=-1)  # pyformat: disable
+    skew = tf.reshape(skew, tf.shape(fx))
+    matrix = tf.stack((fx,   skew, cx,  # noqa: E241
+                       zero,   fy, cy,  # noqa: E241
+                       zero, zero, one), axis=-1
+    )  # pyformat: disable
     matrix_shape = tf.shape(input=matrix)
     output_shape = tf.concat((matrix_shape[:-1], (3, 3)), axis=-1)
     return tf.reshape(matrix, shape=output_shape)
@@ -337,7 +353,7 @@ def project(point_3d, focal, principal_point, skew=(0.0,), name=None):
     supported.
   """
   with tf.compat.v1.name_scope(name, "perspective_project",
-                               [point_3d, focal, principal_point]):
+                               [point_3d, focal, principal_point, skew]):
     point_3d = tf.convert_to_tensor(value=point_3d)
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
@@ -350,15 +366,23 @@ def project(point_3d, focal, principal_point, skew=(0.0,), name=None):
         tensor=principal_point,
         tensor_name="principal_point",
         has_dim_equals=(-1, 2))
+
+    # TODO: This throws an error if the user inputs a skew Tensor of a type
+    #       different than focal.dtype
+    skew = tf.convert_to_tensor(value=skew, dtype=focal.dtype)
+    shape.check_static(
+        tensor=skew, tensor_name="skew", has_dim_equals=(-1, 1))
     shape.compare_batch_dimensions(
-        tensors=(point_3d, focal, principal_point),
-        tensor_names=("point_3d", "focal", "principal_point"),
+        tensors=(point_3d, focal, principal_point, skew),
+        tensor_names=("point_3d", "focal", "principal_point", "skew"),
         last_axes=-2,
         broadcast_compatible=True)
 
-    point_2d, depth = tf.split(point_3d, (2, 1), axis=-1)
-    point_2d *= safe_ops.safe_signed_div(focal, depth)
-    point_2d += principal_point
+    projection_matrix = matrix_from_intrinsics(focal, principal_point, skew)
+    point_3d = tf.matmul(projection_matrix, tf.expand_dims(point_3d, axis=-1))
+    point_3d = tf.squeeze(point_3d, axis=-1)
+    point_2d = safe_ops.safe_signed_div(point_3d[..., :2], point_3d[..., 2])
+
   return point_2d
 
 
@@ -404,7 +428,7 @@ def ray(point_2d, focal, principal_point, skew=(0.0,), name=None):
     is not supported.
   """
   with tf.compat.v1.name_scope(name, "perspective_ray",
-                               [point_2d, focal, principal_point]):
+                               [point_2d, focal, principal_point, skew]):
     point_2d = tf.convert_to_tensor(value=point_2d)
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
@@ -417,14 +441,35 @@ def ray(point_2d, focal, principal_point, skew=(0.0,), name=None):
         tensor=principal_point,
         tensor_name="principal_point",
         has_dim_equals=(-1, 2))
+
+    skew = tf.convert_to_tensor(value=skew, dtype=focal.dtype)
+    shape.check_static(
+        tensor=skew, tensor_name="skew", has_dim_equals=(-1, 1))
+
     shape.compare_batch_dimensions(
-        tensors=(point_2d, focal, principal_point),
-        tensor_names=("point_2d", "focal", "principal_point"),
+        tensors=(point_2d, focal, principal_point, skew),
+        tensor_names=("point_2d", "focal", "principal_point", "skew"),
         last_axes=-2,
         broadcast_compatible=True)
 
+    fx, fy = tf.unstack(focal, axis=-1)
+    fx, fy = tf.expand_dims(fx, axis=-1), tf.expand_dims(fy, axis=-1)
+    _, cy = tf.unstack(principal_point, axis=-1)
+    cy = tf.expand_dims(cy, axis=-1)
+    y = tf.expand_dims(point_2d[..., 1], axis=-1)
+
+    skew_x_from_y = -safe_ops.safe_signed_div(skew * y, fx * fy)
+    skew_x_from_cy = safe_ops.safe_signed_div(skew * cy, fx * fy)
+    skew_x = skew_x_from_cy + skew_x_from_y
+    skew_padding = [[0, 0] for _ in skew_x.shape]
+    skew_padding[-1][-1] = 1
+    skew_x = tf.pad(
+        tensor=skew_x, paddings=skew_padding, mode="CONSTANT", constant_values=0.0)
+
     point_2d -= principal_point
     point_2d = safe_ops.safe_signed_div(point_2d, focal)
+    point_2d += skew_x
+
     padding = [[0, 0] for _ in point_2d.shape]
     padding[-1][-1] = 1
     return tf.pad(
@@ -524,7 +569,7 @@ def unproject(point_2d, depth, focal, principal_point, skew=(0.0,), name=None):
     `principal_point` or `skew` is not supported.
   """
   with tf.compat.v1.name_scope(name, "perspective_unproject",
-                               [point_2d, depth, focal, principal_point]):
+                               [point_2d, depth, focal, principal_point, skew]):
     point_2d = tf.convert_to_tensor(value=point_2d)
     depth = tf.convert_to_tensor(value=depth)
     focal = tf.convert_to_tensor(value=focal)
@@ -540,15 +585,37 @@ def unproject(point_2d, depth, focal, principal_point, skew=(0.0,), name=None):
         tensor=principal_point,
         tensor_name="principal_point",
         has_dim_equals=(-1, 2))
+
     shape.compare_batch_dimensions(
         tensors=(point_2d, depth, focal, principal_point),
         tensor_names=("point_2d", "depth", "focal", "principal_point"),
         last_axes=-2,
         broadcast_compatible=False)
 
-    point_2d -= principal_point
-    point_2d *= safe_ops.safe_signed_div(depth, focal)
-    return tf.concat((point_2d, depth), axis=-1)
+    skew = tf.convert_to_tensor(value=skew, dtype=focal.dtype)
+    shape.check_static(
+        tensor=skew, tensor_name="skew", has_dim_equals=(-1, 1))
+
+    common_batch_shape = shape.get_broadcasted_shape(focal.shape[:-1], principal_point.shape[:-1])
+
+    def dim_value(dim):
+        return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+    common_batch_shape = [dim_value(dim) for dim in common_batch_shape]
+    skew = tf.broadcast_to(skew, common_batch_shape + [1])
+
+    padding = [[0, 0] for _ in point_2d.shape]
+    padding[-1][-1] = 1
+    point_2d_homogeneous = tf.pad(
+        tensor=point_2d, paddings=padding, mode="CONSTANT", constant_values=1.0)
+    point_2d_homogeneous = tf.expand_dims(point_2d_homogeneous, axis=-1)
+    projection_matrix = matrix_from_intrinsics(focal=focal,
+                                               principal_point=principal_point,
+                                               skew=skew)
+    unprojection_matrix = tf.linalg.inv(projection_matrix)
+    point_3d = tf.squeeze(tf.matmul(unprojection_matrix, point_2d_homogeneous), axis=-1)
+    point_3d *= depth
+
+    return point_3d
 
 
 # API contains all public functions and classes.
