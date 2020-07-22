@@ -36,9 +36,10 @@ class RasterizerWithContext : public Rasterizer {
   // * rasterizer_with_context: if the method succeeds, this variable returns an
   // object
   //   storing an EGL offscreen context and a rasterizer.
-  // * clear_r: red component used when clearing the color buffers.
-  // * clear_g: green component used when clearing the color buffers.
-  // * clear_b: blue component used when clearing the color buffers.
+  // * clear_red: red component used when clearing the color buffers.
+  // * clear_green: green component used when clearing the color buffers.
+  // * clear_blue: blue component used when clearing the color buffers.
+  // * clear_alpha: alpha component used when clearing the color buffers.
   // * clear_depth: depth value used when clearing the depth buffer
   //
   // Returns:
@@ -49,8 +50,8 @@ class RasterizerWithContext : public Rasterizer {
       const std::string& geometry_shader_source,
       const std::string& fragment_shader_source,
       std::unique_ptr<RasterizerWithContext>* rasterizer_with_context,
-      float clear_r = 0.0f, float clear_g = 0.0f, float clear_b = 0.0f,
-      float clear_depth = 1.0f);
+      float clear_red = 0.0f, float clear_green = 0.0f, float clear_blue = 0.0f,
+      float clear_alpha = 1.0f, float clear_depth = 1.0f);
 
   // Rasterizes the scenes.
   //
@@ -104,8 +105,9 @@ class RasterizerWithContext : public Rasterizer {
   RasterizerWithContext(
       std::unique_ptr<EGLOffscreenContext>&& egl_context,
       std::unique_ptr<gl_utils::Program>&& program,
-      std::unique_ptr<gl_utils::RenderTargets>&& render_targets, float clear_r,
-      float clear_g, float clear_b, float clear_depth);
+      std::unique_ptr<gl_utils::RenderTargets>&& render_targets,
+      float clear_red, float clear_green, float clear_blue, float clear_alpha,
+      float clear_depth);
   RasterizerWithContext(const RasterizerWithContext&) = delete;
   RasterizerWithContext(RasterizerWithContext&&) = delete;
   RasterizerWithContext& operator=(const RasterizerWithContext&) = delete;

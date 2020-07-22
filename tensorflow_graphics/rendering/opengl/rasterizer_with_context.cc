@@ -17,10 +17,10 @@ limitations under the License.
 RasterizerWithContext::RasterizerWithContext(
     std::unique_ptr<EGLOffscreenContext>&& egl_context,
     std::unique_ptr<gl_utils::Program>&& program,
-    std::unique_ptr<gl_utils::RenderTargets>&& render_targets, float clear_r,
-    float clear_g, float clear_b, float clear_depth)
-    : Rasterizer(std::move(program), std::move(render_targets), clear_r,
-                 clear_g, clear_b, clear_depth),
+    std::unique_ptr<gl_utils::RenderTargets>&& render_targets, float clear_red,
+    float clear_green, float clear_blue, float clear_alpha, float clear_depth)
+    : Rasterizer(std::move(program), std::move(render_targets), clear_red,
+                 clear_green, clear_blue, clear_alpha, clear_depth),
       egl_context_(std::move(egl_context)) {}
 
 RasterizerWithContext::~RasterizerWithContext() {
@@ -42,7 +42,8 @@ tensorflow::Status RasterizerWithContext::Create(
     const std::string& geometry_shader_source,
     const std::string& fragment_shader_source,
     std::unique_ptr<RasterizerWithContext>* rasterizer_with_context,
-    float clear_r, float clear_g, float clear_b, float clear_depth) {
+    float clear_red, float clear_green, float clear_blue, float clear_alpha,
+    float clear_depth) {
   std::unique_ptr<gl_utils::Program> program;
   std::unique_ptr<gl_utils::RenderTargets> render_targets;
   std::vector<std::pair<std::string, GLenum>> shaders;
@@ -64,7 +65,8 @@ tensorflow::Status RasterizerWithContext::Create(
   *rasterizer_with_context =
       std::unique_ptr<RasterizerWithContext>(new RasterizerWithContext(
           std::move(offscreen_context), std::move(program),
-          std::move(render_targets), clear_r, clear_g, clear_b, clear_depth));
+          std::move(render_targets), clear_red, clear_green, clear_blue,
+          clear_alpha, clear_depth));
   return tensorflow::Status::OK();
 }
 

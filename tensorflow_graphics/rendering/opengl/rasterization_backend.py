@@ -104,7 +104,7 @@ in layout(location = 1) float triangle_index;
 out vec4 output_color;
 
 void main() {
-  output_color = vec4(round(triangle_index + 1.0), barycentric_coordinates, 0.0);
+  output_color = vec4(round(triangle_index + 1.0), barycentric_coordinates, 1.0);
 }
 """
 
@@ -183,6 +183,7 @@ def rasterize(vertices,
 
     rasterized = render_ops.rasterize(
         num_points=geometry.shape[-3],
+        alpha_clear=0.0,
         variable_names=("view_projection_matrix", "triangular_mesh"),
         variable_kinds=("mat", "buffer"),
         variable_values=(view_projection_matrices,
@@ -192,13 +193,13 @@ def rasterize(vertices,
         geometry_shader=geometry_shader,
         fragment_shader=fragment_shader)
 
-    triangle_index = tf.cast(rasterized[..., 0] - 1, tf.int32)
+    triangle_index = tf.cast(rasterized[..., 0], tf.int32) - 1
     barycentric_coordinates = rasterized[..., 1:3]
     barycentric_coordinates = tf.concat(
         (barycentric_coordinates, 1.0 - barycentric_coordinates[..., 0:1] -
          barycentric_coordinates[..., 1:2]),
         axis=-1)
-    mask = tf.cast(triangle_index >= 0, tf.int32)
+    mask = tf.cast(rasterized[..., 3], tf.int32)
 
     return triangle_index, barycentric_coordinates, mask
 
