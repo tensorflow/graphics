@@ -13,6 +13,8 @@
 # limitations under the License.
 """Test Cases for cubify OP."""
 
+import os
+
 import numpy as np
 import tensorflow as tf
 
@@ -172,13 +174,19 @@ class CufifyTest(test_case.TestCase):
   def test_cubify_on_sphere(self):
     """Tests cubify with a voxelized sphere."""
 
-    sphere = np.load('test_data/sphere_voxel.npy').astype(np.float32)
+    shpere_voxel_path = os.path.join(
+        os.path.dirname(__file__), 'test_data/sphere_voxel.npy')
+    sphere = np.load(shpere_voxel_path).astype(np.float32)
     sphere_tensor = tf.convert_to_tensor(np.expand_dims(sphere, 0))
 
+    sphere_vertices_path = os.path.join(
+        os.path.dirname(__file__), 'test_data/sphere_vertices.npy')
+    sphere_faces_path = os.path.join(
+        os.path.dirname(__file__), 'test_data/sphere_faces.npy')
     expected_sphere_vertices = tf.convert_to_tensor(
-        np.load('test_data/sphere_vertices.npy'))
+        np.load(sphere_vertices_path))
     expected_sphere_faces = tf.convert_to_tensor(
-        np.load('test_data/sphere_faces.npy'))
+        np.load(sphere_faces_path))
 
     vertices, faces = cubify(sphere_tensor, 0.5)
 
