@@ -66,7 +66,8 @@ class Rasterizer {
   // * clear_green: green component used when clearing the color buffers.
   // * clear_blue: blue component used when clearing the color buffers.
   // * clear_alpha: alpha component used when clearing the color buffers.
-  // * clear_depth: depth value used when clearing the depth buffer
+  // * clear_depth: depth value used when clearing the depth buffer.
+  // * enable_cull_face: enable face culling.
   // * rasterizer: if the method succeeds, this variable returns an object
   //   storing a ready to use rasterizer.
   //
@@ -80,7 +81,7 @@ class Rasterizer {
                                    const std::string& fragment_shader_source,
                                    float clear_red, float clear_green,
                                    float clear_blue, float clear_alpha,
-                                   float clear_depth,
+                                   float clear_depth, bool enable_cull_face,
                                    std::unique_ptr<Rasterizer>* rasterizer);
 
   // Rasterizes the scenes.
@@ -137,7 +138,7 @@ class Rasterizer {
   Rasterizer(std::unique_ptr<gl_utils::Program>&& program,
              std::unique_ptr<gl_utils::RenderTargets>&& render_targets,
              float clear_red, float clear_green, float clear_blue,
-             float clear_alpha, float clear_depth);
+             float clear_alpha, float clear_depth, bool enable_cull_face);
   Rasterizer(const Rasterizer&) = delete;
   Rasterizer(Rasterizer&&) = delete;
   Rasterizer& operator=(const Rasterizer&) = delete;
@@ -152,6 +153,7 @@ class Rasterizer {
                      std::unique_ptr<gl_utils::ShaderStorageBuffer>>
       shader_storage_buffers_;
   float clear_red_, clear_green_, clear_blue_, clear_alpha_, clear_depth_;
+  bool enable_cull_face_;
 
   friend class RasterizerWithContext;
 };
@@ -163,7 +165,8 @@ tensorflow::Status Rasterizer::Create(const int width, const int height,
                                       const std::string& fragment_shader_source,
                                       std::unique_ptr<Rasterizer>* rasterizer) {
   return Create<T>(width, height, vertex_shader_source, geometry_shader_source,
-                   fragment_shader_source, 0.0, 0.0, 0.0, 1.0, 1.0, rasterizer);
+                   fragment_shader_source, 0.0, 0.0, 0.0, 1.0, 1.0, false,
+                   rasterizer);
 }
 
 template <typename T>
@@ -173,7 +176,7 @@ tensorflow::Status Rasterizer::Create(const int width, const int height,
                                       const std::string& fragment_shader_source,
                                       float clear_red, float clear_green,
                                       float clear_blue, float clear_alpha,
-                                      float clear_depth,
+                                      float clear_depth, bool enable_cull_face,
                                       std::unique_ptr<Rasterizer>* rasterizer) {
   std::unique_ptr<gl_utils::Program> program;
   std::unique_ptr<gl_utils::RenderTargets> render_targets;
@@ -186,9 +189,9 @@ tensorflow::Status Rasterizer::Create(const int width, const int height,
   TF_RETURN_IF_ERROR(
       gl_utils::RenderTargets::Create<T>(width, height, &render_targets));
 
-  *rasterizer = std::unique_ptr<Rasterizer>(
-      new Rasterizer(std::move(program), std::move(render_targets), clear_red,
-                     clear_green, clear_blue, clear_alpha, clear_depth));
+  *rasterizer = std::unique_ptr<Rasterizer>(new Rasterizer(
+      std::move(program), std::move(render_targets), clear_red, clear_green,
+      clear_blue, clear_alpha, clear_depth, enable_cull_face));
   return tensorflow::Status::OK();
 }
 
@@ -199,7 +202,7 @@ tensorflow::Status Rasterizer::RenderImpl(int num_points,
 
   TFG_RETURN_IF_GL_ERROR(glDisable(GL_BLEND));
   TFG_RETURN_IF_GL_ERROR(glEnable(GL_DEPTH_TEST));
-  TFG_RETURN_IF_GL_ERROR(glDisable(GL_CULL_FACE));
+  if (enable_cull_face_) TFG_RETURN_IF_GL_ERROR(glEnable(GL_CULL_FACE));
 
   // Bind storage buffer to shader names
   for (const auto& buffer : shader_storage_buffers_) {

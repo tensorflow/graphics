@@ -51,7 +51,8 @@ class RasterizerWithContext : public Rasterizer {
       const std::string& fragment_shader_source,
       std::unique_ptr<RasterizerWithContext>* rasterizer_with_context,
       float clear_red = 0.0f, float clear_green = 0.0f, float clear_blue = 0.0f,
-      float clear_alpha = 1.0f, float clear_depth = 1.0f);
+      float clear_alpha = 1.0f, float clear_depth = 1.0f,
+      bool enable_cull_face = false);
 
   // Rasterizes the scenes.
   //
@@ -107,7 +108,7 @@ class RasterizerWithContext : public Rasterizer {
       std::unique_ptr<gl_utils::Program>&& program,
       std::unique_ptr<gl_utils::RenderTargets>&& render_targets,
       float clear_red, float clear_green, float clear_blue, float clear_alpha,
-      float clear_depth);
+      float clear_depth, bool enable_cull_face);
   RasterizerWithContext(const RasterizerWithContext&) = delete;
   RasterizerWithContext(RasterizerWithContext&&) = delete;
   RasterizerWithContext& operator=(const RasterizerWithContext&) = delete;

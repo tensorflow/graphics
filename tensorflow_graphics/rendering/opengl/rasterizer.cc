@@ -17,14 +17,16 @@ limitations under the License.
 Rasterizer::Rasterizer(
     std::unique_ptr<gl_utils::Program>&& program,
     std::unique_ptr<gl_utils::RenderTargets>&& render_targets, float clear_red,
-    float clear_green, float clear_blue, float clear_alpha, float clear_depth)
+    float clear_green, float clear_blue, float clear_alpha, float clear_depth,
+    bool enable_cull_face)
     : program_(std::move(program)),
       render_targets_(std::move(render_targets)),
       clear_red_(clear_red),
       clear_green_(clear_green),
       clear_blue_(clear_blue),
       clear_alpha_(clear_alpha),
-      clear_depth_(clear_depth) {}
+      clear_depth_(clear_depth),
+      enable_cull_face_(enable_cull_face) {}
 
 Rasterizer::~Rasterizer() {}
 

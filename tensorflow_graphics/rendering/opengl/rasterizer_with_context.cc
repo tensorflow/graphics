@@ -18,9 +18,11 @@ RasterizerWithContext::RasterizerWithContext(
     std::unique_ptr<EGLOffscreenContext>&& egl_context,
     std::unique_ptr<gl_utils::Program>&& program,
     std::unique_ptr<gl_utils::RenderTargets>&& render_targets, float clear_red,
-    float clear_green, float clear_blue, float clear_alpha, float clear_depth)
+    float clear_green, float clear_blue, float clear_alpha, float clear_depth,
+    bool enable_cull_face)
     : Rasterizer(std::move(program), std::move(render_targets), clear_red,
-                 clear_green, clear_blue, clear_alpha, clear_depth),
+                 clear_green, clear_blue, clear_alpha, clear_depth,
+                 enable_cull_face),
       egl_context_(std::move(egl_context)) {}
 
 RasterizerWithContext::~RasterizerWithContext() {
@@ -43,7 +45,7 @@ tensorflow::Status RasterizerWithContext::Create(
     const std::string& fragment_shader_source,
     std::unique_ptr<RasterizerWithContext>* rasterizer_with_context,
     float clear_red, float clear_green, float clear_blue, float clear_alpha,
-    float clear_depth) {
+    float clear_depth, bool enable_cull_face) {
   std::unique_ptr<gl_utils::Program> program;
   std::unique_ptr<gl_utils::RenderTargets> render_targets;
   std::vector<std::pair<std::string, GLenum>> shaders;
@@ -66,7 +68,7 @@ tensorflow::Status RasterizerWithContext::Create(
       std::unique_ptr<RasterizerWithContext>(new RasterizerWithContext(
           std::move(offscreen_context), std::move(program),
           std::move(render_targets), clear_red, clear_green, clear_blue,
-          clear_alpha, clear_depth));
+          clear_alpha, clear_depth, enable_cull_face));
   return tensorflow::Status::OK();
 }
 
