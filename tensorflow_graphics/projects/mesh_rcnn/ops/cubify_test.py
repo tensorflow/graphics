@@ -13,6 +13,7 @@
 # limitations under the License.
 """Test Cases for cubify OP."""
 
+import numpy as np
 import tensorflow as tf
 
 from tensorflow_graphics.projects.mesh_rcnn.ops.cubify import cubify
@@ -167,3 +168,19 @@ class CufifyTest(test_case.TestCase):
 
     self.assertAllClose(expected_vertices_full, vertices[1])
     self.assertAllClose(expected_faces_full, faces[1])
+
+  def test_cubify_on_sphere(self):
+    """Tests cubify with a voxelized sphere."""
+
+    sphere = np.load('test_data/sphere_voxel.npy').astype(np.float32)
+    sphere_tensor = tf.convert_to_tensor(np.expand_dims(sphere, 0))
+
+    expected_sphere_vertices = tf.convert_to_tensor(
+        np.load('test_data/sphere_vertices.npy'))
+    expected_sphere_faces = tf.convert_to_tensor(
+        np.load('test_data/sphere_faces.npy'))
+
+    vertices, faces = cubify(sphere_tensor, 0.5)
+
+    self.assertAllClose(expected_sphere_faces, faces[0])
+    self.assertAllClose(expected_sphere_vertices, vertices[0])
