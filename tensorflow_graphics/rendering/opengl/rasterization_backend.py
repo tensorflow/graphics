@@ -41,7 +41,6 @@ layout(points) in;
 layout(triangle_strip, max_vertices=3) out;
 
 out layout(location = 0) vec2 barycentric_coordinates;
-out layout(location = 1) float triangle_index;
 
 in int gl_PrimitiveIDIn;
 layout(binding=0) buffer triangular_mesh { float mesh_buffer[]; };
@@ -67,7 +66,6 @@ void main() {
     // gl_Position is a pre-defined size 4 output variable.
     gl_Position = projected_vertices[i];
     barycentric_coordinates = vec2(i==0 ? 1.0 : 0.0, i==1 ? 1.0 : 0.0);
-    triangle_index = gl_PrimitiveIDIn;
 
     EmitVertex();
   }
@@ -80,12 +78,11 @@ fragment_shader = """
 #version 430
 
 in layout(location = 0) vec2 barycentric_coordinates;
-in layout(location = 1) float triangle_index;
 
 out vec4 output_color;
 
 void main() {
-  output_color = vec4(round(triangle_index + 1.0), barycentric_coordinates, 1.0);
+  output_color = vec4(round(gl_PrimitiveID + 1.0), barycentric_coordinates, 1.0);
 }
 """
 
