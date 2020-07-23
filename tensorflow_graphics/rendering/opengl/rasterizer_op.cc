@@ -27,7 +27,8 @@ limitations under the License.
 #include "tensorflow/core/lib/core/status.h"
 
 static tensorflow::Status GetVariablesRank(
-    ::tensorflow::shape_inference::InferenceContext* c, int32* rank) {
+    ::tensorflow::shape_inference::InferenceContext* c,
+    tensorflow::int32* rank) {
   std::vector<std::string> variable_names, variable_kinds;
   TF_RETURN_IF_ERROR(c->GetAttr("variable_names", &variable_names));
   TF_RETURN_IF_ERROR(c->GetAttr("variable_kinds", &variable_kinds));
@@ -75,7 +76,9 @@ REGISTER_OP("Rasterize")
     .Attr("red_clear: float = 0.0")
     .Attr("green_clear: float = 0.0")
     .Attr("blue_clear: float = 0.0")
+    .Attr("alpha_clear: float = 1.0")
     .Attr("depth_clear: float = 1.0")
+    .Attr("enable_cull_face: bool = false")
     .Attr("vertex_shader: string")
     .Attr("fragment_shader: string")
     .Attr("geometry_shader: string")
@@ -97,7 +100,9 @@ output_resolution: a 2D shape containing the width and height of the resulting
 red_clear: the red component for glClear.
 green_clear: the green component for glClear.
 blue_clear: the blue component for glClear.
+alpha_clear: the alpha component for glClear.
 depth_clear: the depth value for glClearDepthf.
+enable_cull_face: enable face culling.
 vertex_shader: A string containing a valid vertex shader.
 fragment_shader: A string containing a valid fragment shader.
 geometry_shader: A string containing a valid geometry shader.
@@ -118,7 +123,7 @@ rendered_image: A tensor of shape `[A1, ..., An, width, height, 4]`, with the
   width and height defined by `output_resolution`.
     )doc")
     .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c) {
-      int32 variables_rank;
+      tensorflow::int32 variables_rank;
       TF_RETURN_IF_ERROR(GetVariablesRank(c, &variables_rank));
       auto batch_shape = c->UnknownShapeOfRank(variables_rank);
 
@@ -145,12 +150,17 @@ class RasterizeOp : public tensorflow::OpKernel {
     float red_clear = 0.0;
     float green_clear = 0.0;
     float blue_clear = 0.0;
+    float alpha_clear = 1.0;
     float depth_clear = 1.0;
+    bool enable_cull_face = false;
 
     OP_REQUIRES_OK(context, context->GetAttr("red_clear", &red_clear));
     OP_REQUIRES_OK(context, context->GetAttr("green_clear", &green_clear));
     OP_REQUIRES_OK(context, context->GetAttr("blue_clear", &blue_clear));
+    OP_REQUIRES_OK(context, context->GetAttr("alpha_clear", &alpha_clear));
     OP_REQUIRES_OK(context, context->GetAttr("depth_clear", &depth_clear));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("enable_cull_face", &enable_cull_face));
     OP_REQUIRES_OK(context, context->GetAttr("vertex_shader", &vertex_shader));
     OP_REQUIRES_OK(context,
                    context->GetAttr("fragment_shader", &fragment_shader));
@@ -165,13 +175,13 @@ class RasterizeOp : public tensorflow::OpKernel {
 
     auto rasterizer_creator =
         [vertex_shader, geometry_shader, fragment_shader, red_clear,
-         green_clear, blue_clear, depth_clear,
+         green_clear, blue_clear, alpha_clear, depth_clear, enable_cull_face,
          this](std::unique_ptr<RasterizerWithContext>* resource)
         -> tensorflow::Status {
       return RasterizerWithContext::Create(
           output_resolution_.dim_size(0), output_resolution_.dim_size(1),
           vertex_shader, geometry_shader, fragment_shader, resource, red_clear,
-          green_clear, blue_clear, depth_clear);
+          green_clear, blue_clear, alpha_clear, depth_clear, enable_cull_face);
     };
     rasterizer_pool_ =
         std::unique_ptr<ThreadSafeResourcePool<RasterizerWithContext>>(
@@ -194,10 +204,9 @@ class RasterizeOp : public tensorflow::OpKernel {
     OP_REQUIRES_OK(context, context->allocate_output(0, output_image_shape,
                                                      &output_image));
 
-    // Render.
     std::unique_ptr<RasterizerWithContext> rasterizer;
     float* image_data = output_image->flat<float>().data();
-    const int64 image_size =
+    const tensorflow::int64 image_size =
         output_resolution_.dim_size(0) * output_resolution_.dim_size(1) * 4;
 
     OP_REQUIRES_OK(context, rasterizer_pool_->AcquireResource(&rasterizer));
@@ -215,8 +224,8 @@ class RasterizeOp : public tensorflow::OpKernel {
       std::unique_ptr<RasterizerWithContext>& rasterizer, int outer_dim);
   tensorflow::Status RenderImage(
       tensorflow::OpKernelContext* context,
-      std::unique_ptr<RasterizerWithContext>& rasterizer, int64 image_size,
-      float* image_data);
+      std::unique_ptr<RasterizerWithContext>& rasterizer,
+      tensorflow::int64 image_size, float* image_data);
   tensorflow::Status ValidateVariables(tensorflow::OpKernelContext* context,
                                        tensorflow::TensorShape* batch_shape);
 
@@ -229,8 +238,8 @@ class RasterizeOp : public tensorflow::OpKernel {
 
 tensorflow::Status RasterizeOp::RenderImage(
     tensorflow::OpKernelContext* context,
-    std::unique_ptr<RasterizerWithContext>& rasterizer, const int64 image_size,
-    float* image_data) {
+    std::unique_ptr<RasterizerWithContext>& rasterizer,
+    const tensorflow::int64 image_size, float* image_data) {
   int num_points = context->input(0).scalar<int>()();
 
   TF_RETURN_IF_ERROR(rasterizer->Render(
@@ -261,7 +270,8 @@ tensorflow::Status RasterizeOp::SetVariables(
           absl::MakeConstSpan(value_pointer + num_elements * outer_dim,
                               value_pointer + num_elements * (outer_dim + 1))));
     } else if (kind == "buffer") {
-      const int32 buffer_length = value_shape.dim_size(value_shape.dims() - 1);
+      const tensorflow::int32 buffer_length =
+          value_shape.dim_size(value_shape.dims() - 1);
 
       const auto value_pointer = value.flat<float>().data();
       TF_RETURN_IF_ERROR(rasterizer->SetShaderStorageBuffer(

@@ -17,6 +17,7 @@
 
 from absl.testing import parameterized
 import tensorflow as tf
+
 from tensorflow_graphics.nn.layer.pointnet import ClassificationHead
 from tensorflow_graphics.nn.layer.pointnet import PointNetConv2Layer
 from tensorflow_graphics.nn.layer.pointnet import PointNetDenseLayer

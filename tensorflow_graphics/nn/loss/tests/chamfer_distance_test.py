@@ -13,10 +13,6 @@
 # limitations under the License.
 """Tests for the chamfer distance loss."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import parameterized
 import numpy as np
 
@@ -36,8 +32,8 @@ def _random_tensor_shape():
 def _random_point_sets():
   space_dimensions = np.random.randint(3) + 1
   batch_shape = _random_tensor_shape()
-  point_set_a_size = np.random.randint(100) + 1
-  point_set_b_size = np.random.randint(100) + 1
+  point_set_a_size = np.random.randint(10) + 1
+  point_set_b_size = np.random.randint(10) + 1
 
   point_set_a_init = np.random.uniform(
       low=-100.0,

@@ -13,13 +13,10 @@
 # limitations under the License.
 """Tests for quadratic_radial_distortion."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import parameterized
 import numpy as np
 import tensorflow as tf
+
 from tensorflow_graphics.rendering.camera import quadratic_radial_distortion
 from tensorflow_graphics.util import test_case
 

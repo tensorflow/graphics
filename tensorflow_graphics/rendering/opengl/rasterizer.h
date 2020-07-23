@@ -62,10 +62,12 @@ class Rasterizer {
   // * vertex_shader_source: source code of a GLSL vertex shader.
   // * geometry_shader_source: source code of a GLSL geometry shader.
   // * fragment_shader_source: source code of a GLSL fragment shader.
-  // * clear_r: red component used when clearing the color buffers.
-  // * clear_g: green component used when clearing the color buffers.
-  // * clear_b: blue component used when clearing the color buffers.
-  // * clear_depth: depth value used when clearing the depth buffer
+  // * clear_red: red component used when clearing the color buffers.
+  // * clear_green: green component used when clearing the color buffers.
+  // * clear_blue: blue component used when clearing the color buffers.
+  // * clear_alpha: alpha component used when clearing the color buffers.
+  // * clear_depth: depth value used when clearing the depth buffer.
+  // * enable_cull_face: enable face culling.
   // * rasterizer: if the method succeeds, this variable returns an object
   //   storing a ready to use rasterizer.
   //
@@ -77,8 +79,9 @@ class Rasterizer {
                                    const std::string& vertex_shader_source,
                                    const std::string& geometry_shader_source,
                                    const std::string& fragment_shader_source,
-                                   float clear_r, float clear_g, float clear_b,
-                                   float clear_depth,
+                                   float clear_red, float clear_green,
+                                   float clear_blue, float clear_alpha,
+                                   float clear_depth, bool enable_cull_face,
                                    std::unique_ptr<Rasterizer>* rasterizer);
 
   // Rasterizes the scenes.
@@ -87,7 +90,8 @@ class Rasterizer {
   // * num_points: the number of primitives to render.
   // * result: if the method succeeds, a buffer that stores the rendering
   //   result. This buffer must be of size 4 * width * height, where the values
-  //   of width and height must at least match those used in when calling Create.
+  //   of width and height must at least match those used in when calling
+  //   Create.
   //
   // Returns:
   //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
@@ -133,7 +137,8 @@ class Rasterizer {
   Rasterizer() = delete;
   Rasterizer(std::unique_ptr<gl_utils::Program>&& program,
              std::unique_ptr<gl_utils::RenderTargets>&& render_targets,
-             float clear_r, float clear_g, float clear_b, float clear_depth);
+             float clear_red, float clear_green, float clear_blue,
+             float clear_alpha, float clear_depth, bool enable_cull_face);
   Rasterizer(const Rasterizer&) = delete;
   Rasterizer(Rasterizer&&) = delete;
   Rasterizer& operator=(const Rasterizer&) = delete;
@@ -147,7 +152,8 @@ class Rasterizer {
   std::unordered_map<std::string,
                      std::unique_ptr<gl_utils::ShaderStorageBuffer>>
       shader_storage_buffers_;
-  float clear_r_, clear_g_, clear_b_, clear_depth_;
+  float clear_red_, clear_green_, clear_blue_, clear_alpha_, clear_depth_;
+  bool enable_cull_face_;
 
   friend class RasterizerWithContext;
 };
@@ -159,7 +165,8 @@ tensorflow::Status Rasterizer::Create(const int width, const int height,
                                       const std::string& fragment_shader_source,
                                       std::unique_ptr<Rasterizer>* rasterizer) {
   return Create<T>(width, height, vertex_shader_source, geometry_shader_source,
-                   fragment_shader_source, 0.0, 0.0, 0.0, 1.0, rasterizer);
+                   fragment_shader_source, 0.0, 0.0, 0.0, 1.0, 1.0, false,
+                   rasterizer);
 }
 
 template <typename T>
@@ -167,8 +174,9 @@ tensorflow::Status Rasterizer::Create(const int width, const int height,
                                       const std::string& vertex_shader_source,
                                       const std::string& geometry_shader_source,
                                       const std::string& fragment_shader_source,
-                                      float clear_r, float clear_g,
-                                      float clear_b, float clear_depth,
+                                      float clear_red, float clear_green,
+                                      float clear_blue, float clear_alpha,
+                                      float clear_depth, bool enable_cull_face,
                                       std::unique_ptr<Rasterizer>* rasterizer) {
   std::unique_ptr<gl_utils::Program> program;
   std::unique_ptr<gl_utils::RenderTargets> render_targets;
@@ -181,9 +189,9 @@ tensorflow::Status Rasterizer::Create(const int width, const int height,
   TF_RETURN_IF_ERROR(
       gl_utils::RenderTargets::Create<T>(width, height, &render_targets));
 
-  *rasterizer = std::unique_ptr<Rasterizer>(
-      new Rasterizer(std::move(program), std::move(render_targets), clear_r,
-                     clear_g, clear_b, clear_depth));
+  *rasterizer = std::unique_ptr<Rasterizer>(new Rasterizer(
+      std::move(program), std::move(render_targets), clear_red, clear_green,
+      clear_blue, clear_alpha, clear_depth, enable_cull_face));
   return tensorflow::Status::OK();
 }
 
@@ -194,7 +202,7 @@ tensorflow::Status Rasterizer::RenderImpl(int num_points,
 
   TFG_RETURN_IF_GL_ERROR(glDisable(GL_BLEND));
   TFG_RETURN_IF_GL_ERROR(glEnable(GL_DEPTH_TEST));
-  TFG_RETURN_IF_GL_ERROR(glDisable(GL_CULL_FACE));
+  if (enable_cull_face_) TFG_RETURN_IF_GL_ERROR(glEnable(GL_CULL_FACE));
 
   // Bind storage buffer to shader names
   for (const auto& buffer : shader_storage_buffers_) {
@@ -219,7 +227,8 @@ tensorflow::Status Rasterizer::RenderImpl(int num_points,
 
   TFG_RETURN_IF_GL_ERROR(glViewport(0, 0, render_targets_->GetWidth(),
                                     render_targets_->GetHeight()));
-  TFG_RETURN_IF_GL_ERROR(glClearColor(clear_r_, clear_g_, clear_b_, 1.0));
+  TFG_RETURN_IF_GL_ERROR(
+      glClearColor(clear_red_, clear_green_, clear_blue_, clear_alpha_));
   TFG_RETURN_IF_GL_ERROR(glClearDepthf(clear_depth_));
   TFG_RETURN_IF_GL_ERROR(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 

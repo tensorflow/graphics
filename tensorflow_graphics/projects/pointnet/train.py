@@ -15,12 +15,12 @@
 # pylint: disable=missing-function-docstring
 
 import tensorflow as tf
+from tensorflow_graphics.datasets import modelnet40
+from tensorflow_graphics.nn.layer import pointnet
+import tqdm  # pylint: disable=g-bad-import-order
 
-from tensorflow_graphics.datasets.modelnet40 import ModelNet40
-from tensorflow_graphics.nn.layer.pointnet import PointNetVanillaClassifier as PointNet
-from tensorflow_graphics.projects.pointnet import augment
-from tensorflow_graphics.projects.pointnet import helpers
-from tqdm import tqdm
+from . import augment  # pylint: disable=g-bad-import-order
+from . import helpers  # pylint: disable=g-bad-import-order
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -57,7 +57,8 @@ else:
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-model = PointNet(num_classes=40, momentum=FLAGS.bn_decay)
+model = pointnet.PointNetVanillaClassifier(
+    num_classes=40, momentum=FLAGS.bn_decay)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -128,12 +129,12 @@ def evaluate():
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-ds_train, info = ModelNet40.load(split="train", with_info=True)
+ds_train, info = modelnet40.ModelNet40.load(split="train", with_info=True)
 num_examples = info.splits["train"].num_examples
 ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
 ds_train = ds_train.repeat(FLAGS.num_epochs)
 ds_train = ds_train.batch(FLAGS.batch_size)
-ds_test = ModelNet40.load(split="test").batch(FLAGS.batch_size)
+ds_test = modelnet40.ModelNet40.load(split="test").batch(FLAGS.batch_size)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -143,7 +144,7 @@ try:
   helpers.setup_tensorboard(FLAGS)
   helpers.summary_command(parser, FLAGS)
   total = tf.data.experimental.cardinality(ds_train).numpy()
-  pbar = tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
+  pbar = tqdm.tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
   for train_example in pbar:
     train(train_example)
     best_accuracy = evaluate()

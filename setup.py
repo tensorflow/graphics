@@ -59,6 +59,7 @@ setuptools.setup(
     author="Google LLC",
     author_email="tf-graphics-eng@google.com",
     install_requires=INSTALL_PACKAGES,
+    include_package_data=True,
     packages=setuptools.find_packages(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
