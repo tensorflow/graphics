@@ -27,6 +27,7 @@ from tensorflow_graphics.datasets.features import camera_feature
 
 class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
   """Test Cases for Camera FeatureConnector."""
+
   def __get_camera_params(self):
     pose = {'R': np.eye(3).astype(np.float32),
             't': np.zeros(3).astype(np.float32)}
@@ -40,11 +41,11 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
     no skew and no aspect ratio."""
     expected_pose, expected_f, expected_center = self.__get_camera_params()
 
-    expected_K = np.asarray([[expected_f, 0, expected_center[0]],
-                             [0, expected_f, expected_center[1]],
-                             [0, 0, 1]], dtype=np.float32)
+    expected_intrinsics = np.asarray([[expected_f, 0, expected_center[0]],
+                                      [0, expected_f, expected_center[1]],
+                                      [0, 0, 1]], dtype=np.float32)
 
-    expected_camera = {'pose': expected_pose, 'intrinsics': expected_K}
+    expected_camera = {'pose': expected_pose, 'intrinsics': expected_intrinsics}
     inputs = {'f': expected_f, 'optical_center': expected_center,
               'pose': expected_pose}
     lookat_inputs = {
@@ -127,12 +128,12 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
     expected_pose, expected_f, expected_center = self.__get_camera_params()
     expected_aspect_ratio = expected_center[0] / expected_center[1]
     expected_skew = 0.6
-    expected_K = np.asarray(
+    expected_intrinsics = np.asarray(
         [[expected_f, expected_skew, expected_center[0]],
          [0, expected_aspect_ratio * expected_f, expected_center[1]],
          [0, 0, 1]], dtype=np.float32)
 
-    expected_camera = {'pose': expected_pose, 'intrinsics': expected_K}
+    expected_camera = {'pose': expected_pose, 'intrinsics': expected_intrinsics}
     inputs = {'f': expected_f,
               'optical_center': expected_center,
               'skew': expected_skew,
@@ -170,12 +171,12 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
     expected_pose, _, expected_optical_center = self.__get_camera_params()
     expected_skew = 0.6
     expected_f = (35., 40.)
-    expected_K = np.array(
+    expected_intrinsics = np.array(
         [[expected_f[0], expected_skew, expected_optical_center[0]],
          [0, expected_f[1], expected_optical_center[1]],
          [0, 0, 1]], dtype=np.float32)
 
-    expected_camera = {'pose': expected_pose, 'intrinsics': expected_K}
+    expected_camera = {'pose': expected_pose, 'intrinsics': expected_intrinsics}
     inputs = {'f': expected_f,
               'optical_center': expected_optical_center,
               'skew': expected_skew, 'pose': expected_pose}
