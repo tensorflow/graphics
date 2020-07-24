@@ -158,11 +158,11 @@ class Camera(features.FeaturesDict):
 
     Args:
       f: Focal length of the camera. Either single float.32 value or tuple of
-      float32 when different focal lengths for each axis are provided (f_x, f_y)
+        float32 when different focal lengths for each axis are provided (fx, fy)
       optical_center: Tuple (c_x, c_y) containing the optical center
-      of the camera in pixel coordinates.
+        of the camera in pixel coordinates.
       aspect_ratio: Optional parameter, if fixed focal length for both
-      dimensions is used. Defaults to 1.
+        dimensions is used. Defaults to 1.
       skew: Optional parameter denoting the skew between the camera axes.
 
     Returns:

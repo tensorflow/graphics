@@ -1,3 +1,17 @@
+# Copyright 2020 The TensorFlow Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# Lint as: python3
 """pix3d dataset."""
 
 from __future__ import absolute_import
@@ -37,26 +51,27 @@ as (non-watertight) triangle mesh and voxel grid, bounding-box,
  points.
 
 Notes:
-  * The object and camera poses are provided with respect to the scene, whereas the
-  camera is placed at the origin. Pix3D also provides the features
-  `camera/position_with_respect_to_object` and `camera/inplane_rotation`.
-  Those values are defined in object coordinates and will reproduce an image
-  that is equivalent to the original image under a homography transformation.
-  They are defined for viewer-centered algorithms whose predictions need to be
-  rotated back to the canonical view for evaluations against ground truth shapes.
-  This is necessary as most algorithms assume that the camera is looking at the
-  object's center, the raw input images are usually cropped or transformed
-  before sending into their pipeline.
+  * The object and camera poses are provided with respect to the scene, whereas
+    the camera is placed at the origin. Pix3D also provides the features
+    `camera/position_with_respect_to_object` and `camera/inplane_rotation`.
+    Those values are defined in object coordinates and will reproduce an image
+    that is equivalent to the original image under a homography transformation.
+    They are defined for viewer-centered algorithms whose predictions need to be
+    rotated back to the canonical view for evaluations against ground truth
+    shapes. This is necessary as most algorithms assume that the camera is
+    looking at the object's center, the raw input images are usually cropped or
+    transformed before sending into their pipeline.
   * There are two wrong segmentation masks in the annotations of the original
-  Pix3D dataset (See https://github.com/xingyuansun/pix3d/issues/18 for details).
-  We ignore those samples in this version of the dataset. However, if you want
-  to use them, we provide own rendered segmentation masks in
-  `tensorflow_graphics/datasets/pix3d/fixed_masks/`. Feel free to copy those
-  two masks to your local Pix3D directory in `<PIX3D_HOME>/mask/table/`.
-  Additionally, you need to add the indices of these samples to the split files
-  located at `<TF Graphics Repository>/tensorflow_graphics/datasets/pix3d/splits`.
-  The index `7953` needs to be appended to the train index and `9657` belongs
-  to the test index.
+    Pix3D dataset (See https://github.com/xingyuansun/pix3d/issues/18 for
+    details). We ignore those samples in this version of the dataset. However,
+    if you want to use them, we provide own rendered segmentation masks in
+    `tensorflow_graphics/datasets/pix3d/fixed_masks/`. Feel free to copy those
+    two masks to your local Pix3D directory in `<PIX3D_HOME>/mask/table/`.
+    Additionally, you need to add the indices of these samples to the split
+    files located at
+    `<TF Graphics Repository>/tensorflow_graphics/datasets/pix3d/splits`.
+    The index `7953` needs to be appended to the train index and `9657` belongs
+    to the test index.
 
 Train/Test split:
   Pix3D does not provide a standard train/test split. Therefore, this
@@ -201,6 +216,13 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       from the Pix3D GitHub repository.
 
       Link to the official Pix3D repository: https://github.com/xingyuansun/pix3d
+
+      Args:
+        f: float, denoting the focal length in mm.
+        img_size: tuple of two floats, denoting the image height and width.
+
+      Returns:
+        Dictionary with all Camera Parameters.
       """
       sensor_width = 32.
       return {
@@ -217,6 +239,15 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       """
       Wraps keypoint feature in dict, because TFDS does not allow more than
       one unknown dimensions.
+
+      Args:
+        keypoints: Array of dimension `[N, M, 2]`, where N denotes the number of
+          annotators and M is the number of 2D keypoints. Keypoints are stored
+          as: (origin: top left corner; +x: rightward; +y: downward);
+          [-1.0, -1.0] if an annotator marked this keypoint hard to label.
+
+      Returns:
+        Dictionary containing shape and flattened keypoints.
       """
       if keypoints.ndim != 3 or keypoints.shape[-1] != 2:
         raise ValueError('2D keypoints should be in shape (N, M, 2).')
