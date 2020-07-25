@@ -39,6 +39,7 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
   def test_simple_camera(self):
     """Tests camera parameters with fixed focal length,
     no skew and no aspect ratio."""
+
     expected_pose, expected_f, expected_center = self.__get_camera_params()
 
     expected_intrinsics = np.asarray([[expected_f, 0, expected_center[0]],
@@ -125,6 +126,7 @@ class CameraFeatureTest(tfds.testing.FeatureExpectationsTestCase):
   def test_camera_with_aspect_ratio_and_skew(self):
     """Tests camera parameters with fixed focal length,
     aspect_ratio and skew."""
+
     expected_pose, expected_f, expected_center = self.__get_camera_params()
     expected_aspect_ratio = expected_center[0] / expected_center[1]
     expected_skew = 0.6

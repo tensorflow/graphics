@@ -27,6 +27,7 @@ from tensorflow_graphics.datasets.features import pose_feature
 
 class PoseFeatureTest(tfds.testing.FeatureExpectationsTestCase):
   """Test Cases for Pose Feature Connector."""
+
   def test_pose_feature(self):
     expected_rotation = np.eye(3)
     expected_translation = np.zeros(3)

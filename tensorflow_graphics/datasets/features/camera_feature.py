@@ -87,7 +87,7 @@ class Camera(features.FeaturesDict):
 
   def encode_example(self, example_dict):
     """Convert the given parameters into a dict convertible to tf example."""
-    REQUIRED_KEYS = ['pose', 'f', 'optical_center']  # pylint: disable=C0103
+    REQUIRED_KEYS = ['pose', 'f', 'optical_center']  # pylint: disable=invalid-name
     if not all(key in example_dict for key in REQUIRED_KEYS):
       raise ValueError(f'Missing keys in provided dictionary! '
                        f'Expected {REQUIRED_KEYS}, '
@@ -142,8 +142,8 @@ class Camera(features.FeaturesDict):
     Creates rotation matrix according to OpenGL gluLookAt convention.
     (https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/gluLookAt.xml)
     """
-    L = look_at - position  # pylint: disable=C0103
-    L /= np.linalg.norm(L)  # pylint: disable=C0103
+    L = look_at - position  # pylint: disable=invalid-name
+    L /= np.linalg.norm(L)  # pylint: disable=invalid-name
     s = np.cross(L, up)
     s /= np.linalg.norm(s)
     u = np.cross(s, L)

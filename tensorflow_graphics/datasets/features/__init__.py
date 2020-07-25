@@ -14,10 +14,10 @@
 # Lint as: python3
 """`tensorflow_graphics.datasets.features` API defining feature types."""
 
-from tensorflow_graphics.datasets.features.trimesh_feature import TriangleMesh
-from tensorflow_graphics.datasets.features.voxel_feature import VoxelGrid
 from tensorflow_graphics.datasets.features.camera_feature import Camera
 from tensorflow_graphics.datasets.features.pose_feature import Pose
+from tensorflow_graphics.datasets.features.trimesh_feature import TriangleMesh
+from tensorflow_graphics.datasets.features.voxel_feature import VoxelGrid
 
 __all__ = [
     "TriangleMesh",

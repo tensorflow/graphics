@@ -34,6 +34,7 @@ class VoxelGridFeatureTest(tfds.testing.FeatureExpectationsTestCase):
 
   def test_voxel(self):
     """Tests voxel I/O and encoding/decoding to DatasetFeature."""
+
     mat_file_path = os.path.join(_TEST_DATA_DIR, 'cube.mat')
     expected_voxel = np.zeros((16, 16, 16), dtype=np.float32)
     expected_voxel[4:12, 4:12, 4:12] = 1.

@@ -65,14 +65,14 @@ class VoxelGrid(features.Tensor):
       with tf.io.gfile.GFile(example_data['path'], 'rb') as mat_file:
         voxel_mat = sio.loadmat(mat_file)
 
-      if not example_data['key'] in voxel_mat:
+      if example_data['key'] not in voxel_mat:
         raise ValueError(f"Key `{example_data['key']}` not found in .mat file. "
                          f"Available keys in file: {voxel_mat.keys()}")
 
       voxel_grid = voxel_mat[example_data['key']].astype(np.float32)
 
     else:
-      if not example_data.ndim == 3:
+      if example_data.ndim != 3:
         raise ValueError('Only 3D Voxel Grids are supported.')
 
       voxel_grid = example_data

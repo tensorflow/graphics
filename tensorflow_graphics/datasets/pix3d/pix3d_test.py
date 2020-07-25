@@ -36,7 +36,7 @@ class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
   EXAMPLE_DIR = os.path.join(os.path.dirname(__file__), 'fakes')
   MOCK_OUT_FORBIDDEN_OS_FUNCTIONS = False
 
-  def setUp(self):  # pylint: disable=C0103
+  def setUp(self):  # pylint: disable=invalid-name
     super(Pix3dTest, self).setUp()
     self.builder.TRAIN_SPLIT_IDX = os.path.join(self.EXAMPLE_DIR,
                                                 'pix3d_train.npy')

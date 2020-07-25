@@ -48,6 +48,7 @@ class Pose(features.FeaturesDict):
 
   def encode_example(self, example_dict):
     """Convert the given pose into a dict convertible to tf example."""
+
     if not all(key in example_dict for key in ['R', 't']):
       raise ValueError(
           f'Missing keys in provided dictionary! Expecting \'R\' and \'t\', '
