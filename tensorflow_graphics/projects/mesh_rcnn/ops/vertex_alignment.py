@@ -49,14 +49,20 @@ def vert_align(features,
     raise ValueError('vertices should be 2 dimensional.')
 
   if not features._rank() == 4:
-    raise ValueError('features must be a Tensor of rank 4.')
+    raise ValueError('features must of shape (N, H, W, C).')
 
-  grid = tf.reshape()
+  grid = pad_vertices(vertices)
+  # N x 1 x V x 2
+  grid = tf.expand_dims(grid, 1)[..., :2]
+  grid = _spatial_normalize_grid_to_feature(grid, features)
+
+  sampled_features = []
 
 
 def pad_vertices(vertices):
   """
   Pads and stacks vertices into a tensor of shape `[N, V, 3]`
+
   Args:
     vertices: list of N float32 tensors of shape `[V, 3]` containing the vertex
       positions for which to sample the image features.
@@ -75,3 +81,46 @@ def pad_vertices(vertices):
     padded_vertices.append(tf.concat([vert, pad], 0))
 
   return tf.stack(padded_vertices)
+
+
+def _spatial_normalize_grid_to_feature(grid, feature_map):
+  """
+  Normalize batch of 2D coordinates (x, y) such that (-1, -1) corresponds to
+  top-left and (+1, +1) to bottom-right location in the input feature map.
+
+  Args:
+    grid: float32 tensor of shape `[N1,N2,2]` containing the 2D coordinates that
+      should be normalized.
+    feature_map: float32 tensor of shape `[N, H, W, C]` that is used to normalize
+      spatial dimension leaving the channels C untouched.
+
+  Returns:
+    float32 tensor of shape `[N1,N2,2]` with normalized spatial coordinates.
+  """
+  if grid.shape[-1] != 2:
+    raise ValueError('Grid must contain 2D coordinats.')
+  if feature_map._rank() != 4:
+    raise ValueError('feature_map must be a tensor of rank 4.')
+
+  _, H, W, _ = feature_map.shape
+  extent = tf.constant([H/2, W/2], dtype=tf.float32)
+  return (grid - extent) / extent
+
+
+def interpolate_bilinear(source, grid):
+  """
+  Performs 2D bilinear interpolation of the source according to normalized
+  coordinates provided by the grid. Each channel of the input will be sampeled
+  identically.
+
+  Args:
+    source: float32 tensor of shape `[N, H, W, C]` representing the source
+      from which to sample.
+    grid: float32 tensor of shape `[N, X, Y]` containing the samling locations.
+
+  Returns:
+    float32 tensor of shape `[N, X, Y, C]` containing the result of the
+      interpolation.
+  """
+  N, H, W, C = source.shape
+
