@@ -26,6 +26,7 @@ References:
 """
 
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 
 def vert_align(features,
@@ -51,12 +52,12 @@ def vert_align(features,
   if not features._rank() == 4:
     raise ValueError('features must of shape (N, H, W, C).')
 
-  grid = pad_vertices(vertices)
-  # N x 1 x V x 2
-  grid = tf.expand_dims(grid, 1)[..., :2]
-  grid = _spatial_normalize_grid_to_feature(grid, features)
+  query_points = tf.cast(pad_vertices(vertices)[..., :2], tf.float32)
+  sampled_features = tfa.image.interpolate_bilinear(grid=features,
+                                                    query_points=query_points,
+                                                    indexing='xy')
 
-  sampled_features = []
+  return sampled_features
 
 
 def pad_vertices(vertices):
@@ -77,7 +78,7 @@ def pad_vertices(vertices):
       raise ValueError('All vertices must have shape [V, 3].')
 
     pad_length = max_num_vertices - vert.shape[0]
-    pad = tf.zeros((pad_length, 3), dtype=tf.float32)
+    pad = tf.zeros((pad_length, 3), dtype=tf.int32)
     padded_vertices.append(tf.concat([vert, pad], 0))
 
   return tf.stack(padded_vertices)
@@ -122,5 +123,7 @@ def interpolate_bilinear(source, grid):
     float32 tensor of shape `[N, X, Y, C]` containing the result of the
       interpolation.
   """
-  N, H, W, C = source.shape
+
+
+
 
