@@ -218,7 +218,6 @@ def intrinsics_from_matrix(matrix, name=None):
         has_rank_greater_than=1,
         has_dim_equals=((-1, 3), (-2, 3)),
     )
-
     fx = matrix[..., 0, 0]
     fy = matrix[..., 1, 1]
     cx = matrix[..., 0, 2]
@@ -227,7 +226,6 @@ def intrinsics_from_matrix(matrix, name=None):
     focal = tf.stack((fx, fy), axis=-1)
     principal_point = tf.stack((cx, cy), axis=-1)
     skew = tf.expand_dims(skew, axis=0)
-
     return focal, principal_point, skew
 
 
@@ -274,7 +272,13 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
     skew = tf.convert_to_tensor(value=skew)
-
+    if tf.shape(skew)!=tf.shape(focal):
+      common_batch_shape = shape.get_broadcasted_shape(
+	  focal.shape[:-1], skew.shape[:-1])
+      def dim_value(dim):
+        return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+      common_batch_shape = [dim_value(dim) for dim in common_batch_shape]
+      skew = tf.broadcast_to(skew, common_batch_shape + [1])
     shape.check_static(tensor=focal, tensor_name="focal", has_dim_equals=(-1, 2))
     shape.check_static(
         tensor=principal_point,

@@ -262,6 +262,16 @@ class PerspectiveTest(test_case.TestCase):
                                         shapes)
 
   @parameterized.parameters(
+      ((2,), (2,)),
+      ((2, 2), (2, 2)),
+      ((None, 2), (None, 2)),
+  )
+  def test_matrix_from_intrinsics_exception_not_raised_when_skew_not_passed(self, *shapes):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(perspective.matrix_from_intrinsics,
+                                        shapes)
+
+  @parameterized.parameters(
       ("must have exactly 2 dimensions in axis -1", (None,), (2,)),
       ("must have exactly 2 dimensions in axis -1", (2,), (None,)),
       ("Not all batch dimensions are identical.", (3, 2), (2, 2)),
