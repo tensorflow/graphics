@@ -272,7 +272,7 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
     skew = tf.convert_to_tensor(value=skew)
-    if tf.shape(skew)!=tf.shape(focal):
+    if tf.shape(skew) != tf.shape(focal):
       common_batch_shape = shape.get_broadcasted_shape(
 	  focal.shape[:-1], skew.shape[:-1])
       def dim_value(dim):
