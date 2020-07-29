@@ -272,13 +272,12 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
     skew = tf.convert_to_tensor(value=skew)
-    if tf.shape(skew) != tf.shape(focal):
-      common_batch_shape = shape.get_broadcasted_shape(
-	  focal.shape[:-1], skew.shape[:-1])
-      def dim_value(dim):
-        return 1 if dim is None else tf.compat.v1.dimension_value(dim)
-      common_batch_shape = [dim_value(dim) for dim in common_batch_shape]
-      skew = tf.broadcast_to(skew, common_batch_shape + [1])
+    common_batch_shape = shape.get_broadcasted_shape(
+	focal.shape[:-1], skew.shape[:-1])
+    def dim_value(dim):
+      return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+    common_batch_shape = [dim_value(dim) for dim in common_batch_shape]
+    skew = tf.broadcast_to(skew, common_batch_shape + [1])
     shape.check_static(tensor=focal, tensor_name="focal", has_dim_equals=(-1, 2))
     shape.check_static(
         tensor=principal_point,
@@ -294,8 +293,7 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
         tensors=(focal, principal_point, skew),
         tensor_names=("focal", "principal_point", "skew"),
         last_axes=-2,
-        broadcast_compatible=False,
-    )
+        broadcast_compatible=False)
 
     fx, fy = tf.unstack(focal, axis=-1)
     cx, cy = tf.unstack(principal_point, axis=-1)
