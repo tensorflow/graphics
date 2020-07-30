@@ -1,9 +1,11 @@
 # TensorFlow Graphics
 
-[![Build](https://github.com/tensorflow/graphics/workflows/Build/badge.svg?branch=master)](https://github.com/tensorflow/graphics/workflows/Build)
+[![Build](https://github.com/tensorflow/graphics/workflows/Build/badge.svg?branch=master)](https://github.com/tensorflow/graphics/actions)
+[![Code coverage](https://img.shields.io/coveralls/github/tensorflow/graphics.svg)](https://coveralls.io/github/tensorflow/graphics)
 [![PyPI project status](https://img.shields.io/pypi/status/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
 [![Supported Python version](https://img.shields.io/pypi/pyversions/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
 [![PyPI release version](https://img.shields.io/pypi/v/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
+[![Downloads](https://pepy.tech/badge/tensorflow-graphics)](https://pepy.tech/project/tensorflow-graphics)
 
 The last few years have seen a rise in novel differentiable graphics layers
 which can be inserted in neural network architectures. From spatial transformers
@@ -232,6 +234,6 @@ Want to reach out? E-mail us at tf-graphics-contact@google.com!
 -   Avneesh Sud
 -   Andrea Tagliasacchi
 -   Anastasia Tkach
--   Julien Valentin (julienvalentin@google.com)
+-   Julien Valentin
 -   He Wang
 -   Yinda Zhang

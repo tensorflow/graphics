@@ -142,6 +142,7 @@ def rasterize(vertices,
     triangle_index, _, mask = rasterization_backend.rasterize(
         vertices, triangles, view_projection_matrix, image_size_backend,
         backend)
+    outputs = {"mask": mask, "triangle_indices": triangle_index}
 
     batch_shape = triangle_index.shape[:-3]
     batch_shape = [_dim_value(dim) for dim in batch_shape]
@@ -158,8 +159,7 @@ def rasterize(vertices,
                                                      perspective_matrix,
                                                      image_size_float)
     mask_float = tf.cast(tf.expand_dims(mask, axis=-1), vertices.dtype)
-
-    outputs = {"mask": mask, "barycentrics": barycentrics}
+    outputs["barycentrics"] = mask_float * barycentrics
 
     masked_background_attribute = (1.0 - mask_float) * background_attribute
 
@@ -178,6 +178,7 @@ def rasterize(vertices,
       outputs[key] = interpolated_attribute
 
     return outputs
+
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
