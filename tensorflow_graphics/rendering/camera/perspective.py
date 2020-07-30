@@ -216,8 +216,7 @@ def intrinsics_from_matrix(matrix, name=None):
         tensor=matrix,
         tensor_name="matrix",
         has_rank_greater_than=1,
-        has_dim_equals=((-1, 3), (-2, 3)),
-    )
+        has_dim_equals=((-1, 3), (-2, 3)))
     fx = matrix[..., 0, 0]
     fy = matrix[..., 1, 1]
     cx = matrix[..., 0, 2]
@@ -282,8 +281,7 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
     shape.check_static(
         tensor=principal_point,
         tensor_name="principal_point",
-        has_dim_equals=(-1, 2),
-    )
+        has_dim_equals=(-1, 2))
     shape.check_static(
         tensor=skew,
         tensor_name="skew",
@@ -299,9 +297,7 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
     cx, cy = tf.unstack(principal_point, axis=-1)
     zero = tf.zeros_like(fx)
     one = tf.ones_like(fx)
-
     skew = tf.reshape(skew, tf.shape(fx))
-
     matrix = tf.stack(
         (fx, skew, cx, zero, fy, cy, zero, zero, one), axis=-1
     )  # pyformat: disable
