@@ -42,13 +42,13 @@ _CITATION = '''
 _DESCRIPTION = '''
 Pix3D is a large-scale dataset of diverse image-shape pairs
 with pixel-level 2D-3D alignment. It has wide applications in shape-related
- tasks including reconstruction, retrieval, viewpoint estimation, etc.
+tasks including reconstruction, retrieval, viewpoint estimation, etc.
 
 Pix3D contains 10,069 2D-3D pairs of 395 distinct 3D shapes, categorised into
 nine object categories. Each sample comprises of an image, 3D shape represented
 as (non-watertight) triangle mesh and voxel grid, bounding-box,
- segmentation mask, intrinsic and extrinsic camera parameters and 2D and 3D key
- points.
+segmentation mask, intrinsic and extrinsic camera parameters and 2D and 3D key
+points.
 
 Notes:
   * The object and camera poses are provided with respect to the scene, whereas
@@ -76,7 +76,7 @@ Notes:
 Train/Test split:
   Pix3D does not provide a standard train/test split. Therefore, this
   implementation adopts the S2 split from Mesh R-CNN
-   (https://arxiv.org/abs/1906.02739, Sec. 4.2). This split ensures that the 3D
+  (https://arxiv.org/abs/1906.02739, Sec. 4.2). This split ensures that the 3D
   models appearing in the train and test sets are disjoint.
 '''
 
