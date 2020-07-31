@@ -26,7 +26,6 @@ References:
 """
 
 import tensorflow as tf
-import tensorflow_addons as tfa
 
 
 def vert_align(features,
@@ -46,73 +45,83 @@ def vert_align(features,
 
   features = tf.convert_to_tensor(features)
 
-  if not all(v.shape.rank == 2 for v in vertices):
+  if not all([v.shape.rank == 2 for v in vertices]):
     raise ValueError('vertices should be 2 dimensional.')
 
   if not features._rank() == 4:
     raise ValueError('features must of shape (N, H, W, C).')
+  verts_2d = [tf.cast(v[..., :2], tf.float32) for v in vertices]
+  grid = _spatial_normalize_grid_to_feature(verts_2d, features)
+  padded_grid, padding_offsets = pad_query_points(grid)
+  print(padded_grid.shape)
+  sample_grid = tf.reshape(padded_grid, (features.shape[0], 1, -1, 2))
+  print(sample_grid.shape)
+  sampled_features = grid_sample_2d(features, sample_grid)
 
-  query_points = tf.cast(pad_vertices(vertices)[..., :2], tf.float32)
-  sampled_features = tfa.image.interpolate_bilinear(grid=features,
-                                                    query_points=query_points,
-                                                    indexing='xy')
-
-  return sampled_features
+  return [s_feat[:padding_offsets[i]] for i, s_feat in
+          enumerate(sampled_features)]
 
 
-def pad_vertices(vertices):
+def pad_query_points(points):
   """
-  Pads and stacks vertices into a tensor of shape `[N, V, 3]`
+  Pads and stacks query points into a tensor of shape `[N, P, 3]`
 
   Args:
-    vertices: list of N float32 tensors of shape `[V, 3]` containing the vertex
-      positions for which to sample the image features.
+    points: list of N float32 tensors of shape `[P, 3]` containing the
+      coordinates for which to sample the image features.
 
   Returns:
-    float32 tensor of shape `[N, V, 3]` with the padded and stacked vertices.
+    float32 tensor of shape `[N, P, 3]` with the padded and stacked query points
+    and a list of ints denoting the lengths of the unpadded arrays.
   """
-  max_num_vertices = len(max(vertices, key=len))
+  max_num_points = len(max(points, key=len))
   padded_vertices = []
-  for vert in vertices:
-    if vert.shape[1] != 3:
-      raise ValueError('All vertices must have shape [V, 3].')
+  original_lengths = []
+  for point in points:
+    if point.shape[-1] < 2:
+      raise ValueError('points.shape[-1] has to be at least 2.')
 
-    pad_length = max_num_vertices - vert.shape[0]
-    pad = tf.zeros((pad_length, 3), dtype=tf.int32)
-    padded_vertices.append(tf.concat([vert, pad], 0))
+    original_lengths.append(point.shape[0])
+    pad_length = max_num_points - point.shape[0]
+    pad = tf.zeros((pad_length, 2), dtype=tf.float32)
+    if pad_length == 0:
+      padded_vertices.append(point)
+    else:
+      padded_vertices.append(tf.concat([point, pad], 0))
 
-  return tf.stack(padded_vertices)
+  return tf.stack(padded_vertices), original_lengths
 
 
-def _spatial_normalize_grid_to_feature(grid, feature_map):
+def _spatial_normalize_grid_to_feature(grids, feature_map):
   """
   Normalize batch of 2D coordinates (x, y) such that (-1, -1) corresponds to
   top-left and (+1, +1) to bottom-right location in the input feature map.
 
   Args:
-    grid: float32 tensor of shape `[N1,N2,2]` containing the 2D coordinates that
-      should be normalized.
-    feature_map: float32 tensor of shape `[N, H, W, C]` that is used to normalize
+    grids: list of `N1` float32 tensors of shape `[N2,2]` containing the 2D
+    coordinates that should be normalized.
+    feature_map: float32 tensor of shape `[N1, H, W, C]` that is used to normalize
       spatial dimension leaving the channels C untouched.
 
   Returns:
-    float32 tensor of shape `[N1,N2,2]` with normalized spatial coordinates.
+    list with `N1` float32 tensors of shape `[N2,2]` with normalized coordinates.
   """
-  if grid.shape[-1] != 2:
+  if not all([g.shape[-1] == 2 for g in grids]):
     raise ValueError('Grid must contain 2D coordinats.')
   if feature_map._rank() != 4:
     raise ValueError('feature_map must be a tensor of rank 4.')
+  normalized_grids = []
+  for i, grid in enumerate(grids):
+    H, W, _ = feature_map[i].shape
+    extent = tf.constant([H / 2, W / 2], dtype=tf.float32)
+    normalized_grids.append((grid - extent) / extent)
+  return normalized_grids
 
-  _, H, W, _ = feature_map.shape
-  extent = tf.constant([H/2, W/2], dtype=tf.float32)
-  return (grid - extent) / extent
 
-
-def interpolate_bilinear(source, grid):
+def grid_sample_2d(source, grid):
   """
-  Performs 2D bilinear interpolation of the source according to normalized
-  coordinates provided by the grid. Each channel of the input will be sampeled
-  identically.
+  Performs 2D grid sampling with bilinear interpolation of the source according
+  to normalized coordinates provided by the grid.
 
   Args:
     source: float32 tensor of shape `[N, H, W, C]` representing the source
@@ -124,6 +133,37 @@ def interpolate_bilinear(source, grid):
       interpolation.
   """
 
+  N, H, W, _ = source.shape
 
+  # Find interpolation neighbours
+  y, x = grid[..., 0], grid[..., 1]
+  y = tf.cast(H - 1, grid.dtype) * (y + 1) / 2
+  x = tf.cast(W - 1, grid.dtype) * (x + 1) / 2
+  low = tf.maximum(tf.cast(tf.floor(y), tf.int32), 0)
+  high = tf.minimum(low + 1, H - 1)
+  right = tf.maximum(tf.cast(tf.floor(x), tf.int32), 0)
+  left = tf.minimum(right + 1, W - 1)
 
+  # Gather pixel values
+  index = tf.tile(tf.range(N)[:, None, None],
+                  tf.concat([[1], tf.shape(y)[1:]], axis=0))
+  value_bottom_right = tf.gather_nd(source,
+                                    tf.stack([index, low, right], axis=-1))
+  value_bottom_left = tf.gather_nd(source,
+                                   tf.stack([index, low, left], axis=-1))
+  value_top_right = tf.gather_nd(source,
+                                 tf.stack([index, high, right], axis=-1))
+  value_top_left = tf.gather_nd(source, tf.stack([index, high, left], axis=-1))
 
+  # Interpolation coefficients
+  d_y = tf.cast(y, source.dtype) - tf.cast(low, source.dtype)
+  d_y = tf.expand_dims(d_y, -1)
+  d_x = tf.cast(x, source.dtype) - tf.cast(right, source.dtype)
+  d_x = tf.expand_dims(d_x, -1)
+
+  # Compute bilinear interpolation
+  inter_y_right = value_bottom_right * (1 - d_y) + value_top_right * d_y
+  inter_y_left = value_bottom_left * (1 - d_y) + value_top_left * d_y
+  interpolated = inter_y_right * (1 - d_x) + inter_y_left * d_x
+
+  return interpolated

@@ -29,15 +29,14 @@ class VertAlignTest(test_case.TestCase):
     """Test on set of points, where H & W dimensions are equal to source."""
     N, H, W = 2, 10, 10
     source = tf.random.normal((N, H, W, 3), dtype=tf.float32)
-    grid = tf.meshgrid(tf.range(0, limit=W, dtype=tf.int32),
-                       tf.range(0, limit=H, dtype=tf.int32))
-    batch_query_points = tf.reshape(tf.stack(grid, axis=-1), shape=(-1, 2))
+    grid = tf.meshgrid(tf.range(0, limit=W, dtype=tf.float32),
+                       tf.range(0, limit=H, dtype=tf.float32))
+    batch_query_points = tf.reshape(tf.stack(grid, axis=-1), (-1, 2))
     batch_query_points = tf.concat(
-        [batch_query_points, tf.ones((H * W, 1), tf.int32)], axis=1)
+        [batch_query_points, tf.ones((H * W, 1))], axis=-1)
     query_points = [batch_query_points] * N
-
     output = vert_align(source, query_points)
-    
-    expected_output = tf.reshape(source, (N, -1, 3))
+    output_tensor = tf.convert_to_tensor(output)
+    expected_output = tf.reshape(source, (N, 1, -1, 3))
 
-    self.assertAllClose(expected_output, output)
+    self.assertAllClose(expected_output, output_tensor)
