@@ -76,7 +76,9 @@ REGISTER_OP("Rasterize")
     .Attr("red_clear: float = 0.0")
     .Attr("green_clear: float = 0.0")
     .Attr("blue_clear: float = 0.0")
+    .Attr("alpha_clear: float = 1.0")
     .Attr("depth_clear: float = 1.0")
+    .Attr("enable_cull_face: bool = false")
     .Attr("vertex_shader: string")
     .Attr("fragment_shader: string")
     .Attr("geometry_shader: string")
@@ -98,7 +100,9 @@ output_resolution: a 2D shape containing the width and height of the resulting
 red_clear: the red component for glClear.
 green_clear: the green component for glClear.
 blue_clear: the blue component for glClear.
+alpha_clear: the alpha component for glClear.
 depth_clear: the depth value for glClearDepthf.
+enable_cull_face: enable face culling.
 vertex_shader: A string containing a valid vertex shader.
 fragment_shader: A string containing a valid fragment shader.
 geometry_shader: A string containing a valid geometry shader.
@@ -146,12 +150,17 @@ class RasterizeOp : public tensorflow::OpKernel {
     float red_clear = 0.0;
     float green_clear = 0.0;
     float blue_clear = 0.0;
+    float alpha_clear = 1.0;
     float depth_clear = 1.0;
+    bool enable_cull_face = false;
 
     OP_REQUIRES_OK(context, context->GetAttr("red_clear", &red_clear));
     OP_REQUIRES_OK(context, context->GetAttr("green_clear", &green_clear));
     OP_REQUIRES_OK(context, context->GetAttr("blue_clear", &blue_clear));
+    OP_REQUIRES_OK(context, context->GetAttr("alpha_clear", &alpha_clear));
     OP_REQUIRES_OK(context, context->GetAttr("depth_clear", &depth_clear));
+    OP_REQUIRES_OK(context,
+                   context->GetAttr("enable_cull_face", &enable_cull_face));
     OP_REQUIRES_OK(context, context->GetAttr("vertex_shader", &vertex_shader));
     OP_REQUIRES_OK(context,
                    context->GetAttr("fragment_shader", &fragment_shader));
@@ -166,13 +175,13 @@ class RasterizeOp : public tensorflow::OpKernel {
 
     auto rasterizer_creator =
         [vertex_shader, geometry_shader, fragment_shader, red_clear,
-         green_clear, blue_clear, depth_clear,
+         green_clear, blue_clear, alpha_clear, depth_clear, enable_cull_face,
          this](std::unique_ptr<RasterizerWithContext>* resource)
         -> tensorflow::Status {
       return RasterizerWithContext::Create(
           output_resolution_.dim_size(0), output_resolution_.dim_size(1),
           vertex_shader, geometry_shader, fragment_shader, resource, red_clear,
-          green_clear, blue_clear, depth_clear);
+          green_clear, blue_clear, alpha_clear, depth_clear, enable_cull_face);
     };
     rasterizer_pool_ =
         std::unique_ptr<ThreadSafeResourcePool<RasterizerWithContext>>(

@@ -26,7 +26,6 @@ jobs:
     - name: Linter
       run: |
         python -m pip install --upgrade pip
-        pip install pytest
         pip install flake8
         flake8 --config=.flake8 tensorflow_graphics/
     - name: Build rasterizer
@@ -36,8 +35,12 @@ jobs:
       run: |
         pip install -r requirements.txt
     - name: Test
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        pytest tensorflow_graphics
+        pip install pytest coveralls
+        coverage run --source tensorflow_graphics -m py.test
+        coveralls
     - name: Build and Install
       run: |
         python setup.py sdist bdist_wheel

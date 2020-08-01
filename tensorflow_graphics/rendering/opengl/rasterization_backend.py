@@ -54,17 +54,6 @@ vec3 get_vertex_position(int vertex_index) {
     mesh_buffer[offset + 2]);
 }
 
-// Note that this function can cause artifacts for triangles that cross the eye
-// plane.
-bool is_back_facing(vec4 projected_vertex_0, vec4 projected_vertex_1,
-                    vec4 projected_vertex_2) {
-  projected_vertex_0 /= projected_vertex_0.w;
-  projected_vertex_1 /= projected_vertex_1.w;
-  projected_vertex_2 /= projected_vertex_2.w;
-  vec2 a = (projected_vertex_1.xy - projected_vertex_0.xy);
-  vec2 b = (projected_vertex_2.xy - projected_vertex_0.xy);
-  return (a.x * b.y - b.x * a.y) <= 0;
-}
 
 void main() {
   vec3 positions[3] = {get_vertex_position(0), get_vertex_position(1),
@@ -73,12 +62,6 @@ void main() {
                             view_projection_matrix * vec4(positions[0], 1.0),
                             view_projection_matrix * vec4(positions[1], 1.0),
                             view_projection_matrix * vec4(positions[2], 1.0)};
-
-  // Cull back-facing triangles.
-  if (is_back_facing(projected_vertices[0], projected_vertices[1],
-      projected_vertices[2])) {
-    return;
-  }
 
   for (int i = 0; i < 3; ++i) {
     // gl_Position is a pre-defined size 4 output variable.
@@ -92,8 +75,6 @@ void main() {
 }
 """
 
-# TODO(b/151133955): add support to render a foreground / background mask.
-
 # Fragment shader that packs barycentric coordinates, and triangle index.
 fragment_shader = """
 #version 430
@@ -104,7 +85,7 @@ in layout(location = 1) float triangle_index;
 out vec4 output_color;
 
 void main() {
-  output_color = vec4(round(triangle_index + 1.0), barycentric_coordinates, 0.0);
+  output_color = vec4(round(triangle_index + 1.0), barycentric_coordinates, 1.0);
 }
 """
 
@@ -183,6 +164,8 @@ def rasterize(vertices,
 
     rasterized = render_ops.rasterize(
         num_points=geometry.shape[-3],
+        alpha_clear=0.0,
+        enable_cull_face=True,
         variable_names=("view_projection_matrix", "triangular_mesh"),
         variable_kinds=("mat", "buffer"),
         variable_values=(view_projection_matrices,
@@ -192,13 +175,13 @@ def rasterize(vertices,
         geometry_shader=geometry_shader,
         fragment_shader=fragment_shader)
 
-    triangle_index = tf.cast(rasterized[..., 0] - 1, tf.int32)
+    triangle_index = tf.cast(rasterized[..., 0], tf.int32) - 1
     barycentric_coordinates = rasterized[..., 1:3]
     barycentric_coordinates = tf.concat(
         (barycentric_coordinates, 1.0 - barycentric_coordinates[..., 0:1] -
          barycentric_coordinates[..., 1:2]),
         axis=-1)
-    mask = tf.cast(triangle_index >= 0, tf.int32)
+    mask = tf.cast(rasterized[..., 3], tf.int32)
 
     return triangle_index, barycentric_coordinates, mask
 

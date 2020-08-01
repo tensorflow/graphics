@@ -13,10 +13,6 @@
 # limitations under the License.
 """Module with test data for transformation tests."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import numpy as np
 
 ANGLE_0 = np.array((0.,))
