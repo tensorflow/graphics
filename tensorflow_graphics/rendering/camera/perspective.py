@@ -298,9 +298,10 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
     zero = tf.zeros_like(fx)
     one = tf.ones_like(fx)
     skew = tf.reshape(skew, tf.shape(fx))
-    matrix = tf.stack(
-        (fx, skew, cx, zero, fy, cy, zero, zero, one), axis=-1
-    )  # pyformat: disable
+    matrix = tf.stack((fx, skew, cx,
+                       zero, fy, cy,
+                       zero, zero, one),
+                      axis=-1)  # pyformat: disable
     matrix_shape = tf.shape(input=matrix)
     output_shape = tf.concat((matrix_shape[:-1], (3, 3)), axis=-1)
     return tf.reshape(matrix, shape=output_shape)
