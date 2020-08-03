@@ -67,7 +67,6 @@ def vert_align(features,
   projected_vertices = perspective.project(padded_grid,
                                            focal_length,
                                            principal_point)
-  print(projected_vertices)
   sampled_features = tfa.image.interpolate_bilinear(features,
                                                     projected_vertices,
                                                     indexing='ij')
@@ -97,7 +96,7 @@ def pad_query_points(points):
 
     original_lengths.append(point.shape[0])
     pad_length = max_num_points - point.shape[0]
-    pad = tf.zeros((pad_length, 2), dtype=tf.float32)
+    pad = tf.zeros((pad_length, 3), dtype=tf.float32)
     if pad_length == 0:
       padded_vertices.append(point)
     else:

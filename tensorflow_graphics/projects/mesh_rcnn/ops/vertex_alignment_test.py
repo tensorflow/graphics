@@ -60,3 +60,44 @@ class VertAlignTest(test_case.TestCase):
 
     self.assertAllClose(expected_result, result[0])
 
+  def test_multi_channel(self):
+    """Tests VertAlign on multi-channel input."""
+    image = tf.reshape(tf.range(60.), (1, 4, 5, 3))
+
+    verts = tf.constant([[-1.5, -1.5, 10],
+                         [-1.5, 0.5, 10],
+                         [-0.5, -1.5, 10],
+                         [-0.5, 0.5, 10]], dtype=tf.float32)
+    intrinsics = tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
+                             dtype=tf.float32)
+
+    expected_result = tf.constant([image[0, 1, 1, :].numpy(),
+                                   image[0, 1, 3, :].numpy(),
+                                   image[0, 2, 1, :].numpy(),
+                                   image[0, 2, 3, :].numpy()])
+
+    result = vert_align(image, [verts], intrinsics)
+
+    self.assertAllClose(expected_result, result[0])
+
+  def test_batch_different_sized_vertices(self):
+    """Tests on batch of different sized vertices."""
+    image = tf.reshape(tf.range(20.), (1, 4, 5, 1))
+    images = tf.repeat(image, repeats=[2], axis=0)
+    verts1 = tf.constant([[-1.5, -1.5, 10],
+                         [-1.5, 0.5, 10],
+                         [-0.5, -1.5, 10],
+                         [-0.5, 0.5, 10]], dtype=tf.float32)
+
+    verts2 = tf.constant([[-1.5, -1.5, 10],
+                         [-1.5, 0.5, 10]], dtype=tf.float32)
+
+    intrinsics = tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
+                             dtype=tf.float32)
+
+    expected_result1 = tf.constant([[6.], [8.], [11.], [13.]])
+    expected_result2 = tf.constant([[6.], [8.]])
+    result = vert_align(images, [verts1, verts2], intrinsics)
+
+    self.assertAllClose(expected_result1, result[0])
+    self.assertAllClose(expected_result2, result[1])
