@@ -23,7 +23,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def render(voxels, name=None):
+def render(voxels, axis=2, name=None):
   """Renders the visual hull of a voxel grid, as described in ["Escaping Plato's Cave: 3D Shape From Adversarial Rendering" (Henzler 2019)](https://github.com/henzler/platonicgan).
 
   Note:
@@ -33,6 +33,7 @@ def render(voxels, name=None):
     voxels: A tensor of shape `[A1, ..., An, Vx, Vy, Vz, Vd]`, where Vx, Vy, Vz
       are the dimensions of the voxel grid and Vd the dimension of the
       information stored in each voxel (e.g. 3 for RGB color).
+    axis: An index to the projection axis (0 for X, 1 for Y or 2 for Z).
     name: A name for this op. Defaults to "visual_hull_render".
 
   Returns:
@@ -47,8 +48,10 @@ def render(voxels, name=None):
 
     shape.check_static(
         tensor=voxels, tensor_name="voxels", has_rank_greater_than=3)
+    if axis not in [0, 1, 2]:
+      raise ValueError("'axis' needs to be 0, 1 or 2")
 
-    image = tf.reduce_sum(input_tensor=voxels, axis=-2)
+    image = tf.reduce_sum(input_tensor=voxels, axis=axis - 4)
     image = tf.ones_like(image) - tf.math.exp(-image)
     return image
 
