@@ -26,7 +26,8 @@ class VertAlignTest(test_case.TestCase):
   """Test Cases for vert align OP."""
 
   def test_vert_align_with_matching_querypoints(self):
-    """Test on set of points, where H & W dimensions are equal to source."""
+    """Test on set of points that match exactly with pixels in the source
+    image."""
 
     image = tf.reshape(tf.range(20.), (1, 4, 5, 1))
     verts = tf.constant([[-1.5, -1.5, 10],
@@ -40,3 +41,22 @@ class VertAlignTest(test_case.TestCase):
     result = vert_align(image, [verts], intrinsics)
 
     self.assertAllClose(expected_result, result[0])
+
+  def test_border_padding(self):
+    """ Tests on set of vertices, where projection is outside of feature
+    map."""
+
+    image = tf.reshape(tf.reshape(tf.range(70.), (10, 7))[1:-1, 1:-1], (1, 8, 5, 1))
+
+    verts = tf.constant([[-5., -3.5, 10],
+                         [-5, 3.5, 10],
+                         [4., -3.5, 10],
+                         [4, 3.5, 10]], dtype=tf.float32)
+
+    intrinsics = tf.constant([[10, 0, 5], [0, 10, 3.5], [0, 0, 1]],
+                             dtype=tf.float32)
+    expected_result = tf.constant([[8.], [12.], [57.], [61.]])
+    result = vert_align(image, [verts], intrinsics)
+
+    self.assertAllClose(expected_result, result[0])
+
