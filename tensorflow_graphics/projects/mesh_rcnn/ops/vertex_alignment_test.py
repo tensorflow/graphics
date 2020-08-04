@@ -46,7 +46,8 @@ class VertAlignTest(test_case.TestCase):
     """ Tests on set of vertices, where projection is outside of feature
     map."""
 
-    image = tf.reshape(tf.reshape(tf.range(70.), (10, 7))[1:-1, 1:-1], (1, 8, 5, 1))
+    image = tf.reshape(tf.reshape(tf.range(70.), (10, 7))[1:-1, 1:-1],
+                       (1, 8, 5, 1))
 
     verts = tf.constant([[-5., -3.5, 10],
                          [-5, 3.5, 10],
@@ -85,12 +86,12 @@ class VertAlignTest(test_case.TestCase):
     image = tf.reshape(tf.range(20.), (1, 4, 5, 1))
     images = tf.repeat(image, repeats=[2], axis=0)
     verts1 = tf.constant([[-1.5, -1.5, 10],
-                         [-1.5, 0.5, 10],
-                         [-0.5, -1.5, 10],
-                         [-0.5, 0.5, 10]], dtype=tf.float32)
+                          [-1.5, 0.5, 10],
+                          [-0.5, -1.5, 10],
+                          [-0.5, 0.5, 10]], dtype=tf.float32)
 
     verts2 = tf.constant([[-1.5, -1.5, 10],
-                         [-1.5, 0.5, 10]], dtype=tf.float32)
+                          [-1.5, 0.5, 10]], dtype=tf.float32)
 
     intrinsics = tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
                              dtype=tf.float32)

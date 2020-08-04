@@ -56,7 +56,7 @@ def vert_align(features,
   if not all([v.shape.rank == 2 for v in vertices]):
     raise ValueError('vertices should be 2 dimensional.')
 
-  if not features._rank() == 4:
+  if not tf.rank(features) == 4:
     raise ValueError('features must of shape (N, H, W, C).')
 
 
