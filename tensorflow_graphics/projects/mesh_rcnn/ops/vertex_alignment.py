@@ -73,33 +73,3 @@ def vert_align(features,
 
   return [s_feat[:padding_offsets[i]] for i, s_feat in
           enumerate(sampled_features)]
-
-
-def pad_query_points(points):
-  """
-  Pads and stacks query points into a tensor of shape `[N, P, 3]`
-
-  Args:
-    points: list of N float32 tensors of shape `[P, 3]` containing the
-      coordinates for which to sample the image features.
-
-  Returns:
-    float32 tensor of shape `[N, P, 3]` with the padded and stacked query points
-    and a list of ints denoting the lengths of the unpadded arrays.
-  """
-  max_num_points = len(max(points, key=len))
-  padded_vertices = []
-  original_lengths = []
-  for point in points:
-    if point.shape[-1] != 3:
-      raise ValueError('points.shape[-1] has to be 3.')
-
-    original_lengths.append(point.shape[0])
-    pad_length = max_num_points - point.shape[0]
-    pad = tf.zeros((pad_length, 3), dtype=tf.float32)
-    if pad_length == 0:
-      padded_vertices.append(point)
-    else:
-      padded_vertices.append(tf.concat([point, pad], 0))
-
-  return tf.stack(padded_vertices), original_lengths
