@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Data Structure for Meshes"""
 
+import tensorflow as tf
 from tensorflow_graphics.geometry.convolution import utils
 from tensorflow_graphics.projects.mesh_rcnn.util import padding
 
@@ -34,11 +36,12 @@ class Meshes:
     if len(vertices) != len(faces):
       raise ValueError('Need as many face-lists as vertex-lists.')
 
-    vertices, self.vertex_sizes = padding.pad_list(vertices)
-    faces, self.face_sizes = padding.pad_list(faces)
+    self.vertices, self.vertex_sizes = padding.pad_list(vertices)
+    self.faces, self.face_sizes = padding.pad_list(faces)
 
-    self.vertices, self.unfold_vertices = utils.flatten_batch_to_2d(vertices, sizes=self.vertex_sizes)
-    self.faces, self.unfold_faces = utils.flatten_batch_to_2d(faces, sizes=self.face_sizes)
+    if tf.rank(self.vertices) > 2:
+      self.vertices, self._unfold_vertices = utils.flatten_batch_to_2d(self.vertices, sizes=self.vertex_sizes)
+      self.faces, self._unfold_faces = utils.flatten_batch_to_2d(self.faces, sizes=self.face_sizes)
 
   def get_flattened(self):
     """
@@ -57,7 +60,10 @@ class Meshes:
       a tensor of shape `[N, F, 3]` containing the padded faces.
 
     """
-    return self.unfold_vertices(self.vertices), self.unfold_faces(self.faces)
+    if tf.rank(self.vertex_sizes) > 0:
+      return self._unfold_vertices(self.vertices), self._unfold_faces(self.faces)
+    else:
+      return self.vertices, self.faces
 
   def get_unpadded(self):
     """

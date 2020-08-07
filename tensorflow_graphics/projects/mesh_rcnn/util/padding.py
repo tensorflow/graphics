@@ -40,8 +40,11 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
     ValueError: If tensors are not of same rank or have more than 1 unequal
       dimensions.
   """
-  # all tensors need to have same last dimension
-  shape.compare_dimensions(tensors, -1)
+  if len(tensors) > 1:
+    # all tensors need to have same last dimension
+    shape.compare_dimensions(tensors, -1)
+  else:
+    return tensors[0], tf.constant(len(tensors[0]))
 
   # check if all tensors have same rank
   if not len({tf.rank(tensor).numpy() for tensor in tensors}) == 1:
@@ -63,4 +66,4 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
     padding = tf.scatter_nd([[padding_dim]], [pad_length], [tf.rank(tensor), 2])
     padded.append(tf.pad(tensor, padding, mode, constant_values))
 
-  return tf.concat(padded, 0), sizes
+  return tf.stack(padded, 0), sizes
