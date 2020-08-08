@@ -44,7 +44,7 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
     # all tensors need to have same last dimension
     shape.compare_dimensions(tensors, -1)
   else:
-    return tensors[0], tf.constant(len(tensors[0]))
+    return tensors[0], tf.constant([len(tensors[0])])
 
   # check if all tensors have same rank
   if not len({tf.rank(tensor).numpy() for tensor in tensors}) == 1:

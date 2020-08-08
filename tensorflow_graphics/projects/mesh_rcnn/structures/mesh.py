@@ -14,6 +14,7 @@
 """Data Structure for Meshes"""
 
 import tensorflow as tf
+
 from tensorflow_graphics.geometry.convolution import utils
 from tensorflow_graphics.projects.mesh_rcnn.util import padding
 
@@ -40,8 +41,10 @@ class Meshes:
     self.faces, self.face_sizes = padding.pad_list(faces)
 
     if tf.rank(self.vertices) > 2:
-      self.vertices, self._unfold_vertices = utils.flatten_batch_to_2d(self.vertices, sizes=self.vertex_sizes)
-      self.faces, self._unfold_faces = utils.flatten_batch_to_2d(self.faces, sizes=self.face_sizes)
+      self.vertices, self._unfold_vertices = utils.flatten_batch_to_2d(
+        self.vertices, sizes=self.vertex_sizes)
+      self.faces, self._unfold_faces = utils.flatten_batch_to_2d(self.faces,
+                                                                 sizes=self.face_sizes)
 
   def get_flattened(self):
     """
@@ -60,8 +63,9 @@ class Meshes:
       a tensor of shape `[N, F, 3]` containing the padded faces.
 
     """
-    if tf.rank(self.vertex_sizes) > 0:
-      return self._unfold_vertices(self.vertices), self._unfold_faces(self.faces)
+    if len(self.vertex_sizes) > 1:
+      return self._unfold_vertices(self.vertices), self._unfold_faces(
+        self.faces)
     else:
       return self.vertices, self.faces
 
@@ -74,7 +78,11 @@ class Meshes:
       A list of N face tensors of shape `[F',3]`
     """
     vertices, faces = self.get_padded()
-    vertices = [vertex[:self.vertex_sizes[i]] for i, vertex in enumerate(vertices)]
+    if tf.rank(vertices) < 3:
+      return [vertices], [faces]
+
+    vertices = [vertex[:self.vertex_sizes[i]] for i, vertex in
+                enumerate(vertices)]
     faces = [face[:self.face_sizes[i]] for i, face in enumerate(faces)]
 
     return vertices, faces

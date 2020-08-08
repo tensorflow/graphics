@@ -66,6 +66,9 @@ class MeshTest(test_case.TestCase):
     self.assertAllEqual(unit_cube_verts, unit_cube_mesh.get_padded()[0])
     self.assertAllEqual(unit_cube_faces, unit_cube_mesh.get_padded()[1])
 
+    self.assertAllEqual(unit_cube_verts, unit_cube_mesh.get_unpadded()[0][0])
+    self.assertAllEqual(unit_cube_faces, unit_cube_mesh.get_unpadded()[1][0])
+
   def test_mesh_packing_on_batch(self):
     """Tests packing and unpacking of meshes in a batch."""
 
@@ -102,3 +105,15 @@ class MeshTest(test_case.TestCase):
     self.assertAllEqual(faces[0], meshes.get_unpadded()[1][0])
     self.assertAllEqual(vertices[1], meshes.get_unpadded()[0][1])
     self.assertAllEqual(faces[1], meshes.get_unpadded()[1][1])
+
+  def test_with_empty_lists(self):
+    """Tests implementation with empty meshes."""
+    empty_mesh = mesh.Meshes([tf.constant([], dtype=tf.float32)], [
+        tf.constant([], dtype=tf.float32)])
+
+    self.assertEmpty(empty_mesh.get_unpadded()[0][0])
+    self.assertEmpty(empty_mesh.get_unpadded()[1][0])
+    self.assertEmpty(empty_mesh.get_padded()[0])
+    self.assertEmpty(empty_mesh.get_padded()[1])
+    self.assertEmpty(empty_mesh.get_flattened()[0])
+    self.assertEmpty(empty_mesh.get_flattened()[1])
