@@ -15,8 +15,6 @@
 
 import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.structures import mesh
-
 
 def _ravel_index(index, dims):
   """
@@ -61,8 +59,6 @@ def cubify(voxel_grid, threshold=0.5):
 
   Returns:
     Watertight mesh whose topology depends on the voxel occupancy probabilities.
-    The Meshes are wrapped into an
-    `tensorflow_graphics.projects.mesh_rcnn.structures.mesh.Meshes` object.
   """
   voxel_grid = tf.convert_to_tensor(voxel_grid)
   threshold = tf.convert_to_tensor(threshold)
@@ -106,8 +102,8 @@ def cubify(voxel_grid, threshold=0.5):
   voxel_thresholded = tf.cast(voxel_mask, tf.float32)
 
   if tf.reduce_all(tf.math.logical_not(voxel_mask)):
-    return mesh.Meshes([tf.constant([], dtype=tf.float32)], [
-        tf.constant([], dtype=tf.float32)])
+    return [tf.constant([], dtype=tf.float32)], [
+        tf.constant([], dtype=tf.float32)]
 
   # NDHWC, since NDCHW is only supported on GPU
   voxel_thresholded = tf.expand_dims(voxel_thresholded, axis=-1)
@@ -192,8 +188,8 @@ def cubify(voxel_grid, threshold=0.5):
   nyxz = tf.transpose(tf.unravel_index(linear_index[:, 0], (N, H, W, D)))
 
   if len(nyxz) == 0:
-    return mesh.Meshes([tf.constant([], dtype=tf.float32)], [
-        tf.constant([], dtype=tf.float32)])
+    return [tf.constant([], dtype=tf.float32)], [
+        tf.constant([], dtype=tf.float32)]
 
   faces = tf.gather(unit_cube_faces, linear_index[:, 1], axis=None)
 
@@ -244,4 +240,4 @@ def cubify(voxel_grid, threshold=0.5):
   faces_list = [face_batch - tf.gather(idle_n[n], face_batch, axis=0) for
                 n, face_batch in enumerate(faces_list)]
 
-  return mesh.Meshes(verts_list, faces_list)
+  return verts_list, faces_list
