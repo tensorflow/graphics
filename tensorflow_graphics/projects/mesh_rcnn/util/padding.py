@@ -52,8 +52,12 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
 
   shapes = tf.stack([tensor.shape for tensor in tensors], axis=0)
   padding_dim = tf.where(tf.reduce_max(shapes, 0) != tf.reduce_min(shapes, 0))
-  if not len(padding_dim) == 1:
+  if len(padding_dim) > 1:
     raise ValueError('Only one dimension with unequal length supported.')
+
+  # all tensors are already of same shape
+  if len(padding_dim) == 0:
+    return tf.stack(tensors, 0), tf.zeros(len(tensors), dtype=tf.int32)
 
   padding_dim = tf.squeeze(padding_dim)
 
