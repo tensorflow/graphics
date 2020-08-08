@@ -54,7 +54,7 @@ def vert_align(features,
   intrinsics = tf.convert_to_tensor(intrinsics)
 
   if tf.rank(vertices) != 3:
-    raise ValueError('vertices mutst be of shape (N, V, 3)')
+    raise ValueError('vertices must be of shape (N, V, 3)')
 
   if tf.rank(features) != 4:
     raise ValueError('features must of shape (N, H, W, C).')
