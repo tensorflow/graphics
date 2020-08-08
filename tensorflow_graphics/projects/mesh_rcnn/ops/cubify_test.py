@@ -29,7 +29,8 @@ class CufifyTest(test_case.TestCase):
     """All voxel occupancy probablities below threshold. Expects empty Mesh."""
     N, V = 32, 16  # pylint: disable=C0103
     voxels = tf.random.uniform((N, V, V, V), 0, 0.5, tf.float32)
-    vertices, faces = cubify(voxels, threshold=0.7)
+    mesh = cubify(voxels, threshold=0.7)
+    vertices, faces = mesh.get_unpadded()
     self.assertEmpty(vertices[0])
     self.assertEmpty(faces[0])
 
@@ -47,8 +48,8 @@ class CufifyTest(test_case.TestCase):
 
     test_data = tf.stack([one_voxel, full_cube])
 
-    vertices, faces = cubify(test_data, 0.5)
-
+    mesh = cubify(test_data, 0.5)
+    vertices, faces = mesh.get_unpadded()
     # ~~~~~~~~~~ Test first batch element ~~~~~~~~~~ #
     expected_vertices_topleftnear = tf.constant(
         [
@@ -188,7 +189,7 @@ class CufifyTest(test_case.TestCase):
     expected_sphere_faces = tf.convert_to_tensor(
         np.load(sphere_faces_path))
 
-    vertices, faces = cubify(sphere_tensor, 0.5)
-
+    mesh = cubify(sphere_tensor, 0.5)
+    vertices, faces = mesh.get_unpadded()
     self.assertAllClose(expected_sphere_faces, faces[0])
     self.assertAllClose(expected_sphere_vertices, vertices[0])
