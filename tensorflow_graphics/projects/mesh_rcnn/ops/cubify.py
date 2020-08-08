@@ -35,7 +35,7 @@ def _ravel_index(index, dims):
     raise ValueError("Expects a 3-element list")
   if index.shape[1] != 3:
     raise ValueError("Expects an index tensor of shape Nx3")
-  _, W, D = dims  # pylint: disable=C0103
+  _, W, D = dims  # pylint: disable=invalid-name
   linear_index = index[:, 0] * W * D + index[:, 1] * D + index[:, 2]
   return linear_index
 
@@ -67,7 +67,7 @@ def cubify(voxel_grid, threshold=0.5):
     raise ValueError("Voxel Occupancy probability grid needs to be a Tensor "
                      "of Rank 4 with dimension: N, D, H, W.")
 
-  N, D, H, W = voxel_grid.shape  # pylint: disable=C0103
+  N, D, H, W = voxel_grid.shape  # pylint: disable=invalid-name
   unit_cube_verts = tf.constant(
       [
           [0, 0, 0],

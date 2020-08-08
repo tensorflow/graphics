@@ -27,7 +27,7 @@ class CufifyTest(test_case.TestCase):
 
   def test_all_below_threshold(self):
     """All voxel occupancy probablities below threshold. Expects empty Mesh."""
-    N, V = 32, 16  # pylint: disable=C0103
+    N, V = 32, 16  # pylint: disable=invalid-name
     voxels = tf.random.uniform((N, V, V, V), 0, 0.5, tf.float32)
     vertices, faces = cubify(voxels, threshold=0.7)
     self.assertEmpty(vertices[0])
@@ -35,7 +35,7 @@ class CufifyTest(test_case.TestCase):
 
   def test_cubify_on_cube(self):
     """Test cubify on arbitrary cubes."""
-    V = 2  # pylint: disable=C0103
+    V = 2  # pylint: disable=invalid-name
 
     # top left corner in front plane is 1, everything else empty
     one_voxel = tf.constant([[[1., 0.],
