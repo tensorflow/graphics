@@ -19,6 +19,7 @@ import tensorflow as tf
 
 from tensorflow_graphics.projects.mesh_rcnn.ops.vertex_alignment import \
   vert_align
+from tensorflow_graphics.projects.mesh_rcnn.structures import mesh
 from tensorflow_graphics.util import test_case
 
 
@@ -34,11 +35,13 @@ class VertAlignTest(test_case.TestCase):
                          [-1.5, 0.5, 10],
                          [-0.5, -1.5, 10],
                          [-0.5, 0.5, 10]], dtype=tf.float32)
+
+    batched_verts = tf.expand_dims(verts, 0)
     intrinsics = tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
                              dtype=tf.float32)
 
     expected_result = tf.constant([[6.], [8.], [11.], [13.]])
-    result = vert_align(image, [verts], intrinsics)
+    result = vert_align(image, batched_verts, intrinsics)
 
     self.assertAllClose(expected_result, result[0])
 
@@ -53,11 +56,11 @@ class VertAlignTest(test_case.TestCase):
                          [-5, 3.5, 10],
                          [4., -3.5, 10],
                          [4, 3.5, 10]], dtype=tf.float32)
-
+    batched_verts = tf.expand_dims(verts, 0)
     intrinsics = tf.constant([[10, 0, 5], [0, 10, 3.5], [0, 0, 1]],
                              dtype=tf.float32)
     expected_result = tf.constant([[8.], [12.], [57.], [61.]])
-    result = vert_align(image, [verts], intrinsics)
+    result = vert_align(image, batched_verts, intrinsics)
 
     self.assertAllClose(expected_result, result[0])
 
@@ -69,6 +72,7 @@ class VertAlignTest(test_case.TestCase):
                          [-1.5, 0.5, 10],
                          [-0.5, -1.5, 10],
                          [-0.5, 0.5, 10]], dtype=tf.float32)
+    batched_verts = tf.expand_dims(verts, 0)
     intrinsics = tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
                              dtype=tf.float32)
 
@@ -77,7 +81,7 @@ class VertAlignTest(test_case.TestCase):
                                    image[0, 2, 1, :].numpy(),
                                    image[0, 2, 3, :].numpy()])
 
-    result = vert_align(image, [verts], intrinsics)
+    result = vert_align(image, batched_verts, intrinsics)
 
     self.assertAllClose(expected_result, result[0])
 
@@ -96,9 +100,11 @@ class VertAlignTest(test_case.TestCase):
     intrinsics = tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
                              dtype=tf.float32)
 
+    input_mesh = mesh.Meshes([verts1, verts2], [tf.ones((2, 3)), tf.ones((2, 3))])
+
     expected_result1 = tf.constant([[6.], [8.], [11.], [13.]])
-    expected_result2 = tf.constant([[6.], [8.]])
-    result = vert_align(images, [verts1, verts2], intrinsics)
+    expected_result2 = tf.constant([[6.], [8.], [15.], [15.]])
+    result = vert_align(images, input_mesh.get_padded()[0], intrinsics)
 
     self.assertAllClose(expected_result1, result[0])
     self.assertAllClose(expected_result2, result[1])
