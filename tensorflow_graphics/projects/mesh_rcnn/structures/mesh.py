@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Data Structure for Meshes"""
+"""Data Structure for Meshes supporting different representations."""
 
 import tensorflow as tf
 
@@ -142,6 +142,22 @@ class Meshes:
     faces = [face[:face_sizes[i]] for i, face in enumerate(faces)]
 
     return vertices, faces
+
+  def add_offsets(self, offsets):
+    """
+    Adds offsets to mesh vertices, changing the meshes geomtry but
+    preserving the topology.
+
+    Args:
+      offsets:  float32 tensor of same shape as self.vertices.
+    """
+    if offsets.shape != self.vertices.shape:
+      raise ValueError(
+          f'Offsets must be a tensor of shape {self.vertices.shape}!')
+
+    self.vertices = self.vertices + offsets
+
+    return self
 
   def _check_valid_input(self, vertices, faces, batch_sizes):
     """Checks if the provided input is valid.
