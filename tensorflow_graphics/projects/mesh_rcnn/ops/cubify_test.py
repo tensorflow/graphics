@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Test Cases for cubify OP."""
+"""Test Cases for cubify op."""
 
 import os
 
@@ -23,10 +23,10 @@ from tensorflow_graphics.util import test_case
 
 
 class CufifyTest(test_case.TestCase):
-  """Test Cases for cubify OP."""
+  """Test Cases for cubify op."""
 
   def test_all_below_threshold(self):
-    """All voxel occupancy probablities below threshold. Expects empty Mesh."""
+    """All voxel occupancy probabilities below threshold. Expects empty Mesh."""
     N, V = 32, 16  # pylint: disable=invalid-name
     voxels = tf.random.uniform((N, V, V, V), 0, 0.5, tf.float32)
     mesh = cubify(voxels, threshold=0.7)
@@ -176,14 +176,14 @@ class CufifyTest(test_case.TestCase):
     """Tests cubify with a voxelized sphere."""
 
     shpere_voxel_path = os.path.join(
-        os.path.dirname(__file__), 'test_data/sphere_voxel.npy')
+        os.path.dirname(__file__), 'test_data', 'sphere_voxel.npy')
     sphere = np.load(shpere_voxel_path).astype(np.float32)
     sphere_tensor = tf.convert_to_tensor(np.expand_dims(sphere, 0))
 
     sphere_vertices_path = os.path.join(
-        os.path.dirname(__file__), 'test_data/sphere_vertices.npy')
+        os.path.dirname(__file__), 'test_data', 'sphere_vertices.npy')
     sphere_faces_path = os.path.join(
-        os.path.dirname(__file__), 'test_data/sphere_faces.npy')
+        os.path.dirname(__file__), 'test_data', 'sphere_faces.npy')
     expected_sphere_vertices = tf.convert_to_tensor(
         np.load(sphere_vertices_path))
     expected_sphere_faces = tf.convert_to_tensor(

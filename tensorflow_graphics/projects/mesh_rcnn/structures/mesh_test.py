@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Test cases for Mesh wrapper."""
 
 import tensorflow as tf
@@ -21,6 +20,7 @@ from tensorflow_graphics.util import test_case
 
 
 class MeshTest(test_case.TestCase):
+  """Test cases for Mesh wrapper."""
 
   def test_mesh_packing_on_single_mesh(self):
     """Tests packing and unpacking of meshes with a single mesh."""

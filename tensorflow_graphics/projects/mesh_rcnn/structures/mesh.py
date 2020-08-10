@@ -42,9 +42,10 @@ class Meshes:
 
     if tf.rank(self.vertices) > 2:
       self.vertices, self._unfold_vertices = utils.flatten_batch_to_2d(
-        self.vertices, sizes=self.vertex_sizes)
-      self.faces, self._unfold_faces = utils.flatten_batch_to_2d(self.faces,
-                                                                 sizes=self.face_sizes)
+          self.vertices, sizes=self.vertex_sizes)
+      self.faces, self._unfold_faces = utils.flatten_batch_to_2d(
+          self.faces,
+          sizes=self.face_sizes)
 
   def get_flattened(self):
     """
@@ -64,10 +65,12 @@ class Meshes:
 
     """
     if len(self.vertex_sizes) > 1:
-      return self._unfold_vertices(self.vertices), self._unfold_faces(
-        self.faces)
+      vertices = self._unfold_vertices(self.vertices)
+      faces = self._unfold_faces(self.faces)
     else:
-      return self.vertices, self.faces
+      vertices, faces = self.vertices, self.faces
+
+    return vertices, faces
 
   def get_unpadded(self):
     """

@@ -100,7 +100,8 @@ class VertAlignTest(test_case.TestCase):
     intrinsics = tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
                              dtype=tf.float32)
 
-    input_mesh = mesh.Meshes([verts1, verts2], [tf.ones((2, 3)), tf.ones((2, 3))])
+    input_mesh = mesh.Meshes([verts1, verts2],
+                             [tf.ones((2, 3)), tf.ones((2, 3))])
 
     expected_result1 = tf.constant([[6.], [8.], [11.], [13.]])
     expected_result2 = tf.constant([[6.], [8.], [15.], [15.]])
