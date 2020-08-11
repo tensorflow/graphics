@@ -12,16 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Lint as: python3
-"""`tensorflow_graphics.datasets.features` API defining feature types."""
+"""`tensorflow_graphics.datasets.pix3d` module."""
 
-from tensorflow_graphics.datasets.features.camera_feature import Camera
-from tensorflow_graphics.datasets.features.pose_feature import Pose
-from tensorflow_graphics.datasets.features.trimesh_feature import TriangleMesh
-from tensorflow_graphics.datasets.features.voxel_feature import VoxelGrid
+from tensorflow_graphics.datasets.pix3d.pix3d import Pix3d
 
 __all__ = [
-    "TriangleMesh",
-    "VoxelGrid",
-    "Camera",
-    "Pose"
+    "Pix3d",
 ]

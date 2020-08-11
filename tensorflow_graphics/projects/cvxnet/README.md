@@ -75,7 +75,7 @@ To start the training, make sure you have the dataset ready following the above
 step and run:
 
 ```bash
-python train.py --train_dir=/tmp/cvxnet --data_dir=/tmp/cvxnet/sample_dataset --image_input
+python train.py --train_dir=/tmp/cvxnet/models/rgb --data_dir=/tmp/cvxnet/sample_dataset --image_input
 ```
 
 The training record will be saved in `/tmp/cvxnet` so we can launch a
@@ -84,7 +84,7 @@ note that this launches the RGB-to-3D experiment with the same parameters in the
 paper. If you want to launch the {Depth}-to-3D experiment, use:
 
 ```bash
-python train.py --train_dir=/tmp/cvxnet --data_dir=/tmp/cvxnet/sample_dataset --n_half_planes=50
+python train.py --train_dir=/tmp/cvxnet/models/depth --data_dir=/tmp/cvxnet/sample_dataset --n_half_planes=50
 ```
 
 ## Evaluation
@@ -95,14 +95,14 @@ First, let's assume that our model for RGB-to-3D is saved in
 model by:
 
 ```bash
-python eval.py --train_dir=/tmp/cvxnet/models/rgb --data_dir=/tmp/cvxnet_data --image_input
+python eval.py --train_dir=/tmp/cvxnet/models/rgb --data_dir=/tmp/cvxnet/sample_dataset--image_input
 ```
 
 This will write the IoU (Intersection of Union) on the test set to tensorboard.
 Similarly, {Depth}-to-3D model can be evaluated by:
 
 ```bash
-python eval.py --train_dir=/tmp/cvxnet/models/depth --data_dir=/tmp/cvxnet_data --n_half_palnes=50
+python eval.py --train_dir=/tmp/cvxnet/models/depth --data_dir=/tmp/cvxnet/sample_dataset --n_half_planes=50
 ```
 
 We will soon release our pretrained models for RGB-to-3D and {Depth}-to-3D
