@@ -37,16 +37,16 @@ class PaddingTest(test_case.TestCase):
         ValueError, 'All tensors need to have same rank.'):
       _, _ = pad_list(values)
 
-  def test_multiple_paddind_dimensions(self):
+  def test_multiple_padding_dimensions(self):
     """Tests with 2 tensors of same rank, but padding in more than one
-    dimension is requiered. This should raise ValueError."""
+    dimension is required. This should raise ValueError."""
 
     values = [tf.ones([4, 4, 3]), tf.ones([2, 2, 3])]
     with self.assertRaisesWithPredicateMatch(
         ValueError, 'Only one dimension with unequal length supported.'):
       _, _ = pad_list(values)
 
-  def test_batch_padd(self):
+  def test_batch_pad(self):
     """Tests padding for multiple batch dimensions."""
     values = [tf.ones([4, 2, 3]), tf.ones([2, 2, 3])]
     result, sizes = pad_list(values)
