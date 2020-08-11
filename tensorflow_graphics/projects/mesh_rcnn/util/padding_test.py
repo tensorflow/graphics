@@ -27,8 +27,8 @@ class PaddingTest(test_case.TestCase):
     """Test with 2 tensors of different shape"""
     values = [tf.ones([4, 3]), tf.ones([2, 3])]
     result, sizes = pad_list(values)
-    self.assertTrue([2, 4, 3] == result.shape)
-    self.assertTrue(sizes[1] == 2)
+    self.assertEqual([2, 4, 3], result.shape)
+    self.assertEqual(sizes[1], 2)
 
   def test_raises(self):
     """2 Tensors, different rank. Should raise ValueError."""
@@ -50,12 +50,12 @@ class PaddingTest(test_case.TestCase):
     """Tests padding for multiple batch dimensions."""
     values = [tf.ones([4, 2, 3]), tf.ones([2, 2, 3])]
     result, sizes = pad_list(values)
-    self.assertTrue([2, 4, 2, 3] == result.shape)
-    self.assertTrue(sizes[1] == 2)
+    self.assertEqual([2, 4, 2, 3], result.shape)
+    self.assertEqual(sizes[1], 2)
 
   def test_batch_with_equally_long_elements(self):
     """Test with 2 tensors of same shape"""
     values = [tf.ones([4, 3]), tf.ones([4, 3])]
     result, sizes = pad_list(values)
-    self.assertTrue([2, 4, 3] == result.shape)
-    self.assertTrue(sizes[1] == 0)
+    self.assertEqual([2, 4, 3], result.shape)
+    self.assertEqual(sizes[1], 0)

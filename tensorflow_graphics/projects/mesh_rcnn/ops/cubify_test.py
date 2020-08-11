@@ -175,15 +175,14 @@ class CufifyTest(test_case.TestCase):
   def test_cubify_on_sphere(self):
     """Tests cubify with a voxelized sphere."""
 
-    shpere_voxel_path = os.path.join(
-        os.path.dirname(__file__), 'test_data', 'sphere_voxel.npy')
+    test_data_dir = os.path.join(os.path.dirname(__file__), 'test_data')
+
+    shpere_voxel_path = os.path.join(test_data_dir, 'sphere_voxel.npy')
     sphere = np.load(shpere_voxel_path).astype(np.float32)
     sphere_tensor = tf.convert_to_tensor(np.expand_dims(sphere, 0))
 
-    sphere_vertices_path = os.path.join(
-        os.path.dirname(__file__), 'test_data', 'sphere_vertices.npy')
-    sphere_faces_path = os.path.join(
-        os.path.dirname(__file__), 'test_data', 'sphere_faces.npy')
+    sphere_vertices_path = os.path.join(test_data_dir, 'sphere_vertices.npy')
+    sphere_faces_path = os.path.join(test_data_dir, 'sphere_faces.npy')
     expected_sphere_vertices = tf.convert_to_tensor(
         np.load(sphere_vertices_path))
     expected_sphere_faces = tf.convert_to_tensor(
