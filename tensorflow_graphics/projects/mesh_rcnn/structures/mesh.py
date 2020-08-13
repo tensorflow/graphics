@@ -146,6 +146,10 @@ class Meshes:
 
     return vertices, faces
 
+  def get_sizes(self):
+    """Return the sizes tensors."""
+    return self.vertex_sizes, self.face_sizes
+
   def add_offsets(self, offsets):
     """
     Adds offsets to mesh vertices, changing the meshes geomtry but
