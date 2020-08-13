@@ -25,6 +25,11 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
   Note:
     In the following, A1 to An are optional batch dimensions.
 
+    If tensors are already of same shape, sizes are assumed to be the along the
+    first dimension of each tensor. E.g., if there are two tensors of shape
+    [4,3] to be stacked and padded, the resulting tensor will be of shape
+    [2, 4, 3] and sizes will be [4, 4].
+
   Args:
     tensors: list of float32 tensors of shape `[A1,...,An, D]`, where one of the
       batch dimensions differs for each tensor.
@@ -57,7 +62,7 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
 
   # all tensors are already of same shape
   if len(padding_dim) == 0:
-    return tf.stack(tensors, 0), tf.zeros(len(tensors), dtype=tf.int32)
+    return tf.stack(tensors, 0), tf.repeat(tensors[0].shape[-0], [len(tensors)])
 
   padding_dim = tf.squeeze(padding_dim)
 

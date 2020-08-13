@@ -56,6 +56,9 @@ class PaddingTest(test_case.TestCase):
   def test_batch_with_equally_long_elements(self):
     """Test with 2 tensors of same shape"""
     values = [tf.ones([4, 3]), tf.ones([4, 3])]
+    expected_result = tf.ones((2, 4, 3))
+    expected_sizes = tf.constant([4, 4])
     result, sizes = pad_list(values)
     self.assertEqual([2, 4, 3], result.shape)
-    self.assertEqual(sizes[1], 0)
+    self.assertAllEqual(expected_result, result)
+    self.assertAllEqual(expected_sizes, sizes)
