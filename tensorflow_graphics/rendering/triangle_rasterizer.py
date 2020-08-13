@@ -64,7 +64,6 @@ def rasterize(vertices,
               model_to_eye_matrix,
               perspective_matrix,
               image_size,
-              background_attribute,
               backend=rasterization_backend.RasterizationBackends.OPENGL,
               name=None):
   """Rasterizes the scene.
@@ -77,9 +76,9 @@ def rasterize(vertices,
       vertices, each defined by a 3D point.
     triangles: A tensor of shape `[T, 3]` containing `T` triangles, each
       associated with 3 vertices from `vertices`.
-    attributes: A dictionary of tensors, each of shape `[A1, ..., An, V, K]`
+    attributes: A dictionary of tensors, each of shape `[A1, ..., An, V, K_a]`
       containing batches of `V` vertices, each associated with K-dimensional
-      attributes.
+      attributes. K_a may vary by attribute.
     model_to_eye_matrix: A tensor of shape `[A1, ..., An, 4, 4]` containing
       batches of matrices used to transform vertices from model to eye
       coordinates.
@@ -87,8 +86,6 @@ def rasterize(vertices,
       batches of matrices used to project vertices from eye to clip coordinates.
     image_size: A tuple (height, width) containing the dimensions in pixels of
       the rasterized image.
-    background_attribute: A tensor of shape `[K]` containing the attribute to
-      use for pixels associated with the background of the rendered scene.
     backend: A rasterization_backend.RasterizationBackends enum containing the
       backend method to use for rasterization.
     name: A name for this op. Defaults to 'triangle_rasterizer_rasterize'.
@@ -101,15 +98,13 @@ def rasterize(vertices,
     the dictionary contains perspective correct interpolated attributes of shape
     `[A1, ..., An, height, width, K]` per entry in the `attributes` dictionary.
   """
-  with tf.compat.v1.name_scope(
-      name, "triangle_rasterizer_rasterize",
-      (vertices, triangles, attributes, model_to_eye_matrix, perspective_matrix,
-       background_attribute)):
+  with tf.compat.v1.name_scope(name, "triangle_rasterizer_rasterize",
+                               (vertices, triangles, attributes,
+                                model_to_eye_matrix, perspective_matrix)):
     vertices = tf.convert_to_tensor(value=vertices)
     triangles = tf.convert_to_tensor(value=triangles)
     model_to_eye_matrix = tf.convert_to_tensor(value=model_to_eye_matrix)
     perspective_matrix = tf.convert_to_tensor(value=perspective_matrix)
-    background_attribute = tf.convert_to_tensor(value=background_attribute)
 
     shape.check_static(
         tensor=vertices,
@@ -129,10 +124,6 @@ def rasterize(vertices,
         tensor=perspective_matrix,
         tensor_name="perspective_matrix",
         has_dim_equals=(((-2, 4), (-1, 4))))
-    shape.check_static(
-        tensor=background_attribute,
-        tensor_name="background_attribute",
-        has_rank=1)
 
     image_size_float = (float(image_size[0]), float(image_size[1]))
     image_size_backend = (int(image_size[1]), int(image_size[0]))
@@ -161,21 +152,10 @@ def rasterize(vertices,
     mask_float = tf.cast(tf.expand_dims(mask, axis=-1), vertices.dtype)
     outputs["barycentrics"] = mask_float * barycentrics
 
-    masked_background_attribute = (1.0 - mask_float) * background_attribute
-
     for key, attribute in attributes.items():
       attribute = tf.convert_to_tensor(value=attribute)
-
-      shape.check_static(
-          tensor=attribute,
-          tensor_name=key,
-          has_dim_equals=(-1, background_attribute.shape[-1]))
-
-      interpolated_attribute = _perspective_correct_attributes(
+      outputs[key] = mask_float * _perspective_correct_attributes(
           attribute, barycentrics, triangles, triangle_index, len(batch_shape))
-      interpolated_attribute = (
-          mask_float * interpolated_attribute) + masked_background_attribute
-      outputs[key] = interpolated_attribute
 
     return outputs
 
