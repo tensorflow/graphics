@@ -90,6 +90,9 @@ class Meshes:
           faces,
           sizes=self.face_sizes)
 
+      # adjacency will be computed on first call of self.vertex_neighbors()
+      self.vertex_adjacency = None
+
   def get_flattened(self):
     """Returns the flattened vertices and faces.
     Returns:
@@ -187,34 +190,65 @@ class Meshes:
     """
     For each vertex i, find all vertices in the 1-ring of vertex i.
 
+    This method at first computes all unique bidirectional edges per batch
+    instance and builds a SparseTensor representing the adjacency matrix.
+
+    The computed adjacency will be cached, as it will not change in Mesh R-CNN.
+
+    Note:
+      In the following, A1 to An are optional batch dimensions that must be
+      broadcast compatible.
+
     Returns:
       float32 SparseTensor of shape `[A1, ..., An, V, V]` representing the
       vertex neighborhoods.
 
     """
-    vertices, faces = self.get_padded()
-    edges = tf.concat([faces[..., 0:2], faces[..., 1:3], tf.gather(faces, [2, 0], axis=-1)],
-                      axis=-2)
-    num_verts = vertices.shape[-2]
-    edges_hashed = num_verts * edges[..., 0] + edges[..., 1]
+    if self.vertex_adjacency is not None:
+      return self.vertex_adjacency
 
-    adjacency_matrices = []
+    vertices, faces = self.get_padded()
+    edges = tf.concat(
+        [faces[..., 0:2], faces[..., 1:3], tf.gather(faces, [2, 0], axis=-1)],
+        -2)
+    n_verts = vertices.shape[-2]
+
+    # hash edges, so that we can use tf.unique, which currently only supports
+    # 1D tensors as input.
+    edges_hashed = n_verts * edges[..., 0] + edges[..., 1]
+
+    indices = []
     for b_id, batch in enumerate(edges_hashed):
-      unique, idx = tf.unique(batch)
-      batch_padded = tf.stack(
-          [unique // num_verts, unique % num_verts], axis=1)
-      # padding is now not necessarily at the end of the tensor, hence filter
-      # all edges that contain the same vertex twice.
-      padding_mask = tf.not_equal(batch_padded[:, 0], batch_padded[:, 1])
-      edges = tf.boolean_mask(batch_padded, padding_mask)
+      unique, _ = tf.unique(batch)
+      # retrieve vertices from hash value
+      edges_padded = tf.stack([unique // n_verts, unique % n_verts], axis=1)
+      # padding is now not necessarily at the end of the tensor, hence keep only
+      # edges that connect two different vertices
+      padding_mask = tf.not_equal(edges_padded[:, 0], edges_padded[:, 1])
+      edges = tf.boolean_mask(edges_padded, padding_mask)
+      # since we consider bidirectional edges, concat reversed index
       edges_reversed = tf.reverse(edges, axis=[-1])
       symmetric = tf.concat([edges, edges_reversed], 0)
-      adjacency_matrix = tf.scatter_nd(indices=symmetric, updates=tf.ones(len(symmetric), dtype=tf.int32), shape=(num_verts, num_verts))
-      pad_length = num_verts - self.vertex_sizes[b_id]
-      diag = tf.pad(tf.eye(self.vertex_sizes[b_id], dtype=tf.int32), paddings=[[0, pad_length], [0, pad_length]])
-      adjacency_matrix = adjacency_matrix + diag
-      adjacency_matrices.append(adjacency_matrix)
 
-    neighborhoods = tf.stack(adjacency_matrices, 0)
+      # Also include vertex v into its 1-ring
+      batch_verts = tf.range(self.vertex_sizes[b_id], dtype=tf.int32)
+      self_refs = tf.stack([batch_verts, batch_verts], 1)
+      index = tf.concat([symmetric, self_refs], 0)
 
-    return neighborhoods
+      # add batch index, so that we can later construct the SparseTensor for the
+      # whole batch
+      batch_index = tf.expand_dims(
+          tf.repeat(tf.constant([b_id]), [len(index)]), 1)
+      batch_indices = tf.concat([batch_index, index], -1)
+      indices.append(batch_indices)
+
+    sparse_indices = tf.cast(tf.concat(indices, 0), tf.int64)
+    neighborhoods = tf.SparseTensor(
+        sparse_indices,
+        tf.ones(len(sparse_indices), dtype=tf.int32),
+        dense_shape=(len(vertices), n_verts, n_verts)
+    )
+
+    self.vertex_adjacency = tf.sparse.reorder(neighborhoods)
+
+    return self.vertex_adjacency

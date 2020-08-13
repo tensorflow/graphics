@@ -118,6 +118,7 @@ class MeshTest(test_case.TestCase):
                  [tf.constant([], dtype=tf.float32)])
 
   def test_adjacency(self):
+    """Tests computation of vertex adjacencies."""
     verts = [
         tf.constant([[0, 0, 0],
                      [1, 1, 1],
@@ -148,6 +149,7 @@ class MeshTest(test_case.TestCase):
          [1, 1, 1, 0, 1],
          [1, 1, 0, 1, 0],
          [0, 1, 1, 0, 1]]])
+    self.assertAllEqual(expected_adjacency, tf.sparse.to_dense(adjacency))
 
     self.assertAllEqual(expected_adjacency, adjacency)
 
