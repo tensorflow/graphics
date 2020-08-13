@@ -15,7 +15,7 @@
 
 import tensorflow as tf
 
-from tensorflow_graphics.geometry.convolution import utils
+import tensorflow_graphics.geometry.convolution.utils as conv_utils
 from tensorflow_graphics.projects.mesh_rcnn.util import padding
 
 
@@ -181,3 +181,40 @@ class Meshes:
       if not len(faces) % tf.reduce_prod(batch_sizes) == 0:
         raise ValueError(f'vertices list of size {len(faces)} cannot be '
                          f'batched to shape {batch_sizes}!')
+
+
+  def vertex_neighbors(self):
+    """
+    For each vertex i, find all vertices in the 1-ring of vertex i.
+
+    Returns:
+      float32 SparseTensor of shape `[A1, ..., An, V, V]` representing the
+      vertex neighborhoods.
+
+    """
+    vertices, faces = self.get_padded()
+    edges = tf.concat([faces[..., 0:2], faces[..., 1:3], tf.gather(faces, [2, 0], axis=-1)],
+                      axis=-2)
+    num_verts = vertices.shape[-2]
+    edges_hashed = num_verts * edges[..., 0] + edges[..., 1]
+
+    adjacency_matrices = []
+    for b_id, batch in enumerate(edges_hashed):
+      unique, idx = tf.unique(batch)
+      batch_padded = tf.stack(
+          [unique // num_verts, unique % num_verts], axis=1)
+      # padding is now not necessarily at the end of the tensor, hence filter
+      # all edges that contain the same vertex twice.
+      padding_mask = tf.not_equal(batch_padded[:, 0], batch_padded[:, 1])
+      edges = tf.boolean_mask(batch_padded, padding_mask)
+      edges_reversed = tf.reverse(edges, axis=[-1])
+      symmetric = tf.concat([edges, edges_reversed], 0)
+      adjacency_matrix = tf.scatter_nd(indices=symmetric, updates=tf.ones(len(symmetric), dtype=tf.int32), shape=(num_verts, num_verts))
+      pad_length = num_verts - self.vertex_sizes[b_id]
+      diag = tf.pad(tf.eye(self.vertex_sizes[b_id], dtype=tf.int32), paddings=[[0, pad_length], [0, pad_length]])
+      adjacency_matrix = adjacency_matrix + diag
+      adjacency_matrices.append(adjacency_matrix)
+
+    neighborhoods = tf.stack(adjacency_matrices, 0)
+
+    return neighborhoods

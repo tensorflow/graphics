@@ -117,6 +117,40 @@ class MeshTest(test_case.TestCase):
       _ = Meshes([tf.constant([], dtype=tf.float32)],
                  [tf.constant([], dtype=tf.float32)])
 
+  def test_adjacency(self):
+    verts = [
+        tf.constant([[0, 0, 0],
+                     [1, 1, 1],
+                     [2, 2, 2],
+                     [3, 3, 3]]),
+        tf.constant([[0, 0, 0],
+                     [1, 1, 1],
+                     [2, 2, 2],
+                     [3, 3, 3],
+                     [4, 4, 4]])
+    ]
+
+    faces = [
+        tf.constant([[0, 1, 2], [0, 1, 3]]),
+        tf.constant([[0, 1, 2], [0, 1, 3], [1, 2, 4]])
+    ]
+
+    meshes = mesh.Meshes(verts, faces)
+    adjacency = meshes.vertex_neighbors()
+    expected_adjacency = tf.constant([
+        [[1, 1, 1, 1, 0],
+         [1, 1, 1, 1, 0],
+         [1, 1, 1, 0, 0],
+         [1, 1, 0, 1, 0],
+         [0, 0, 0, 0, 0]],
+        [[1, 1, 1, 1, 0],
+         [1, 1, 1, 1, 1],
+         [1, 1, 1, 0, 1],
+         [1, 1, 0, 1, 0],
+         [0, 1, 1, 0, 1]]])
+
+    self.assertAllEqual(expected_adjacency, adjacency)
+
   @parameterized.parameters(
       (4, 1),
       (2, 2),
