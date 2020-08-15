@@ -30,6 +30,9 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
     [4,3] to be stacked and padded, the resulting tensor will be of shape
     [2, 4, 3] and sizes will be [4, 4].
 
+    If only one tensor is provided, it will also contain an additional batch
+    dimension of size 1.
+
   Args:
     tensors: list of float32 tensors of shape `[A1,...,An, D]`, where one of the
       batch dimensions differs for each tensor.
@@ -49,7 +52,7 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
     # all tensors need to have same last dimension
     shape.compare_dimensions(tensors, -1)
   else:
-    return tensors[0], tf.constant([len(tensors[0])])
+    return tf.expand_dims(tensors[0], 0), tf.constant([len(tensors[0])])
 
   # check if all tensors have same rank
   if not len({tf.rank(tensor).numpy() for tensor in tensors}) == 1:

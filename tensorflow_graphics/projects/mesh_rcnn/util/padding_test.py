@@ -62,3 +62,12 @@ class PaddingTest(test_case.TestCase):
     self.assertEqual([2, 4, 3], result.shape)
     self.assertAllEqual(expected_result, result)
     self.assertAllEqual(expected_sizes, sizes)
+
+  def test_single_tensor(self):
+    """Test call with single tensor for additional batch dimension"""
+    values = [tf.ones([4, 3])]
+    expected_result = tf.ones((1, 4, 3))
+    result, sizes = pad_list(values)
+
+    self.assertEqual(expected_result.shape, result.shape)
+    self.assertAllEqual(expected_result, result)
