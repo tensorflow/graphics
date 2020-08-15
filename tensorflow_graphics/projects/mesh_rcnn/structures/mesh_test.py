@@ -59,12 +59,15 @@ class MeshTest(test_case.TestCase):
     expected_flat_vertices = tf.reshape(unit_cube_verts, (-1, 3))
     expected_flat_faces = tf.reshape(unit_cube_faces, (-1, 3))
 
+    expected_padded_verts = tf.expand_dims(unit_cube_verts, 0)
+    expected_padded_faces = tf.expand_dims(unit_cube_faces, 0)
+
     self.assertAllEqual(expected_flat_vertices,
                         unit_cube_mesh.get_flattened()[0])
     self.assertAllEqual(expected_flat_faces, unit_cube_mesh.get_flattened()[1])
 
-    self.assertAllEqual(unit_cube_verts, unit_cube_mesh.get_padded()[0])
-    self.assertAllEqual(unit_cube_faces, unit_cube_mesh.get_padded()[1])
+    self.assertAllEqual(expected_padded_verts, unit_cube_mesh.get_padded()[0])
+    self.assertAllEqual(expected_padded_faces, unit_cube_mesh.get_padded()[1])
 
     self.assertAllEqual(unit_cube_verts, unit_cube_mesh.get_unpadded()[0][0])
     self.assertAllEqual(unit_cube_faces, unit_cube_mesh.get_unpadded()[1][0])
@@ -108,12 +111,7 @@ class MeshTest(test_case.TestCase):
 
   def test_with_empty_lists(self):
     """Tests implementation with empty meshes."""
-    empty_mesh = mesh.Meshes([tf.constant([], dtype=tf.float32)], [
-        tf.constant([], dtype=tf.float32)])
 
-    self.assertEmpty(empty_mesh.get_unpadded()[0][0][0])
-    self.assertEmpty(empty_mesh.get_unpadded()[1][0][0])
-    self.assertEmpty(empty_mesh.get_padded()[0][0])
-    self.assertEmpty(empty_mesh.get_padded()[1][0])
-    self.assertEmpty(empty_mesh.get_flattened()[0][0])
-    self.assertEmpty(empty_mesh.get_flattened()[1][0])
+    with self.assertRaises(ValueError):
+      _ = mesh.Meshes([tf.constant([], dtype=tf.float32)],
+                      [tf.constant([], dtype=tf.float32)])

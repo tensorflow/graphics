@@ -30,21 +30,23 @@ class Meshes:
 
     Args:
       vertices: list with N float32 tensors of shape `[V, 3]` containing the
-        mesh vertices.
+        mesh vertices, or empty list.
       faces: list with N float32 tensors of shape `[F, 3]` containing the mesh
-        faces.
+        faces, or empty list.
     """
     if len(vertices) != len(faces):
       raise ValueError('Need as many face-lists as vertex-lists.')
 
-    self.vertices, self.vertex_sizes = padding.pad_list(vertices)
-    self.faces, self.face_sizes = padding.pad_list(faces)
+    self.is_empty = len(vertices) == 0
 
-    if tf.rank(self.vertices) > 2:
+    if not self.is_empty:
+      vertices, self.vertex_sizes = padding.pad_list(vertices)
+      faces, self.face_sizes = padding.pad_list(faces)
+
       self.vertices, self._unfold_vertices = utils.flatten_batch_to_2d(
-          self.vertices, sizes=self.vertex_sizes)
+          vertices, sizes=self.vertex_sizes)
       self.faces, self._unfold_faces = utils.flatten_batch_to_2d(
-          self.faces,
+          faces,
           sizes=self.face_sizes)
 
   def get_flattened(self):
@@ -54,7 +56,13 @@ class Meshes:
       A 2D tensor of shape `[N*V, 3]` containing all padded vertices.
       A 2D tensor of shape  `[N*F, 3]` containing all padded faces.
     """
-    return self.vertices, self.faces
+    if self.is_empty:
+      vertices = tf.constant([], dtype=tf.float32)
+      faces = tf.constant([], dtype=tf.int32)
+    else:
+      vertices, faces = self.vertices, self.faces
+
+    return vertices, faces
 
   def get_padded(self):
     """
@@ -64,11 +72,12 @@ class Meshes:
       a tensor of shape `[N, F, 3]` containing the padded faces.
 
     """
-    if len(self.vertex_sizes) > 1:
+    if self.is_empty:
+      vertices = tf.constant([], dtype=tf.float32)
+      faces = tf.constant([], dtype=tf.int32)
+    else:
       vertices = self._unfold_vertices(self.vertices)
       faces = self._unfold_faces(self.faces)
-    else:
-      vertices, faces = self.vertices, self.faces
 
     return vertices, faces
 

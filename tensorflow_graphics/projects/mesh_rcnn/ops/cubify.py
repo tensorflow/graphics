@@ -121,8 +121,7 @@ def cubify(voxel_grid, threshold=0.5):
   voxel_thresholded = tf.cast(voxel_mask, tf.float32)
 
   if tf.reduce_all(tf.math.logical_not(voxel_mask)):
-    return mesh.Meshes([tf.constant([], dtype=tf.float32)], [
-        tf.constant([], dtype=tf.float32)])
+    return mesh.Meshes([], [])
 
   # add channel dimension for convolutions, shape is (N, D, H, W, C)
   voxel_thresholded = tf.expand_dims(voxel_thresholded, axis=-1)
@@ -207,8 +206,7 @@ def cubify(voxel_grid, threshold=0.5):
   nyxz = tf.transpose(tf.unravel_index(linear_index[:, 0], (N, H, W, D)))
 
   if len(nyxz) == 0:
-    return mesh.Meshes([tf.constant([], dtype=tf.float32)], [
-        tf.constant([], dtype=tf.float32)])
+    return mesh.Meshes([], [])
 
   faces = tf.gather(unit_cube_faces, linear_index[:, 1], axis=None)
 
