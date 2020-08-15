@@ -29,7 +29,9 @@ References:
 
 import tensorflow as tf
 import tensorflow_addons as tfa
+
 from tensorflow_graphics.rendering.camera import perspective
+from tensorflow_graphics.util import shape
 
 
 def vert_align(features,
@@ -59,8 +61,16 @@ def vert_align(features,
   if tf.rank(features) != 4:
     raise ValueError('features must of shape (N, H, W, C).')
 
-  focal_length = tf.linalg.diag_part(intrinsics)[..., :2]
-  principal_point = tf.squeeze(tf.gather(intrinsics, [2], axis=1)[:2])
+  if tf.rank(intrinsics) != 3:
+    raise ValueError('intrinsics must of shape (N, 3, 3).')
+
+  shape.compare_batch_dimensions([vertices, features, intrinsics],
+                                 last_axes=0,
+                                 broadcast_compatible=True)
+
+  focal_length = tf.expand_dims(tf.linalg.diag_part(intrinsics)[..., :2], -2)
+  principal_point = tf.expand_dims(
+      tf.squeeze(tf.gather(intrinsics, [2], axis=-1)[:, :2]), -2)
   projected_vertices = perspective.project(vertices,
                                            focal_length,
                                            principal_point)

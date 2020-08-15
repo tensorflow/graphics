@@ -67,7 +67,7 @@ class PaddingTest(test_case.TestCase):
     """Test call with single tensor for additional batch dimension"""
     values = [tf.ones([4, 3])]
     expected_result = tf.ones((1, 4, 3))
-    result, sizes = pad_list(values)
+    result, _ = pad_list(values)
 
     self.assertEqual(expected_result.shape, result.shape)
     self.assertAllEqual(expected_result, result)

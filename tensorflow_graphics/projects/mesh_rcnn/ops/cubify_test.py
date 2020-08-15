@@ -31,8 +31,8 @@ class CufifyTest(test_case.TestCase):
     voxels = tf.random.uniform((N, V, V, V), 0, 0.5, tf.float32)
     mesh = cubify(voxels, threshold=0.7)
     vertices, faces = mesh.get_unpadded()
-    self.assertEmpty(vertices[0])
-    self.assertEmpty(faces[0])
+    self.assertEmpty(vertices[0][0])
+    self.assertEmpty(faces[0][0])
 
   def test_cubify_on_cube(self):
     """Test cubify on arbitrary cubes."""

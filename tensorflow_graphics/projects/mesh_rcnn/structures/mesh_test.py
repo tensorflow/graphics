@@ -111,9 +111,9 @@ class MeshTest(test_case.TestCase):
     empty_mesh = mesh.Meshes([tf.constant([], dtype=tf.float32)], [
         tf.constant([], dtype=tf.float32)])
 
-    self.assertEmpty(empty_mesh.get_unpadded()[0][0])
-    self.assertEmpty(empty_mesh.get_unpadded()[1][0])
-    self.assertEmpty(empty_mesh.get_padded()[0])
-    self.assertEmpty(empty_mesh.get_padded()[1])
-    self.assertEmpty(empty_mesh.get_flattened()[0])
-    self.assertEmpty(empty_mesh.get_flattened()[1])
+    self.assertEmpty(empty_mesh.get_unpadded()[0][0][0])
+    self.assertEmpty(empty_mesh.get_unpadded()[1][0][0])
+    self.assertEmpty(empty_mesh.get_padded()[0][0])
+    self.assertEmpty(empty_mesh.get_padded()[1][0])
+    self.assertEmpty(empty_mesh.get_flattened()[0][0])
+    self.assertEmpty(empty_mesh.get_flattened()[1][0])

@@ -39,9 +39,9 @@ class VertAlignTest(test_case.TestCase):
     batched_verts = tf.expand_dims(verts, 0)
     intrinsics = tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
                              dtype=tf.float32)
-
+    batched_intrinsics = tf.expand_dims(intrinsics, 0)
     expected_result = tf.constant([[6.], [8.], [11.], [13.]])
-    result = vert_align(image, batched_verts, intrinsics)
+    result = vert_align(image, batched_verts, batched_intrinsics)
 
     self.assertAllClose(expected_result, result[0])
 
@@ -59,8 +59,9 @@ class VertAlignTest(test_case.TestCase):
     batched_verts = tf.expand_dims(verts, 0)
     intrinsics = tf.constant([[10, 0, 5], [0, 10, 3.5], [0, 0, 1]],
                              dtype=tf.float32)
+    batched_intrinsics = tf.expand_dims(intrinsics, 0)
     expected_result = tf.constant([[8.], [12.], [57.], [61.]])
-    result = vert_align(image, batched_verts, intrinsics)
+    result = vert_align(image, batched_verts, batched_intrinsics)
 
     self.assertAllClose(expected_result, result[0])
 
@@ -75,13 +76,13 @@ class VertAlignTest(test_case.TestCase):
     batched_verts = tf.expand_dims(verts, 0)
     intrinsics = tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
                              dtype=tf.float32)
-
+    batched_intrinsics = tf.expand_dims(intrinsics, 0)
     expected_result = tf.constant([image[0, 1, 1, :].numpy(),
                                    image[0, 1, 3, :].numpy(),
                                    image[0, 2, 1, :].numpy(),
                                    image[0, 2, 3, :].numpy()])
 
-    result = vert_align(image, batched_verts, intrinsics)
+    result = vert_align(image, batched_verts, batched_intrinsics)
 
     self.assertAllClose(expected_result, result[0])
 
@@ -99,6 +100,7 @@ class VertAlignTest(test_case.TestCase):
 
     intrinsics = tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
                              dtype=tf.float32)
+    intrinsics = tf.stack([intrinsics, intrinsics])
 
     input_mesh = mesh.Meshes([verts1, verts2],
                              [tf.ones((2, 3)), tf.ones((2, 3))])
