@@ -15,7 +15,7 @@
 
 import tensorflow as tf
 
-import tensorflow_graphics.geometry.convolution.utils as conv_utils
+import tensorflow_graphics.geometry.convolution.utils as utils
 from tensorflow_graphics.projects.mesh_rcnn.util import padding
 
 
@@ -160,7 +160,7 @@ class Meshes:
     """
     if offsets.shape != self.vertices.shape:
       raise ValueError(
-          f'Offsets must be a tensor of shape {self.vertices.shape}!')
+          f'Offsets must be a tensor of shape as {self.vertices.shape}!')
 
     self.vertices = self.vertices + offsets
 
@@ -194,23 +194,35 @@ class Meshes:
     """
     For each vertex i, find all vertices in the 1-ring of vertex i.
 
-    This method at first computes all unique bidirectional edges per batch
-    instance and builds a SparseTensor representing the adjacency matrix.
-
-    The computed adjacency will be cached, as it will not change in Mesh R-CNN.
+    The adjacency matrix will be only computed once, as the meshes are not
+    expected to change topology.
 
     Note:
       In the following, A1 to An are optional batch dimensions that must be
       broadcast compatible.
 
+    Args:
+      return_packed: Whether to return the SparseTensor reprenting the batch in
+      a 2D dense shape of `[sum(A1, ..., An, V), V]` or in its full shape
+      `[A1, ..., An, V, V]`.
+
     Returns:
-      float32 SparseTensor of shape `[A1, ..., An, V, V]` representing the
-      vertex neighborhoods.
+      float32 SparseTensor of shape `[sum(A1, ..., An, V), V]`
+      (or `[A1, ..., An, V, V]`, if return_packed=False) representing the
+      vertex adjacency matrix.
 
     """
-    if self.vertex_adjacency is not None:
-      return self.vertex_adjacency
+    if self.vertex_adjacency is None:
+      self.vertex_adjacency = self._compute_vertex_adjacency()
 
+    return self.vertex_adjacency
+
+  def _compute_vertex_adjacency(self):
+    """For each vertex i, find all vertices in the 1-ring of vertex i.
+
+    This method at first computes all unique bidirectional edges per batch
+    instance and builds a SparseTensor representing the adjacency matrix.
+    """
     vertices, faces = self.get_padded()
     edges = tf.concat(
         [faces[..., 0:2], faces[..., 1:3], tf.gather(faces, [2, 0], axis=-1)],
@@ -246,13 +258,12 @@ class Meshes:
       batch_indices = tf.concat([batch_index, index], -1)
       indices.append(batch_indices)
 
+
     sparse_indices = tf.cast(tf.concat(indices, 0), tf.int64)
     neighborhoods = tf.SparseTensor(
         sparse_indices,
-        tf.ones(len(sparse_indices), dtype=tf.int32),
+        tf.ones(len(sparse_indices), dtype=self.vertices.dtype),
         dense_shape=(len(vertices), n_verts, n_verts)
     )
 
-    self.vertex_adjacency = tf.sparse.reorder(neighborhoods)
-
-    return self.vertex_adjacency
+    return tf.sparse.reorder(neighborhoods)
