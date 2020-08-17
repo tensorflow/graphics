@@ -201,16 +201,11 @@ class Meshes:
       In the following, A1 to An are optional batch dimensions that must be
       broadcast compatible.
 
-    Args:
-      return_packed: Whether to return the SparseTensor reprenting the batch in
-      a 2D dense shape of `[sum(A1, ..., An, V), V]` or in its full shape
-      `[A1, ..., An, V, V]`.
-
     Returns:
-      float32 SparseTensor of shape `[sum(A1, ..., An, V), V]`
-      (or `[A1, ..., An, V, V]`, if return_packed=False) representing the
-      vertex adjacency matrix.
-
+      float32 SparseTensor of shape `[sum(V1, ..., Vn), sum(V1, ..., Vn)]` where
+      V1, ... Vn represent the number of vertices of each mesh in the batch. If
+      return_packed == False, it will return a SparseTensor of shape
+      [A1, ..., An, V, V]` representing the vertex adjacency matrix.
     """
     if self.vertex_adjacency is None:
       self.vertex_adjacency = self._compute_vertex_adjacency()
@@ -222,6 +217,10 @@ class Meshes:
 
     This method at first computes all unique bidirectional edges per batch
     instance and builds a SparseTensor representing the adjacency matrix.
+
+    The returned adjacency matrix is represented as a SparseTensor of shape
+    `[sum(V1, ..., Vn), sum(V1, ..., Vn)]` where V1, ... Vn represent the
+    number of vertices of each mesh in the batch.
     """
     vertices, faces = self.get_padded()
     edges = tf.concat(
@@ -251,19 +250,19 @@ class Meshes:
       self_refs = tf.stack([batch_verts, batch_verts], 1)
       index = tf.concat([symmetric, self_refs], 0)
 
-      # add batch index, so that we can later construct the SparseTensor for the
+      # add batch offset, so that we can later construct the SparseTensor for the
       # whole batch
-      batch_index = tf.expand_dims(
-          tf.repeat(tf.constant([b_id]), [len(index)]), 1)
-      batch_indices = tf.concat([batch_index, index], -1)
-      indices.append(batch_indices)
+      batch_offset = tf.reduce_sum(self.vertex_sizes[:b_id])
+      batch_index = index + batch_offset
 
+      indices.append(batch_index)
 
     sparse_indices = tf.cast(tf.concat(indices, 0), tf.int64)
+    side_length = tf.reduce_sum(self.vertex_sizes)
     neighborhoods = tf.SparseTensor(
         sparse_indices,
         tf.ones(len(sparse_indices), dtype=self.vertices.dtype),
-        dense_shape=(len(vertices), n_verts, n_verts)
+        dense_shape=(side_length, side_length)
     )
 
     return tf.sparse.reorder(neighborhoods)
