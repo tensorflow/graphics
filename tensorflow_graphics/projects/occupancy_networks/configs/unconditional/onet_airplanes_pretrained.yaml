@@ -1,0 +1,5 @@
+inherit_from: configs/unconditional/onet_airplanes.yaml
+test:
+  model_file: https://s3.eu-central-1.amazonaws.com/avg-projects/occupancy_networks/models/onet_uncond_airplanes-26c9d089.pt
+generation:
+  generation_dir: pretrained

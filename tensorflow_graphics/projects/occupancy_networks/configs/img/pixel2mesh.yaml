@@ -1,0 +1,39 @@
+method: pix2mesh
+data:
+  multiclass: True
+  path: data/ShapeNet
+  base_mesh: im2mesh/pix2mesh/ellipsoid/face3.obj
+  ellipsoid: im2mesh/pix2mesh/ellipsoid/info_ellipsoid.dat
+  img_folder: img_choy2016
+  img_size: 224 
+  img_with_camera: true
+  with_transforms: true
+  pointcloud_target_n: 8000
+model:
+  encoder_latent: simple
+  decoder: simple
+  encoder: pixel2mesh_cond
+  encoder_kwargs: {}
+  decoder_kwargs:
+    adjust_ellipsoid: True
+  hidden_dim: 192
+  feat_dim: 963
+  c_dim: 512
+  z_dim: 64
+  adjust_losses: True
+training:
+  out_dir:  out/img/pixel2mesh
+  batch_size: 12
+  print_every: 40
+  visualize_every: 10000
+  checkpoint_every: 1000
+  validate_every: 2000
+  model_selection_metric: chamfer
+test:
+  threshold: 0.9
+  eval_mesh: true
+  eval_pointcloud: false
+generation:
+  batch_size: 100000
+  generate_mesh: true
+  generate_pointcloud: false
