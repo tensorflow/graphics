@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ that are used to simplify the code and check for various kinds of failure.
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
+import warnings
 
 from absl import flags
 from absl.testing import parameterized
@@ -55,7 +57,7 @@ def _max_error(arrays1, arrays2):
 class TestCase(parameterized.TestCase, tf.test.TestCase):
   """Test case class implementing extra test functionalities."""
 
-  def setUp(self):
+  def setUp(self):  # pylint: disable=invalid-name
     """Sets the seed for tensorflow and numpy."""
     super(TestCase, self).setUp()
     try:
@@ -225,6 +227,10 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
       atol: Maximum absolute tolerance in gradient error.
       delta: The amount of perturbation.
     """
+    warnings.warn((
+        "assert_jacobian_is_correct is deprecated and might get "
+        "removed in a future version please use assert_jacobian_is_correct_fn"),
+                  DeprecationWarning)
     if tf.executing_eagerly():
       self.skipTest(reason="Graph mode only test")
     max_error, _, _ = self._compute_gradient_error(x, y, x_init, delta)
@@ -241,10 +247,10 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
     """
     # pylint: disable=no-value-for-parameter
     if tf.executing_eagerly():
-      max_error = _max_error(*tf.compat.v2.test.compute_gradient(f, x, delta))
+      max_error = _max_error(*tf.test.compute_gradient(f, x, delta))
     else:
       with self.cached_session():
-        max_error = _max_error(*tf.compat.v2.test.compute_gradient(f, x, delta))
+        max_error = _max_error(*tf.test.compute_gradient(f, x, delta))
     # pylint: enable=no-value-for-parameter
     self.assertLessEqual(max_error, atol)
 
@@ -261,6 +267,10 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
         gradients of y.
       y: A tensor.
     """
+    warnings.warn((
+        "assert_jacobian_is_finite is deprecated and might get "
+        "removed in a future version please use assert_jacobian_is_finite_fn"),
+                  DeprecationWarning)
     if tf.executing_eagerly():
       self.skipTest(reason="Graph mode only test")
     x_shape = x.shape.as_list()

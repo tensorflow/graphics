@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,13 +13,10 @@
 # limitations under the License.
 """Tests for axis-angle."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import flagsaver
 from absl.testing import parameterized
 import numpy as np
+import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import axis_angle
 from tensorflow_graphics.geometry.transformation import quaternion
@@ -304,20 +301,35 @@ class AxisAngleTest(test_case.TestCase):
     """Test the Jacobian of the inverse function."""
     x_axis_init, x_angle_init = test_helpers.generate_preset_test_axis_angle()
 
-    self.assert_jacobian_is_correct_fn(
-        lambda x: axis_angle.inverse(x, x_angle_init)[0], [x_axis_init])
-    self.assert_jacobian_is_correct_fn(
-        lambda x: axis_angle.inverse(x_axis_init, x)[1], [x_angle_init])
+    if tf.executing_eagerly():
+      # Because axis is returned as is, gradient calculation fails in graph mode
+      # but not in eager mode. This is a side effect of having a graph rather
+      # than a problem of the function.
+      with self.subTest("axis"):
+        self.assert_jacobian_is_correct_fn(
+            lambda x: axis_angle.inverse(x, x_angle_init)[0], [x_axis_init])
+
+    with self.subTest("angle"):
+      self.assert_jacobian_is_correct_fn(
+          lambda x: axis_angle.inverse(x_axis_init, x)[1], [x_angle_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_inverse_jacobian_random(self):
     """Test the Jacobian of the inverse function."""
     x_axis_init, x_angle_init = test_helpers.generate_random_test_axis_angle()
 
-    self.assert_jacobian_is_correct_fn(
-        lambda x: axis_angle.inverse(x, x_angle_init)[0], [x_axis_init])
-    self.assert_jacobian_is_correct_fn(
-        lambda x: axis_angle.inverse(x_axis_init, x)[1], [x_angle_init])
+    if tf.executing_eagerly():
+      # Because axis is returned as is, gradient calculation fails in graph mode
+      # but not in eager mode. This is a side effect of having a graph rather
+      # than a problem of the function.
+      with self.subTest("axis"):
+        self.assert_jacobian_is_correct_fn(
+            lambda x: axis_angle.inverse(1.0 * x, x_angle_init)[0],
+            [x_axis_init])
+
+    with self.subTest("angle"):
+      self.assert_jacobian_is_correct_fn(
+          lambda x: axis_angle.inverse(x_axis_init, x)[1], [x_angle_init])
 
   def test_inverse_normalized_random(self):
     """Tests that axis-angle inversion return a normalized axis-angle."""

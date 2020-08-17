@@ -1,4 +1,4 @@
-/* Copyright 2019 Google LLC
+/* Copyright 2020 The TensorFlow Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ tensorflow::Status Program::Create(
 
   // Compile and attach the input shaders to the program.
   std::vector<Cleanup<std::function<void()>>> shader_cleanups;
-  for (auto shader : shaders) {
+  for (const auto& shader : shaders) {
     GLuint shader_idx;
     TF_RETURN_IF_ERROR(CompileShader(shader.first, shader.second, &shader_idx));
     std::function<void()> compile_cleanup = [shader_idx]() {

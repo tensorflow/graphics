@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +16,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow_graphics.math import interpolation
-from tensorflow_graphics.math import math_helpers
-from tensorflow_graphics.math import optimizer
-from tensorflow_graphics.math import spherical_harmonics
-from tensorflow_graphics.math import vector
-from tensorflow_graphics.util import export_api as _export_api
 
-# API contains submodules of tensorflow_graphics.math.
-__all__ = _export_api.get_modules()
+# pylint: disable=g-import-not-at-top
+from tensorflow_graphics.util.doc import _import_tfg_docs
+if _import_tfg_docs():
+  from tensorflow_graphics.math import interpolation
+  from tensorflow_graphics.math import math_helpers
+  from tensorflow_graphics.math import optimizer
+  from tensorflow_graphics.math import spherical_harmonics
+  from tensorflow_graphics.math import vector
+  from tensorflow_graphics.util import export_api as _export_api
+
+  # API contains submodules of tensorflow_graphics.math.
+  __all__ = _export_api.get_modules()
+# pylint: enable=g-import-not-at-top

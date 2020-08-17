@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Tests for asserts."""
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 from absl.testing import flagsaver
 from absl.testing import parameterized
@@ -351,14 +347,24 @@ class AssertsTest(test_case.TestCase):
     with self.assertRaises(tf.errors.InvalidArgumentError):
       self.evaluate(tf.compat.v1.assert_equal(a, a + eps))
 
+  @parameterized.parameters((np.NaN,), (np.inf,))
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_assert_no_infs_or_nans_passthrough(self):
+  def test_assert_no_infs_or_nans_passthrough(self, value):
     """Checks that the assert is a passthrough when the flag is False."""
-    vector_input = _pick_random_vector()
+    vector_input = (value,)
 
     vector_output = asserts.assert_no_infs_or_nans(vector_input)
 
     self.assertIs(vector_input, vector_output)
+
+  @parameterized.parameters((np.NaN,), (np.inf,))
+  def test_assert_no_infs_or_nans_raises_exception_for_nan(self, value):
+    """Checks that the assert works for `Inf` or `NaN` values."""
+    vector_input = (value,)
+
+    with self.assertRaisesRegex(  # pylint: disable=g-error-prone-assert-raises
+        tf.errors.InvalidArgumentError, "Inf or NaN detected."):
+      self.evaluate(asserts.assert_no_infs_or_nans(vector_input))
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_assert_binary_passthrough(self):

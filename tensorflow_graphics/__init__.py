@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,20 +27,25 @@ except ImportError:
         " pip install tensorflow_graphics[tf-gpu].")
 # pylint: enable=g-statement-before-imports,g-import-not-at-top
 
-from tensorflow_graphics import geometry
-from tensorflow_graphics import image
-from tensorflow_graphics import math
-from tensorflow_graphics import nn
-from tensorflow_graphics import notebooks
-from tensorflow_graphics import rendering
-from tensorflow_graphics import util
-from tensorflow_graphics import version
+# pylint: disable=g-statement-before-imports,g-import-not-at-top,ungrouped-imports
+from tensorflow_graphics.util.doc import _import_tfg_docs
+if _import_tfg_docs():
+  from tensorflow_graphics import datasets
+  from tensorflow_graphics import geometry
+  from tensorflow_graphics import image
+  from tensorflow_graphics import math
+  from tensorflow_graphics import nn
+  from tensorflow_graphics import notebooks
+  from tensorflow_graphics import projects
+  from tensorflow_graphics import rendering
+  from tensorflow_graphics import util
 
-__version__ = version.__version__
+  # submodules of tensorflow_graphics
+  __all__ = util.export_api.get_modules()
 
-# API contains submodules of tensorflow_graphics.
-__all__ = util.export_api.get_modules()
-# Remove modules notebooks, util and version from API.
-__all__.remove("notebooks")
-__all__.remove("util")
-__all__.remove("version")
+  # Remove modules notebooks, util and version from API.
+  __all__.remove("notebooks")
+  __all__.remove("util")
+# pylint: enable=g-statement-before-imports,g-import-not-at-top
+
+__version__ = "HEAD"

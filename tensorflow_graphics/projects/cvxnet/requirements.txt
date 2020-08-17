@@ -1,0 +1,6 @@
+cython>=0.29.15
+numpy>=1.18.1
+scipy>=1.4.1
+scikit-image>=0.16.2
+tensorflow>=2.2.0
+trimesh>=3.6.4

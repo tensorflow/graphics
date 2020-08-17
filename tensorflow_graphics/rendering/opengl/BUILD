@@ -1,40 +1,8 @@
-#Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# Math functionalities for tf-graphics.
-
-# google internal package dependency 8)
-load("//third_party/tensorflow:tensorflow.bzl", "tf_custom_op_library", "tf_gen_op_wrapper_py")
-load("//third_party/tensorflow:tensorflow.google.bzl", "tf_custom_op_py_library")
-# google internal package dependency 5
+# OpenGL functionalities for tf-graphics.
 
 licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = ["//visibility:public"])
-
-py_library(
-    name = "opengl",
-    srcs = [
-        "__init__.py",
-    ],
-    srcs_version = "PY2AND3",
-    # google internal rule 1
-    visibility = ["//visibility:public"],
-    deps = [
-        ":math",
-        "//tensorflow_graphics/util:export_api",
-    ],
-)
 
 cc_library(
     name = "EGL_headers",
@@ -49,6 +17,12 @@ cc_library(
         "-parse_headers",
     ],
     includes = ["."],
+    linkopts = [
+        "-Wl,-L/usr/lib/x86_64-linux-gnu/mesa-egl",
+        "-Wl,-L/usr/lib/x86_64-linux-gnu",
+        "-Wl,-lEGL",
+        "-Wl,-lGLESv2",
+    ],
 )
 
 cc_library(
@@ -60,21 +34,24 @@ cc_library(
         ":egl_util",
         ":macros",
         "//tensorflow_graphics/util:cleanup",
-        "//third_party/tensorflow/core:lib",
+        "@tensorflow_includes//:includes",
+        "@tensorflow_solib//:framework_lib",
     ],
 )
 
 cc_test(
     name = "egl_offscreen_context_test",
     srcs = ["tests/egl_offscreen_context_test.cc"],
+    linkopts = [
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/mesa-egl",
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu",
+    ],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
         "requires-gpu-nvidia",
     ],
     deps = [
         ":egl_offscreen_context",
-        ":gl_native_libs",
-        "//third_party/tensorflow/core:test",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -92,6 +69,10 @@ cc_library(
 cc_test(
     name = "egl_util_test",
     srcs = ["egl_util_test.cc"],
+    linkopts = [
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/mesa-egl",
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu",
+    ],
     deps = [
         ":EGL_headers",
         ":egl_util",
@@ -105,18 +86,9 @@ cc_library(
     visibility = ["//visibility:private"],
     deps = [
         ":EGL_headers",
-        "//third_party/tensorflow/core:lib",
         "@com_google_absl//absl/strings",
+        "@tensorflow_includes//:includes",
     ],
-)
-
-cc_library(
-    name = "gl_native_libs",
-    linkopts = [
-        "-lEGL",
-        "-lGLESv2",
-    ],
-    alwayslink = 1,
 )
 
 cc_library(
@@ -126,23 +98,26 @@ cc_library(
     deps = [
         ":macros",
         "//tensorflow_graphics/util:cleanup",
-        "//third_party/tensorflow/core:lib",
+        "@tensorflow_includes//:includes",
     ],
 )
 
 cc_test(
     name = "gl_program_test",
     srcs = ["tests/gl_program_test.cc"],
+    linkopts = [
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/mesa-egl",
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu",
+    ],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
         "requires-gpu-nvidia",
     ],
     deps = [
         ":egl_offscreen_context",
-        ":gl_native_libs",
         ":gl_program",
-        "//third_party/tensorflow/core:test",
         "@com_google_googletest//:gtest_main",
+        "@tensorflow_includes//:includes",
     ],
 )
 
@@ -153,25 +128,29 @@ cc_library(
     deps = [
         ":macros",
         "//tensorflow_graphics/util:cleanup",
-        "//third_party/tensorflow/core:lib",
+        "@com_google_absl//absl/types:span",
+        "@tensorflow_includes//:includes",
     ],
 )
 
 cc_test(
     name = "gl_render_targets_test",
     srcs = ["tests/gl_render_targets_test.cc"],
+    linkopts = [
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/mesa-egl",
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu",
+    ],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
         "requires-gpu-nvidia",
     ],
     deps = [
         ":egl_offscreen_context",
-        ":gl_native_libs",
         ":gl_render_targets",
         ":macros",
-        "//third_party/tensorflow/core:lib",
-        "//third_party/tensorflow/core:test",
         "@com_google_googletest//:gtest_main",
+        "@tensorflow_includes//:includes",
+        "@tensorflow_solib//:framework_lib",
     ],
 )
 
@@ -182,67 +161,26 @@ cc_library(
     deps = [
         ":macros",
         "//tensorflow_graphics/util:cleanup",
-        "//third_party/tensorflow/core:lib",
+        "@com_google_absl//absl/types:span",
+        "@tensorflow_includes//:includes",
     ],
 )
 
 cc_test(
     name = "gl_shader_storage_buffer_test",
     srcs = ["tests/gl_shader_storage_buffer_test.cc"],
+    linkopts = [
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/mesa-egl",
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu",
+    ],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
         "requires-gpu-nvidia",
     ],
     deps = [
-        ":gl_native_libs",
         ":gl_shader_storage_buffer",
-        "//third_party/tensorflow/core:test",
         "@com_google_googletest//:gtest_main",
-    ],
-)
-
-# This library provides stub implementation of the OpenGL libraries.
-cc_library(
-    name = "gl_stub_libs",
-    deps = [
-        "//third_party/GL/stub:EGL",  # buildcleaner: keep
-        "//third_party/GL/stub:GLESv2",  # buildcleaner: keep
-    ],
-    alwayslink = 1,
-)
-
-py_library(
-    name = "math",
-    srcs = ["math.py"],
-    srcs_version = "PY2AND3",
-    # google internal rule 1
-    deps = [
-        # google internal package dependency 1,
-        "//tensorflow_graphics/math:vector",
-        "//tensorflow_graphics/math/interpolation:weighted",
-        "//tensorflow_graphics/util:asserts",
-        "//tensorflow_graphics/util:export_api",
-        "//tensorflow_graphics/util:shape",
-    ],
-)
-
-py_test(
-    name = "math_test",
-    timeout = "long",
-    srcs = ["tests/math_test.py"],
-    srcs_version = "PY2AND3",
-    # google internal rule 1
-    # google internal rule 2
-    # google internal rule 3
-    # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
-    deps = [
-        ":math",
-        # google internal package dependency 2
-        # google internal package dependency 6
-        # google internal package dependency 1,
-        "//tensorflow_graphics/util:test_case",
+        "@tensorflow_solib//:framework_lib",
     ],
 )
 
@@ -255,24 +193,27 @@ cc_library(
         ":gl_render_targets",
         ":gl_shader_storage_buffer",
         "//tensorflow_graphics/util:cleanup",
-        "//third_party/tensorflow/core:lib",
+        "@tensorflow_includes//:includes",
     ],
 )
 
 cc_test(
     name = "rasterizer_test",
     srcs = ["tests/rasterizer_test.cc"],
+    linkopts = [
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/mesa-egl",
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu",
+    ],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
         "requires-gpu-nvidia",
     ],
     deps = [
         ":egl_offscreen_context",
-        ":gl_native_libs",
         ":rasterizer",
-        "//third_party/tensorflow/core:test",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_main",
+        "@tensorflow_solib//:framework_lib",
     ],
 )
 
@@ -284,13 +225,13 @@ cc_library(
         ":rasterizer_with_context",
         ":thread_safe_resource_pool",
         "//third_party/tensorflow/core:framework",
-        "//third_party/tensorflow/core:lib",
         "@com_google_absl//absl/types:span",
+        "@tensorflow_includes//:includes",
     ],
     alwayslink = 1,
 )
 
-tf_custom_op_library(
+cc_binary(
     name = "rasterizer_op.so",
     srcs = [
         "egl_offscreen_context.cc",
@@ -311,56 +252,25 @@ tf_custom_op_library(
         "rasterizer_with_context.h",
         "thread_safe_resource_pool.h",
     ],
+    linkopts = [
+        "-Wl,-L/usr/lib/x86_64-linux-gnu/mesa-egl",
+        "-Wl,-L/usr/lib/x86_64-linux-gnu",
+        "-Wl,-lEGL",
+        "-Wl,-lGLESv2",
+    ],
+    linkshared = 1,
     deps = [
         ":EGL_headers",
         "//tensorflow_graphics/util:cleanup",
+        "@com_google_absl//absl/base",
+        "@com_google_absl//absl/container:inlined_vector",
         "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/synchronization",
+        "@com_google_absl//absl/time",
+        "@com_google_absl//absl/types:optional",
         "@com_google_absl//absl/types:span",
-    ],
-)
-
-tf_gen_op_wrapper_py(
-    name = "gen_rasterizer_op",
-    out = "gen_rasterizer_op.py",
-    deps = [
-        ":gl_stub_libs",
-        ":rasterizer_op_lib",
-    ],
-)
-
-tf_custom_op_py_library(
-    name = "rasterizer_op_py",
-    dso = [":rasterizer_op.so"],
-    kernels = [
-        ":rasterizer_op_lib",
-    ],
-    deps = [":gen_rasterizer_op"],
-)
-
-py_test(
-    name = "rasterizer_op_test",
-    srcs = [
-        "tests/rasterizer_op_test.py",
-    ],
-    srcs_version = "PY2AND3",
-    # google internal rule 1
-    tags = [
-        "nomsan",  # Un-initialized values in libEGL.
-    ],
-    test_on_cpu = False,
-    # google internal rule 3
-    # google internal rule 4
-    # google internal rule 5
-    # google internal rule 6
-    deps = [
-        ":gl_native_libs",
-        ":math",
-        ":rasterizer_op_py",
-        # google internal package dependency 2
-        # google internal package dependency 6
-        "//third_party/py/six",
-        # google internal package dependency 1,
-        "//tensorflow_graphics/util:test_case",
+        "@tensorflow_includes//:includes",
+        "@tensorflow_solib//:framework_lib",
     ],
 )
 
@@ -372,25 +282,28 @@ cc_library(
         ":egl_offscreen_context",
         ":rasterizer",
         "//tensorflow_graphics/util:cleanup",
-        "//third_party/tensorflow/core:lib",
+        "@tensorflow_includes//:includes",
     ],
 )
 
 cc_test(
     name = "rasterizer_with_context_test",
     srcs = ["tests/rasterizer_with_context_test.cc"],
+    linkopts = [
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/mesa-egl",
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu",
+    ],
     tags = [
         "nomsan",  # Un-initialized values in libEGL.
         "requires-gpu-nvidia",
     ],
     deps = [
-        ":gl_native_libs",
         ":rasterizer_with_context",
         ":thread_safe_resource_pool",
-        "//third_party/tensorflow/core:lib",
-        "//third_party/tensorflow/core:test",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_main",
+        "@tensorflow_includes//:includes",
+        "@tensorflow_solib//:framework_lib",
     ],
 )
 
@@ -399,18 +312,22 @@ cc_library(
     hdrs = ["thread_safe_resource_pool.h"],
     deps = [
         ":macros",
-        "//third_party/tensorflow/core:lib",
         "@com_google_absl//absl/synchronization",
+        "@tensorflow_includes//:includes",
     ],
 )
 
 cc_test(
     name = "thread_safe_resource_pool_test",
     srcs = ["tests/thread_safe_resource_pool_test.cc"],
+    linkopts = [
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu/mesa-egl",
+        "-Wl,-rpath,/usr/lib/x86_64-linux-gnu",
+    ],
     deps = [
         ":thread_safe_resource_pool",
-        "//third_party/tensorflow/core:lib",
-        "//third_party/tensorflow/core:test",
         "@com_google_googletest//:gtest_main",
+        "@tensorflow_includes//:includes",
+        "@tensorflow_solib//:framework_lib",
     ],
 )

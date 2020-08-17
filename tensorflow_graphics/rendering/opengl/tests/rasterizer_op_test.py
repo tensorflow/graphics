@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,17 +13,14 @@
 # limitations under the License.
 """Tests for the opengl rasterizer op."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import parameterized
 import numpy as np
 import six
 import tensorflow as tf
 
+from tensorflow_graphics.geometry.transformation import look_at
+from tensorflow_graphics.rendering.camera import perspective
 from tensorflow_graphics.rendering.opengl import gen_rasterizer_op as rasterizer
-from tensorflow_graphics.rendering.opengl import math as glm
 from tensorflow_graphics.util import test_case
 
 # Empty vertex shader
@@ -120,23 +117,23 @@ class RasterizerOPTest(test_case.TestCase):
     width = 640
     camera_origin = (0.0, 0.0, 0.0)
     camera_up = (0.0, 1.0, 0.0)
-    look_at = (0.0, 0.0, 1.0)
+    look_at_point = (0.0, 0.0, 1.0)
     fov = (60.0 * np.math.pi / 180,)
     near_plane = (1.0,)
     far_plane = (10.0,)
     batch_shape = tf.convert_to_tensor(
         value=(2, (max_depth - min_depth) // 2), dtype=tf.int32)
 
-    world_to_camera = glm.look_at_right_handed(camera_origin, look_at,
-                                               camera_up)
-    perspective_matrix = glm.perspective_right_handed(
+    world_to_camera = look_at.right_handed(camera_origin, look_at_point,
+                                           camera_up)
+    perspective_matrix = perspective.right_handed(
         fov, (float(width) / float(height),), near_plane, far_plane)
     view_projection_matrix = tf.matmul(perspective_matrix, world_to_camera)
     view_projection_matrix = tf.squeeze(view_projection_matrix)
 
     # Generate triangles at different depths and associated ground truth.
     tris = np.zeros((max_depth - min_depth, 9), dtype=np.float32)
-    gt = np.zeros((max_depth - min_depth, width, height, 2), dtype=np.float32)
+    gt = np.zeros((max_depth - min_depth, height, width, 2), dtype=np.float32)
     for idx in range(max_depth - min_depth):
       tris[idx, :] = (-100.0, 100.0, idx + min_depth, 100.0, 100.0,
                       idx + min_depth, 0.0, -100.0, idx + min_depth)
@@ -166,18 +163,30 @@ class RasterizerOPTest(test_case.TestCase):
     variable_kinds = [v[1][0] for v in render_parameters]
     variable_values = [v[1][1] for v in render_parameters]
 
-    result = rasterizer.rasterize(
-        num_points=3,
-        variable_names=variable_names,
-        variable_kinds=variable_kinds,
-        variable_values=variable_values,
-        output_resolution=(width, height),
-        vertex_shader=test_vertex_shader,
-        geometry_shader=test_geometry_shader,
-        fragment_shader=test_fragment_shader,
-    )
+    def rasterize():
+      return rasterizer.rasterize(
+          num_points=3,
+          variable_names=variable_names,
+          variable_kinds=variable_kinds,
+          variable_values=variable_values,
+          output_resolution=(width, height),
+          vertex_shader=test_vertex_shader,
+          geometry_shader=test_geometry_shader,
+          fragment_shader=test_fragment_shader,
+      )
 
+    result = rasterize()
     self.assertAllClose(result[..., 2:4], gt)
+
+    @tf.function
+    def check_lazy_shape():
+      # Within @tf.function, the tensor shape is determined by SetShapeFn
+      # callback. Ensure that the shape of non-batch axes matches that of of
+      # the actual tensor evaluated in eager mode above.
+      lazy_shape = rasterize().shape
+      self.assertEqual(lazy_shape[-3:], list(result.shape)[-3:])
+
+    check_lazy_shape()
 
   @parameterized.parameters(
       ("The variable names, kinds, and values must have the same size.",

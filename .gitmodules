@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-[submodule "tensorflow_graphics/projects/redner"]
-	path = tensorflow_graphics/projects/redner
+[submodule "submodules/redner"]
+	path = submodules/redner
 	url = https://github.com/BachiLi/redner
 	branch = tf_graphics

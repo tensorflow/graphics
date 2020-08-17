@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -161,7 +161,7 @@ def check_static(tensor,
       `int`s, or a list or tuple containing multiple such pairs. Each pair is in
       the form (`axis`, `dim`), which means the function should check if
       `tensor.shape[axis] > dim`.
-    has_dim_less_than: EEither a tuple or list containing a single pair of
+    has_dim_less_than: Either a tuple or list containing a single pair of
       `int`s, or a list or tuple containing multiple such pairs. Each pair is in
       the form (`axis`, `dim`), which means the function should check if
       `tensor.shape[axis] < dim`.

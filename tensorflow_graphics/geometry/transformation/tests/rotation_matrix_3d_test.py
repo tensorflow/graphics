@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Tests for 3d rotation matrix."""
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 from absl.testing import flagsaver
 from absl.testing import parameterized
@@ -41,7 +37,7 @@ class RotationMatrix3dTest(test_case.TestCase):
     matrix_output = rotation_matrix_3d.assert_rotation_matrix_normalized(
         matrix_input)
 
-    self.assertTrue(matrix_input is matrix_output)
+    self.assertTrue(matrix_input is matrix_output)  # pylint: disable=g-generic-assert
 
   @parameterized.parameters((np.float32), (np.float64))
   def test_assert_rotation_matrix_normalized_preset(self, dtype):
@@ -54,10 +50,9 @@ class RotationMatrix3dTest(test_case.TestCase):
         matrix)
     self.evaluate(matrix_normalized)
 
-    with self.assertRaises(tf.errors.InvalidArgumentError):
-      rescaled_normalized = rotation_matrix_3d.assert_rotation_matrix_normalized(
-          matrix_rescaled)
-      self.evaluate(rescaled_normalized)
+    with self.assertRaises(tf.errors.InvalidArgumentError):  # pylint: disable=g-error-prone-assert-raises
+      self.evaluate(rotation_matrix_3d.assert_rotation_matrix_normalized(
+          matrix_rescaled))
 
   @parameterized.parameters(
       ((3, 3),),

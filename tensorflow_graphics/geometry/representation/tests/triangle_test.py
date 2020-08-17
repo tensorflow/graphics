@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,6 @@
 # limitations under the License.
 """Tests for triangle."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import parameterized
 import numpy as np
 import tensorflow as tf
@@ -26,7 +22,7 @@ from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import test_case
 
 
-class TriangleTest(test_case.TestCase):
+class TriangleTest(test_case.TestCase):  # pylint: disable=missing-class-docstring
 
   @parameterized.parameters(
       ((0., 0., 0.), (0., 0., 0.), (0., 0., 0.)),

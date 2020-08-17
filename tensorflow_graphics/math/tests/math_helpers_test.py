@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Tests for math_helpers."""
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import sys
 
@@ -70,6 +66,32 @@ class MathTest(test_case.TestCase):
 
     self.assert_jacobian_is_correct_fn(
         math_helpers.cartesian_to_spherical_coordinates, [point_init])
+
+  @parameterized.parameters(
+      (((1.0, 1.0, 1.0),),),
+      (((1.0, 0.0, 0.0),),),
+      (((0.0, 1.0, 0.0),),),
+  )
+  def test_cartesian_to_spherical_coordinates_jacobian_preset(self, cartesian):
+    """Test the Jacobian of the spherical_to_cartesian_coordinates function."""
+    point_init = np.asarray(cartesian)
+
+    self.assert_jacobian_is_correct_fn(
+        math_helpers.cartesian_to_spherical_coordinates, [point_init])
+
+  @parameterized.parameters(
+      (((1.0, 1.0, 0.0),), ((np.sqrt(2.0), np.pi / 2.0, np.pi / 4.0),)),
+      (((1.0, 0.0, 0.0),), ((1.0, np.pi / 2.0, 0.0),)),
+      (((0.0, 1.0, 0.0),), ((1.0, np.pi / 2.0, np.pi / 2.0),)),
+      (((0.0, 0.0, 1.0),), ((1.0, 0.0, 0.0),)),
+      (((0.0, 0.0, 0.0),), ((0.0, np.pi / 2.0, 0.0),)),
+  )
+  def test_cartesian_to_spherical_coordinates_values_preset(
+      self, test_inputs, test_outputs):
+    """Test the Jacobian of the spherical_to_cartesian_coordinates function."""
+    self.assert_output_is_correct(
+        math_helpers.cartesian_to_spherical_coordinates, test_inputs,
+        test_outputs)
 
   @parameterized.parameters(
       (((0, 1, 5, 6, 15.0),), ((1, 1, 15, 48, 2027025.0),)),)

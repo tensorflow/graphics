@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,16 +13,12 @@
 # limitations under the License.
 """Test helpers for the transformation module."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import itertools
 import math
 
 import numpy as np
 from scipy import stats
-import tensorflow as tf
+import tensorflow.compat.v2 as tf
 
 from tensorflow_graphics.geometry.transformation import axis_angle
 from tensorflow_graphics.geometry.transformation import quaternion
@@ -35,6 +31,13 @@ def generate_preset_test_euler_angles(dimensions=3):
   permutations = itertools.product(
       [0., np.pi, np.pi / 2., np.pi / 3., np.pi / 4., np.pi / 6.],
       repeat=dimensions)
+  return np.array(list(permutations))
+
+
+def generate_preset_test_translations(dimensions=3):
+  """Generates a set of translations."""
+  permutations = itertools.product([0.1, -0.2, 0.5, 0.7, 0.4, -0.1],
+                                   repeat=dimensions)
   return np.array(list(permutations))
 
 
@@ -76,6 +79,51 @@ def generate_preset_test_quaternions():
     return np.array(preset_quaternion)
   with tf.compat.v1.Session() as sess:
     return np.array(sess.run([preset_quaternion]))
+
+
+def generate_preset_test_dual_quaternions():
+  """Generates pre-set test quaternions."""
+  angles = generate_preset_test_euler_angles()
+  preset_quaternion_real = quaternion.from_euler(angles)
+
+  translations = generate_preset_test_translations()
+  translations = np.concatenate(
+      (translations / 2.0, np.zeros((np.ma.size(translations, 0), 1))), axis=1)
+  preset_quaternion_translation = tf.convert_to_tensor(value=translations)
+
+  preset_quaternion_dual = quaternion.multiply(preset_quaternion_translation,
+                                               preset_quaternion_real)
+
+  preset_dual_quaternion = tf.concat(
+      (preset_quaternion_real, preset_quaternion_dual), axis=-1)
+
+  return preset_dual_quaternion
+
+
+def generate_random_test_dual_quaternions():
+  """Generates random test dual quaternions."""
+  angles = generate_random_test_euler_angles()
+  random_quaternion_real = quaternion.from_euler(angles)
+
+  min_translation = -3.0
+  max_translation = 3.0
+  translations = np.random.uniform(min_translation, max_translation,
+                                   angles.shape)
+
+  translations_quaternion_shape = np.asarray(translations.shape)
+  translations_quaternion_shape[-1] = 1
+  translations = np.concatenate(
+      (translations / 2.0, np.zeros(translations_quaternion_shape)), axis=-1)
+
+  random_quaternion_translation = tf.convert_to_tensor(value=translations)
+
+  random_quaternion_dual = quaternion.multiply(random_quaternion_translation,
+                                               random_quaternion_real)
+
+  random_dual_quaternion = tf.concat(
+      (random_quaternion_real, random_quaternion_dual), axis=-1)
+
+  return random_dual_quaternion
 
 
 def generate_random_test_euler_angles(dimensions=3,
@@ -135,7 +183,7 @@ def generate_random_test_lbs_blend():
   random_points = np.random.uniform(size=tensor_shape + [3])
   num_weights = np.random.randint(2, 10)
   random_weights = np.random.uniform(size=tensor_shape + [num_weights])
-  random_weights /= np.sum(random_weights, axis=-1)
+  random_weights /= np.sum(random_weights, axis=-1, keepdims=True)
 
   random_rotations = np.array(
       [stats.special_ortho_group.rvs(3) for _ in range(num_weights)])
@@ -146,20 +194,12 @@ def generate_random_test_lbs_blend():
 
 def generate_preset_test_lbs_blend():
   """Generates preset test for the linear blend skinning blend function."""
-  points = np.array(
-      [[[1.0, 0.0, 0.0],
-        [0.1, 0.2, 0.5]],
-       [[0.0, 1.0, 0.0],
-        [0.3, -0.5, 0.2]],
-       [[-0.3, 0.1, 0.3],
-        [0.1, -0.9, -0.4]]])
-  weights = np.array(
-      [[[0.0, 1.0, 0.0, 0.0],
-        [0.4, 0.2, 0.3, 0.1]],
-       [[0.6, 0.0, 0.4, 0.0],
-        [0.2, 0.2, 0.1, 0.5]],
-       [[0.0, 0.1, 0.0, 0.9],
-        [0.1, 0.2, 0.3, 0.4]]])
+  points = np.array([[[1.0, 0.0, 0.0], [0.1, 0.2, 0.5]],
+                     [[0.0, 1.0, 0.0], [0.3, -0.5, 0.2]],
+                     [[-0.3, 0.1, 0.3], [0.1, -0.9, -0.4]]])
+  weights = np.array([[[0.0, 1.0, 0.0, 0.0], [0.4, 0.2, 0.3, 0.1]],
+                      [[0.6, 0.0, 0.4, 0.0], [0.2, 0.2, 0.1, 0.5]],
+                      [[0.0, 0.1, 0.0, 0.9], [0.1, 0.2, 0.3, 0.4]]])
   rotations = np.array(
       [[[[1.0, 0.0, 0.0],
          [0.0, 1.0, 0.0],
@@ -194,18 +234,15 @@ def generate_preset_test_lbs_blend():
         [-0.1, -0.3, -0.7],
         [0.4, -0.2, 0.8],
         [0.7, 0.8, -0.4]]])  # pyformat: disable
-  blended_points = np.array(
-      [[[[0.16, -0.1, 1.18],
-         [0.3864, 0.148, 0.7352]],
-        [[0.38, 0.4, 0.86],
-         [-0.2184, 0.152, 0.0088]],
-        [[-0.05, 0.01, -0.46],
-         [-0.3152, -0.004, -0.1136]]],
-       [[[-0.15240625, 0.69123384, -0.57871905],
-         [0.07776242, 0.33587402, 0.55386645]],
-        [[0.17959584, 0.01269566, 1.22003942],
-         [0.71406514, 0.6187734, -0.43794053]],
-        [[0.67662743, 0.94549789, -0.14946982],
-         [0.88587099, -0.09324637, -0.45012815]]]])
+  blended_points = np.array([[[[0.16, -0.1, 1.18], [0.3864, 0.148, 0.7352]],
+                              [[0.38, 0.4, 0.86], [-0.2184, 0.152, 0.0088]],
+                              [[-0.05, 0.01, -0.46], [-0.3152, -0.004,
+                                                      -0.1136]]],
+                             [[[-0.15240625, 0.69123384, -0.57871905],
+                               [0.07776242, 0.33587402, 0.55386645]],
+                              [[0.17959584, 0.01269566, 1.22003942],
+                               [0.71406514, 0.6187734, -0.43794053]],
+                              [[0.67662743, 0.94549789, -0.14946982],
+                               [0.88587099, -0.09324637, -0.45012815]]]])
 
   return points, weights, rotations, translations, blended_points

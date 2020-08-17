@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Tests for vector."""
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 from absl.testing import flagsaver
 from absl.testing import parameterized
@@ -96,7 +92,7 @@ class VectorTest(test_case.TestCase):
     tensor_size = np.random.randint(1, 4)
     tensor_shape = np.random.randint(1, 10, size=tensor_size).tolist()
     axis = np.random.randint(tensor_size)
-    tensor_shape[axis] = 3
+    tensor_shape[axis] = 3  # pylint: disable=invalid-sequence-index
     u = np.random.random(size=tensor_shape)
     v = np.random.random(size=tensor_shape)
 

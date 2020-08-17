@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,8 +18,13 @@ from __future__ import print_function
 
 import sys
 
-from tensorflow_graphics.notebooks import resources
-from tensorflow_graphics.notebooks import threejs_visualization
+# pylint: disable=g-import-not-at-top
+from tensorflow_graphics.util.doc import _import_tfg_docs
+if _import_tfg_docs():
+  from tensorflow_graphics.notebooks import resources
+  from tensorflow_graphics.notebooks import threejs_visualization
 
-# The notebooks module is not exported.
-__all__ = []
+  # The notebooks module is not exported.
+  __all__ = []
+
+# pylint: enable=g-import-not-at-top
