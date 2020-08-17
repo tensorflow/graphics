@@ -19,46 +19,46 @@ from absl.testing import parameterized
 import tensorflow as tf
 
 from tensorflow_graphics.projects.mesh_rcnn.branches.mesh_head import \
-  MeshRefinementStage
+  MeshRefinementStage, MeshRefinementLayer
 from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 from tensorflow_graphics.util import test_case
 
 
+def _get_input_data(batch_size=1,
+                    vertex_features_dim=128,
+                    generate_vert_features=False):
+  """Generates valid input data."""
+  tf.random.set_seed(42)
+
+  image_features = []
+  intrinsics = []
+  vertices = []
+  faces = []
+  for _ in range(batch_size):
+    image_features.append(tf.reshape(tf.range(20.), (4, 5, 1)))
+    intrinsics.append(tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
+                                  dtype=tf.float32))
+    vertices.append(tf.constant([[-1.5, -1.5, 10],
+                                 [-1.5, 0.5, 10],
+                                 [-0.5, -1.5, 10],
+                                 [-0.5, 0.5, 10]], dtype=tf.float32))
+    faces.append(tf.constant([[0, 1, 3], [0, 2, 3]], dtype=tf.int32))
+
+  vert_features = None
+  if generate_vert_features:
+    vert_features = tf.random.normal((sum([v.shape[0] for v in vertices]),
+                                      vertex_features_dim))
+
+  return {
+      'feature': tf.stack(image_features, 0),
+      'mesh': Meshes(vertices, faces),
+      'intrinsics': tf.stack(intrinsics, 0),
+      'vertex_features': vert_features
+  }
+
+
 class MeshRefinementStageTest(test_case.TestCase):
   """Tests for one refinement stage."""
-
-  def _get_input_data(self,
-                      batch_size=1,
-                      vertex_features_dim=128,
-                      generate_vert_features=False):
-    """Generates valid input data."""
-    tf.random.set_seed(42)
-
-    image_features = []
-    intrinsics = []
-    vertices = []
-    faces = []
-    for _ in range(batch_size):
-      image_features.append(tf.reshape(tf.range(20.), (4, 5, 1)))
-      intrinsics.append(tf.constant([[10, 0, 2.5], [0, 10, 2.5], [0, 0, 1]],
-                                    dtype=tf.float32))
-      vertices.append(tf.constant([[-1.5, -1.5, 10],
-                                   [-1.5, 0.5, 10],
-                                   [-0.5, -1.5, 10],
-                                   [-0.5, 0.5, 10]], dtype=tf.float32))
-      faces.append(tf.constant([[0, 1, 3], [0, 2, 3]], dtype=tf.int32))
-
-    vert_features = None
-    if generate_vert_features:
-      vert_features = tf.random.normal((sum([v.shape[0] for v in vertices]),
-                                        vertex_features_dim))
-
-    return {
-        'feature': tf.stack(image_features, 0),
-        'mesh': Meshes(vertices, faces),
-        'intrinsics': tf.stack(intrinsics, 0),
-        'vertex_features': vert_features
-    }
 
   @parameterized.parameters(
       (1, 0, False),
@@ -74,9 +74,9 @@ class MeshRefinementStageTest(test_case.TestCase):
     output in the correct shape.
     """
 
-    inputs = self._get_input_data(batch_size=batch_size,
-                                  vertex_features_dim=vertex_features_dim,
-                                  generate_vert_features=gen_vertex_features)
+    inputs = _get_input_data(batch_size=batch_size,
+                             vertex_features_dim=vertex_features_dim,
+                             generate_vert_features=gen_vertex_features)
 
     stage = MeshRefinementStage(image_features_dim=1,
                                 vertex_feature_dim=vertex_features_dim,
@@ -93,5 +93,23 @@ class MeshRefinementStageTest(test_case.TestCase):
                      [batch_size * 4, 128])
 
 
-if __name__ == "__main__":
-  test_case.main()
+class MeshRefinementLayerTest(test_case.TestCase):
+  """Tests for whole mesh refinement head."""
+
+  @parameterized.parameters(1, 4)
+  def test_refinement_output_shape(self, batch_size):
+    """Tests the mesh refinement head on different batch sizes."""
+
+    inputs = _get_input_data(batch_size, 0, False)
+
+    layer = MeshRefinementLayer(3, 3, 128)
+    in_features = inputs['feature']
+    in_mesh = deepcopy(inputs['mesh'])
+    intrinsics = inputs['intrinsics']
+
+    out_meshes = layer(in_features, in_mesh, intrinsics)
+
+    self.assertNotAllEqual(inputs['mesh'].get_flattened()[0],
+                           out_meshes.get_flattened()[0])
+    self.assertEqual(inputs['mesh'].get_flattened()[0].shape,
+                     out_meshes.get_flattened()[0].shape)

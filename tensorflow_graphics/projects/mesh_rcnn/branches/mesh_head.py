@@ -29,32 +29,70 @@ class MeshRefinementLayer(keras_layers.Layer):
   """
 
   def __init__(self,
-               image_features_dim,
-               vertex_feature_dim,
-               latent_dim,
-               stage_depth,
-               initializer="normal"):
+               n_stages,
+               n_gconvs,
+               gconv_dim,
+               gconv_init='normal',
+               name='MeshRefinementHead',
+               **kwargs):
     """
     Args:
-      image_features_dim: Dimension of features from vertex alignment.
-      vertex_feature_dim: Dimension of previous stage. Can be 0.
-      latent_dim: Output dimension for graph convolution layers.
-      stage_depth: Integer denoting number of graph convolutions to use.
-      initializer: String denoting how graph convolutions should be initialized.
+      n_stages: Number of refinement stages.
+      n_gconvs: Number of graph convolutions per stage.
+      gconv_dim: output dimensionality of graph convolutions.
+      gconv_init: String denoting how graph convolutions should be initialized.
+      name: An optional name for the layer.
+      **kwargs: Optional keyword arguments that get passed to the base layer.
     """
-    super(MeshRefinementLayer, self).__init__()
+    super(MeshRefinementLayer, self).__init__(name=name, **kwargs)
 
-    self.image_features_dim = image_features_dim
-    self.vertex_feature_dim = vertex_feature_dim
-    self.latent_dim = latent_dim
-    self.stage_depth = stage_depth
-    self.initializer = initializer
+    self.n_stages = n_stages
+    self.n_gconvs = n_gconvs
+    self.gconv_dim = gconv_dim
+    self.gconv_init = gconv_init
 
-    self.bottleneck = keras_layers.Dense(self.latent_dim)
-    self.refinement = keras_layers.Dense(3, activation='tanh')
+    self.stages = []
 
-  def call(self, inputs, **kwargs):
-    pass
+  def build(self, input_shape):
+    for i in range(self.n_stages):
+      vertex_features_dim = 0 if i == 0 else self.gconv_dim
+      stage = MeshRefinementStage(image_features_dim=input_shape[-1],
+                                  vertex_feature_dim=vertex_features_dim,
+                                  latent_dim=self.gconv_dim,
+                                  stage_depth=self.n_gconvs,
+                                  initializer=self.gconv_init,
+                                  name=f'MeshRefinementStage_{i}')
+
+      self.stages.append(stage)
+
+  def call(self, features, mesh, intrinsics, **kwargs):
+    """
+    Forward pass of the layer.
+
+    Args:
+      features: image features from which to extract features in VertAlign
+      mesh: `Meshes` object containing the meshes of the current batch.
+      intrinsics: float32 tensor of shape `[N, 3, 3]` containing the
+        intrinsic matrices.
+      **kwargs: Optional keyword arguments.
+
+    Returns:
+      The refined `Meshes`.
+    """
+    if mesh.is_empty:
+      return mesh
+
+    inputs = {
+        'feature': features,
+        'mesh': mesh,
+        'intrinsics': intrinsics,
+        'vertex_features': None
+    }
+
+    for stage in self.stages:
+      inputs = stage(inputs)
+
+    return mesh
 
 
 class MeshRefinementStage(keras_layers.Layer):
@@ -67,7 +105,9 @@ class MeshRefinementStage(keras_layers.Layer):
                vertex_feature_dim,
                latent_dim,
                stage_depth,
-               initializer="normal"):
+               initializer="normal",
+               name="RefinementStage",
+               **kwargs):
     """
     Args:
       image_features_dim: Dimension of features from vertex alignment.
@@ -76,8 +116,10 @@ class MeshRefinementStage(keras_layers.Layer):
       stage_depth: Integer, denoting number of graph convolutions to use.
       initializer: An initializer for the trainable variables. If `None`,
         defaults to `tf.compat.v1.truncated_normal_initializer(stddev=0.1)`.
+      name: An optional name for the stage.
+      **kwargs: Optional keyword arguments that get passed to the base layer.
     """
-    super(MeshRefinementStage, self).__init__()
+    super(MeshRefinementStage, self).__init__(name=name, **kwargs)
 
     self.image_features_dim = image_features_dim
     self.vertex_feature_dim = vertex_feature_dim
@@ -89,8 +131,8 @@ class MeshRefinementStage(keras_layers.Layer):
     self.refinement = keras_layers.Dense(3, activation='tanh')
 
     self.gconvs = []
-    for stage in range(self.stage_depth):
-      if stage == 0:
+    for i in range(self.stage_depth):
+      if i == 0:
         input_dim = self.latent_dim + self.vertex_feature_dim + 3
       else:
         input_dim = self.latent_dim + 3
@@ -98,7 +140,8 @@ class MeshRefinementStage(keras_layers.Layer):
       gconv = FeatureSteeredConvolutionKerasLayer(translation_invariant=True,
                                                   input_dim=input_dim,
                                                   num_output_channels=self.latent_dim,
-                                                  initializer=self.initializer)
+                                                  initializer=self.initializer,
+                                                  name=f'{name}_GConv_{i}')
       self.gconvs.append(gconv)
 
   def call(self, inputs, **kwargs):
