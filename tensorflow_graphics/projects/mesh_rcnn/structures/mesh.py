@@ -203,9 +203,7 @@ class Meshes:
 
     Returns:
       float32 SparseTensor of shape `[sum(V1, ..., Vn), sum(V1, ..., Vn)]` where
-      V1, ... Vn represent the number of vertices of each mesh in the batch. If
-      return_packed == False, it will return a SparseTensor of shape
-      [A1, ..., An, V, V]` representing the vertex adjacency matrix.
+      V1, ... Vn represent the number of vertices of each mesh in the batch.
     """
     if self.vertex_adjacency is None:
       self.vertex_adjacency = self._compute_vertex_adjacency()
