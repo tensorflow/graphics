@@ -132,13 +132,7 @@ class MeshRefinementStage(keras_layers.Layer):
 
     self.gconvs = []
     for i in range(self.stage_depth):
-      if i == 0:
-        input_dim = self.latent_dim + self.vertex_feature_dim + 3
-      else:
-        input_dim = self.latent_dim + 3
-
       gconv = FeatureSteeredConvolutionKerasLayer(translation_invariant=True,
-                                                  input_dim=input_dim,
                                                   num_output_channels=self.latent_dim,
                                                   initializer=self.initializer,
                                                   name=f'{name}_GConv_{i}')
