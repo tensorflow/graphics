@@ -106,3 +106,10 @@ class TriangleMesh(features.FeaturesDict):
         'vertices': vertices.astype(np.float32),
         'faces': faces,
     }
+
+  @classmethod
+  def from_json_content(cls, value) -> 'TriangleMesh':
+    return cls()
+
+  def to_json_content(self):
+    return {}
