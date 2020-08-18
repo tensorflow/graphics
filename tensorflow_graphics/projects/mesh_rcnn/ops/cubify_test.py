@@ -26,7 +26,7 @@ class CufifyTest(test_case.TestCase):
   """Test Cases for cubify op."""
 
   def test_all_below_threshold(self):
-    """All voxel occupancy probabilities below threshold. Expects empty Mesh."""
+    """All voxel occupancy probabilities below threshold. Expects empty mesh."""
     N, V = 32, 16  # pylint: disable=invalid-name
     voxels = tf.random.uniform((N, V, V, V), 0, 0.5, tf.float32)
     mesh = cubify(voxels, threshold=0.7)

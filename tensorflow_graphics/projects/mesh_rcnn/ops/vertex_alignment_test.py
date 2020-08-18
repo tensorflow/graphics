@@ -19,7 +19,7 @@ import tensorflow as tf
 
 from tensorflow_graphics.projects.mesh_rcnn.ops.vertex_alignment import \
   vert_align
-from tensorflow_graphics.projects.mesh_rcnn.structures import mesh
+from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 from tensorflow_graphics.util import test_case
 
 
@@ -102,8 +102,8 @@ class VertAlignTest(test_case.TestCase):
                              dtype=tf.float32)
     intrinsics = tf.stack([intrinsics, intrinsics])
 
-    input_mesh = mesh.Meshes([verts1, verts2],
-                             [tf.ones((2, 3)), tf.ones((2, 3))])
+    input_mesh = Meshes([verts1, verts2],
+                        [tf.ones((2, 3)), tf.ones((2, 3))])
 
     expected_result1 = tf.constant([[6.], [8.], [11.], [13.]])
     expected_result2 = tf.constant([[6.], [8.], [15.], [15.]])

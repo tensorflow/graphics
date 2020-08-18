@@ -15,7 +15,7 @@
 
 import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.structures import mesh
+from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 from tensorflow_graphics.util import shape
 
 
@@ -64,9 +64,11 @@ def cubify(voxel_grid, threshold=0.5):
     `V`: The number of vertices.
     `C`: The number of channels in the input data.
     `N`: Batch dimension
-    `D`: depth of input space
-    `W`: width of input space
-    `H`: height of input space
+    `D`: depth of input space (representing z coordinates)
+    `W`: width of input space (representing x coordinates)
+    `H`: height of input space (representing y coordinates)
+
+    The coordinates assume a Y-up convention.
 
   Args:
     voxel_grid: flaot32 tensor of shape `[N, D, H, W]` containing the voxel
@@ -121,7 +123,7 @@ def cubify(voxel_grid, threshold=0.5):
   voxel_thresholded = tf.cast(voxel_mask, tf.float32)
 
   if tf.reduce_all(tf.math.logical_not(voxel_mask)):
-    return mesh.Meshes([], [])
+    return Meshes([], [])
 
   # add channel dimension for convolutions, shape is (N, D, H, W, C)
   voxel_thresholded = tf.expand_dims(voxel_thresholded, axis=-1)
@@ -206,7 +208,7 @@ def cubify(voxel_grid, threshold=0.5):
   nyxz = tf.transpose(tf.unravel_index(linear_index[:, 0], (N, H, W, D)))
 
   if len(nyxz) == 0:
-    return mesh.Meshes([], [])
+    return Meshes([], [])
 
   faces = tf.gather(unit_cube_faces, linear_index[:, 1], axis=None)
 
@@ -257,4 +259,4 @@ def cubify(voxel_grid, threshold=0.5):
   faces_list = [face_batch - tf.gather(idle_n[n], face_batch, axis=0) for
                 n, face_batch in enumerate(faces_list)]
 
-  return mesh.Meshes(verts_list, faces_list)
+  return Meshes(verts_list, faces_list)
