@@ -197,5 +197,5 @@ class CubifyTest(test_case.TestCase):
     self.assertAllClose(expected_sphere_vertices, vertices[0])
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   test_case.main()

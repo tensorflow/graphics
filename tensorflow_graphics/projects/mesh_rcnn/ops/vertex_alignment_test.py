@@ -111,5 +111,5 @@ class VertAlignTest(test_case.TestCase):
     self.assertAllClose(expected_result1, result[0])
     self.assertAllClose(expected_result2, result[1])
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   test_case.main()

@@ -72,5 +72,5 @@ class PaddingTest(test_case.TestCase):
     self.assertAllEqual(expected_result, result)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
   test_case.main()
