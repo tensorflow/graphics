@@ -24,9 +24,9 @@ def _ravel_index(index, dims):
   Computes a linear index in an array of shape dims.
   Reverse functionality of tf.unravel_index.
   Args:
-    index: A Tensor with each row corresponding to indices into an array
-    of dimension dims.
-    dims: The shape of the array to be indexed.
+    index: An int Tensor of shape `[N, 3]`, where each row corresponds to an
+      index into an array of dimension `dims`.
+    dims: An int tensor of shape `[3,]` denoting shape of array to be indexed.
 
   Note:
 
@@ -60,20 +60,20 @@ def cubify(voxel_grid, threshold=0.5):
   merged, and shared interior faces are eliminated. This results in a
   watertight mesh whose topology depends on the voxel occupancy probabilities.
 
-  The shorthands used below and in the code are
+  The shorthands used below are
     `V`: The number of vertices.
     `C`: The number of channels in the input data.
-    `batch_size`: Batch dimension
-    `depth`: depth of input space (representing z coordinates)
-    `width`: width of input space (representing x coordinates)
-    `height`: height of input space (representing y coordinates)
+    `N`: Batch dimension
+    `D`: depth of input space (representing z coordinates)
+    `W`: width of input space (representing x coordinates)
+    `H`: height of input space (representing y coordinates)
 
     The coordinates assume a Y-up convention.
 
   Args:
-    voxel_grid: flaot32 tensor of shape `[batch_size, depth, height, width]` containing the voxel
+    voxel_grid: A float32 tensor of shape `[N, D, H, W]` containing the voxel
       occupancy probabilities.
-    threshold: float32 denoting the threshold above which a voxel is
+    threshold: A float32 scalar denoting the threshold above which a voxel is
       considered occupied. Defaults to 0.5.
 
   Returns:
@@ -182,8 +182,8 @@ def cubify(voxel_grid, threshold=0.5):
                         tf.range(height + 1),
                         tf.range(depth + 1))
 
-  # alignment, so that the top left corner of each cuboid corresponds to the
-  # pixel coordinate of the input grid.
+  # align the top left corner of each cuboid to the pixel coordinate of the
+  # input grid.
   x = x * 2 / (width - 1) - 1.0
   y = y * 2 / (height - 1) - 1.0
   z = z * 2 / (depth - 1) - 1.0
