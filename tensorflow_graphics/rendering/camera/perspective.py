@@ -224,7 +224,7 @@ def intrinsics_from_matrix(matrix, name=None):
     skew = matrix[..., 0, 1]
     focal = tf.stack((fx, fy), axis=-1)
     principal_point = tf.stack((cx, cy), axis=-1)
-    skew = tf.expand_dims(skew, axis=0)
+    skew = tf.expand_dims(skew, axis=-1)
     return focal, principal_point, skew
 
 
