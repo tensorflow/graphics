@@ -125,59 +125,16 @@ def cubify(voxel_grid, threshold=0.5):
   if tf.reduce_all(tf.math.logical_not(voxel_mask)):
     return Meshes([], [])
 
-  # add channel dimension for convolutions, shape is (N, D, H, W, C)
-  voxel_thresholded = tf.expand_dims(voxel_thresholded, axis=-1)
-
   kernel_x = tf.constant([.5, .5], shape=(1, 1, 2, 1, 1), dtype=tf.float32)
   kernel_y = tf.constant([.5, .5], shape=(1, 2, 1, 1, 1), dtype=tf.float32)
   kernel_z = tf.constant([.5, .5], shape=(2, 1, 1, 1, 1), dtype=tf.float32)
 
-  # build filters for masks indicating whether the neighboring voxel is occupied.
-  voxel_thresholded_x = tf.cast(
-      tf.math.greater(
-          tf.nn.conv3d(voxel_thresholded, kernel_x, strides=[1] * 5,
-                       padding="VALID"),
-          0.5),
-      tf.float32)
-
-  voxel_thresholded_y = tf.cast(
-      tf.math.greater(
-          tf.nn.conv3d(voxel_thresholded, kernel_y, strides=[1] * 5,
-                       padding="VALID"),
-          0.5),
-      tf.float32)
-
-  voxel_thresholded_z = tf.cast(
-      tf.math.greater(
-          tf.nn.conv3d(voxel_thresholded, kernel_z, strides=[1] * 5,
-                       padding="VALID"),
-          0.5),
-      tf.float32)
-
-  voxel_thresholded_x = tf.reshape(voxel_thresholded_x,
-                                   shape=[N, 1, D, H, W - 1])
-  voxel_thresholded_y = tf.reshape(voxel_thresholded_y,
-                                   shape=[N, 1, D, H - 1, W])
-  voxel_thresholded_z = tf.reshape(voxel_thresholded_z,
-                                   shape=[N, 1, D - 1, H, W])
-
-  # create masks in x directions (along dimension W)
-  x_left_faces = tf.concat([tf.ones((N, 1, D, H, 1), dtype=tf.float32),
-                            1 - voxel_thresholded_x], -1)
-  x_right_faces = tf.concat([1 - voxel_thresholded_x,
-                             tf.ones((N, 1, D, H, 1), dtype=tf.float32)], -1)
-
-  # create masks in y directions (along dimension H)
-  y_bottom_faces = tf.concat([1 - voxel_thresholded_y,
-                              tf.ones((N, 1, D, 1, W), dtype=tf.float32)], -2)
-  y_top_faces = tf.concat([tf.ones((N, 1, D, 1, W), dtype=tf.float32),
-                           1 - voxel_thresholded_y], -2)
-
-  # create masks in z directions (along dimension D)
-  z_front_faces = tf.concat([tf.ones((N, 1, 1, H, W), dtype=tf.float32),
-                             1 - voxel_thresholded_z], -3)
-  z_back_faces = tf.concat([1 - voxel_thresholded_z,
-                            tf.ones((N, 1, 1, H, W), dtype=tf.float32)], -3)
+  x_left_faces, x_right_faces = _create_face_mask(voxel_thresholded, kernel_x,
+                                                  -1)
+  y_top_faces, y_bottom_faces = _create_face_mask(voxel_thresholded, kernel_y,
+                                                  -2)
+  z_front_faces, z_back_faces = _create_face_mask(voxel_thresholded, kernel_z,
+                                                  -3)
 
   faces_indices = [
       x_left_faces,
@@ -194,14 +151,12 @@ def cubify(voxel_grid, threshold=0.5):
       z_back_faces,  # faces 10, 11
   ]
 
-  # 12 x N x 1 x D x H x W
+  # 12 x N x D x H x W
   faces_idx = tf.stack(faces_indices, axis=0)
 
-  faces_idx *= tf.reshape(voxel_thresholded, shape=(N, 1, D, H, W))
-
   # N x H x W x D x 12
-  faces_idx = tf.squeeze(tf.transpose(faces_idx, perm=(1, 2, 4, 5, 3, 0)),
-                         axis=1)
+  faces_idx = tf.transpose(faces_idx, perm=(1, 3, 4, 2, 0))
+
   # (NHWD) x 12
   faces_idx = tf.reshape(faces_idx, shape=(-1, unit_cube_faces.shape[0]))
   linear_index = tf.cast(tf.where(tf.not_equal(faces_idx, 0)), tf.int32)
@@ -260,3 +215,70 @@ def cubify(voxel_grid, threshold=0.5):
                 n, face_batch in enumerate(faces_list)]
 
   return Meshes(verts_list, faces_list)
+
+
+def _create_face_mask(voxel_occupancy_grid, kernel, axis):
+  """
+  Creates face masks along one axis of a voxel occupancy grid. The
+  boundaries of the represented 3D shape are computed using 3D convolutions.
+
+  Example:
+    Consider a 1x2x2 fully occupied voxel grid. After applying this function for
+    dimension -1 (x coordinates), one receives two float32 tensors indicating
+    for each voxel in the grid whether it is a boundary or an inside voxel.
+    Thus, the lower bound along axis -1 (left side) for the foremost layer
+    of voxel looks like:
+    ```
+    [[1., 0.],
+     [1., 0.]]
+    ```
+    And the upper bound (i.e. right side) looks like:
+    ```
+    [[0., 1.],
+     [0., 1.]]
+    ```
+
+  Args:
+    voxel_occupancy_grid: float32 tensor of shape `[N, D, H, W]` representing
+      a voxel occupancy grid.
+    kernel: A Tensor. Must have the same type as input. Shape
+      `[kernel_depth, kernel_height, kernel_width, in_channels,out_channels]`
+    axis: int denoting the axis along which to convolve and extract face masks
+
+  Returns:
+    Two tensors of shape `[N, D, H, W]`. The first tensor represents faces
+    along the lower bound of the specified axis and the second one represents
+    the upper bound. E.g. if axis=-1, the faces are created along dimension W
+    of the tensor, with the first returned tensor containing faces for the left
+    side of all occupied voxels and the second one containing the right side
+    faces.
+  """
+
+  shape.check_static(voxel_occupancy_grid, has_rank=4)
+
+  grid_shape = voxel_occupancy_grid.shape.as_list()
+
+  # add channel dimension for convolutions, shape is (N, D, H, W, C)
+  conv_input = tf.expand_dims(voxel_occupancy_grid, axis=-1)
+  # build filters for masks indicating whether the neighboring voxel is occupied
+  occupancy_mask = tf.cast(
+      tf.math.greater(
+          tf.nn.conv3d(conv_input,
+                       kernel,
+                       strides=[1, 1, 1, 1, 1],
+                       padding="VALID"),
+          0.5),
+      tf.float32)
+
+  grid_shape[axis] -= 1
+  reshaped_occupancy = tf.reshape(tf.squeeze(occupancy_mask), shape=grid_shape)
+  grid_shape[axis] = 1
+  lower_bound = tf.concat([tf.ones(grid_shape, dtype=tf.float32),
+                           1 - reshaped_occupancy], axis)
+
+  upper_bound = tf.concat([1 - reshaped_occupancy,
+                           tf.ones(grid_shape, dtype=tf.float32)], axis)
+
+  lower_bound *= voxel_occupancy_grid
+  upper_bound *= voxel_occupancy_grid
+  return lower_bound, upper_bound
