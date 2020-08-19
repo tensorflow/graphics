@@ -1,0 +1,1 @@
+recursive-include tfg_custom_ops *.so
