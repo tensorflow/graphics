@@ -30,7 +30,7 @@ def _ravel_index(index, dims):
 
   Note:
 
-    The shorthands used below and in the code are
+    The shorthands used below are
       `H`: height of input space
       `W`: width of input space
       `D`: depth of input space
@@ -45,8 +45,8 @@ def _ravel_index(index, dims):
     raise ValueError('Expects a 3-element list')
   if index.shape[1] != 3:
     raise ValueError('Expects an index tensor of shape Nx3')
-  _, W, D = dims  # pylint: disable=invalid-name
-  linear_index = index[:, 0] * W * D + index[:, 1] * D + index[:, 2]
+  _, width, depth = dims  # pylint: disable=invalid-name
+  linear_index = index[:, 0] * width * depth + index[:, 1] * depth + index[:, 2]
   return linear_index
 
 
@@ -63,15 +63,15 @@ def cubify(voxel_grid, threshold=0.5):
   The shorthands used below and in the code are
     `V`: The number of vertices.
     `C`: The number of channels in the input data.
-    `N`: Batch dimension
-    `D`: depth of input space (representing z coordinates)
-    `W`: width of input space (representing x coordinates)
-    `H`: height of input space (representing y coordinates)
+    `batch_size`: Batch dimension
+    `depth`: depth of input space (representing z coordinates)
+    `width`: width of input space (representing x coordinates)
+    `height`: height of input space (representing y coordinates)
 
     The coordinates assume a Y-up convention.
 
   Args:
-    voxel_grid: flaot32 tensor of shape `[N, D, H, W]` containing the voxel
+    voxel_grid: flaot32 tensor of shape `[batch_size, depth, height, width]` containing the voxel
       occupancy probabilities.
     threshold: float32 denoting the threshold above which a voxel is
       considered occupied. Defaults to 0.5.
@@ -85,10 +85,10 @@ def cubify(voxel_grid, threshold=0.5):
   threshold = tf.convert_to_tensor(threshold)
 
   if voxel_grid.shape.rank != 4:
-    raise ValueError('Voxel Occupancy probability grid needs to be a Tensor '
-                     'of Rank 4 with dimension: N, D, H, W.')
+    raise ValueError('Voxel Occupancy probability grid needs to be a Tensor of '
+                     'Rank 4 with dimension: batch_size, depth, height, width.')
 
-  N, D, H, W = voxel_grid.shape  # pylint: disable=invalid-name
+  batch_size, depth, height, width = voxel_grid.shape
   unit_cube_verts = tf.constant(
       [
           [0, 0, 0],
@@ -151,16 +151,16 @@ def cubify(voxel_grid, threshold=0.5):
       z_back_faces,  # faces 10, 11
   ]
 
-  # 12 x N x D x H x W
+  # 12 x batch_size x depth x height x width
   faces_idx = tf.stack(faces_indices, axis=0)
 
-  # N x H x W x D x 12
+  # batch_size x height x width x depth x 12
   faces_idx = tf.transpose(faces_idx, perm=(1, 3, 4, 2, 0))
 
-  # (NHWD) x 12
   faces_idx = tf.reshape(faces_idx, shape=(-1, unit_cube_faces.shape[0]))
   linear_index = tf.cast(tf.where(tf.not_equal(faces_idx, 0)), tf.int32)
-  nyxz = tf.transpose(tf.unravel_index(linear_index[:, 0], (N, H, W, D)))
+  nyxz = tf.transpose(tf.unravel_index(linear_index[:, 0],
+                                       (batch_size, height, width, depth)))
 
   if len(nyxz) == 0:
     return Meshes([], [])
@@ -174,24 +174,26 @@ def cubify(voxel_grid, threshold=0.5):
     permute_idx = tf.constant([1, 0, 2])
     yxz = tf.gather(xyz, permute_idx, axis=1)
     yxz += nyxz[:, 1:]
-    grid_faces.append(_ravel_index(yxz, (H + 1, W + 1, D + 1)))
+    grid_faces.append(_ravel_index(yxz, (height + 1, width + 1, depth + 1)))
 
   grid_faces = tf.stack(grid_faces, axis=1)
 
-  x, y, z = tf.meshgrid(tf.range(W + 1), tf.range(H + 1), tf.range(D + 1))
+  x, y, z = tf.meshgrid(tf.range(width + 1),
+                        tf.range(height + 1),
+                        tf.range(depth + 1))
 
   # alignment, so that the top left corner of each cuboid corresponds to the
   # pixel coordinate of the input grid.
-  x = x * 2 / (W - 1) - 1.0
-  y = y * 2 / (H - 1) - 1.0
-  z = z * 2 / (D - 1) - 1.0
+  x = x * 2 / (width - 1) - 1.0
+  y = y * 2 / (height - 1) - 1.0
+  z = z * 2 / (depth - 1) - 1.0
 
   grid_vertices = tf.reshape(tf.stack((x, y, z), axis=3), shape=(-1, 3))
 
   # prepare filtering / merge of vertices.
   n_vertices = grid_vertices.shape[0]
   grid_faces += tf.reshape(nyxz[:, 0], shape=(-1, 1)) * n_vertices
-  idle_vertices = tf.ones(n_vertices * N, dtype=tf.int32)
+  idle_vertices = tf.ones(n_vertices * batch_size, dtype=tf.int32)
   mask_indices, _ = tf.unique(tf.reshape(grid_faces, -1))
   mask_indices = tf.expand_dims(mask_indices, -1)
   idle_vertices = tf.tensor_scatter_nd_update(
@@ -200,15 +202,15 @@ def cubify(voxel_grid, threshold=0.5):
       tf.zeros((mask_indices.shape[0],), dtype=tf.int32)
   )
   grid_faces -= tf.reshape(nyxz[:, 0], shape=(-1, 1)) * n_vertices
-  split_size = tf.math.bincount(nyxz[:, 0], minlength=N)
+  split_size = tf.math.bincount(nyxz[:, 0], minlength=batch_size)
   faces_list = list(tf.split(grid_faces, split_size.numpy().tolist(), 0))
-  idle_vertices = tf.reshape(idle_vertices, (N, n_vertices))
+  idle_vertices = tf.reshape(idle_vertices, (batch_size, n_vertices))
   idle_n = tf.math.cumsum(idle_vertices, axis=1)
 
   verts_list = [
       tf.gather(grid_vertices,
                 tf.where((idle_vertices[n] == 0))[:, 0], axis=0) for n in
-      range(N)
+      range(batch_size)
   ]
 
   faces_list = [face_batch - tf.gather(idle_n[n], face_batch, axis=0) for
