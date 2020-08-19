@@ -115,3 +115,6 @@ class MeshTest(test_case.TestCase):
     with self.assertRaises(ValueError):
       _ = mesh.Meshes([tf.constant([], dtype=tf.float32)],
                       [tf.constant([], dtype=tf.float32)])
+
+if __name__ == "__main__":
+  test_case.main()

@@ -15,8 +15,7 @@
 
 import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.util.padding import \
-  pad_list
+from tensorflow_graphics.projects.mesh_rcnn.util.padding import pad_list
 from tensorflow_graphics.util import test_case
 
 
@@ -71,3 +70,7 @@ class PaddingTest(test_case.TestCase):
 
     self.assertEqual(expected_result.shape, result.shape)
     self.assertAllEqual(expected_result, result)
+
+
+if __name__ == "__main__":
+  test_case.main()

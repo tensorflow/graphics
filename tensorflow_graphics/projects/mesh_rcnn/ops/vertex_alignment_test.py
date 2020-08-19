@@ -17,8 +17,7 @@ Test cases for vert align Op.
 
 import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.ops.vertex_alignment import \
-  vert_align
+from tensorflow_graphics.projects.mesh_rcnn.ops.vertex_alignment import vert_align
 from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 from tensorflow_graphics.util import test_case
 
@@ -111,3 +110,6 @@ class VertAlignTest(test_case.TestCase):
 
     self.assertAllClose(expected_result1, result[0])
     self.assertAllClose(expected_result2, result[1])
+
+if __name__ == "__main__":
+  test_case.main()

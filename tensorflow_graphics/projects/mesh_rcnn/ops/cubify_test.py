@@ -22,21 +22,24 @@ from tensorflow_graphics.projects.mesh_rcnn.ops.cubify import cubify
 from tensorflow_graphics.util import test_case
 
 
-class CufifyTest(test_case.TestCase):
+class CubifyTest(test_case.TestCase):
   """Test Cases for cubify op."""
 
   def test_all_below_threshold(self):
     """All voxel occupancy probabilities below threshold. Expects empty mesh."""
-    N, V = 32, 16  # pylint: disable=invalid-name
-    voxels = tf.random.uniform((N, V, V, V), 0, 0.5, tf.float32)
+    batch_size, num_voxels = 32, 16
+    voxels = tf.random.uniform((batch_size, num_voxels, num_voxels, num_voxels),
+                               0,
+                               0.5,
+                               tf.float32)
     mesh = cubify(voxels, threshold=0.7)
     vertices, faces = mesh.get_unpadded()
     self.assertEmpty(vertices[0])
     self.assertEmpty(faces[0])
 
   def test_cubify_on_cube(self):
-    """Test cubify on arbitrary cubes."""
-    V = 2  # pylint: disable=invalid-name
+    """Test cubify on a batch of 2 predefined voxel grids."""
+    num_voxels = 2
 
     # top left corner in front plane is 1, everything else empty
     one_voxel = tf.constant([[[1., 0.],
@@ -44,7 +47,7 @@ class CufifyTest(test_case.TestCase):
                              [[0., 0.],
                               [0., 0.]]],
                             dtype=tf.float32)
-    full_cube = tf.ones((V, V, V), dtype=tf.float32)
+    full_cube = tf.ones((num_voxels, num_voxels, num_voxels), dtype=tf.float32)
 
     test_data = tf.stack([one_voxel, full_cube])
 
@@ -192,3 +195,7 @@ class CufifyTest(test_case.TestCase):
     vertices, faces = mesh.get_unpadded()
     self.assertAllClose(expected_sphere_faces, faces[0])
     self.assertAllClose(expected_sphere_vertices, vertices[0])
+
+
+if __name__ == "__main__":
+  test_case.main()
