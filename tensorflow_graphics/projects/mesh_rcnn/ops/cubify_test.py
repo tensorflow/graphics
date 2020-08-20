@@ -196,6 +196,27 @@ class CubifyTest(test_case.TestCase):
     self.assertAllClose(expected_sphere_faces, faces[0])
     self.assertAllClose(expected_sphere_vertices, vertices[0])
 
+  def test_no_batch_dimensions(self):
+    """Tests cubify on input voxel grid of shape `[2, 2, 2]` with random
+    values."""
+
+    voxel_grid = tf.random.uniform((2, 2, 2), 0, 1)
+
+    meshes = cubify(voxel_grid, 0.0)
+
+    self.assertEqual([1, 26, 3], meshes.get_padded()[0].shape)
+    self.assertEqual([1, 48, 3], meshes.get_padded()[1].shape)
+
+  def test_multiple_batch_dimensions(self):
+    """Tests cubify on input voxel grid of shape `[2, 3, 2, 2, 2]` with random
+    values."""
+
+    voxel_grid = tf.random.uniform((2, 3, 2, 2, 2), 0, 1)
+    meshes = cubify(voxel_grid, 0.0)
+
+    self.assertEqual([2, 3, 26, 3], meshes.get_padded()[0].shape)
+    self.assertEqual([2, 3, 48, 3], meshes.get_padded()[1].shape)
+
 
 if __name__ == '__main__':
   test_case.main()

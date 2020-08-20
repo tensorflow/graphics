@@ -62,8 +62,7 @@ def cubify(voxel_grid, threshold=0.5):
 
   The shorthands used below are
     `V`: The number of vertices.
-    `C`: The number of channels in the input data.
-    `N`: Batch dimension
+    `[A1, ..., An]`: optional batch dimensions
     `D`: depth of input space (representing z coordinates)
     `W`: width of input space (representing x coordinates)
     `H`: height of input space (representing y coordinates)
@@ -71,8 +70,8 @@ def cubify(voxel_grid, threshold=0.5):
     The coordinates assume a Y-up convention.
 
   Args:
-    voxel_grid: A float32 tensor of shape `[N, D, H, W]` containing the voxel
-      occupancy probabilities.
+    voxel_grid: A float32 tensor of shape `[A1, ..., An, D, H, W]` containing
+      the voxel occupancy probabilities.
     threshold: A float32 scalar denoting the threshold above which a voxel is
       considered occupied. Defaults to 0.5.
 
@@ -84,9 +83,18 @@ def cubify(voxel_grid, threshold=0.5):
   voxel_grid = tf.convert_to_tensor(voxel_grid)
   threshold = tf.convert_to_tensor(threshold)
 
-  if voxel_grid.shape.rank != 4:
-    raise ValueError('Voxel Occupancy probability grid needs to be a Tensor of '
-                     'Rank 4 with dimension: batch_size, depth, height, width.')
+  shape.check_static(voxel_grid,
+                     has_rank_greater_than=2,
+                     tensor_name='voxel_grid')
+  shape.check_static(threshold,
+                     has_rank=0,
+                     tensor_name='threshold')
+
+  batch_sizes = voxel_grid.shape[:-3].as_list()
+  if len(batch_sizes) == 0:
+    batch_sizes = None
+  # N x D x H x W.
+  voxel_grid = tf.reshape(voxel_grid, [-1] + voxel_grid.shape[-3:].as_list())
 
   batch_size, depth, height, width = voxel_grid.shape
   unit_cube_verts = tf.constant(
@@ -162,9 +170,6 @@ def cubify(voxel_grid, threshold=0.5):
   nyxz = tf.transpose(tf.unravel_index(linear_index[:, 0],
                                        (batch_size, height, width, depth)))
 
-  print(tf.reduce_max(nyxz))
-  # print(linear_index)
-
   if len(nyxz) == 0:
     return Meshes([], [])
 
@@ -225,7 +230,7 @@ def cubify(voxel_grid, threshold=0.5):
   faces_list = [face_batch - tf.gather(idle_n[n], face_batch, axis=0) for
                 n, face_batch in enumerate(faces_list)]
 
-  return Meshes(verts_list, faces_list)
+  return Meshes(verts_list, faces_list, batch_sizes)
 
 
 def _create_face_mask(voxel_occupancy_grid, kernel, axis):
