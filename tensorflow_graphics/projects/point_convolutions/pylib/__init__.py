@@ -11,5 +11,5 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific
 
-from tensorflow_graphics.projects.point_convolutions.pylib import pc
-from tensorflow_graphics.projects.point_convolutions.pylib import io
+from pylib import pc
+from pylib import io

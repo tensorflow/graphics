@@ -15,7 +15,7 @@
 
 import tensorflow as tf
 from tensorflow_graphics.geometry.convolution.utils import flatten_batch_to_2d
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud
+from pylib.pc import PointCloud
 
 
 def check_valid_point_cloud_input(points, sizes, batch_ids):

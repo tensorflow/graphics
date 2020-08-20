@@ -36,10 +36,10 @@ Attributes:
 import enum
 import tensorflow as tf
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import Grid
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.custom_ops import find_neighbors, compute_pdf
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.utils import cast_to_num_dims
+from pylib.pc import PointCloud
+from pylib.pc import Grid
+from pylib.pc.custom_ops import find_neighbors, compute_pdf
+from pylib.pc.utils import cast_to_num_dims
 
 
 class KDEMode(enum.Enum):

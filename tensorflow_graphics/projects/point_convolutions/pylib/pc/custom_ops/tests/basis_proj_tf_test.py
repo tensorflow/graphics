@@ -19,10 +19,10 @@ import tensorflow as tf
 from absl.testing import parameterized
 from tensorflow_graphics.util import test_case
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud, Grid, Neighborhood, AABB
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.tests import utils
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.layers import MCConv
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.custom_ops.custom_ops_tf import basis_proj_tf
+from pylib.pc import PointCloud, Grid, Neighborhood, AABB
+from pylib.pc.tests import utils
+from pylib.pc.layers import MCConv
+from pylib.pc.custom_ops.custom_ops_tf import basis_proj_tf
 
 
 class BasisProjTFTest(test_case.TestCase):

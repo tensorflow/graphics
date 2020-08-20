@@ -19,9 +19,9 @@ import tensorflow as tf
 from absl.testing import parameterized
 from tensorflow_graphics.util import test_case
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud, Grid, Neighborhood, KDEMode, AABB
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.tests import utils
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.layers import KPConv
+from pylib.pc import PointCloud, Grid, Neighborhood, KDEMode, AABB
+from pylib.pc.tests import utils
+from pylib.pc.layers import KPConv
 
 
 class KPConvTest(test_case.TestCase):

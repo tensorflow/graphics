@@ -17,10 +17,10 @@ import tensorflow as tf
 from absl.testing import parameterized
 from tensorflow_graphics.util import test_case
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.tests import utils
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.custom_ops.custom_ops_tf import build_grid_ds_tf
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.custom_ops import compute_keys
+from pylib.pc import PointCloud
+from pylib.pc.tests import utils
+from pylib.pc.custom_ops.custom_ops_tf import build_grid_ds_tf
+from pylib.pc.custom_ops import compute_keys
 
 
 class BuildGridDSTF(test_case.TestCase):

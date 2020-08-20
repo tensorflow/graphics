@@ -14,10 +14,10 @@
 """Class to represent point cloud 1x1 convolution"""
 
 import tensorflow as tf
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.utils import _flatten_features
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.layers.utils import _format_output
+from pylib.pc.utils import _flatten_features
+from pylib.pc.layers.utils import _format_output
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud
+from pylib.pc import PointCloud
 
 
 class Conv1x1:

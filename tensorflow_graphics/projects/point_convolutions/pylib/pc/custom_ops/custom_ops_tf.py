@@ -15,7 +15,7 @@
 
 import tensorflow as tf
 import numpy as np
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud, Grid
+from pylib.pc import PointCloud, Grid
 
 
 def compute_keys_tf(point_cloud: PointCloud, num_cells, cell_size, name=None):

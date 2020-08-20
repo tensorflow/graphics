@@ -16,13 +16,13 @@
 import numpy as np
 import tensorflow as tf
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.utils import check_valid_point_hierarchy_input
+from pylib.pc.utils import check_valid_point_hierarchy_input
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import Grid
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import Neighborhood
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import sample
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.utils import cast_to_num_dims
+from pylib.pc import PointCloud
+from pylib.pc import Grid
+from pylib.pc import Neighborhood
+from pylib.pc import sample
+from pylib.pc.utils import cast_to_num_dims
 
 
 class PointHierarchy:

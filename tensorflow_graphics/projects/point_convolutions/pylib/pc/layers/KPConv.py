@@ -14,15 +14,15 @@
 """Class for kernel point cloud convolutions"""
 
 import tensorflow as tf
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.utils import _flatten_features
+from pylib.pc.utils import _flatten_features
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import Grid
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import Neighborhood
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import KDEMode
+from pylib.pc import PointCloud
+from pylib.pc import Grid
+from pylib.pc import Neighborhood
+from pylib.pc import KDEMode
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.custom_ops import basis_proj
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.layers.utils import _format_output, spherical_kernel_points, \
+from pylib.pc.custom_ops import basis_proj
+from pylib.pc.layers.utils import _format_output, spherical_kernel_points, \
     random_rotation
 
 

@@ -14,16 +14,16 @@
 """Classes for network blocks"""
 
 import tensorflow as tf
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.utils import _flatten_features
+from pylib.pc.utils import _flatten_features
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import Grid
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import Neighborhood
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import KDEMode
+from pylib.pc import PointCloud
+from pylib.pc import Grid
+from pylib.pc import Neighborhood
+from pylib.pc import KDEMode
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.layers import MCConv, KPConv, Conv1x1, PointConv
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.layers.utils import _format_output
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.layers.utils import _identity
+from pylib.pc.layers import MCConv, KPConv, Conv1x1, PointConv
+from pylib.pc.layers.utils import _format_output
+from pylib.pc.layers.utils import _identity
 
 layer_types = {'mcconv': MCConv,
                'mc': MCConv,

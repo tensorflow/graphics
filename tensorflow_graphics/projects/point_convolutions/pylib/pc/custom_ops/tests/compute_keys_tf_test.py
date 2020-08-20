@@ -17,9 +17,9 @@ import tensorflow as tf
 from absl.testing import parameterized
 from tensorflow_graphics.util import test_case
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.tests import utils
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.custom_ops.custom_ops_tf import compute_keys_tf
+from pylib.pc import PointCloud
+from pylib.pc.tests import utils
+from pylib.pc.custom_ops.custom_ops_tf import compute_keys_tf
 
 
 class ComputeKeysTF(test_case.TestCase):

@@ -13,8 +13,8 @@
 # limitations under the License.
 import tensorflow as tf
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.custom_ops import compute_keys, build_grid_ds
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud, AABB
+from pylib.pc.custom_ops import compute_keys, build_grid_ds
+from pylib.pc import PointCloud, AABB
 
 
 class Grid:

@@ -17,10 +17,10 @@ import tensorflow as tf
 from absl.testing import parameterized
 from tensorflow_graphics.util import test_case
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud, Grid
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.tests import utils
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.custom_ops.custom_ops_tf import find_neighbors_tf
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.custom_ops.custom_ops_tf import find_neighbors_no_grid
+from pylib.pc import PointCloud, Grid
+from pylib.pc.tests import utils
+from pylib.pc.custom_ops.custom_ops_tf import find_neighbors_tf
+from pylib.pc.custom_ops.custom_ops_tf import find_neighbors_no_grid
 
 
 class FindNeighborsTF(test_case.TestCase):

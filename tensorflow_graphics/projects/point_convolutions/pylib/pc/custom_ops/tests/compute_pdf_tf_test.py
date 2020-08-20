@@ -20,12 +20,12 @@ import tensorflow as tf
 from absl.testing import parameterized
 from tensorflow_graphics.util import test_case
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import PointCloud
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import Grid
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import KDEMode
-from tensorflow_graphics.projects.point_convolutions.pylib.pc import Neighborhood
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.custom_ops.custom_ops_tf import compute_pdf_tf
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.tests import utils
+from pylib.pc import PointCloud
+from pylib.pc import Grid
+from pylib.pc import KDEMode
+from pylib.pc import Neighborhood
+from pylib.pc.custom_ops.custom_ops_tf import compute_pdf_tf
+from pylib.pc.tests import utils
 
 
 class ComputePDFTFTest(test_case.TestCase):

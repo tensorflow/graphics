@@ -17,7 +17,7 @@ import tensorflow as tf
 from tensorflow_graphics.geometry.convolution.utils import \
     flatten_batch_to_2d, unflatten_2d_to_batch
 
-from tensorflow_graphics.projects.point_convolutions.pylib.pc.utils import check_valid_point_cloud_input
+from pylib.pc.utils import check_valid_point_cloud_input
 
 
 class _AABB:
