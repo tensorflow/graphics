@@ -15,7 +15,7 @@
 
 import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.structures import mesh
+from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 from tensorflow_graphics.util import test_case
 
 
@@ -54,7 +54,7 @@ class MeshTest(test_case.TestCase):
         dtype=tf.int32
     )
 
-    unit_cube_mesh = mesh.Meshes([unit_cube_verts], [unit_cube_faces])
+    unit_cube_mesh = Meshes([unit_cube_verts], [unit_cube_faces])
 
     expected_flat_vertices = tf.reshape(unit_cube_verts, (-1, 3))
     expected_flat_faces = tf.reshape(unit_cube_faces, (-1, 3))
@@ -84,7 +84,7 @@ class MeshTest(test_case.TestCase):
     vertices = [long_verts, short_verts]
     faces = [long_faces, short_faces]
 
-    meshes = mesh.Meshes(vertices, faces)
+    meshes = Meshes(vertices, faces)
 
     padded_short_verts = tf.pad(short_verts, [[0, 4], [0, 0]], 'CONSTANT', 0)
     padded_short_faces = tf.pad(short_faces, [[0, 4], [0, 0]], 'CONSTANT', 0)
@@ -113,8 +113,42 @@ class MeshTest(test_case.TestCase):
     """Tests implementation with empty meshes."""
 
     with self.assertRaises(ValueError):
-      _ = mesh.Meshes([tf.constant([], dtype=tf.float32)],
+      _ = Meshes([tf.constant([], dtype=tf.float32)],
                       [tf.constant([], dtype=tf.float32)])
+
+
+  def test_multiple_batch_dimensions(self):
+    """Tests implementation with multiple batch dimensions containing meshes of
+    different size and one empty mesh."""
+
+    verts1 = tf.constant([[0, 0, 0], [1, 0, 0], [1, 1, 0]], dtype=tf.float32)
+    faces1 = tf.constant([[0, 1, 2]], dtype=tf.int32)
+
+    verts2 = tf.constant([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]],
+                         dtype=tf.float32)
+    faces2 = tf.constant([[0, 1, 2], [0, 2, 3]], dtype=tf.int32)
+
+    verts3 = tf.constant([[0, 0, 0], [1, 1, 0], [1, -1, 0], [-1, -1, 0], [-1, 1, 0]],
+                         dtype=tf.float32)
+    faces3 = tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]], dtype=tf.int32)
+
+    verts4, faces4 = tf.zeros((0, 3)), tf.zeros((0, 3), dtype=tf.int32)
+
+    vertices = [verts1, verts2, verts3, verts4]
+    faces = [faces1, faces2, faces3, faces4]
+
+    meshes = Meshes(vertices, faces, batch_sizes=[4, 1])
+
+    expected_verts_shape_padded = [4, 1, 5, 3]
+    expected_faces_shape_padded = [4, 1, 4, 3]
+    expected_verts_shape_flat = [sum(len(v) for v in vertices), 3]
+    expected_faces_shape_flat = [sum(len(f) for f in faces), 3]
+
+    self.assertEqual(expected_verts_shape_padded, meshes.get_padded()[0].shape)
+    self.assertEqual(expected_faces_shape_padded, meshes.get_padded()[1].shape)
+    self.assertEqual(expected_verts_shape_flat, meshes.get_flattened()[0].shape)
+    self.assertEqual(expected_faces_shape_flat, meshes.get_flattened()[1].shape)
+
 
 if __name__ == '__main__':
   test_case.main()

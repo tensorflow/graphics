@@ -22,26 +22,62 @@ from tensorflow_graphics.projects.mesh_rcnn.util import padding
 class Meshes:
   """Wrapper for batching of Meshes with unequal size."""
 
-  def __init__(self, vertices, faces):
+  def __init__(self, vertices, faces, batch_sizes=None):
     """
-    Contstructs the wrapper object from lists of multiple vertices and faces.
+    Contstructs the wrapper object from nested lists of multiple vertices and
+    faces.
 
-    Vertices and faces are padded and packed into a single tensor each.
+    Internally, vertices and faces are padded and packed into a single 2D
+    tensor. The object provides accessors for different representations, including:
+
+    * List: List of all unpadded vertices and faces tensors. This is intended as
+        input format only. However, it is possible to retrieve a flat list of
+        all vertices and faces tensor via `get_unpadded()` function.
+    * Padded: Tensor of shape `[A1, ..., An, max(N), 3]`, where max(N) is the
+        size of the largest vertex or face list in all batch dimensions. All
+        other vertex/face tensors get padded to this size.
+    * Flattened: 2D tensor of shape `[sum(N1, ..., Nn), 3]`, where N1, ..., Nn
+        are the sizes of every vertex or face list in this batch.
+
+    Note:
+      This implementation supports arbitrary batch dimensions by passing in the
+      batch shapes in `batch_sizes`. The vertex and face lists must be flattened
+      and reshapeable to the shape defined in `batch_sizes`. E.g. consider the
+      case where 4 different meshes are to be stored in a Meshes object, the
+      batched shape could be `[2, 2]`, `[4, 1]` or [`1, 4`]. In other words, the
+      product over all entries in `batch_sizes` must be equal to the number of
+      vertices and faces provided in the constructor.
 
     Args:
-      vertices: list with N float32 tensors of shape `[V, 3]` containing the
+      vertices: List with N float32 tensors of shape `[V, 3]` containing the
         mesh vertices, or empty list.
-      faces: list with N float32 tensors of shape `[F, 3]` containing the mesh
+      faces: List with N float32 tensors of shape `[F, 3]` containing the mesh
         faces, or empty list.
+      batch_sizes: Optinal list of ints indicating the size of each batch
+        dimension for the meshes or None, if there is only one batch
+        dimension.
     """
-    if len(vertices) != len(faces):
-      raise ValueError('Need as many face-lists as vertex-lists.')
+    if batch_sizes is not None:
+      batch_sizes = tf.convert_to_tensor(batch_sizes)
+      #batch_sizes = None if tf.size(batch_sizes) == 1 else batch_sizes
+
+    self._check_valid_input(vertices, faces, batch_sizes)
 
     self.is_empty = len(vertices) == 0
 
     if not self.is_empty:
-      vertices, self.vertex_sizes = padding.pad_list(vertices)
-      faces, self.face_sizes = padding.pad_list(faces)
+      vertices, flat_vertex_sizes = padding.pad_list(vertices)
+      faces, flat_face_sizes = padding.pad_list(faces)
+
+      if batch_sizes is not None:
+        vert_shape = tf.concat([batch_sizes, vertices.shape[1:]], 0)
+        face_shape = tf.concat([batch_sizes,  faces.shape[1:]], 0)
+
+        vertices = tf.reshape(vertices, vert_shape)
+        faces = tf.reshape(faces, face_shape)
+
+      self.vertex_sizes = tf.reshape(flat_vertex_sizes, batch_sizes)
+      self.face_sizes = tf.reshape(flat_face_sizes, batch_sizes)
 
       self.vertices, self._unfold_vertices = utils.flatten_batch_to_2d(
           vertices, sizes=self.vertex_sizes)
@@ -83,7 +119,7 @@ class Meshes:
 
   def get_unpadded(self):
     """
-    Unpads und unstacks all vertices and faces and returns them as lists.
+    Unpads und unstacks all vertices and faces and returns them as a flat list.
 
     Returns:
       A list of N vertex tensors of shape `[V',3]`.
@@ -93,8 +129,36 @@ class Meshes:
     if tf.rank(vertices) < 3:
       return [vertices], [faces]
 
-    vertices = [vertex[:self.vertex_sizes[i]] for i, vertex in
+    vertices = tf.reshape(vertices, (-1, 3))
+    faces = tf.reshape(faces, (-1, 3))
+    vertex_sizes = tf.reshape(self.vertex_sizes, (-1))
+    face_sizes = tf.reshape(self.face_sizes, (-1))
+    vertices = [vertex[:vertex_sizes[i]] for i, vertex in
                 enumerate(vertices)]
-    faces = [face[:self.face_sizes[i]] for i, face in enumerate(faces)]
+    faces = [face[:face_sizes[i]] for i, face in enumerate(faces)]
 
     return vertices, faces
+
+  def _check_valid_input(self, vertices, faces, batch_sizes):
+    """
+    Checks if the provided input is valid.
+
+    Args:
+      vertices: List of vertices provided in constructor
+      faces: List of faces provided in constructor
+      batch_sizes: List of tuple of ints provided in constructor or None
+
+    Raises:
+      ValueError: if the input is not of a valid formtat.
+    """
+    if len(vertices) != len(faces):
+      raise ValueError('Need as many face-lists as vertex-lists.')
+
+    if batch_sizes is not None:
+      if not len(vertices) % tf.reduce_prod(batch_sizes) == 0:
+        raise ValueError(f'vertices list of size {len(vertices)} cannot be '
+                         f'batched to shape {batch_sizes}!')
+
+      if not len(faces) % tf.reduce_prod(batch_sizes) == 0:
+        raise ValueError(f'vertices list of size {len(faces)} cannot be '
+                         f'batched to shape {batch_sizes}!')
