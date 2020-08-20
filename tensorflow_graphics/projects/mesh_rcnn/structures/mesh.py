@@ -33,7 +33,7 @@ class Meshes:
 
     * List: List of all unpadded vertices and faces tensors. This is intended as
         input format only. However, it is possible to retrieve a flat list of
-        all vertices and faces tensor via `get_unpadded()` function.
+        all vertices and faces tensor via `get_unpadded()`.
     * Padded: Tensor of shape `[A1, ..., An, max(N), 3]`, where max(N) is the
         size of the largest vertex or face list in all batch dimensions. All
         other vertex/face tensors get padded to this size.

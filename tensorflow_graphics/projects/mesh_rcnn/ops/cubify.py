@@ -79,6 +79,9 @@ def cubify(voxel_grid, threshold=0.5):
     Watertight mesh whose topology depends on the voxel occupancy probabilities.
     The Meshes are wrapped into an
     `tensorflow_graphics.projects.mesh_rcnn.structures.mesh.Meshes` object.
+
+  Raises:
+    ValueError: if input is of rank <= 2 or threshold is not a scalar.
   """
   voxel_grid = tf.convert_to_tensor(voxel_grid)
   threshold = tf.convert_to_tensor(threshold)

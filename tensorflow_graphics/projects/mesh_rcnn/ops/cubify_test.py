@@ -217,6 +217,22 @@ class CubifyTest(test_case.TestCase):
     self.assertEqual([2, 3, 26, 3], meshes.get_padded()[0].shape)
     self.assertEqual([2, 3, 48, 3], meshes.get_padded()[1].shape)
 
+  def test_raises_on_invalid_input(self):
+    """Tests cubify with invalid input and checks if the right exceptions are
+    raised."""
+
+    wrong_input_rank = tf.random.uniform((4, 4), 0, 1)
+    correct_input_rank = tf.random.uniform((4, 4, 4), 0, 1)
+    wrong_threshold_rank = [0.5, 0.5]
+
+    with self.assertRaisesWithPredicateMatch(
+        ValueError, 'voxel_grid must have a rank greater than 2'):
+      _ = cubify(wrong_input_rank)
+
+    with self.assertRaisesWithPredicateMatch(
+        ValueError, 'threshold must have a rank of 0'):
+      _ = cubify(correct_input_rank, wrong_threshold_rank)
+
 
 if __name__ == '__main__':
   test_case.main()
