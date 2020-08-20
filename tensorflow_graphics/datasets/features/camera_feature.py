@@ -190,3 +190,10 @@ class Camera(features.FeaturesDict):
                        [0, f_y, optical_center[1]],
                        [0, 0, 1]
                        ], dtype=np.float32)
+
+  @classmethod
+  def from_json_content(cls, value) -> 'Camera':
+    return cls()
+
+  def to_json_content(self):
+    return {}
