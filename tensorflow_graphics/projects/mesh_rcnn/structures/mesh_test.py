@@ -13,6 +13,7 @@
 # limitations under the License.
 """Test cases for Mesh wrapper."""
 
+from absl.testing import parameterized
 import tensorflow as tf
 
 from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
@@ -117,7 +118,12 @@ class MeshTest(test_case.TestCase):
                       [tf.constant([], dtype=tf.float32)])
 
 
-  def test_multiple_batch_dimensions(self):
+  @parameterized.parameters(
+      (4, 1),
+      (2, 2),
+      (1, 4)
+  )
+  def test_multiple_batch_dimensions(self, b1, b2):
     """Tests implementation with multiple batch dimensions containing meshes of
     different size and one empty mesh."""
 
@@ -137,10 +143,10 @@ class MeshTest(test_case.TestCase):
     vertices = [verts1, verts2, verts3, verts4]
     faces = [faces1, faces2, faces3, faces4]
 
-    meshes = Meshes(vertices, faces, batch_sizes=[4, 1])
+    meshes = Meshes(vertices, faces, batch_sizes=[b1, b2])
 
-    expected_verts_shape_padded = [4, 1, 5, 3]
-    expected_faces_shape_padded = [4, 1, 4, 3]
+    expected_verts_shape_padded = [b1, b2, 5, 3]
+    expected_faces_shape_padded = [b1, b2, 4, 3]
     expected_verts_shape_flat = [sum(len(v) for v in vertices), 3]
     expected_faces_shape_flat = [sum(len(f) for f in faces), 3]
 
@@ -148,6 +154,8 @@ class MeshTest(test_case.TestCase):
     self.assertEqual(expected_faces_shape_padded, meshes.get_padded()[1].shape)
     self.assertEqual(expected_verts_shape_flat, meshes.get_flattened()[0].shape)
     self.assertEqual(expected_faces_shape_flat, meshes.get_flattened()[1].shape)
+    self.assertEqual(b1*b2, len(meshes.get_unpadded()[0]))
+    self.assertEqual(b1*b2, len(meshes.get_unpadded()[1]))
 
 
 if __name__ == '__main__':

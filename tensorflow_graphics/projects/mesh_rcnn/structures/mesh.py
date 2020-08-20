@@ -59,15 +59,17 @@ class Meshes:
     """
     if batch_sizes is not None:
       batch_sizes = tf.convert_to_tensor(batch_sizes)
-      #batch_sizes = None if tf.size(batch_sizes) == 1 else batch_sizes
+      # Set batch_sizes to None if only single value was provided, since this is
+      # the default behavior.
+      batch_sizes = None if tf.size(batch_sizes) == 1 else batch_sizes
 
     self._check_valid_input(vertices, faces, batch_sizes)
 
     self.is_empty = len(vertices) == 0
 
     if not self.is_empty:
-      vertices, flat_vertex_sizes = padding.pad_list(vertices)
-      faces, flat_face_sizes = padding.pad_list(faces)
+      vertices, vertex_sizes = padding.pad_list(vertices)
+      faces, face_sizes = padding.pad_list(faces)
 
       if batch_sizes is not None:
         vert_shape = tf.concat([batch_sizes, vertices.shape[1:]], 0)
@@ -76,8 +78,11 @@ class Meshes:
         vertices = tf.reshape(vertices, vert_shape)
         faces = tf.reshape(faces, face_shape)
 
-      self.vertex_sizes = tf.reshape(flat_vertex_sizes, batch_sizes)
-      self.face_sizes = tf.reshape(flat_face_sizes, batch_sizes)
+        vertex_sizes = tf.reshape(vertex_sizes, batch_sizes)
+        face_sizes = tf.reshape(face_sizes, batch_sizes)
+
+      self.vertex_sizes = vertex_sizes
+      self.face_sizes = face_sizes
 
       self.vertices, self._unfold_vertices = utils.flatten_batch_to_2d(
           vertices, sizes=self.vertex_sizes)
@@ -126,13 +131,15 @@ class Meshes:
       A list of N face tensors of shape `[F',3]`
     """
     vertices, faces = self.get_padded()
+
     if tf.rank(vertices) < 3:
       return [vertices], [faces]
 
-    vertices = tf.reshape(vertices, (-1, 3))
-    faces = tf.reshape(faces, (-1, 3))
     vertex_sizes = tf.reshape(self.vertex_sizes, (-1))
     face_sizes = tf.reshape(self.face_sizes, (-1))
+
+    vertices = tf.reshape(vertices, [-1] + vertices.shape[-2:].as_list())
+    faces = tf.reshape(faces, [-1] + faces.shape[-2:].as_list())
     vertices = [vertex[:vertex_sizes[i]] for i, vertex in
                 enumerate(vertices)]
     faces = [face[:face_sizes[i]] for i, face in enumerate(faces)]
