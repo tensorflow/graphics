@@ -28,7 +28,8 @@ class Meshes:
     faces.
 
     Internally, vertices and faces are padded and packed into a single 2D
-    tensor. The object provides accessors for different representations, including:
+    tensor. The object provides accessors for different representations,
+    including:
 
     * List: List of all unpadded vertices and faces tensors. This is intended as
         input format only. However, it is possible to retrieve a flat list of
@@ -73,7 +74,7 @@ class Meshes:
 
       if batch_sizes is not None:
         vert_shape = tf.concat([batch_sizes, vertices.shape[1:]], 0)
-        face_shape = tf.concat([batch_sizes,  faces.shape[1:]], 0)
+        face_shape = tf.concat([batch_sizes, faces.shape[1:]], 0)
 
         vertices = tf.reshape(vertices, vert_shape)
         faces = tf.reshape(faces, face_shape)

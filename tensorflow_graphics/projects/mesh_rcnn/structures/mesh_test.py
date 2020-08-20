@@ -115,8 +115,7 @@ class MeshTest(test_case.TestCase):
 
     with self.assertRaises(ValueError):
       _ = Meshes([tf.constant([], dtype=tf.float32)],
-                      [tf.constant([], dtype=tf.float32)])
-
+                 [tf.constant([], dtype=tf.float32)])
 
   @parameterized.parameters(
       (4, 1),
@@ -134,9 +133,11 @@ class MeshTest(test_case.TestCase):
                          dtype=tf.float32)
     faces2 = tf.constant([[0, 1, 2], [0, 2, 3]], dtype=tf.int32)
 
-    verts3 = tf.constant([[0, 0, 0], [1, 1, 0], [1, -1, 0], [-1, -1, 0], [-1, 1, 0]],
-                         dtype=tf.float32)
-    faces3 = tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]], dtype=tf.int32)
+    verts3 = tf.constant(
+        [[0, 0, 0], [1, 1, 0], [1, -1, 0], [-1, -1, 0], [-1, 1, 0]],
+        dtype=tf.float32)
+    faces3 = tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]],
+                         dtype=tf.int32)
 
     verts4, faces4 = tf.zeros((0, 3)), tf.zeros((0, 3), dtype=tf.int32)
 
@@ -154,8 +155,8 @@ class MeshTest(test_case.TestCase):
     self.assertEqual(expected_faces_shape_padded, meshes.get_padded()[1].shape)
     self.assertEqual(expected_verts_shape_flat, meshes.get_flattened()[0].shape)
     self.assertEqual(expected_faces_shape_flat, meshes.get_flattened()[1].shape)
-    self.assertEqual(b1*b2, len(meshes.get_unpadded()[0]))
-    self.assertEqual(b1*b2, len(meshes.get_unpadded()[1]))
+    self.assertEqual(b1 * b2, len(meshes.get_unpadded()[0]))
+    self.assertEqual(b1 * b2, len(meshes.get_unpadded()[1]))
 
 
 if __name__ == '__main__':
