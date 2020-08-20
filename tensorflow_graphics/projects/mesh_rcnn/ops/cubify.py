@@ -162,21 +162,30 @@ def cubify(voxel_grid, threshold=0.5):
   nyxz = tf.transpose(tf.unravel_index(linear_index[:, 0],
                                        (batch_size, height, width, depth)))
 
+  print(tf.reduce_max(nyxz))
+  # print(linear_index)
+
   if len(nyxz) == 0:
     return Meshes([], [])
 
-  faces = tf.gather(unit_cube_faces, linear_index[:, 1], axis=None)
+  unit_cube_faces_per_occupied_voxel = tf.gather(unit_cube_faces,
+                                                 linear_index[:, 1],
+                                                 axis=None)
 
-  # Convert unit cube coordinates to voxel grid coordinates
-  grid_faces = []
-  for d in range(unit_cube_faces.shape[1]):
-    xyz = tf.gather(unit_cube_verts, faces[:, d], axis=None)
+  def _compute_grid_coordinates(face_index):
+    xyz = tf.gather(unit_cube_verts,
+                    face_index,
+                    axis=None)
     permute_idx = tf.constant([1, 0, 2])
     yxz = tf.gather(xyz, permute_idx, axis=1)
     yxz += nyxz[:, 1:]
-    grid_faces.append(_ravel_index(yxz, (height + 1, width + 1, depth + 1)))
+    return _ravel_index(yxz, (height + 1, width + 1, depth + 1))
 
-  grid_faces = tf.stack(grid_faces, axis=1)
+  grid_faces = tf.vectorized_map(_compute_grid_coordinates,
+                                 tf.transpose(
+                                     unit_cube_faces_per_occupied_voxel))
+
+  grid_faces = tf.transpose(grid_faces)
 
   x, y, z = tf.meshgrid(tf.range(width + 1),
                         tf.range(height + 1),
