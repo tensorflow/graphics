@@ -53,7 +53,7 @@ To install it run the following command (replace `VERSION` with your installed T
 
 Check out the Colab notebooks for an introduction to the code
 
-- [Introduction](pylib/notbooks.ipynb)
+- [Introduction](pylib/notebooks/Introduction.ipynb)
 - [Classification on ModelNet40](pylib/notebooks/ModelNet40.ipynb) 
 
 ## Unit tests
