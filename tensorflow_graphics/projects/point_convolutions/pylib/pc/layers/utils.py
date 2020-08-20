@@ -207,13 +207,15 @@ def spherical_kernel_points(num_points, rotate=True, name=None):
                             [-phi, 0, -1]], dtype=tf.float32)
     elif num_points == 15:
       hex1 = _hexagon(0.5, np.sqrt(3) / 2)
-      hex2 = _hexagon(-0.5, np.sqrt(3) / 2)[:,[1, 0, 2]]  # rotated 90 deg in xy
+      # rotated 90 deg in xy
+      hex2 = _hexagon(-0.5, np.sqrt(3) / 2)[:, [1, 0, 2]]
       points = np.concatenate(([[0, 0, 0], [0, 0, 1], [0, 0, -1]], hex1, hex2),
                               axis=0)
       points = tf.Variable(points, dtype=tf.float32)
     elif num_points == 18:
       penta1 = _pentagon(1 / np.sqrt(2), 0.5)
-      penta2 = -_pentagon(1.0, 0.0) # flipped in xy
+      # flipped in xy
+      penta2 = -_pentagon(1.0, 0.0)
       penta3 = _pentagon(-1 / np.sqrt(2), 0.5)
       points = np.concatenate(([[0, 0, 0], [0, 0, 1], [0, 0, -1]],
                                penta1, penta2, penta3),

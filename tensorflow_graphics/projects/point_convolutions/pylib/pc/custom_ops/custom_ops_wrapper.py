@@ -191,7 +191,7 @@ def basis_proj(neigh_basis, features, neighborhood):
 
   Returns:
     A `float` `Tensor` of shape ``[N_out, C, H]`, the weighted latent features.
-    
+
   """
   return tfg_custom_ops.basis_proj(
       neigh_basis,
