@@ -233,6 +233,17 @@ class CubifyTest(test_case.TestCase):
         ValueError, 'threshold must have a rank of 0'):
       _ = cubify(correct_input_rank, wrong_threshold_rank)
 
+  def test_jacobian_random(self):
+    """Tests the Jacobian of the cubify function."""
+    random_voxel_grid = tf.random.uniform((4, 4, 4), 0, 1)
+
+    def cubify_vertices(voxel_grid):
+      mesh = cubify(voxel_grid, 0.5)
+      return mesh.get_flattened()[0]
+
+    self.assert_jacobian_is_correct_fn(cubify_vertices, [random_voxel_grid])
+    self.assert_jacobian_is_finite_fn(cubify_vertices, [random_voxel_grid])
+
 
 if __name__ == '__main__':
   test_case.main()

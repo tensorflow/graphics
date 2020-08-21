@@ -99,8 +99,8 @@ class Meshes:
       A 2D tensor of shape  `[N*F, 3]` containing all padded faces.
     """
     if self.is_empty:
-      vertices = tf.constant([], dtype=tf.float32)
-      faces = tf.constant([], dtype=tf.int32)
+      vertices = tf.zeros([0, 3], dtype=tf.float32)
+      faces = tf.zeros([0, 3], dtype=tf.int32)
     else:
       vertices, faces = self.vertices, self.faces
 
@@ -115,8 +115,8 @@ class Meshes:
 
     """
     if self.is_empty:
-      vertices = tf.constant([], dtype=tf.float32)
-      faces = tf.constant([], dtype=tf.int32)
+      vertices = tf.zeros([0, 3], dtype=tf.float32)
+      faces = tf.zeros([0, 3], dtype=tf.int32)
     else:
       vertices = self._unfold_vertices(self.vertices)
       faces = self._unfold_faces(self.faces)
