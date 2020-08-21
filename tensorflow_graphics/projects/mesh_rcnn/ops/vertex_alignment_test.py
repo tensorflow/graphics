@@ -111,5 +111,18 @@ class VertAlignTest(test_case.TestCase):
     self.assertAllClose(expected_result1, result[0])
     self.assertAllClose(expected_result2, result[1])
 
+
+  def test_multiple_batch_dimensions_random_input(self):
+    """Tests on random input with multiple batch dimenaions"""
+    batch_dim_1 = 2
+    batch_dim_2 = 3
+    features = tf.random.normal((batch_dim_1, batch_dim_2, 5, 5, 3))
+    vertices = tf.random.normal((batch_dim_1, batch_dim_2, 10, 3))
+    intrinsics = tf.random.normal((batch_dim_1, batch_dim_2, 3, 3))
+
+    result = vert_align(features, vertices, intrinsics)
+
+    self.assertEqual([batch_dim_1, batch_dim_2, 10, 3], result.shape)
+
 if __name__ == '__main__':
   test_case.main()
