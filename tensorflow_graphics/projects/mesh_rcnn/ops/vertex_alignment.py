@@ -48,21 +48,22 @@ def _check_vert_align_inputs(features, vertices, intrinsics):
       batch dimensions are different.
 
   """
-  shape.compare_batch_dimensions([features, vertices, intrinsics],
-                                 last_axes=[-4, -3, -3],
-                                 tensor_names=['features', 'vertices', 'intrinsics'],
-                                 broadcast_compatible=False)
   shape.check_static(features,
                      has_rank_greater_than=2,
                      tensor_name='features')
   shape.check_static(vertices,
-                     has_rank_greater_than=1,
                      has_dim_equals=(-1, 3),
                      tensor_name='vertices')
   shape.check_static(intrinsics,
                      has_rank_greater_than=1,
                      has_dim_equals=[(-1, 3), (-2, 3)],
                      tensor_name='intrinsics')
+
+  shape.compare_batch_dimensions([features, vertices, intrinsics],
+                                 last_axes=[-4, -3, -3],
+                                 tensor_names=['features', 'vertices',
+                                               'intrinsics'],
+                                 broadcast_compatible=False)
 
 
 def vert_align(features,
@@ -95,7 +96,8 @@ def vert_align(features,
   flat_vertices = tf.reshape(vertices, [-1] + vertices.shape[-2:].as_list())
   flat_intrinsics = tf.reshape(intrinsics, [-1, 3, 3])
 
-  focal_length = tf.expand_dims(tf.linalg.diag_part(flat_intrinsics)[..., :2], -2)
+  focal_length = tf.expand_dims(tf.linalg.diag_part(flat_intrinsics)[..., :2],
+                                -2)
   principal_point = tf.expand_dims(
       tf.squeeze(tf.gather(flat_intrinsics, [2], axis=-1)[:, :2]), -2)
   projected_vertices = perspective.project(flat_vertices,

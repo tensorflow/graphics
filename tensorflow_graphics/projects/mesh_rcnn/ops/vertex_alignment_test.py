@@ -15,9 +15,11 @@
 Test cases for vert align Op.
 """
 
+from absl.testing import parameterized
 import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.ops.vertex_alignment import vert_align
+from tensorflow_graphics.projects.mesh_rcnn.ops.vertex_alignment import \
+  vert_align
 from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 from tensorflow_graphics.util import test_case
 
@@ -111,7 +113,6 @@ class VertAlignTest(test_case.TestCase):
     self.assertAllClose(expected_result1, result[0])
     self.assertAllClose(expected_result2, result[1])
 
-
   def test_multiple_batch_dimensions_random_input(self):
     """Tests on random input with multiple batch dimenaions"""
     batch_dim_1 = 2
@@ -123,6 +124,39 @@ class VertAlignTest(test_case.TestCase):
     result = vert_align(features, vertices, intrinsics)
 
     self.assertEqual([batch_dim_1, batch_dim_2, 10, 3], result.shape)
+
+  @parameterized.parameters(
+      ([2, 2, 2, 1], [4, 5, 3], [2, 3, 3],
+       'Not all batch dimensions are identical'),
+      ([4, 2, 2, 1], [2, 5, 3], [2, 3, 3],
+       'Not all batch dimensions are identical'),
+      ([2, 2, 2, 1], [2, 5, 3], [4, 3, 3],
+       'Not all batch dimensions are identical'),
+      ([2, 2, 2, 1], [2, 5, 3], [3],
+       'intrinsics must have a rank greater than 1.'),
+      ([2, 2], [2, 5, 3], [2, 3, 3],
+       'features must have a rank greater than 2.'),
+      ([2, 4, 4, 1], [2, 5, 1], [2, 3, 3],
+       'vertices must have exactly 3 dimensions in axis -1'),
+      ([2, 4, 4, 1], [2, 5, 3], [2, 2, 3],
+       'intrinsics must have exactly 3 dimensions in axis -2'),
+      ([2, 4, 4, 1], [2, 5, 3], [2, 3, 2],
+       'intrinsics must have exactly 3 dimensions in axis -1'),
+  )
+  def test_raising_inputs(self,
+                          feature_shape,
+                          vertex_shape,
+                          intrinsics_shape,
+                          msg):
+    """Tests if correct exceptions are raised when called with wrong
+    input shapes."""
+    features = tf.random.normal(feature_shape)
+    vertices = tf.random.normal(vertex_shape)
+    intrinsics = tf.random.normal(intrinsics_shape)
+
+    with self.assertRaisesWithPredicateMatch(ValueError, msg):
+      _ = vert_align(features, vertices, intrinsics)
+
 
 if __name__ == '__main__':
   test_case.main()
