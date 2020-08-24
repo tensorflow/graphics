@@ -194,7 +194,6 @@ class Meshes:
         raise ValueError(f'vertices list of size {len(faces)} cannot be '
                          f'batched to shape {batch_sizes}!')
 
-
   def vertex_neighbors(self):
     """
     For each vertex i, find all vertices in the 1-ring of vertex i.
@@ -227,6 +226,7 @@ class Meshes:
     edges = tf.concat(
         [faces[..., 0:2], faces[..., 1:3], tf.gather(faces, [2, 0], axis=-1)],
         -2)
+    edges = tf.concat([edges, tf.reverse(edges, [-1])], -2)
     n_verts = vertices.shape[-2]
 
     # hash edges, so that we can use tf.unique, which currently only supports
@@ -242,28 +242,27 @@ class Meshes:
       # edges that connect two different vertices
       padding_mask = tf.not_equal(edges_padded[:, 0], edges_padded[:, 1])
       edges = tf.boolean_mask(edges_padded, padding_mask)
-      # since we consider bidirectional edges, concat reversed index
-      edges_reversed = tf.reverse(edges, axis=[-1])
-      symmetric = tf.concat([edges, edges_reversed], 0)
 
-      # Also include vertex v into its 1-ring
-      batch_verts = tf.range(self.vertex_sizes[b_id], dtype=tf.int32)
-      self_refs = tf.stack([batch_verts, batch_verts], 1)
-      index = tf.concat([symmetric, self_refs], 0)
-
-      # add batch offset, so that we can later construct the SparseTensor for the
-      # whole batch
+      # add batch offset, so that we can later construct the SparseTensor for
+      # the whole batch
       batch_offset = tf.reduce_sum(self.vertex_sizes[:b_id])
-      batch_index = index + batch_offset
+      batch_index = edges + batch_offset
 
       indices.append(batch_index)
 
     sparse_indices = tf.cast(tf.concat(indices, 0), tf.int64)
     side_length = tf.reduce_sum(self.vertex_sizes)
-    neighborhoods = tf.SparseTensor(
+    neighbors = tf.SparseTensor(
         sparse_indices,
-        tf.ones(len(sparse_indices), dtype=self.vertices.dtype),
+        tf.ones(sparse_indices.shape[0], dtype=tf.float32),
         dense_shape=(side_length, side_length)
     )
 
-    return tf.sparse.reorder(neighborhoods)
+    adjacency = tf.sparse.reorder(neighbors)
+
+    adjacency_with_diag = tf.sparse.add(
+        adjacency,
+        tf.sparse.eye(adjacency.dense_shape[0],
+                      dtype=adjacency.dtype))
+
+    return adjacency_with_diag
