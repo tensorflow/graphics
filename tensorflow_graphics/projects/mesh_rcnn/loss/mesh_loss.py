@@ -136,10 +136,10 @@ def normal_distance(point_set_a, point_set_b):
   points_a, normals_a = tf.split(point_set_a, 2, axis=-1)
   points_b, normals_b = tf.split(point_set_b, 2, axis=-1)
 
-  nn_a2b_idx, nn_b2a_idx = _find_nearest_neighbors(points_a, points_b)
-
-  closest_point_normals_a_to_b = tf.gather(normals_b, nn_a2b_idx)
-  closest_point_normals_b_to_a = tf.gather(normals_a, nn_b2a_idx)
+  closest_point_normals_a_to_b, closest_point_normals_b_to_a = (
+      _extract_normals_of_nearest_neighbors(
+          point_set_a,
+          point_set_b))
 
   normal_distances_a_to_b = tf.einsum('...i,...i->...',
                                       tf.abs(normals_a),
@@ -147,8 +147,8 @@ def normal_distance(point_set_a, point_set_b):
   normal_distances_b_to_a = tf.einsum('...i,...i->...',
                                       tf.abs(normals_b),
                                       tf.abs(closest_point_normals_b_to_a))
-  return (- tf.reduce_mean(normal_distances_a_to_b) -
-          tf.reduce_mean(normal_distances_b_to_a))
+  return (- tf.reduce_mean(normal_distances_a_to_b, axis=-1) -
+          tf.reduce_mean(normal_distances_b_to_a, axis=-1))
 
 
 def edge_regularizer(edges):
@@ -161,7 +161,7 @@ def edge_regularizer(edges):
     L_{edge}(V, E) = \frac{1}{E} \sum_{(v, v') \in E}||v - v'||^2
   $$
 
-  where \\E \subseteq V \times V \\.
+  where `E` represents the set of edges of a mesh.
 
   Args:
     edges: A float32 tensor of shape `[A1, ..., An, E, 2]` where E denotes the
@@ -205,34 +205,76 @@ def _sample_points_and_normals(vertices, faces, sample_size):
   return points_with_normals
 
 
-def _find_nearest_neighbors(point_set_a, point_set_b):
+def _extract_normals_of_nearest_neighbors(point_set_a, point_set_b):
   """
-  Computes indices of nearest neighbors based on the L2 norm. from one point set
-  to another and vice versa.
+  Extracts point normals of close points between two point sets. The nearest
+  neighbors are computedbased on the L2 norm from one point set to another and
+  vice versa.
 
   Args:
-    point_set_a: A float32 tensor of shape `[A1, ..., An, N, D]` containing
-      points in a D-dimensional space.
-    point_set_b: A float32 tensor of shape `[A1, ..., An, N, D]` containing
-      points in a D-dimensional space.
+    point_set_a: A float32 tensor of shape `[A1, ..., An, N, 2D]` containing
+      the points and normals of the first point set. On the last axis, the
+      first D entries should correspond to point locations and the last D
+      entries should correspond to normal vectors in a D dimensional space.
+    point_set_b: A float32 tensor of shape `[A1, ..., An, M, 2D]` containing
+      the points and normals of the second point set. On the last axis, the
+      first D entries should correspond to point locations and the last D
+      entries should correspond to normal vectors in a D dimensional space.
 
   Returns:
-    * An int32 tensor of shape `[A1, ..., An, N]` containing indices of the
-      nearest neighbor from `point_set_b` for each point in `point_set_a`.
-    * An int32 tensor of shape `[A1, ..., An, M]` containing indices of the
-      nearest neighbor from `point_set_a` for each point in `point_set_b`.
+    * A float32 tensor of shape `[A1, ..., An, D]` containing normal vectors of
+      the nearest neighbor from `point_set_b` for each point in `point_set_a`.
+    * A float32 tensor of shape `[A1, ..., An, D]` containing normal vectors of
+      the nearest neighbor from `point_set_a` for each point in `point_set_b`.
   """
+  points_a, normals_a = tf.split(point_set_a, 2, axis=-1)
+  points_b, normals_b = tf.split(point_set_b, 2, axis=-1)
+
   # Create N x M matrix where the entry i,j corresponds to ai - bj (vector of
   # dimension D).
   difference = (
-      tf.expand_dims(point_set_a, axis=-2) -
-      tf.expand_dims(point_set_b, axis=-3))
+      tf.expand_dims(points_a, axis=-2) -
+      tf.expand_dims(points_b, axis=-3))
   # Calculate the square distances between each two points: |ai - bj|^2.
   square_distances = tf.einsum("...i,...i->...", difference, difference)
 
-  nearest_neighbors_a_to_b = tf.argmin(
-      input_tensor=square_distances, axis=-1)
-  nearest_neighbors_b_to_a = tf.argmin(
-      input_tensor=square_distances, axis=-2)
+  nearest_neighbors_a_to_b = tf.argmin(square_distances, axis=-1)
+  nearest_neighbors_b_to_a = tf.argmin(square_distances, axis=-2)
 
-  return nearest_neighbors_a_to_b, nearest_neighbors_b_to_a
+  point_dims_a = points_a.shape[-2:].as_list()
+  point_dims_b = points_b.shape[-2:].as_list()
+
+  normals_a_flat_batch = tf.reshape(normals_a, [-1] + point_dims_a)
+  normals_b_flat_batch = tf.reshape(normals_b, [-1] + point_dims_b)
+
+  idx_a2b_2d = tf.reshape(nearest_neighbors_a_to_b,
+                          [-1, point_dims_a[0]])
+  idx_b2a_2d = tf.reshape(nearest_neighbors_b_to_a,
+                          [-1, point_dims_b[0]])
+
+  nn_a2b_flat_batch = tf.vectorized_map(_gather_normals_fn,
+                                        (normals_b_flat_batch, idx_a2b_2d))
+  nn_b2a_flat_batch = tf.vectorized_map(_gather_normals_fn,
+                                        (normals_a_flat_batch, idx_b2a_2d))
+  normals_a2b = tf.reshape(nn_a2b_flat_batch, points_a.shape)
+  normals_b2a = tf.reshape(nn_b2a_flat_batch, points_b.shape)
+
+  return normals_a2b, normals_b2a
+
+
+def _gather_normals_fn(args):
+  """
+  Function handle passed to tf.vectorized_map to extract normal vectors from a
+  tensor with one batch dimension.
+  Args:
+    args: Tuple of 2 tensors:
+      1. tensor: float32 of shape `[N, P, D]` storing the point normals of a D-
+         dimensional space in the last axis.
+      2. tensor: int32 of shape `[N, M]` storing the indices of the normals that
+         should be extracted from the first tensor.
+
+  Returns:
+    A float32 tensor of shape `[N, M, D]` containing the sampled normal vectors.
+  """
+  params, idx = args
+  return tf.gather(params, idx)
