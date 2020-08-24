@@ -136,7 +136,7 @@ class MeshTest(test_case.TestCase):
         tf.constant([[0, 1, 2], [0, 1, 3], [1, 2, 4]])
     ]
 
-    meshes = mesh.Meshes(verts, faces)
+    meshes = Meshes(verts, faces)
     adjacency = meshes.vertex_neighbors()
     expected_adjacency = tf.constant(
         [[1, 1, 1, 1, 0, 0, 0, 0, 0],
@@ -149,8 +149,6 @@ class MeshTest(test_case.TestCase):
          [0, 0, 0, 0, 1, 1, 0, 1, 0],
          [0, 0, 0, 0, 0, 1, 1, 0, 1]])
     self.assertAllEqual(expected_adjacency, tf.sparse.to_dense(adjacency))
-
-    self.assertAllEqual(expected_adjacency, adjacency)
 
   @parameterized.parameters(
       (4, 1),

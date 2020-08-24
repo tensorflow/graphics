@@ -212,10 +212,8 @@ class Meshes:
 
   def _compute_vertex_adjacency(self):
     """For each vertex i, find all vertices in the 1-ring of vertex i.
-
     This method at first computes all unique bidirectional edges per batch
     instance and builds a SparseTensor representing the adjacency matrix.
-
     The returned adjacency matrix is represented as a SparseTensor of shape
     `[sum(V1, ..., Vn), sum(V1, ..., Vn)]` where V1, ... Vn represent the
     number of vertices of each mesh in the batch.
