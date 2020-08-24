@@ -125,15 +125,15 @@ class MeshTest(test_case.TestCase):
                      [2, 2, 2],
                      [3, 3, 3]]),
         tf.constant([[0, 0, 0],
-                     [1, 1, 1],
-                     [2, 2, 2],
-                     [3, 3, 3],
-                     [4, 4, 4]])
+                     [ 1,  1, 0],
+                     [ 1, -1, 0],
+                     [-1, -1, 0],
+                     [-1,  1, 0]])
     ]
 
     faces = [
         tf.constant([[0, 1, 2], [0, 1, 3]]),
-        tf.constant([[0, 1, 2], [0, 1, 3], [1, 2, 4]])
+        tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]])
     ]
 
     meshes = Meshes(verts, faces)
@@ -143,11 +143,14 @@ class MeshTest(test_case.TestCase):
          [1, 1, 1, 1, 0, 0, 0, 0, 0],
          [1, 1, 1, 0, 0, 0, 0, 0, 0],
          [1, 1, 0, 1, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 1, 1, 1, 1, 0],
          [0, 0, 0, 0, 1, 1, 1, 1, 1],
          [0, 0, 0, 0, 1, 1, 1, 0, 1],
-         [0, 0, 0, 0, 1, 1, 0, 1, 0],
-         [0, 0, 0, 0, 0, 1, 1, 0, 1]])
+         [0, 0, 0, 0, 1, 1, 1, 1, 0],
+         [0, 0, 0, 0, 1, 0, 1, 1, 1],
+         [0, 0, 0, 0, 1, 1, 0, 1, 1]])
+
+    print(tf.sparse.to_dense(adjacency))
+
     self.assertAllEqual(expected_adjacency, tf.sparse.to_dense(adjacency))
 
   @parameterized.parameters(
