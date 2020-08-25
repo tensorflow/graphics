@@ -91,8 +91,7 @@ class Meshes:
           sizes=self.face_sizes)
 
   def get_flattened(self):
-    """
-    Returns the flattened vertices and faces.
+    """Returns the flattened vertices and faces.
     Returns:
       A 2D tensor of shape `[N*V, 3]` containing all padded vertices.
       A 2D tensor of shape  `[N*F, 3]` containing all padded faces.
@@ -106,8 +105,7 @@ class Meshes:
     return vertices, faces
 
   def get_padded(self):
-    """
-    Unpacks vertices and faces and returns them as a padded tensor.
+    """Unpacks vertices and faces and returns them as a padded tensor.
     Returns:
       A tensor of shape `[N, V, 3]` containing the padded vertices and
       a tensor of shape `[N, F, 3]` containing the padded faces.
@@ -123,8 +121,7 @@ class Meshes:
     return vertices, faces
 
   def get_unpadded(self):
-    """
-    Unpads und unstacks all vertices and faces and returns them as a flat list.
+    """Unpads und unstacks all vertices and faces and returns them as a flat list.
 
     Returns:
       A list of N vertex tensors of shape `[V',3]`.
@@ -147,8 +144,7 @@ class Meshes:
     return vertices, faces
 
   def _check_valid_input(self, vertices, faces, batch_sizes):
-    """
-    Checks if the provided input is valid.
+    """Checks if the provided input is valid.
 
     Args:
       vertices: List of vertices provided in constructor

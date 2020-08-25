@@ -11,8 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""
-Implementation of the VertAlign operation for Mesh R-CNN.
+"""Implementation of the VertAlign operation for Mesh R-CNN.
 
 This operation is also called 'perceptual feature pooling' in Wang et al.
 
@@ -35,8 +34,7 @@ from tensorflow_graphics.util import shape
 
 
 def _check_vert_align_inputs(features, vertices, intrinsics):
-  """
-  Validates shapes of the input tensors passed to vert align.
+  """Validates shapes of the input tensors passed to vert align.
 
   Args:
     features: tensor with image features passed to vert align.
@@ -69,8 +67,7 @@ def _check_vert_align_inputs(features, vertices, intrinsics):
 def vert_align(features,
                vertices,
                intrinsics):
-  """
-  Sample vertex features from a feature map.
+  """Sample vertex features from a feature map.
 
   Args:
     features: A float32 tensor of shape `[A1, ..., An, H, W, C]` representing
@@ -91,7 +88,7 @@ def vert_align(features,
 
   _check_vert_align_inputs(features, vertices, intrinsics)
 
-  # flatten batch dimensions for interpolate_bilinear
+  # flatten batch dimensions for tfa.interpolate_bilinear
   flat_features = tf.reshape(features, [-1] + features.shape[-3:].as_list())
   flat_vertices = tf.reshape(vertices, [-1] + vertices.shape[-2:].as_list())
   flat_intrinsics = tf.reshape(intrinsics, [-1, 3, 3])

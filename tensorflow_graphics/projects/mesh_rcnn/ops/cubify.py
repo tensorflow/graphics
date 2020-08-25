@@ -20,9 +20,9 @@ from tensorflow_graphics.util import shape
 
 
 def _ravel_index(index, dims):
-  """
-  Computes a linear index in an array of shape dims.
-  Reverse functionality of tf.unravel_index.
+  """Computes a linear index into an array of shape dims.
+
+  Provides the reverse functionality of tf.unravel_index.
   Args:
     index: An int Tensor of shape `[N, 3]`, where each row corresponds to an
       index into an array of dimension `dims`.
@@ -45,14 +45,13 @@ def _ravel_index(index, dims):
     raise ValueError('Expects a 3-element list')
   if index.shape[1] != 3:
     raise ValueError('Expects an index tensor of shape Nx3')
-  _, width, depth = dims  # pylint: disable=invalid-name
+  _, width, depth = dims
   linear_index = index[:, 0] * width * depth + index[:, 1] * depth + index[:, 2]
   return linear_index
 
 
 def cubify(voxel_grid, threshold=0.5):
-  """
-  Converts voxel occupancy probability grids into a triangle mesh.
+  """Converts voxel occupancy probability grids into a triangle mesh.
 
   Each occupied voxel is replaced
   with a cuboid triangle mesh with 8 vertices, 18 edges, and
@@ -93,10 +92,23 @@ def cubify(voxel_grid, threshold=0.5):
                      has_rank=0,
                      tensor_name='threshold')
 
+  def _compute_grid_coordinates_fn(face_index):
+    """Converts unit cube vertex coordinates to voxel grid coordinates."""
+    xyz = tf.gather(unit_cube_verts,
+                    face_index,
+                    axis=None)
+    permute_idx = tf.constant([1, 0, 2])
+    yxz = tf.gather(xyz, permute_idx, axis=1)
+    yxz += nyxz[:, 1:]
+    return _ravel_index(yxz, (height + 1, width + 1, depth + 1))
+
+  # compute batch sizes for output Meshes from input voxel grid.
   batch_sizes = voxel_grid.shape[:-3].as_list()
   if len(batch_sizes) == 0:
     batch_sizes = None
-  # N x D x H x W.
+
+  # Flatten all batch dimensions. A1*A2*...*An = N.
+  # New shape: N x D x H x W.
   voxel_grid = tf.reshape(voxel_grid, [-1] + voxel_grid.shape[-3:].as_list())
 
   batch_size, depth, height, width = voxel_grid.shape
@@ -180,16 +192,7 @@ def cubify(voxel_grid, threshold=0.5):
                                                  linear_index[:, 1],
                                                  axis=None)
 
-  def _compute_grid_coordinates(face_index):
-    xyz = tf.gather(unit_cube_verts,
-                    face_index,
-                    axis=None)
-    permute_idx = tf.constant([1, 0, 2])
-    yxz = tf.gather(xyz, permute_idx, axis=1)
-    yxz += nyxz[:, 1:]
-    return _ravel_index(yxz, (height + 1, width + 1, depth + 1))
-
-  grid_faces = tf.vectorized_map(_compute_grid_coordinates,
+  grid_faces = tf.vectorized_map(_compute_grid_coordinates_fn,
                                  tf.transpose(
                                      unit_cube_faces_per_occupied_voxel))
 
@@ -237,9 +240,10 @@ def cubify(voxel_grid, threshold=0.5):
 
 
 def _create_face_mask(voxel_occupancy_grid, kernel, axis):
-  """
-  Creates face masks along one axis of a voxel occupancy grid. The
-  boundaries of the represented 3D shape are computed using 3D convolutions.
+  """Creates face masks along one axis of a voxel occupancy grid.
+
+
+  The boundaries of the represented 3D shape are computed using 3D convolutions.
 
   Example:
     Consider a 1x2x2 fully occupied voxel grid. After applying this function for

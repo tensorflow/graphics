@@ -19,8 +19,7 @@ from tensorflow_graphics.util import shape
 
 
 def pad_list(tensors, mode='CONSTANT', constant_values=0):
-  """
-  Pads stacks and computes sizes of unpadded tensors in a list.
+  """Pads stacks and computes sizes of unpadded tensors in a list.
 
   Note:
     In the following, A1 to An are optional batch dimensions.
