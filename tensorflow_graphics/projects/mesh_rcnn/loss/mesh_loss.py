@@ -22,6 +22,7 @@ from tensorflow_graphics.nn.loss import chamfer_distance
 from tensorflow_graphics.projects.mesh_rcnn.util import padding
 from tensorflow_graphics.util import shape
 
+# ToDo: Move normal loss and edge regularizer to own files.
 
 def weighted_mean_mesh_rcnn_loss(weights=None,
                                  gt_sample_size=5000,
@@ -66,7 +67,6 @@ def weighted_mean_mesh_rcnn_loss(weights=None,
 
     dim = gt_vertices.shape[-1]
 
-    # ToDo: check if cubify generated faces follow clockwise orientation.
     gt_points_with_normals = _sample_points_and_normals(gt_vertices,
                                                         gt_faces,
                                                         gt_sample_size)
@@ -78,9 +78,13 @@ def weighted_mean_mesh_rcnn_loss(weights=None,
     l_chamfer = chamfer_distance.evaluate(gt_points_with_normals[..., :dim],
                                           pred_points_with_normals[..., :dim])
     l_normal = normal_distance(gt_points_with_normals, pred_points_with_normals)
-    # l_edge = edge_regularizer()
+    l_edge = edge_regularizer(y_pred.get_padded()[0],
+                              y_pred.vertex_neighbors(),
+                              y_pred.get_sizes()[0])
 
-    return 0
+    losses = tf.stack([l_chamfer, l_normal, l_edge], -1)
+
+    return tf.reduce_mean(weigths * losses, -1)
 
   return mesh_rcnn_loss
 
@@ -184,6 +188,7 @@ def edge_regularizer(vertices, neighbors, sizes):
 
   edges_per_vertex = tf.sparse.reduce_sum(neighbors, -1)
   edge_sizes = tf.reduce_sum(edges_per_vertex, -1)
+  edge_sizes = tf.reshape(edge_sizes, [-1])
 
   flat_verts, _ = utils.flatten_batch_to_2d(vertices, sizes)
   sizes_squared = tf.stack((sizes, sizes), axis=-1)
@@ -201,6 +206,7 @@ def edge_regularizer(vertices, neighbors, sizes):
   batched_distances = tf.split(pointwise_square_distance,
                                num_or_size_splits=tf.cast(edge_sizes, tf.int32))
   padded_distances, _ = padding.pad_list(batched_distances)
+  print(padded_distances)
 
   normed_distances = padded_distances / tf.expand_dims(edge_sizes, -1)
 
@@ -233,7 +239,8 @@ def _sample_points_and_normals(vertices, faces, sample_size):
       sample_size
   )
   face_positions = normals.gather_faces(vertices, faces)
-  face_normals = normals.face_normals(face_positions)
+  # Setting clockwise to false, since cubify outputs them in CCW order.
+  face_normals = normals.face_normals(face_positions, clockwise=False)
   sampled_point_normals = tf.gather(face_normals, face_idx)
   points_with_normals = tf.concat([points, sampled_point_normals], -1)
 
