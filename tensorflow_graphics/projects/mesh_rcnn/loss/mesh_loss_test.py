@@ -14,20 +14,21 @@
 """Test Cases for the mesh losses of Mesh R-CNN."""
 
 from absl.testing import parameterized
-
 import tensorflow as tf
-from tensorflow_graphics.util import test_case
 
+from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 from tensorflow_graphics.projects.mesh_rcnn.loss import mesh_loss
+from tensorflow_graphics.util import test_case
 
 
 class NormalDistanceTest(test_case.TestCase):
+  """Test cases for the (absolute) normal distance."""
 
   def test_normal_distance_preset(self):
     """Test implementation of normal distance with predefined point sets."""
 
-    input_points_a = tf.reshape(tf.range(2.*3.), (2, 3))
-    input_points_b = tf.reshape(tf.range(2.*3.), (2, 3))
+    input_points_a = tf.reshape(tf.range(2. * 3.), (2, 3))
+    input_points_b = tf.reshape(tf.range(2. * 3.), (2, 3))
 
     input_normals_a = tf.constant([[1., 1., 1.], [1., 0., 1.]])
     input_normals_b = tf.constant([[-1, 0., 1.], [-1., -1., 0.]])
@@ -67,8 +68,8 @@ class NormalDistanceTest(test_case.TestCase):
 
   def test_extract_normals_of_nearest_neighbors(self):
     """Tests function `_extract_normals_of_nearest_neighbors`."""
-    input_points_a = tf.reshape(tf.range(2.*3.), (2, 3))
-    input_points_b = tf.reshape(tf.range(2.*3.), (2, 3))
+    input_points_a = tf.reshape(tf.range(2. * 3.), (2, 3))
+    input_points_b = tf.reshape(tf.range(2. * 3.), (2, 3))
 
     input_normals_a = tf.constant([[1., 1., 1.], [2., 2., 2.]])
     input_normals_b = tf.constant([[3, 3., 3.], [4., 4., 4.]])
@@ -83,15 +84,15 @@ class NormalDistanceTest(test_case.TestCase):
     self.assertAllEqual(input_normals_a, normals_b2a)
 
   @parameterized.parameters(
-        ([], 20),
-        ([2], 30),
-        ([1, 5], 5),
-        ([3, 2, 3], 10),
-        ([5, 3, 2], 10)
-    )
+      ([], 20),
+      ([2], 30),
+      ([1, 5], 5),
+      ([3, 2, 3], 10),
+      ([5, 3, 2], 10)
+  )
   def test_extract_normals_of_nearest_neighbors_multi_batch(self,
-                                           batch_shape,
-                                           n_points):
+                                                            batch_shape,
+                                                            n_points):
     """Tests function `_extract_normals_of_nearest_neighbors` on input
     tensors with multiple batch dimensions, but same number of points."""
     shape = batch_shape + [n_points, 3]
@@ -110,6 +111,25 @@ class NormalDistanceTest(test_case.TestCase):
 
     self.assertAllEqual(input_normals_b, normals_a2b)
     self.assertAllEqual(input_normals_a, normals_b2a)
+
+
+class EdgeRegularizerTest(test_case.TestCase):
+  """Test cases for the edge regularizer."""
+
+  def test_edge_regularizer_preset(self):
+    """Tests results of edge regularizer on predefined mesh."""
+    vertices = tf.constant(
+        [[0, 0, 0], [1, 1, 0], [1, -1, 0], [-1, -1, 0], [-1, 1, 0]],
+        dtype=tf.float32)
+    faces = tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]],
+                        dtype=tf.int32)
+
+    meshes = Meshes([vertices, vertices], [faces, faces])
+    adjacency = meshes.vertex_neighbors()
+    sizes = meshes.get_sizes()[0]
+    loss = mesh_loss.edge_regularizer(meshes.get_padded()[0], adjacency, sizes)
+    expected_loss = ((4*4) + (8*2)) / 17.
+    self.assertAllClose([expected_loss, expected_loss], loss)
 
 
 if __name__ == '__main__':

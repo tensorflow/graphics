@@ -15,9 +15,11 @@
 
 import tensorflow as tf
 
+from tensorflow_graphics.geometry.convolution import utils
 from tensorflow_graphics.geometry.representation.mesh import normals
 from tensorflow_graphics.geometry.representation.mesh import sampler
 from tensorflow_graphics.nn.loss import chamfer_distance
+from tensorflow_graphics.projects.mesh_rcnn.util import padding
 from tensorflow_graphics.util import shape
 
 
@@ -151,7 +153,7 @@ def normal_distance(point_set_a, point_set_b):
           tf.reduce_mean(normal_distances_b_to_a, axis=-1))
 
 
-def edge_regularizer(edges):
+def edge_regularizer(vertices, neighbors, sizes):
   """ Computes an edge loss, which can be used as a shape regularizer for
   learning of high-quality mesh predictions.
 
@@ -163,14 +165,46 @@ def edge_regularizer(edges):
 
   where `E` represents the set of edges of a mesh.
 
+  Note:
+    In the following A1, ..., An are optional batch dimensions.
+
   Args:
-    edges: A float32 tensor of shape `[A1, ..., An, E, 2]` where E denotes the
-    number of edges and A1, ..., An are optional batch dimensions.
+    vertices: A float32 tensor of shape `[A1, ..., An, V, D]` of mesh vertices.
+    neighbors: A float32 SparseTensor of shape `[A1, ..., An, V, V]` with
+      vertex adjacency information.
+    sizes: A int32 tensor of shape `[A1, ..., An]` denoting the sizes of the
+      unpacked and unpadded tensors.
 
   Returns:
     A float32 tensor of shape ´[A1, ..., An]´ storing the edge losses.
   """
-  edges = tf.convert_to_tensor(edges)
+  vertices = tf.convert_to_tensor(vertices)
+
+  _check_edge_regularizer_input(vertices, neighbors, sizes)
+
+  edges_per_vertex = tf.sparse.reduce_sum(neighbors, -1)
+  edge_sizes = tf.reduce_sum(edges_per_vertex, -1)
+
+  flat_verts, _ = utils.flatten_batch_to_2d(vertices, sizes)
+  sizes_squared = tf.stack((sizes, sizes), axis=-1)
+  adjacency = utils.convert_to_block_diag_2d(neighbors, sizes=sizes_squared)
+
+  adjacency_ind_0 = adjacency.indices[..., 0]
+  adjacency_ind_1 = adjacency.indices[..., 1]
+
+  vertex_features = tf.gather(flat_verts, adjacency_ind_0)
+  neighbor_features = tf.gather(flat_verts, adjacency_ind_1)
+
+  difference = vertex_features - neighbor_features
+  square_distance = tf.pow(difference, 2.)
+  pointwise_square_distance = tf.reduce_sum(square_distance, -1)
+  batched_distances = tf.split(pointwise_square_distance,
+                               num_or_size_splits=tf.cast(edge_sizes, tf.int32))
+  padded_distances, _ = padding.pad_list(batched_distances)
+
+  normed_distances = padded_distances / tf.expand_dims(edge_sizes, -1)
+
+  return tf.reduce_sum(normed_distances, -1)
 
 
 def _sample_points_and_normals(vertices, faces, sample_size):
@@ -182,7 +216,8 @@ def _sample_points_and_normals(vertices, faces, sample_size):
       mesh vertices. D denotes the dimensionality of the input space.
     faces: A float32 tensor of shape `[M, V]` representing the
       mesh vertices. V denotes the number of vertices per face.
-    sample_size:
+    sample_size: An int scalar denoting the number of points to be sampled from
+      the mesh surface.
 
   Returns:
     A float32 tensor of shape `[A1, ..., An, N, 2D]` containing
@@ -278,3 +313,40 @@ def _gather_normals_fn(args):
   """
   params, idx = args
   return tf.gather(params, idx)
+
+
+def _check_edge_regularizer_input(vertices, neighbors, sizes):
+  """Checks that the inputs are valid for graph convolution ops.
+    Note:
+      In the following, A1 to An are optional batch dimensions.
+    Args:
+      data: A float32 tensor with shape `[A1, ..., An, V, D]`.
+      neighbors: A SparseTensor with the same type as `data` and with shape
+      `[A1, ..., An, V, V]`.
+      sizes: An int tensor of shape `[A1, ..., An]`.
+    Raises:
+      TypeError: if the input types are invalid.
+      ValueError: if the input dimensions are invalid.
+    """
+  if not vertices.dtype.is_floating:
+    raise TypeError("'vertices' must have a float type.")
+  if neighbors.dtype != vertices.dtype:
+    raise TypeError("'neighbors' and 'vertices' must have the same type.")
+  if not sizes.dtype.is_integer:
+    raise TypeError("'sizes' must have an integer type.")
+  if not isinstance(neighbors, tf.sparse.SparseTensor):
+    raise ValueError("'neighbors' must be a SparseTensor.")
+
+  vertices_ndims = vertices.shape.ndims
+  shape.check_static(tensor=vertices, tensor_name="data",
+                     has_rank_greater_than=1)
+  shape.check_static(
+      tensor=neighbors, tensor_name="neighbors", has_rank=vertices_ndims)
+
+  shape.check_static(
+      tensor=sizes, tensor_name="sizes", has_rank=vertices_ndims - 2)
+  shape.compare_batch_dimensions(
+      tensors=(vertices, neighbors, sizes),
+      tensor_names=("data", "neighbors", "sizes"),
+      last_axes=(-3, -3, -1),
+      broadcast_compatible=False)
