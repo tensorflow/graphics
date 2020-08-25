@@ -237,10 +237,11 @@ class Meshes:
         [faces[..., 0:2], faces[..., 1:3], tf.gather(faces, [2, 0], axis=-1)],
         -2)
 
-    batch_shape = vertices.shape[:-2].as_list()
+    batch_shapes = vertices.shape[:-2].as_list()
     n_verts = vertices.shape[-2]
     flat_vertex_sizes = tf.reshape(self.vertex_sizes, [-1])
-    # flatten out all batch dimensions
+
+    # flatten all batch dimensions
     edges_flat = tf.reshape(edges, [-1] + edges.shape[-2:].as_list())
 
     # hash edges, so that we can use tf.unique, which currently only supports
@@ -270,7 +271,14 @@ class Meshes:
       indices.append(batch_indices)
 
     sparse_indices = tf.cast(tf.concat(indices, 0), tf.int64)
-    dense_shape_single_batch = [tf.reduce_prod(batch_shape), n_verts, n_verts]
+
+    size = tf.reduce_prod(batch_shapes)
+    if size > 1:
+      dense_shape_single_batch = [size, n_verts, n_verts]
+    else:
+      sparse_indices = sparse_indices[:, 1:]
+      dense_shape_single_batch = [n_verts, n_verts]
+
     neighbors = tf.SparseTensor(
         sparse_indices,
         tf.ones(sparse_indices.shape[0], dtype=tf.float32),
@@ -278,8 +286,8 @@ class Meshes:
     )
     adjacency = tf.sparse.reorder(neighbors)
 
-    if len(batch_shape) > 1:
-      batched_shape = batch_shape + [n_verts, n_verts]
+    if len(batch_shapes) > 1:
+      batched_shape = batch_shapes + [n_verts, n_verts]
       adjacency = tf.sparse.reshape(adjacency, batched_shape)
 
     return adjacency
