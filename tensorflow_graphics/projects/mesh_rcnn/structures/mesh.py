@@ -20,11 +20,10 @@ from tensorflow_graphics.projects.mesh_rcnn.util import padding
 
 
 class Meshes:
-  """Wrapper for batching of Meshes with unequal size."""
+  """Wrapper for batching of Triangle Meshes."""
 
   def __init__(self, vertices, faces, batch_sizes=None):
-    """
-    Contstructs the wrapper object from nested lists of multiple vertices and
+    """Contstructs the wrapper object from nested lists of multiple vertices and
     faces.
 
     Internally, vertices and faces are padded and packed into a single 2D
@@ -35,8 +34,8 @@ class Meshes:
         input format only. However, it is possible to retrieve a flat list of
         all vertices and faces tensor via `get_unpadded()`.
     * Padded: Tensor of shape `[A1, ..., An, max(N), 3]`, where max(N) is the
-        size of the largest vertex or face list in all batch dimensions. All
-        other vertex/face tensors get padded to this size.
+        size of the largest vertex (or face) list. All other vertex/face tensors
+        get padded to this size.
     * Flattened: 2D tensor of shape `[sum(N1, ..., Nn), 3]`, where N1, ..., Nn
         are the sizes of every vertex or face list in this batch.
 
@@ -47,14 +46,14 @@ class Meshes:
       case where 4 different meshes are to be stored in a Meshes object, the
       batched shape could be `[2, 2]`, `[4, 1]` or [`1, 4`]. In other words, the
       product over all entries in `batch_sizes` must be equal to the number of
-      vertices and faces provided in the constructor.
+      vertices and faces lists provided in the constructor.
 
     Args:
       vertices: List with N float32 tensors of shape `[V, 3]` containing the
         mesh vertices, or empty list.
       faces: List with N float32 tensors of shape `[F, 3]` containing the mesh
         faces, or empty list.
-      batch_sizes: Optinal list of ints indicating the size of each batch
+      batch_sizes: Optional list of ints indicating the size of each batch
         dimension for the meshes or None, if there is only one batch
         dimension.
     """
