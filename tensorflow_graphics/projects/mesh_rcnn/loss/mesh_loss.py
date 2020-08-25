@@ -22,6 +22,7 @@ from tensorflow_graphics.nn.loss import chamfer_distance
 from tensorflow_graphics.projects.mesh_rcnn.util import padding
 from tensorflow_graphics.util import shape
 
+
 # ToDo: Move normal loss and edge regularizer to own files.
 
 def weighted_mean_mesh_rcnn_loss(weights=None,
@@ -203,14 +204,18 @@ def edge_regularizer(vertices, neighbors, sizes):
   difference = vertex_features - neighbor_features
   square_distance = tf.pow(difference, 2.)
   pointwise_square_distance = tf.reduce_sum(square_distance, -1)
-  batched_distances = tf.split(pointwise_square_distance,
-                               num_or_size_splits=tf.cast(edge_sizes, tf.int32))
-  padded_distances, _ = padding.pad_list(batched_distances)
-  print(padded_distances)
+  flat_batch_distances = tf.split(pointwise_square_distance,
+                                  num_or_size_splits=tf.cast(edge_sizes,
+                                                             tf.int32))
 
-  normed_distances = padded_distances / tf.expand_dims(edge_sizes, -1)
+  batch_shape = vertices.shape[:-2].as_list()
+  padded_distances, n_edges = padding.pad_list(flat_batch_distances)
+  full_batched_distances = tf.reshape(padded_distances,
+                                      batch_shape + [-1])
+  summed_distances = tf.reduce_sum(full_batched_distances, -1)
+  n_edges = tf.reshape(n_edges, batch_shape)
 
-  return tf.reduce_sum(normed_distances, -1)
+  return summed_distances / tf.cast(n_edges, tf.float32)
 
 
 def _sample_points_and_normals(vertices, faces, sample_size):

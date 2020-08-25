@@ -16,11 +16,12 @@
 from absl.testing import parameterized
 import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 from tensorflow_graphics.projects.mesh_rcnn.loss import mesh_loss
+from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 from tensorflow_graphics.util import test_case
 
 
+# ToDo: Move normal loss and edge regularizer tests to own files
 class NormalDistanceTest(test_case.TestCase):
   """Test cases for the (absolute) normal distance."""
 
@@ -43,8 +44,7 @@ class NormalDistanceTest(test_case.TestCase):
 
     dot_product = tf.einsum('ai,ai->a', abs_normals_a, abs_normals_b)
     expected_loss = -2 * tf.reduce_mean(dot_product)
-    print(expected_loss)
-    print(loss)
+
     self.assertAlmostEqual(expected_loss, loss)
 
   @parameterized.parameters(
@@ -62,7 +62,6 @@ class NormalDistanceTest(test_case.TestCase):
     input_b = tf.random.normal(batch_shape + [n_points_b] + [6])
 
     loss = mesh_loss.normal_distance(input_a, input_b)
-    print(loss)
 
     self.assertEqual(batch_shape, loss.shape)
 
@@ -128,8 +127,46 @@ class EdgeRegularizerTest(test_case.TestCase):
     adjacency = meshes.vertex_neighbors()
     sizes = meshes.get_sizes()[0]
     loss = mesh_loss.edge_regularizer(meshes.get_padded()[0], adjacency, sizes)
-    expected_loss = ((4*4) + (8*2)) / 17.
+    expected_loss = ((4 * 4) + (8 * 2)) / 17.
     self.assertAllClose([expected_loss, expected_loss], loss)
+
+  @parameterized.parameters(
+      (4, 1),
+      (2, 2),
+      (1, 4)
+  )
+  def test_edge_regularizer_multi_batch(self, b1, b2):
+    """Tests ifedge regularizer works on multiple batch dimensions with one
+    empty mesh."""
+    verts1 = tf.constant([[0, 0, 0], [1, 0, 0], [1, 1, 0]], dtype=tf.float32)
+    faces1 = tf.constant([[0, 1, 2]], dtype=tf.int32)
+
+    verts2 = tf.constant([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]],
+                         dtype=tf.float32)
+    faces2 = tf.constant([[0, 1, 2], [0, 2, 3]], dtype=tf.int32)
+
+    verts3 = tf.constant(
+        [[0, 0, 0], [1, 1, 0], [1, -1, 0], [-1, -1, 0], [-1, 1, 0]],
+        dtype=tf.float32)
+    faces3 = tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]],
+                         dtype=tf.int32)
+
+    verts4, faces4 = tf.zeros((0, 3)), tf.zeros((0, 3), dtype=tf.int32)
+
+    vertices = [verts1, verts2, verts3, verts4]
+    faces = [faces1, faces2, faces3, faces4]
+
+    meshes = Meshes(vertices, faces, batch_sizes=[b1, b2])
+
+    adjacency = meshes.vertex_neighbors()
+    sizes = meshes.get_sizes()[0]
+    losses = mesh_loss.edge_regularizer(meshes.get_padded()[0], adjacency, sizes)
+
+    self.assertEqual([b1, b2], losses.shape)
+
+
+class MeshRcnnTest(test_case.TestCase):
+  """Test cases for the edge regularizer."""
 
 
 if __name__ == '__main__':
