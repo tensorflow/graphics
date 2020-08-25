@@ -58,14 +58,14 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
       Must be same type as tensor.
 
   Returns:
-    float32 tensor of shape `[A1,...,An, D]` with the padded and stacked values.
+    A float32 tensor of shape `[A1,...,An, D]` with the padded and stacked values.
     and an int32 tensor denoting the sizes of the unpadded arrays.
 
   Raises:
     ValueError: If tensors are not of same rank or have more than 1 unequal
       dimensions.
   """
-  if not len(tensors) > 1:  # Todo: Fix for 1D tensors
+  if not len(tensors) > 1:
     return tf.expand_dims(tensors[0], 0), tf.constant([len(tensors[0])])
 
   # check if all tensors have same rank

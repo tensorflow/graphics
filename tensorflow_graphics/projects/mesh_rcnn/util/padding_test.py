@@ -87,7 +87,6 @@ class PaddingTest(test_case.TestCase):
     ])
 
     result, sizes = pad_list(values)
-    print(sizes)
 
     self.assertAllEqual(expected_result, result)
 
