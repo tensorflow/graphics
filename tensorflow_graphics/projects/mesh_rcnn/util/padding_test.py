@@ -71,6 +71,26 @@ class PaddingTest(test_case.TestCase):
     self.assertEqual(expected_result.shape, result.shape)
     self.assertAllEqual(expected_result, result)
 
+  def test_padding_of_multiple_1d_tensors(self):
+    """Tests pad_list on list of multiple 1D tensors."""
+
+    values = [tf.constant([]),
+              tf.constant([1.]),
+              tf.constant([2., 2.]),
+              tf.constant([3., 3., 3.])]
+
+    expected_result = tf.constant([
+        [0., 0., 0.],
+        [1., 0., 0.],
+        [2., 2., 0.],
+        [3., 3., 3.]
+    ])
+
+    result, sizes = pad_list(values)
+    print(sizes)
+
+    self.assertAllEqual(expected_result, result)
+
 
 if __name__ == '__main__':
   test_case.main()

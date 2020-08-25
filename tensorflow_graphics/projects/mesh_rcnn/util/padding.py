@@ -33,6 +33,23 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
     If only one tensor is provided, it will also contain an additional batch
     dimension of size 1.
 
+    Example:
+      ```python
+          t = [tf.constant([]),
+              tf.constant([1.]),
+              tf.constant([2., 2.]),
+              tf.constant([3., 3., 3.])]
+          # 'constant_values' is 0.
+          # rank of 't' is 2.
+            pad_list(t)   # Result (added padding in asterisk)(
+                          # tf.Tensor([[*0.*, *0.*, *0.*],
+                          #            [1.,   *0.*, *0.*],
+                          #            [2.,    2.,  *0.*],
+                          #            [3.,    3.,   3.]]),
+                          #  tf.Tensor([0, 1, 2, 3])
+                          # )
+      ```
+
   Args:
     tensors: list of float32 tensors of shape `[A1,...,An, D]`, where one of the
       batch dimensions differs for each tensor.
@@ -48,15 +65,16 @@ def pad_list(tensors, mode='CONSTANT', constant_values=0):
     ValueError: If tensors are not of same rank or have more than 1 unequal
       dimensions.
   """
-  if len(tensors) > 1:
-    # all tensors need to have same last dimension
-    shape.compare_dimensions(tensors, -1)
-  else:
+  if not len(tensors) > 1:  # Todo: Fix for 1D tensors
     return tf.expand_dims(tensors[0], 0), tf.constant([len(tensors[0])])
 
   # check if all tensors have same rank
-  if not len({tf.rank(tensor).numpy() for tensor in tensors}) == 1:
+  tensor_rank = {tf.rank(tensor).numpy() for tensor in tensors}
+  if not len(tensor_rank) == 1:
     raise ValueError('All tensors need to have same rank.')
+
+  if tensor_rank.pop() > 1:
+    shape.compare_dimensions(tensors, -1)
 
   shapes = tf.stack([tensor.shape for tensor in tensors], axis=0)
   padding_dim = tf.where(tf.reduce_max(shapes, 0) != tf.reduce_min(shapes, 0))
