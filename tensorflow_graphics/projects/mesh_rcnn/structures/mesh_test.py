@@ -125,10 +125,10 @@ class MeshTest(test_case.TestCase):
                      [2, 2, 2],
                      [3, 3, 3]]),
         tf.constant([[0, 0, 0],
-                     [ 1,  1, 0],
-                     [ 1, -1, 0],
+                     [1, 1, 0],
+                     [1, -1, 0],
                      [-1, -1, 0],
-                     [-1,  1, 0]])
+                     [-1, 1, 0]])
     ]
 
     faces = [
@@ -139,17 +139,16 @@ class MeshTest(test_case.TestCase):
     meshes = Meshes(verts, faces)
     adjacency = meshes.vertex_neighbors()
     expected_adjacency = tf.constant(
-        [[1, 1, 1, 1, 0, 0, 0, 0, 0],
-         [1, 1, 1, 1, 0, 0, 0, 0, 0],
-         [1, 1, 1, 0, 0, 0, 0, 0, 0],
-         [1, 1, 0, 1, 0, 0, 0, 0, 0],
-         [0, 0, 0, 0, 1, 1, 1, 1, 1],
-         [0, 0, 0, 0, 1, 1, 1, 0, 1],
-         [0, 0, 0, 0, 1, 1, 1, 1, 0],
-         [0, 0, 0, 0, 1, 0, 1, 1, 1],
-         [0, 0, 0, 0, 1, 1, 0, 1, 1]])
-
-    print(tf.sparse.to_dense(adjacency))
+        [[[1., 1., 0., 0., 0.],
+          [0., 1., 1., 1., 0.],
+          [1., 0., 1., 0., 0.],
+          [1., 0., 0., 1., 0.],
+          [0., 0., 0., 0., 0.]],
+         [[1., 1., 1., 1., 1.],
+          [1., 1., 1., 0., 0.],
+          [1., 0., 1., 1., 0.],
+          [1., 0., 0., 1., 1.],
+          [1., 1., 0., 0., 1.]]])
 
     self.assertAllEqual(expected_adjacency, tf.sparse.to_dense(adjacency))
 
@@ -193,6 +192,38 @@ class MeshTest(test_case.TestCase):
     self.assertEqual(expected_faces_shape_flat, meshes.get_flattened()[1].shape)
     self.assertEqual(b1 * b2, len(meshes.get_unpadded()[0]))
     self.assertEqual(b1 * b2, len(meshes.get_unpadded()[1]))
+
+    # adjacency tests
+
+
+    # check flat adjacency, as it should be the same for all
+    # batch representations
+    expected_adjacency = tf.constant(
+        [[1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+         [0., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+         [1., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+         [0., 0., 0., 1., 1., 1., 0., 0., 0., 0., 0., 0.],
+         [0., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0.],
+         [0., 0., 0., 1., 0., 1., 1., 0., 0., 0., 0., 0.],
+         [0., 0., 0., 1., 0., 0., 1., 0., 0., 0., 0., 0.],
+         [0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1.],
+         [0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 0., 0.],
+         [0., 0., 0., 0., 0., 0., 0., 1., 0., 1., 1., 0.],
+         [0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 1., 1.],
+         [0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 1.]])
+
+    adjacency_batch = meshes.vertex_neighbors()
+    adjacency_packed = meshes.vertex_neighbors(return_block_diagonal=True)
+
+    expected_adjacency_shape_batch = [b1, b2, 5, 5]
+    expected_adjacency_shape_packed = [sum(len(v) for v in vertices),
+                                       sum(len(v) for v in vertices)]
+
+    self.assertEqual(expected_adjacency_shape_batch, adjacency_batch.shape)
+    self.assertEqual(expected_adjacency_shape_packed, adjacency_packed.shape)
+
+    self.assertAllEqual(expected_adjacency,
+                        tf.sparse.to_dense(adjacency_packed))
 
 
 if __name__ == '__main__':
