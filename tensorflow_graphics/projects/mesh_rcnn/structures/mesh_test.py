@@ -219,6 +219,7 @@ class MeshTest(test_case.TestCase):
     expected_adjacency_shape_packed = [sum(len(v) for v in vertices),
                                        sum(len(v) for v in vertices)]
 
+
     self.assertEqual(expected_adjacency_shape_batch, adjacency_batch.shape)
     self.assertEqual(expected_adjacency_shape_packed, adjacency_packed.shape)
 
