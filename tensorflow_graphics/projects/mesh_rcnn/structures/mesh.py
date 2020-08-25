@@ -189,7 +189,7 @@ class Meshes:
         raise ValueError(f'vertices list of size {len(faces)} cannot be '
                          f'batched to shape {batch_sizes}!')
 
-  def vertex_neighbors(self):
+  def vertex_neighbors(self, return_block_diagonal=False):
     """
     For each vertex i, find all vertices in the 1-ring of vertex i.
 
@@ -200,12 +200,27 @@ class Meshes:
       In the following, A1 to An are optional batch dimensions that must be
       broadcast compatible.
 
+    Args:
+      return_block_diagonal: A boolean flag indicating whether the adjacency
+        should be returned as a 2d block-diagonal SparseTensor. If false,
+        adjacency will be returned as batch of SparseTensors.
+
     Returns:
-      float32 SparseTensor of shape `[sum(V1, ..., Vn), sum(V1, ..., Vn)]` where
-      V1, ... Vn represent the number of vertices of each mesh in the batch.
+      A float32 SparseTensor of shape `[A1, ..., An, D1, D2]`  where
+      A1, ..., An are batch dimensions or, `if return_block_diagonal == True`,
+      A 2D float32 block-diagonal SparseTensor of shape
+      `[A1*...*An*D1, A1*...*An*D2]`.
     """
     if self.vertex_adjacency is None:
       self.vertex_adjacency = self._compute_vertex_adjacency()
+
+    if return_block_diagonal:
+      sizes = tf.repeat(
+          tf.expand_dims(self.vertex_sizes, -1),
+          repeats=[2], axis=-1)
+      return utils.convert_to_block_diag_2d(self.vertex_adjacency,
+                                            sizes=sizes,
+                                            validate_indices=True)
 
     return self.vertex_adjacency
 
@@ -221,12 +236,16 @@ class Meshes:
     edges = tf.concat(
         [faces[..., 0:2], faces[..., 1:3], tf.gather(faces, [2, 0], axis=-1)],
         -2)
-    edges = tf.concat([edges, tf.reverse(edges, [-1])], -2)
+
+    batch_shape = vertices.shape[:-2].as_list()
     n_verts = vertices.shape[-2]
+    flat_vertex_sizes = tf.reshape(self.vertex_sizes, [-1])
+    # flatten out all batch dimensions
+    edges_flat = tf.reshape(edges, [-1] + edges.shape[-2:].as_list())
 
     # hash edges, so that we can use tf.unique, which currently only supports
     # 1D tensors as input.
-    edges_hashed = n_verts * edges[..., 0] + edges[..., 1]
+    edges_hashed = n_verts * edges_flat[..., 0] + edges_flat[..., 1]
 
     indices = []
     for b_id, batch in enumerate(edges_hashed):
@@ -238,26 +257,29 @@ class Meshes:
       padding_mask = tf.not_equal(edges_padded[:, 0], edges_padded[:, 1])
       edges = tf.boolean_mask(edges_padded, padding_mask)
 
-      # add batch offset, so that we can later construct the SparseTensor for
-      # the whole batch
-      batch_offset = tf.reduce_sum(self.vertex_sizes[:b_id])
-      batch_index = edges + batch_offset
+      # Also include vertex v into its 1-ring
+      batch_verts = tf.range(flat_vertex_sizes[b_id], dtype=tf.int32)
+      self_refs = tf.stack([batch_verts, batch_verts], 1)
+      index = tf.concat([edges, self_refs], 0)
 
-      indices.append(batch_index)
+      # add batch index, so that we can later construct the SparseTensor for the
+      # whole batch
+      batch_index = tf.expand_dims(
+          tf.repeat(tf.constant([b_id]), [len(index)]), 1)
+      batch_indices = tf.concat([batch_index, index], -1)
+      indices.append(batch_indices)
 
     sparse_indices = tf.cast(tf.concat(indices, 0), tf.int64)
-    side_length = tf.reduce_sum(self.vertex_sizes)
+    dense_shape_single_batch = [tf.reduce_prod(batch_shape), n_verts, n_verts]
     neighbors = tf.SparseTensor(
         sparse_indices,
         tf.ones(sparse_indices.shape[0], dtype=tf.float32),
-        dense_shape=(side_length, side_length)
+        dense_shape=dense_shape_single_batch
     )
-
     adjacency = tf.sparse.reorder(neighbors)
 
-    adjacency_with_diag = tf.sparse.add(
-        adjacency,
-        tf.sparse.eye(adjacency.dense_shape[0],
-                      dtype=adjacency.dtype))
+    if len(batch_shape) > 1:
+      batched_shape = batch_shape + [n_verts, n_verts]
+      adjacency = tf.sparse.reshape(adjacency, batched_shape)
 
-    return adjacency_with_diag
+    return adjacency
