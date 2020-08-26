@@ -32,12 +32,12 @@ class EdgeRegularizerTest(test_case.TestCase):
     faces = tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]],
                         dtype=tf.int32)
 
-    meshes = Meshes([vertices, vertices], [faces, faces])
+    meshes = Meshes([vertices], [faces])
     adjacency = meshes.vertex_neighbors()
     sizes = meshes.get_sizes()[0]
     loss = edge_regularizer.evaluate(meshes.get_padded()[0], adjacency, sizes)
     expected_loss = ((4 * 4) + (8 * 2)) / 17.
-    self.assertAllClose([expected_loss, expected_loss], loss)
+    self.assertAllClose(expected_loss, loss)
 
   @parameterized.parameters(
       (4, 1),

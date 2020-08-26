@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# pylint: disable=protected-access
 """Test cases for the (absolute) normal distance loss function."""
 
 from absl.testing import parameterized
@@ -71,8 +72,8 @@ class NormalDistanceTest(test_case.TestCase):
     input_normals_a = tf.constant([[1., 1., 1.], [2., 2., 2.]])
     input_normals_b = tf.constant([[3, 3., 3.], [4., 4., 4.]])
 
-    inputs_a = tf.concat([input_points_a, input_normals_a], axis=-1)
-    inputs_b = tf.concat([input_points_b, input_normals_b], axis=-1)
+    inputs_a = tf.concat([input_points_a, input_normals_a], -1)
+    inputs_b = tf.concat([input_points_b, input_normals_b], -1)
 
     normals_a2b, normals_b2a = normal_distance._extract_normals_of_nearest_neighbors(
         inputs_a, inputs_b)
@@ -100,11 +101,12 @@ class NormalDistanceTest(test_case.TestCase):
     input_normals_b = tf.reshape(tf.range(tf.reduce_prod(shape),
                                           2 * tf.reduce_prod(shape)), shape)
 
-    inputs_a = tf.concat([input_points_a, input_normals_a], axis=-1)
-    inputs_b = tf.concat([input_points_b, input_normals_b], axis=-1)
+    inputs_a = tf.concat([input_points_a, input_normals_a], -1)
+    inputs_b = tf.concat([input_points_b, input_normals_b], -1)
 
     normals_a2b, normals_b2a = normal_distance._extract_normals_of_nearest_neighbors(
         inputs_a, inputs_b)
+
 
     self.assertAllEqual(input_normals_b, normals_a2b)
     self.assertAllEqual(input_normals_a, normals_b2a)

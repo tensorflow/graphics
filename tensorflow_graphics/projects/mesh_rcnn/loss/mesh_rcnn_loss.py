@@ -128,7 +128,7 @@ def _sample_points_and_normals(vertices, faces, sample_size):
   face_positions = normals.gather_faces(vertices, faces)
   # Setting clockwise to false, since cubify outputs them in CCW order.
   face_normals = normals.face_normals(face_positions, clockwise=False)
-  sampled_point_normals = tf.gather(face_normals, face_idx)
+  sampled_point_normals = tf.gather(face_normals, face_idx, axis=None)
   points_with_normals = tf.concat([points, sampled_point_normals], -1)
 
   return points_with_normals

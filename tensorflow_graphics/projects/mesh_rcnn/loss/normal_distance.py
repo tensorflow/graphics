@@ -11,10 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# pylint: disable=anomalous-backslash-in-string
 """Implementation of the (absolute) normal distance loss function."""
 
 import tensorflow as tf
+
 from tensorflow_graphics.util import shape
+
 
 def evaluate(point_set_a, point_set_b):
   """Computes the normal distance between two point sets.
@@ -66,8 +69,8 @@ def evaluate(point_set_a, point_set_b):
   if not dimension % 2 == 0:
     raise ValueError('Last dimension of input must be evenly divisible by 2!')
 
-  points_a, normals_a = tf.split(point_set_a, 2, axis=-1)
-  points_b, normals_b = tf.split(point_set_b, 2, axis=-1)
+  _, normals_a = tf.split(point_set_a, 2, axis=-1)
+  _, normals_b = tf.split(point_set_b, 2, axis=-1)
 
   closest_point_normals_a_to_b, closest_point_normals_b_to_a = (
       _extract_normals_of_nearest_neighbors(
@@ -156,4 +159,4 @@ def _gather_normals_fn(args):
     A float32 tensor of shape `[N, M, D]` containing the sampled normal vectors.
   """
   params, idx = args
-  return tf.gather(params, idx)
+  return tf.gather(params, idx, axis=None)

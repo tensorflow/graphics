@@ -11,11 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# pylint: disable=anomalous-backslash-in-string
 """Implementation of a shape regularizer based on edge length."""
 
 import tensorflow as tf
-from tensorflow_graphics.projects.mesh_rcnn.util import padding
+
 from tensorflow_graphics.geometry.convolution import utils
+from tensorflow_graphics.projects.mesh_rcnn.util import padding
 from tensorflow_graphics.util import shape
 
 
@@ -59,24 +61,31 @@ def evaluate(vertices, neighbors, sizes):
   adjacency_ind_0 = adjacency.indices[..., 0]
   adjacency_ind_1 = adjacency.indices[..., 1]
 
-  vertex_features = tf.gather(flat_verts, adjacency_ind_0)
-  neighbor_features = tf.gather(flat_verts, adjacency_ind_1)
+  vertex_features = tf.gather(flat_verts, adjacency_ind_0, axis=None)
+  neighbor_features = tf.gather(flat_verts, adjacency_ind_1, axis=None)
 
   difference = vertex_features - neighbor_features
   square_distance = tf.pow(difference, 2.)
   pointwise_square_distance = tf.reduce_sum(square_distance, -1)
   flat_batch_distances = tf.split(pointwise_square_distance,
-                                  num_or_size_splits=tf.cast(edge_sizes,
-                                                             tf.int32))
+                                  tf.cast(edge_sizes, tf.int32))
 
   batch_shape = vertices.shape[:-2].as_list()
   padded_distances, n_edges = padding.pad_list(flat_batch_distances)
   full_batched_distances = tf.reshape(padded_distances,
                                       batch_shape + [-1])
-  summed_distances = tf.reduce_sum(full_batched_distances, -1)
-  n_edges = tf.reshape(n_edges, batch_shape)
 
-  return summed_distances / tf.cast(n_edges, tf.float32)
+  n_edges = tf.reshape(n_edges, batch_shape)
+  float_edges = tf.cast(n_edges, tf.float32)
+  normed_distances = full_batched_distances / tf.expand_dims(float_edges, -1)
+
+  edge_loss = tf.reduce_sum(normed_distances, -1)
+
+  # remove batch dimension if only one loss value is present
+  if tf.rank(edge_loss) == 1 and len(edge_loss) == 1:
+    edge_loss = edge_loss[0]
+
+  return edge_loss
 
 
 def _check_edge_regularizer_input(vertices, neighbors, sizes):
