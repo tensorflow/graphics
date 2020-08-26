@@ -286,8 +286,7 @@ class Meshes:
     )
     adjacency = tf.sparse.reorder(neighbors)
 
-    if len(batch_shapes) > 1:
-      batched_shape = batch_shapes + [n_verts, n_verts]
-      adjacency = tf.sparse.reshape(adjacency, batched_shape)
+    batched_shape = batch_shapes + [n_verts, n_verts]
+    adjacency = tf.sparse.reshape(adjacency, batched_shape)
 
     return adjacency
