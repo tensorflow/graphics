@@ -78,3 +78,12 @@ class VoxelGrid(features.Tensor):
       voxel_grid = example_data
 
     return super(VoxelGrid, self).encode_example(voxel_grid)
+
+  @classmethod
+  def from_json_content(cls, value) -> 'VoxelGrid':
+    return cls(shape=tuple(value['shape']))
+
+  def to_json_content(self):
+    return {
+        'shape': list(self._shape),
+    }

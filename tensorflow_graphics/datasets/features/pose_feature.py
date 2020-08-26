@@ -55,3 +55,10 @@ class Pose(features.FeaturesDict):
           f'but {example_dict.keys()} were given.')
 
     return super(Pose, self).encode_example(example_dict)
+
+  @classmethod
+  def from_json_content(cls, value) -> 'Pose':
+    return cls()
+
+  def to_json_content(self):
+    return {}
