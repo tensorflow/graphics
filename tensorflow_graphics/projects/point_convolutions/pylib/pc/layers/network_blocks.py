@@ -234,13 +234,13 @@ class PointResNetBottleNeck:
         else:
           self._projection_layers.append(_identity)
         # up- and downwampling in feature domain
-        self._upsampling_layers.append(Conv1x1(num_features,
-                                               bottle_neck_num_features,
-                                               use_bias=True))
-        self._batch_norm_layers.append(tf.keras.layers.BatchNormalization())
-        self._downsampling_layers.append(Conv1x1(bottle_neck_num_features,
-                                                 num_features,
+        self._downsampling_layers.append(Conv1x1(num_features,
+                                                 bottle_neck_num_features,
                                                  use_bias=True))
+        self._batch_norm_layers.append(tf.keras.layers.BatchNormalization())
+        self._upsampling_layers.append(Conv1x1(bottle_neck_num_features,
+                                               num_features,
+                                               use_bias=True))
         self._batch_norm_layers.append(tf.keras.layers.BatchNormalization())
 
   def __call__(self,

@@ -80,6 +80,11 @@ class MCConv:
       self._num_dims = num_dims
       self._non_linearity_type = non_linearity_type
 
+      if num_features_out % num_mlps != 0:
+        raise ValueError(
+            "The number of output features must be divisible by the number" +
+            " of kernel MLPs")
+
       if name is None:
         self._name = ''
       else:
