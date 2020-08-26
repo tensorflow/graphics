@@ -27,9 +27,8 @@ from pylib.pc.layers import MCConv
 class MCConvTest(test_case.TestCase):
 
   @parameterized.parameters(
-    # neighbor ids are currently corrupted on dimension 2: todo fix
-    # (2000, 200, [3, 3], 16, 0.7, 4, 2),
-    # (4000, 400, [3, 3], 8, np.sqrt(2), 8, 2),
+    (2000, 200, [3, 3], 16, 0.7, 8, 2),
+    (4000, 400, [3, 3], 8, np.sqrt(2), 8, 2),
     (2000, 200, [1, 3], 16, 0.7, 8, 3),
     (4000, 400, [3, 3], 8, 0.7, 8, 3),
     (4000, 100, [3, 1], 1, np.sqrt(3), 16, 3),
@@ -178,14 +177,7 @@ class MCConvTest(test_case.TestCase):
           conv_weights, [weights], atol=1e-4, delta=1e-3)
 
   @parameterized.parameters(
-    # neighbor ids are currently corrupted on dimension 2: todo fix
-    # (2000, 200, 16, 0.7, 2),
-    # (4000, 400, 8, np.sqrt(2), 2),
     (8, 4, [8, 8], 2, np.sqrt(3) * 1.25, 8, 3),
-    # (4000, 400, [1, 1], 8, np.sqrt(3), 8, 3),
-    # (4000, 100, [2, 4], 1, np.sqrt(3), 8, 3),
-    # (2000, 200, [4, 2], 16, 0.7, 8, 4),
-    # (4000, 400, [2, 2], 8, np.sqrt(4), 8, 4)
   )
   def test_conv_jacobian_points(self,
                                 num_points,

@@ -164,8 +164,7 @@ class _LocalPointPooling:
       # -----------------
       # quick fix for 2D input
       # mask points with different batch_id
-      features_on_neighbors = tf.gather(
-          features, neigh._original_neigh_ids[:, 0])
+      """
       batch_ids_in = tf.gather(
           point_cloud_in._batch_ids, neigh._original_neigh_ids[:, 0])
       batch_ids_out = tf.gather(
@@ -174,12 +173,14 @@ class _LocalPointPooling:
       features_on_neighbors = tf.boolean_mask(
           features_on_neighbors, batch_mask)
       neigh_out = tf.boolean_mask(neigh._original_neigh_ids[:, 1], batch_mask)
+      """
       # -------------
-
+      features_on_neighbors = tf.gather(
+          features, neigh._original_neigh_ids[:, 0])
       # Pool the features in the neighborhoods
       features_out = pool_op(
           data=features_on_neighbors,
-          segment_ids=neigh_out,
+          segment_ids=neigh._original_neigh_ids[:, 1],
           num_segments=point_cloud_out._points.shape[0])
       return _format_output(features_out,
                             point_cloud_out,

@@ -30,14 +30,13 @@ from pylib.pc.tests import utils
 class ComputePDFTest(test_case.TestCase):
 
   @parameterized.parameters(
-    # (4, 100, 10, 0.2, 0.1, 2),
-    # (4, 100, 10, 0.7, 0.1, 2),
-    # (4, 100, 10, np.sqrt(2), 0.1, 2),
+    (4, 100, 10, 0.2, 0.1, 2),
+    (4, 100, 10, 0.7, 0.1, 2),
+    (4, 100, 10, np.sqrt(2), 0.1, 2),
     (4, 100, 10, 0.2, 0.1, 3),
     (4, 100, 10, 0.7, 0.1, 3),
     (4, 100, 10, np.sqrt(3), 0.1, 3),
     (4, 100, 10, 0.2, 0.1, 4),
-    # (4, 100, 10, 0.7, 0.1, 4),
     (4, 100, 10, np.sqrt(4), 0.1, 4)
   )
   def test_compute_pdf(self,
@@ -109,7 +108,7 @@ class ComputePDFTest(test_case.TestCase):
     self.assertAllClose(pdf_tf, pdf_skl)
 
   @parameterized.parameters(
-    # (1, 200, 1, 4, 2),
+    (1, 200, 1, 4, 2),
     (1, 200, 1, 4, 3),
     (1, 100, 1, 4, 4)
   )

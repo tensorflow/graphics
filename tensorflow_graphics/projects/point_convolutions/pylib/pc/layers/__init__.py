@@ -13,10 +13,6 @@
 # limitations under the License.
 """Point cloud network layers"""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from .Pooling import GlobalAveragePooling, GlobalMaxPooling
 from .Pooling import MaxPooling, AveragePooling
 from .Conv1x1 import Conv1x1

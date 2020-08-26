@@ -30,7 +30,7 @@
 
 /**
  *  GPU kernel to find the ranges in the list of points for a grid cell 
- *  and its 26 neighbors.
+ *  and its neighbors.
  *  @param  pNumSamples     Number of samples.
  *  @param  pNumPts         Number of points.
  *  @param  pLastDOffsets   Number of displacement in the last
@@ -168,6 +168,71 @@ __global__ void find_ranges_grid_ds_gpu_kernel(
     }
 }
 
+/**
+ *  GPU kernel for the 2D case.
+ *  @param  pNumSamples     Number of samples.
+ *  @param  pNumPts         Number of points.
+ *  @param  pNumOffsets     Number of offsets applied to  the 
+ *      keys.
+ *  @param  pOffsets        List of offsets to apply.
+ *  @param  pSampleKeys     Array of keys for each sample.
+ *  @param  pGridDs         Grid data structure.
+ *  @param  pNumCells       Number of cells.
+ *  @param  pOutDS          Output array with the ranges.
+ *  @paramT D               Number of dimensions.
+ */
+template<int D>
+__global__ void find_ranges_grid_ds_2d_gpu_kernel(
+    const unsigned int pNumSamples,
+    const unsigned int pNumPts,
+    const unsigned int pNumOffsets,
+    const mccnn::ipoint<D>* __restrict__ pOffsets,
+    const mccnn::int64_m* __restrict__ pSampleKeys,
+    const int2* __restrict__ pGridDs,
+    const mccnn::ipoint<D>* __restrict__ pNumCells,
+    int2* __restrict__ pOutRanges)
+{
+    int initPtIndex = mccnn::compute_global_index_gpu_funct();
+    int totalThreads = mccnn::compute_total_threads_gpu_funct();
+
+    //Calculate the total number of cells.
+    mccnn::int64_m totalCells = mccnn::compute_total_num_cells_gpu_funct(pNumCells[0]);
+
+    for(int curIter = initPtIndex; curIter < pNumSamples*pNumOffsets; curIter += totalThreads)
+    {
+        //Calculate the point and offset index.
+        int curPtIndex = curIter/pNumOffsets;
+        int curOffset = curIter%pNumOffsets;
+
+        //Get the current offset.
+        mccnn::ipoint<D> cellOffset = pOffsets[curOffset];
+
+        //Get the key of the current point.
+        mccnn::int64_m curKey = pSampleKeys[curPtIndex];
+
+        //Get the new cell with the offset.
+        mccnn::ipoint<D+1> cellIndex = 
+            mccnn::compute_cell_from_key_gpu_funct(curKey, pNumCells[0]);
+#pragma unroll
+        for(int i=0; i < D; ++i)
+            cellIndex[i+1] += cellOffset[i];
+
+        //Check if we are out of the bounding box.
+        bool inside = true;
+#pragma unroll
+        for(int i=0; i < D; ++i)
+            inside = inside && cellIndex[i+1] >= 0 && cellIndex[i+1] < pNumCells[0][i];
+        if(inside)
+        {
+            //Get the range of pts to check in the data structure.
+            int curDsIndex = mccnn::compute_ds_index_from_cell_gpu_funct(cellIndex, pNumCells[0]);
+            int2 dsRange = pGridDs[curDsIndex];
+
+            //Store in memory the resulting range.
+            pOutRanges[curIter] = dsRange;
+        }
+    }
+}
 
 ///////////////////////// CPU
 
@@ -209,17 +274,29 @@ void mccnn::find_ranges_grid_ds_gpu(
     totalNumBlocks = (totalNumBlocks > execBlocks)?execBlocks:totalNumBlocks;
 
     //Execute the cuda kernel.
-    find_ranges_grid_ds_gpu_kernel<D><<<totalNumBlocks, blockSize, 0, cudaStream>>>(
-        pNumSamples,
-        pNumPts, 
-        pLastDOffsets,
-        pNumOffsets,
-        (const mccnn::ipoint<D>*)pInGPUPtrOffsets,
-        pInGPUPtrSampleKeys, 
-        pInGPUPtrPtsKeys,
-        (const int2*)pInGPUPtrGridDS, 
-        (const mccnn::ipoint<D>*)pInGPUPtrNumCells,
-        (int2*)pOutGPUPtrRanges);
+    if(D > 2){
+        find_ranges_grid_ds_gpu_kernel<D><<<totalNumBlocks, blockSize, 0, cudaStream>>>(
+            pNumSamples,
+            pNumPts, 
+            pLastDOffsets,
+            pNumOffsets,
+            (const mccnn::ipoint<D>*)pInGPUPtrOffsets,
+            pInGPUPtrSampleKeys, 
+            pInGPUPtrPtsKeys,
+            (const int2*)pInGPUPtrGridDS, 
+            (const mccnn::ipoint<D>*)pInGPUPtrNumCells,
+            (int2*)pOutGPUPtrRanges);
+    }else{
+        find_ranges_grid_ds_2d_gpu_kernel<D><<<totalNumBlocks, blockSize, 0, cudaStream>>>(
+            pNumSamples,
+            pNumPts, 
+            pNumOffsets,
+            (const mccnn::ipoint<D>*)pInGPUPtrOffsets,
+            pInGPUPtrSampleKeys,
+            (const int2*)pInGPUPtrGridDS, 
+            (const mccnn::ipoint<D>*)pInGPUPtrNumCells,
+            (int2*)pOutGPUPtrRanges);
+    }
     pDevice->check_error(__FILE__, __LINE__);
 }
 

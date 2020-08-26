@@ -28,8 +28,7 @@ from pylib.pc.custom_ops.custom_ops_tf import basis_proj_tf
 class BasisProjTFTest(test_case.TestCase):
 
   @parameterized.parameters(
-    # neighbor ids are currently corrupted on dimension 2: todo fix
-    # (2000, 200, [3, 3], 16, 0.7, 4, 2),
+    (2000, 200, [3, 3], 16, 0.7, 4, 2),
     (2000, 200, [1, 3], 16, 0.7, 8, 3),
     (4000, 400, [3, 3], 8, 0.7, 8, 3),
     (2000, 200, [3, 3], 16, 0.7, 8, 4),

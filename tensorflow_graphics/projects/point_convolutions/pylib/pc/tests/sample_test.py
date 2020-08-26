@@ -78,14 +78,9 @@ class SamplingTest(test_case.TestCase):
     self.assertTrue(len(sampled_points) == expected_num_pts)
 
   @parameterized.parameters(
-    # currently only 3D supported
-    # (100, 2, 0.1, 2),
-    # (100, 8, 0.7, 2),
-    # (100, 32, np.sqrt(2), 2),
     (100, 2, 0.1, 3),
     (100, 8, 0.7, 3),
     (50, 2, np.sqrt(3), 3),
-    # (40, 2, 0.1, 4)
   )
   def test_sampling_average_on_random(
         self, num_points, batch_size, cell_size, dimension):

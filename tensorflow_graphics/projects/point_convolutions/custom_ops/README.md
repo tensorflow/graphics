@@ -6,12 +6,12 @@ for a detailed guide about how to add an op we refer to this template.
 ## Setting up the environment
 The c++-toolchains are dependent on the latest tensorflow-custom-op docker container, to set it up run
 ```bash
-  docker pull tensorflow/tensorflow:2.1.0-custom-op-gpu-ubuntu16
+  docker pull tensorflow/tensorflow:2.2.0-custom-op-gpu-ubuntu16
   sudo docker run --gpus all --privileged -it -v ${PWD}:/working_dir -w /working_dir tensorflow/tensorflow:2.2.0-custom-op-gpu-ubuntu16
   root@docker: ./configure.sh
 ```
 
-and answer the first question with yes `y`,  and sepcifiy the TensorFlow version.
+and answer the first question with yes `y`,  and specify the TensorFlow version you want to build for.
 
 ## Building the PIP-Package
 

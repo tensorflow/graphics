@@ -27,9 +27,8 @@ from pylib.pc.layers import PointConv
 class PointConvTest(test_case.TestCase):
 
   @parameterized.parameters(
-    # neighbor ids are currently corrupted on dimension 2: todo fix
-    # (2000, 200, [3, 3], 16, 0.7, 4, 2),
-    # (4000, 400, [3, 3], 8, np.sqrt(2), 8, 2),
+    (2000, 200, [3, 3], 16, 0.7, 8, 2),
+    (4000, 400, [3, 3], 8, np.sqrt(2), 8, 2),
     (2000, 200, [1, 3], 16, 0.7, 8, 3),
     (4000, 400, [3, 3], 8, 0.7, 8, 3),
     (4000, 100, [3, 1], 1, np.sqrt(3), 16, 3),

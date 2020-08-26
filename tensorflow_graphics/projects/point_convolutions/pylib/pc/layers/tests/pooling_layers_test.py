@@ -64,9 +64,8 @@ class PoolingTest(test_case.TestCase):
       self.assertAllClose(pool_numpy, pool_tf)
 
   @parameterized.parameters(
-    # neighbor ids are currently corrupted on dimension 2: todo fix
-    # (2000, 200, 16, 0.7, 2),
-    # (4000, 400, 8, np.sqrt(2), 2),
+    (2000, 200, 16, 0.7, 2),
+    (4000, 400, 8, np.sqrt(2), 2),
     (2000, 200, 16, 0.7, 3),
     (4000, 400, 8, np.sqrt(3), 3),
     (4000, 100, 1, np.sqrt(3), 3),

@@ -25,8 +25,8 @@ from pylib.pc.custom_ops.custom_ops_tf import compute_keys_tf
 class ComputeKeysTF(test_case.TestCase):
 
   @parameterized.parameters(
-    # (10000, 32, 30, 0.1, 2), # currently corrupted in 2D
-    # (20000, 16, 1, 0.2, 2),
+    (100, 32, 30, 0.1, 2),
+    (200, 16, 1, 0.2, 2),
     (200, 8, 1, np.sqrt(2), 2),
     (100, 32, 30, 0.1, 3),
     (200, 16, 1, 0.2, 3),

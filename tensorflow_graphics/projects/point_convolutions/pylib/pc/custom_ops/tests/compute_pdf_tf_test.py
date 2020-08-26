@@ -31,9 +31,9 @@ from pylib.pc.tests import utils
 class ComputePDFTFTest(test_case.TestCase):
 
   @parameterized.parameters(
-    # (2, 100, 10, 0.2, 0.1, 2),
-    # (2, 100, 10, 0.7, 0.1, 2),
-    # (2, 100, 10, np.sqrt(2), 0.1, 2),
+    (2, 100, 10, 0.2, 0.1, 2),
+    (2, 100, 10, 0.7, 0.1, 2),
+    (2, 100, 10, np.sqrt(2), 0.1, 2),
     (2, 100, 10, 0.2, 0.2, 3),
     (2, 100, 10, 0.7, 0.1, 3),
     (2, 100, 10, np.sqrt(3), 0.2, 3),
@@ -111,7 +111,7 @@ class ComputePDFTFTest(test_case.TestCase):
     self.assertAllClose(pdf_tf, pdf_skl)
 
   @parameterized.parameters(
-    # (1, 20, 1, np.sqrt(2), 2),
+    (1, 20, 1, np.sqrt(2), 2),
     (1, 20, 1, np.sqrt(3), 3),
     (1, 20, 1, np.sqrt(4), 4)
   )
@@ -145,7 +145,7 @@ class ComputePDFTFTest(test_case.TestCase):
       return neighborhood._pdf / max_num_nb
 
     self.assert_jacobian_is_correct_fn(
-        compute_pdf, [np.float32(points)], atol=1e-4)
+        compute_pdf, [np.float32(points)], atol=1e-4, delta=1e-4)
 
 
 if __name__ == '__main__':
