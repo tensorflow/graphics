@@ -297,11 +297,11 @@ class PointResNetBottleNeck:
                                                       training=training)
         features = self._activation(features)
         features = self._conv_layers[i](features=features,
-                                            point_cloud_in=point_cloud,
-                                            point_cloud_out=point_cloud,
-                                            radius=radius,
-                                            neighborhood=neighborhood,
-                                            **kwargs)
+                                        point_cloud_in=point_cloud,
+                                        point_cloud_out=point_cloud,
+                                        radius=radius,
+                                        neighborhood=neighborhood,
+                                        **kwargs)
         # upsampling
         features = self._batch_norm_layers[3 * i + 2](features,
                                                       training=training)
