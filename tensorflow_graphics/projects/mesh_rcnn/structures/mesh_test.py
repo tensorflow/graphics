@@ -212,8 +212,13 @@ class MeshTest(test_case.TestCase):
          [0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 1., 1.],
          [0., 0., 0., 0., 0., 0., 0., 1., 1., 0., 0., 1.]])
 
+    expected_normalized_adjacency = (expected_adjacency /
+                                     tf.reduce_sum(expected_adjacency, -1))
+
     adjacency_batch = meshes.vertex_neighbors()
     adjacency_packed = meshes.vertex_neighbors(return_block_diagonal=True)
+    adjacency_norm = meshes.vertex_neighbors(return_block_diagonal=True,
+                                             normalize=True)
 
     expected_adjacency_shape_batch = [b1, b2, 5, 5]
     expected_adjacency_shape_packed = [sum(len(v) for v in vertices),
@@ -223,8 +228,11 @@ class MeshTest(test_case.TestCase):
     self.assertEqual(expected_adjacency_shape_batch, adjacency_batch.shape)
     self.assertEqual(expected_adjacency_shape_packed, adjacency_packed.shape)
 
-    self.assertAllEqual(expected_adjacency,
+    self.assertAllClose(expected_adjacency,
                         tf.sparse.to_dense(adjacency_packed))
+
+    self.assertAllEqual(expected_normalized_adjacency,
+                        tf.sparse.to_dense(adjacency_norm))
 
 
 if __name__ == '__main__':

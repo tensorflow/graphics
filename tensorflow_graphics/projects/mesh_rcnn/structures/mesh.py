@@ -20,11 +20,10 @@ from tensorflow_graphics.projects.mesh_rcnn.util import padding
 
 
 class Meshes:
-  """Wrapper for batching of Meshes with unequal size."""
+  """Wrapper for batching of Triangle Meshes."""
 
   def __init__(self, vertices, faces, batch_sizes=None):
-    """
-    Contstructs the wrapper object from nested lists of multiple vertices and
+    """Contstructs the wrapper object from nested lists of multiple vertices and
     faces.
 
     Internally, vertices and faces are padded and packed into a single 2D
@@ -35,8 +34,8 @@ class Meshes:
         input format only. However, it is possible to retrieve a flat list of
         all vertices and faces tensor via `get_unpadded()`.
     * Padded: Tensor of shape `[A1, ..., An, max(N), 3]`, where max(N) is the
-        size of the largest vertex or face list in all batch dimensions. All
-        other vertex/face tensors get padded to this size.
+        size of the largest vertex (or face) list. All other vertex/face tensors
+        get padded to this size.
     * Flattened: 2D tensor of shape `[sum(N1, ..., Nn), 3]`, where N1, ..., Nn
         are the sizes of every vertex or face list in this batch.
 
@@ -47,14 +46,14 @@ class Meshes:
       case where 4 different meshes are to be stored in a Meshes object, the
       batched shape could be `[2, 2]`, `[4, 1]` or [`1, 4`]. In other words, the
       product over all entries in `batch_sizes` must be equal to the number of
-      vertices and faces provided in the constructor.
+      vertices and faces lists provided in the constructor.
 
     Args:
       vertices: List with N float32 tensors of shape `[V, 3]` containing the
         mesh vertices, or empty list.
       faces: List with N float32 tensors of shape `[F, 3]` containing the mesh
         faces, or empty list.
-      batch_sizes: Optinal list of ints indicating the size of each batch
+      batch_sizes: Optional list of ints indicating the size of each batch
         dimension for the meshes or None, if there is only one batch
         dimension.
     """
@@ -95,8 +94,7 @@ class Meshes:
       self.vertex_adjacency = None
 
   def get_flattened(self):
-    """
-    Returns the flattened vertices and faces.
+    """Returns the flattened vertices and faces.
     Returns:
       A 2D tensor of shape `[N*V, 3]` containing all padded vertices.
       A 2D tensor of shape  `[N*F, 3]` containing all padded faces.
@@ -110,8 +108,7 @@ class Meshes:
     return vertices, faces
 
   def get_padded(self):
-    """
-    Unpacks vertices and faces and returns them as a padded tensor.
+    """Unpacks vertices and faces and returns them as a padded tensor.
     Returns:
       A tensor of shape `[N, V, 3]` containing the padded vertices and
       a tensor of shape `[N, F, 3]` containing the padded faces.
@@ -127,8 +124,7 @@ class Meshes:
     return vertices, faces
 
   def get_unpadded(self):
-    """
-    Unpads und unstacks all vertices and faces and returns them as a flat list.
+    """Unpads und unstacks all vertices and faces and returns them as a flat list.
 
     Returns:
       A list of N vertex tensors of shape `[V',3]`.
@@ -171,8 +167,7 @@ class Meshes:
     return self
 
   def _check_valid_input(self, vertices, faces, batch_sizes):
-    """
-    Checks if the provided input is valid.
+    """Checks if the provided input is valid.
 
     Args:
       vertices: List of vertices provided in constructor
@@ -194,7 +189,9 @@ class Meshes:
         raise ValueError(f'vertices list of size {len(faces)} cannot be '
                          f'batched to shape {batch_sizes}!')
 
-  def vertex_neighbors(self, return_block_diagonal=False):
+  def vertex_neighbors(self,
+                       return_block_diagonal=False,
+                       normalize=False):
     """
     For each vertex i, find all vertices in the 1-ring of vertex i.
 
@@ -209,6 +206,11 @@ class Meshes:
       return_block_diagonal: A boolean flag indicating whether the adjacency
         should be returned as a 2d block-diagonal SparseTensor. If false,
         adjacency will be returned as batch of SparseTensors.
+      normalize: A boolean flag indicating whether the adjacency matrix should
+        be returned as row normalized matrix, such that
+        `adjacency[A1, ..., An, i, j] > 0` if vertex j is a neighbor of i,
+        and `adjacency[A1, ..., An, i, i] > 0` for all i, and
+        `sum(adjacency, axis=-1)[A1, ..., An, i] == 1.0 for all i`.
 
     Returns:
       A float32 SparseTensor of shape `[A1, ..., An, D1, D2]`  where
@@ -219,15 +221,21 @@ class Meshes:
     if self.vertex_adjacency is None:
       self.vertex_adjacency = self._compute_vertex_adjacency()
 
+    adjacency = self.vertex_adjacency
+
+    if normalize:
+      adjacency = self._row_normalize_adjacency_matrix(adjacency)
+
     if return_block_diagonal:
       sizes = tf.repeat(
           tf.expand_dims(self.vertex_sizes, -1),
           repeats=[2], axis=-1)
-      return utils.convert_to_block_diag_2d(self.vertex_adjacency,
+
+      return utils.convert_to_block_diag_2d(adjacency,
                                             sizes=sizes,
                                             validate_indices=True)
 
-    return self.vertex_adjacency
+    return adjacency
 
   def _compute_vertex_adjacency(self):
     """For each vertex i, find all vertices in the 1-ring of vertex i.
@@ -291,8 +299,14 @@ class Meshes:
     )
     adjacency = tf.sparse.reorder(neighbors)
 
-    if len(batch_shapes) > 1:
-      batched_shape = batch_shapes + [n_verts, n_verts]
-      adjacency = tf.sparse.reshape(adjacency, batched_shape)
+    batched_shape = batch_shapes + [n_verts, n_verts]
+    adjacency = tf.sparse.reshape(adjacency, batched_shape)
 
     return adjacency
+
+  def _row_normalize_adjacency_matrix(self, block_diag_2d):
+    """Returns a row-normalized version of the adjacency matrix."""
+    row_sums = tf.sparse.reduce_sum(block_diag_2d, -1)
+    normed = block_diag_2d / tf.repeat(tf.expand_dims(row_sums, -2),
+                                       [row_sums.shape[-1]], -2)
+    return normed
