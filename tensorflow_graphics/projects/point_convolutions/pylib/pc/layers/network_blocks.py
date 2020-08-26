@@ -228,12 +228,6 @@ class PointResNetBottleNeck:
                  num_features_out=bottle_neck_num_features,
                  num_dims=num_dims,
                  **kwargs))
-        self._batch_norm_layers.append(tf.keras.layers.BatchNormalization())
-        self._conv_layers.append(
-            conv(num_features_in=bottle_neck_num_features,
-                 num_features_out=bottle_neck_num_features,
-                 num_dims=num_dims,
-                 **kwargs))
         # layer on skip connection
         if self._projection_shortcuts:
           self._projection_layers.append(Conv1x1(num_features, num_features))
@@ -294,32 +288,22 @@ class PointResNetBottleNeck:
       for i in range(self._num_blocks):
         skip = features
         # downsampling
-        features = self._batch_norm_layers[4 * i](features,
+        features = self._batch_norm_layers[3 * i](features,
                                                   training=training)
         features = self._activation(features)
         features = self._downsampling_layers[i](features, point_cloud)
-        # first convolution on downsampled
-        features = self._batch_norm_layers[4 * i + 1](features,
+        # convolution on downsampled
+        features = self._batch_norm_layers[3 * i + 1](features,
                                                       training=training)
         features = self._activation(features)
-        features = self._conv_layers[2 * i](features=features,
+        features = self._conv_layers[i](features=features,
                                             point_cloud_in=point_cloud,
                                             point_cloud_out=point_cloud,
                                             radius=radius,
                                             neighborhood=neighborhood,
                                             **kwargs)
-        # second convolution on downsampled
-        features = self._batch_norm_layers[4 * i + 2](features,
-                                                      training=training)
-        features = self._activation(features)
-        features = self._conv_layers[2 * i + 1](features=features,
-                                                point_cloud_in=point_cloud,
-                                                point_cloud_out=point_cloud,
-                                                radius=radius,
-                                                neighborhood=neighborhood,
-                                                **kwargs)
         # upsampling
-        features = self._batch_norm_layers[4 * i + 3](features,
+        features = self._batch_norm_layers[3 * i + 2](features,
                                                       training=training)
         features = self._activation(features)
         features = self._upsampling_layers[i](features, point_cloud)
@@ -380,12 +364,6 @@ class PointResNetSpatialBottleNeck:
       for i in range(num_blocks):
         self._batch_norm_layers.append(tf.keras.layers.BatchNormalization())
         self._upsampling_layers.append(
-            conv(num_features_in=num_features,
-                 num_features_out=num_features,
-                 num_dims=num_dims,
-                 **kwargs))
-        self._batch_norm_layers.append(tf.keras.layers.BatchNormalization())
-        self._conv_layers.append(
             conv(num_features_in=num_features,
                  num_features_out=num_features,
                  num_dims=num_dims,
@@ -477,7 +455,7 @@ class PointResNetSpatialBottleNeck:
                                             point_cloud))
       for i in range(self._num_blocks):
         skip = features
-        features = self._batch_norm_layers[4 * i](features,
+        features = self._batch_norm_layers[3 * i](features,
                                                   training=training)
         features = self._activation(features)
         features = self._downsampling_layers[i](
@@ -487,27 +465,17 @@ class PointResNetSpatialBottleNeck:
             radius=radii[0],
             neighborhood=neighborhoods[0],
             **kwargs)
-        features = self._batch_norm_layers[4 * i + 1](features,
+        features = self._batch_norm_layers[3 * i + 1](features,
                                                       training=training)
         features = self._activation(features)
-        features = self._conv_layers[2 * i](
+        features = self._conv_layers[i](
           features=features,
           point_cloud_in=point_cloud_downsampled,
           point_cloud_out=point_cloud_downsampled,
           radius=radii[1],
           neighborhood=neighborhoods[1],
           **kwargs)
-        features = self._batch_norm_layers[4 * i + 2](features,
-                                                      training=training)
-        features = self._activation(features)
-        features = self._conv_layers[2 * i + 1](
-            features=features,
-            point_cloud_in=point_cloud_downsampled,
-            point_cloud_out=point_cloud_downsampled,
-            radius=radii[1],
-            neighborhood=neighborhoods[1],
-            **kwargs)
-        features = self._batch_norm_layers[4 * i + 3](features,
+        features = self._batch_norm_layers[3 * i + 2](features,
                                                       training=training)
         features = self._activation(features)
         features = self._upsampling_layers[i](
