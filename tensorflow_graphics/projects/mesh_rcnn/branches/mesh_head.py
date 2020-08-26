@@ -177,7 +177,8 @@ class MeshRefinementStage(keras_layers.Layer):
 
     for gconv in self.gconvs:
       gconv_input = [vertex_features,
-                     mesh.vertex_neighbors(return_block_diagonal=True)]
+                     mesh.vertex_neighbors(return_block_diagonal=True,
+                                           normalize=True)]
       new_vertex_features = gconv(gconv_input, sizes=None)
       inputs['vertex_features'] = new_vertex_features
       vertex_features = tf.concat(
