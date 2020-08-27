@@ -65,13 +65,13 @@ class VoxelPredictionLayer(keras_layers.Layer):
     """
     for c in range(self.num_convs):
       conv = keras_layers.Conv2D(self.latent_dim,
-                                 3,
+                                 kernel_size=3,
                                  activation='relu',
                                  name=f'{self.name}_FCN_Conv2D_{c}')
       self.convs.append(conv)
 
     self.deconv = keras_layers.Conv2DTranspose(self.latent_dim,
-                                               2,
+                                               kernel_size=2,
                                                strides=2,
                                                activation='relu')
     self.predictor = keras_layers.Conv2D(self.num_classes*self.out_depth,

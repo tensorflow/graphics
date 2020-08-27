@@ -11,7 +11,6 @@
 # limitations under the License.
 """Utility functions for testing of Mesh R-CNN layers."""
 
-import tensorflow as tf
 
 
 def calc_conv_out_spatial_shape(in_width, in_height, kernel_size=3, stride=1):
