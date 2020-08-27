@@ -61,7 +61,7 @@ class ComputeKeysTF(test_case.TestCase):
     aabb_min_per_point = aabb_min[batch_ids, :]
     cell_ind = np.floor((points - aabb_min_per_point) / radius).astype(int)
     cell_ind = np.minimum(np.maximum(cell_ind, [0] * dimension),
-                          total_num_cells)
+                          total_num_cells - 1)
     cell_multiplier = np.flip(np.cumprod(np.flip(total_num_cells)))
     cell_multiplier = np.concatenate((cell_multiplier, [1]), axis=0)
     keys = batch_ids * cell_multiplier[0] + \

@@ -72,10 +72,12 @@ class SamplingTest(test_case.TestCase):
     grid  = Grid(point_cloud, cell_sizes)
     neighborhood = Neighborhood(grid, cell_sizes)
     sample_point_cloud, _ = sample(neighborhood, 'poisson')
-
     sampled_points = sample_point_cloud._points.numpy()
-    expected_num_pts = num_points_sqrt ** 2 // 2
-    self.assertTrue(len(sampled_points) == expected_num_pts)
+    expected_max_num_pts = num_points_sqrt ** 2 // 2
+    expected_min_num_pts = np.ceil(num_points_sqrt ** 2 / 3)
+    self.assertTrue(
+        len(sampled_points) <= expected_max_num_pts and \
+        len(sampled_points) >= expected_min_num_pts)
 
   @parameterized.parameters(
     (100, 2, 0.1, 3),

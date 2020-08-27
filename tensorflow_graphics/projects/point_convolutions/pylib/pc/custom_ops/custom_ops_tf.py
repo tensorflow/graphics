@@ -45,7 +45,7 @@ def compute_keys_tf(point_cloud: PointCloud, num_cells, cell_size, name=None):
     cell_ind = tf.cast(cell_ind, tf.int32)
     cell_ind = tf.minimum(
         tf.maximum(cell_ind, tf.zeros_like(cell_ind)),
-        num_cells)
+        num_cells - 1)
     cell_multiplier = tf.math.cumprod(num_cells, reverse=True)
     cell_multiplier = tf.concat((cell_multiplier, [1]), axis=0)
     keys = point_cloud._batch_ids * cell_multiplier[0] + \
@@ -178,7 +178,7 @@ def find_neighbors_tf(grid,
       # clip to range between 0 and max num cells
       adj_cell_ids_2D = tf.minimum(
         tf.maximum(adj_cell_ids_2D, tf.zeros_like(adj_cell_ids_2D)),
-        grid._num_cells[:2])
+        grid._num_cells[:2] - 1)
       # get min and max point ids of the adjacent cells
       adj_ids = tf.gather_nd(data_structure[cur_batch_id], [adj_cell_ids_2D])
       adj_ids_start = tf.reduce_min(adj_ids[0, :, 0])

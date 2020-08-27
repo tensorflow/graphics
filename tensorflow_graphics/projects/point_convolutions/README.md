@@ -61,10 +61,11 @@ Check out the Colab notebooks for an introduction to the code
 Unit tests can be evaluated using
 
 ```bash
+  pip install -r pytest_requirements.txt
   pytest pylib/
 ```
 
-These include tests of the custom ops.
+These include tests of the custom ops if they are installed.
 
 ## Additional Information
 

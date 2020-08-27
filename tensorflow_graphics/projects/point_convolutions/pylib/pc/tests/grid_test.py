@@ -27,8 +27,8 @@ from pylib.pc.tests import utils
 class GridTest(test_case.TestCase):
 
   @parameterized.parameters(
-    (10000, 32, 30, 0.1, 2),
-    (20000, 16, 1, 0.2, 2),
+    (100, 32, 30, 0.1, 2),
+    (200, 16, 1, 0.2, 2),
     (200, 8, 1, np.sqrt(2), 2),
     (100, 32, 30, 0.1, 3),
     (200, 16, 1, 0.2, 3),
@@ -57,7 +57,7 @@ class GridTest(test_case.TestCase):
     aabb_min_per_point = aabb_min[batch_ids, :]
     cell_ind = np.floor((points - aabb_min_per_point) / radius).astype(int)
     cell_ind = np.minimum(np.maximum(cell_ind, [0] * dimension),
-                          total_num_cells)
+                          total_num_cells - 1)
     cell_multiplier = np.flip(np.cumprod(np.flip(total_num_cells)))
     cell_multiplier = np.concatenate((cell_multiplier, [1]), axis=0)
     keys = batch_ids * cell_multiplier[0] + \
