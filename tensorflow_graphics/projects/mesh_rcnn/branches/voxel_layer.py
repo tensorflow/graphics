@@ -13,10 +13,19 @@
 # limitations under the License.
 """Implementation of the voxel prediction branch of Mesh R-CNN."""
 
+import tensorflow as tf
 from tensorflow.keras import layers as keras_layers
 
-class MeshRefinementLayer(keras_layers.Layer):
-  """Implements the 'Voxel Tube' from Mesh R-CNN."""
+
+class VoxelPredictionLayer(keras_layers.Layer):
+  """Implements the 'Voxel Tube' from Mesh R-CNN.
+
+  Takes image features as input and passes them through a fully convolutional
+  network to keep correspondence between input features and predictions.
+
+  This network produces a feature map with G channels giving a column of voxel
+  occupancy scores for each position in the input.
+  """
 
   def __init__(self,
                num_classes,
@@ -38,7 +47,7 @@ class MeshRefinementLayer(keras_layers.Layer):
       name: `String`, Optional name for the layer. Defaults to
         'VoxelPredictionLayer'.
     """
-    super(MeshRefinementLayer, self).__init__(name=name)
+    super(VoxelPredictionLayer, self).__init__(name=name)
 
     self.num_classes = num_classes
     self.num_convs = num_convs
@@ -46,6 +55,14 @@ class MeshRefinementLayer(keras_layers.Layer):
     self.out_depth = out_depth
 
     self.convs = []
+
+
+  def build(self, input_shape):
+    """Initialized the weights of the layer.
+
+    Args:
+      input_shape: Shape of input image features, e.g. output shape of RoIAlign.
+    """
     for c in range(self.num_convs):
       conv = keras_layers.Conv2D(self.latent_dim,
                                  3,
@@ -53,6 +70,22 @@ class MeshRefinementLayer(keras_layers.Layer):
                                  name=f'{self.name}_FCN_Conv2D_{c}')
       self.convs.append(conv)
 
-    self.deconv = keras_layers.Conv2DTranspose(self.latent_dim, 2, stride=2)
-    # ToDo: output width and height??
-    self.predictor = keras_layers.Conv2D(self.num_convs*self.out_depth, kernel_size=1)
+    self.deconv = keras_layers.Conv2DTranspose(self.latent_dim,
+                                               2,
+                                               strides=2,
+                                               activation='relu')
+    self.predictor = keras_layers.Conv2D(self.num_classes*self.out_depth,
+                                         kernel_size=1)
+
+  def call(self, inputs, **kwargs):
+    """Forward pass of the layer."""
+    x = inputs
+    for conv in self.convs:
+      x = conv(x)
+
+    x = self.deconv(x)
+    predictions = self.predictor(x)
+
+    out_shape = predictions.shape[:-1] + [self.out_depth, self.num_classes]
+
+    return tf.reshape(predictions, out_shape)
