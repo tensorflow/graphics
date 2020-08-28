@@ -49,15 +49,23 @@ def get_mesh_input_data(batch_size=1,
   }
 
 
-def calc_conv_out_spatial_shape(in_width, in_height, kernel_size=3, stride=1):
-  """Computes the output size of a Conv2D layer without padding."""
-  out_width = ((in_width - kernel_size)/stride) + 1
-  out_height = ((in_height - kernel_size)/stride) + 1
+def calc_conv_out_spatial_shape(in_width,
+                                in_height,
+                                kernel_size=3,
+                                stride=1,
+                                padding=0):
+  """Computes the output size of a Conv2D layer."""
+  out_width = ((in_width - kernel_size + 2 * padding)/stride) + 1
+  out_height = ((in_height - kernel_size + 2 * padding)/stride) + 1
   return int(out_width), int(out_height)
 
 
-def calc_deconv_out_spatial_shape(in_width, in_height, kernel_size, stride):
-  """Computes the output size of a Conv2DTranspose layer without padding."""
-  out_width = stride * (in_width - 1) + kernel_size
-  out_height = stride * (in_height - 1) + kernel_size
+def calc_deconv_out_spatial_shape(in_width,
+                                  in_height,
+                                  kernel_size,
+                                  stride,
+                                  padding=0):
+  """Computes the output size of a Conv2DTranspose layer."""
+  out_width = stride * (in_width - 1) + kernel_size - 2 * padding
+  out_height = stride * (in_height - 1) + kernel_size - 2 * padding
   return int(out_width), int(out_height)

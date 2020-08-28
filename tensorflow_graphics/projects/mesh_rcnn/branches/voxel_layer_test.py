@@ -26,12 +26,12 @@ class VoxelPredictionLayerTest(test_case.TestCase):
   """Tests for voxel prediction layer of Mesh R-CNN."""
 
   @parameterized.parameters(
-      (1, 5, 256, 32, 14, 14),
-      (1, 0, 128, 16, 28, 28),
-      (5, 2, 128, 32, 14, 14),
-      (5, 1, 256, 16, 7, 7)
+      (5, 256, 32, 14, 14),
+      (0, 128, 16, 28, 28),
+      (0, 128, 28, 14, 14),
+      (1, 256, 16, 7, 7)
   )
-  def test_correct_output_shape(self, num_classes, num_convs, latent_dim,
+  def test_correct_output_shape(self, num_convs, latent_dim,
                                 out_depth, in_width, in_height):
     """Tests the `VoxelPredictionLayer` with different configurations and random
     imput for the correct output shape."""
@@ -39,11 +39,11 @@ class VoxelPredictionLayerTest(test_case.TestCase):
     # random 4D input tensor: batch_size, in_height, in_width, in_channels.
     input_features = tf.random.normal((2, in_width, in_height, 3))
 
-    layer = VoxelPredictionLayer(num_classes, num_convs, latent_dim, out_depth)
+    layer = VoxelPredictionLayer(num_convs, latent_dim, out_depth)
 
     output = layer(input_features)
 
-    self.assertEqual(5, tf.rank(output))
+    self.assertEqual(4, tf.rank(output))
 
     batch_size, height, width = input_features.shape[:3]
     for _ in range(num_convs):
@@ -53,6 +53,6 @@ class VoxelPredictionLayerTest(test_case.TestCase):
                                                                     height,
                                                                     2, 2)
 
-    expected_shape = [batch_size, out_height, out_width, out_depth, num_classes]
+    expected_shape = [batch_size, out_height, out_width, out_depth]
 
     self.assertEqual(expected_shape, output.shape)
