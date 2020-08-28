@@ -56,7 +56,6 @@ class VoxelPredictionLayer(keras_layers.Layer):
 
     self.convs = []
 
-
   def build(self, input_shape):
     """Initialized the weights of the layer.
 
@@ -64,18 +63,27 @@ class VoxelPredictionLayer(keras_layers.Layer):
       input_shape: Shape of input image features, e.g. output shape of RoIAlign.
     """
     for c in range(self.num_convs):
-      conv = keras_layers.Conv2D(self.latent_dim,
-                                 kernel_size=3,
-                                 activation='relu',
-                                 name=f'{self.name}_FCN_Conv2D_{c}')
+      conv = keras_layers.Conv2D(
+          self.latent_dim,
+          kernel_size=3,
+          activation='relu',
+          name=f'{self.name}_FCN_Conv2D_{c}'
+      )
       self.convs.append(conv)
 
-    self.deconv = keras_layers.Conv2DTranspose(self.latent_dim,
-                                               kernel_size=2,
-                                               strides=2,
-                                               activation='relu')
-    self.predictor = keras_layers.Conv2D(self.num_classes*self.out_depth,
-                                         kernel_size=1)
+    self.deconv = keras_layers.Conv2DTranspose(
+        self.latent_dim,
+        kernel_size=2,
+        strides=2,
+        activation='relu',
+        name=f'{self.name}_Deconv2D'
+    )
+    self.predictor = keras_layers.Conv2D(
+        self.num_classes * self.out_depth,
+        kernel_size=1,
+        activation='softmax' if self.num_classes > 1 else 'sigmoid',
+        name=f'{self.name}_Conv2D_Grid_output'
+    )
 
   def call(self, inputs, **kwargs):
     """Forward pass of the layer."""
