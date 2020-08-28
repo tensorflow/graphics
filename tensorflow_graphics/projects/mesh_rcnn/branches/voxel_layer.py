@@ -25,10 +25,13 @@ class VoxelPredictionLayer(keras_layers.Layer):
 
   This network produces a feature map with G channels giving a column of voxel
   occupancy scores for each position in the input.
+
+  Note:
+    This layer works class agnostic. It assumes that each input feature map
+    contains exactly one object.
   """
 
   def __init__(self,
-               num_classes,
                num_convs,
                latent_dim,
                out_depth,
@@ -36,8 +39,6 @@ class VoxelPredictionLayer(keras_layers.Layer):
     """Constructs the layer.
 
     Args:
-      num_classes: `int` scalar denoting the number of different object classes
-        that are to be predicted.
       num_convs: `int` scalar denoting the number of 2D convolutions to be used
         in the fully convolutional part of this layer.
       latent_dim: `int` scalar denoting the number of filters to be used for the
@@ -49,7 +50,6 @@ class VoxelPredictionLayer(keras_layers.Layer):
     """
     super(VoxelPredictionLayer, self).__init__(name=name)
 
-    self.num_classes = num_classes
     self.num_convs = num_convs
     self.latent_dim = latent_dim
     self.out_depth = out_depth
@@ -79,14 +79,23 @@ class VoxelPredictionLayer(keras_layers.Layer):
         name=f'{self.name}_Deconv2D'
     )
     self.predictor = keras_layers.Conv2D(
-        self.num_classes * self.out_depth,
+        self.out_depth,
         kernel_size=1,
-        activation='softmax' if self.num_classes > 1 else 'sigmoid',
+        activation='sigmoid',
         name=f'{self.name}_Conv2D_Grid_output'
     )
 
   def call(self, inputs, **kwargs):
-    """Forward pass of the layer."""
+    """Forward pass of the layer.
+
+    Args:
+      inputs: float32 tensor of shape `[batch_size, height, width, features]`
+        containing convolutional features aligned to an object bounding box
+        containing only one object.
+    Returns:
+      A float32 tensor of shape `[batch_size, height', width', depth']`
+      containing voxel grid occupancy probabilities for each point in the input.
+    """
     x = inputs
     for conv in self.convs:
       x = conv(x)
@@ -94,6 +103,4 @@ class VoxelPredictionLayer(keras_layers.Layer):
     x = self.deconv(x)
     predictions = self.predictor(x)
 
-    out_shape = predictions.shape[:-1] + [self.out_depth, self.num_classes]
-
-    return tf.reshape(predictions, out_shape)
+    return predictions
