@@ -42,37 +42,53 @@ class MeshRcnnTest(test_case.TestCase):
   def test_mesh_r_cnn_loss_integration(self, weights, gt_points, pred_points):
     """Integration Test for Mesh R-CNN Loss with two meshes and different
     weights and sample sizes."""
+    stateless_sampling_seed = [47, 11]
 
-    tf.random.set_seed(42)
-
-    vertices1 = [tf.constant([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.],
-                              [-1., 0., 0.], [0., -1., 0.]], tf.float32)]
-    faces1 = [tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]],
-                          tf.int32)]
+    vertices1 = [
+        tf.constant([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.],
+                     [-1., 0., 0.], [0., -1., 0.]], tf.float32),
+        tf.constant([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]],
+                    dtype=tf.float32)
+    ]
+    faces1 = [
+        tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]], tf.int32),
+        tf.constant([[0, 1, 2], [0, 2, 3]], dtype=tf.int32)
+    ]
 
     # second mesh is first mesh rotated by 45 degrees around x axis:
     rot_mat = rotation_matrix_3d.from_axis_angle([1., 0., 0.],
                                                  [45. * math.pi / 180.])
-    vertices2 = [rotation_matrix_3d.rotate(vertices1[0], rot_mat)]
-    faces2 = [tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]],
-                          tf.int32)]
+    vertices2 = [
+        rotation_matrix_3d.rotate(vertices1[0], rot_mat),
+        rotation_matrix_3d.rotate(vertices1[1], rot_mat)
+    ]
+    faces2 = [
+        tf.constant([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]], tf.int32),
+        tf.constant([[0, 1, 2], [0, 2, 3]], dtype=tf.int32)
+    ]
 
     gt_mesh = Meshes(vertices2, faces2)
     pred_mesh = Meshes(vertices1, faces1)
 
     loss_fn = mesh_rcnn_loss.initialize(weights,
                                         gt_sample_size=gt_points,
-                                        pred_sample_size=pred_points)
+                                        pred_sample_size=pred_points,
+                                        sampling_seed=stateless_sampling_seed,
+                                        stateless_sampling=True)
 
     gt_points_with_normals = mesh_rcnn_loss._sample_points_and_normals(
-        vertices2[0],
-        faces2[0],
-        gt_points)
+        gt_mesh,
+        gt_points,
+        seed=stateless_sampling_seed,
+        stateless=True
+    )
 
     pred_points_with_normals = mesh_rcnn_loss._sample_points_and_normals(
-        vertices1[0],
-        faces1[0],
-        pred_points)
+        pred_mesh,
+        pred_points,
+        seed=stateless_sampling_seed,
+        stateless=True
+    )
 
     expected_chamfer = chamfer_distance.evaluate(
         gt_points_with_normals[:, :3],
@@ -92,7 +108,7 @@ class MeshRcnnTest(test_case.TestCase):
                      weights['normal'] * expeceted_normal +
                      weights['edge'] * expected_edge_regularizer) / 3.
 
-    self.assertAllClose(expected_loss, loss_fn(gt_mesh, pred_mesh), rtol=10e-3)
+    self.assertAllClose(expected_loss, loss_fn(gt_mesh, pred_mesh))
 
 
 if __name__ == '__main__':
