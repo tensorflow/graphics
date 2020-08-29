@@ -204,9 +204,9 @@ def cubify(voxel_grid, threshold=0.5):
 
   # align the top left corner of each cuboid to the pixel coordinate of the
   # input grid.
-  x = x * 2 / (width - 1) - 1.0
-  y = y * 2 / (height - 1) - 1.0
-  z = z * 2 / (depth - 1) - 1.0
+  x = tf.cast(x * 2 / (width - 1) - 1.0, tf.float32)
+  y = tf.cast(y * 2 / (height - 1) - 1.0, tf.float32)
+  z = tf.cast(z * 2 / (depth - 1) - 1.0, tf.float32)
 
   grid_vertices = tf.reshape(tf.stack((x, y, z), axis=3), shape=(-1, 3))
 
