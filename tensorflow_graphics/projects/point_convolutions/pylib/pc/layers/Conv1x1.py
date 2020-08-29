@@ -20,7 +20,7 @@ from pylib.pc.layers.utils import _format_output
 from pylib.pc import PointCloud
 
 
-class Conv1x1:
+class Conv1x1(tf.Module):
   """ A 1x1 convolution on the point features. This op reshapes the arguments
   to pass them to `tf.keras.layers.Conv1D` to perform the equivalent
   convolution operation.
@@ -31,18 +31,36 @@ class Conv1x1:
   Args:
     num_features_in: An `int` `C_in`, the number of input features.
     num_features_out: An `int` `C_out`, the number of output features.
-    **kwargs: Additional keyword arguments to be passed to
-      `tf.keras.layers.Conv1D`. (optional)
-
+    name: An `string` with the name of the module.
   """
 
-  def __init__(self, num_features_in, num_features_out, **kwargs):
-    self.conv_layer = tf.keras.layers.Conv1D(
-        filters=num_features_out,
-        kernel_size=1,
-        input_shape=[None, 1, num_features_in],
-        **kwargs)
-    self._num_features_out = num_features_out
+  def __init__(self, num_features_in, num_features_out, name=None):
+
+    super().__init__(name=name)
+
+    if not(name is None):
+        weigths_name = name + "/weights"
+        bias_name = name + "/bias"
+    else:
+        weigths_name = "Conv1x1/weights"
+        bias_name = "Conv1x1/bias"
+
+    std_dev = tf.math.sqrt(2.0 / float(num_features_in))
+    weights_init_obj = tf.initializers.TruncatedNormal(stddev=std_dev)
+    self._weights_tf = tf.Variable(
+        weights_init_obj(
+            shape=[num_features_in, num_features_out],
+            dtype=tf.float32),
+        trainable=True,
+        name=weigths_name)
+
+    bias_init_obj = tf.initializers.zeros()
+    self._bias_tf = tf.Variable(
+        bias_init_obj(
+            shape=[1, num_features_out],
+            dtype=tf.float32),
+        trainable=True,
+        name=bias_name)
 
   def __call__(self,
                features,
@@ -76,9 +94,7 @@ class Conv1x1:
     features = tf.cast(tf.convert_to_tensor(value=features),
                        dtype=tf.float32)
     features = _flatten_features(features, point_cloud)
-    features = tf.expand_dims(features, 1)
-    features = self.conv_layer(features)
-    features = tf.reshape(features, [-1, self._num_features_out])
+    features = tf.matmul(features, self._weights_tf) + self._bias_tf
     return _format_output(features,
                           point_cloud,
                           return_sorted,

@@ -31,7 +31,7 @@ non_linearity_types = {'relu': tf.nn.relu,
                        'elu': tf.nn.elu}
 
 
-class MCConv:
+class MCConv(tf.Module):
   """ Monte-Carlo convolution for point clouds.
 
   Based on the paper [Monte Carlo Convolution for Learning on Non-Uniformly
@@ -68,64 +68,71 @@ class MCConv:
                initializer_weights=None,
                initializer_biases=None,
                name=None):
-    with tf.compat.v1.name_scope(name, "create Monte-Carlo convolution",
-                                 [self, num_features_out, num_features_in,
-                                  num_features_out, num_dims, num_mlps,
-                                  mlp_size, non_linearity_type,
-                                  initializer_weights, initializer_biases]):
-      self._num_features_in = num_features_in
-      self._num_features_out = num_features_out
-      self._num_mlps = num_mlps
-      self._mlp_size = mlp_size
-      self._num_dims = num_dims
-      self._non_linearity_type = non_linearity_type
 
-      if num_features_out % num_mlps != 0:
-        raise ValueError(
-            "The number of output features must be divisible by the number" +
-            " of kernel MLPs")
+    super().__init__(name=name)
 
-      if name is None:
-        self._name = ''
-      else:
-        self._name = name
+    self._num_features_in = num_features_in
+    self._num_features_out = num_features_out
+    self._num_mlps = num_mlps
+    self._mlp_size = mlp_size
+    self._num_dims = num_dims
+    self._non_linearity_type = non_linearity_type
 
-      # initialize variables
-      if initializer_weights is None:
-        initializer_weights = tf.initializers.TruncatedNormal
-      if initializer_biases is None:
-        initializer_biases = tf.initializers.zeros
+    if num_features_out % num_mlps != 0:
+      raise ValueError(
+          "The number of output features must be divisible by the number" +
+          " of kernel MLPs")
 
-      self._weights_tf = []
-      self._bias_tf = []
-      prev_num_inut = self._num_dims
-      for cur_layer in self._mlp_size:
+    if name is None:
+      self._name = 'MCConv'
+    else:
+      self._name = name
 
+    # initialize variables
+    if initializer_weights is None:
+      initializer_weights = tf.initializers.TruncatedNormal
+    if initializer_biases is None:
+      initializer_biases = tf.initializers.zeros
+
+    self._weights_tf = []
+    self._bias_tf = []
+    prev_num_inut = self._num_dims
+    for cur_layer_iter, cur_layer in enumerate(self._mlp_size):
+
+      if cur_layer_iter:
         std_dev = tf.math.sqrt(1.0 / float(prev_num_inut))
-        self._weights_tf.append(tf.compat.v1.get_variable(
-            self._name + '_hidden_vectors',
-            shape=[self._num_mlps, prev_num_inut, cur_layer],
-            initializer=initializer_weights(stddev=std_dev),
-            dtype=tf.float32,
-            trainable=True))
-        self._bias_tf.append(tf.compat.v1.get_variable(
-            self._name + '_hidden_biases',
-            shape=[self._num_mlps, 1, cur_layer],
-            initializer=initializer_biases(),
-            dtype=tf.float32,
-            trainable=True))
-        prev_num_inut = cur_layer
+      else:
+        std_dev = tf.math.sqrt(2.0 / float(prev_num_inut))
 
-      std_dev = tf.math.sqrt(2.0 / \
-                             float(cur_layer * self._num_features_in))
-      self._final_weights_tf = \
-          tf.compat.v1.get_variable(
-              self._name + '_conv_weights',
-              shape=[self._num_mlps,
-                     cur_layer * self._num_features_in,
-                     self._num_features_out // self._num_mlps],
-              initializer=initializer_weights(stddev=std_dev),
-              dtype=tf.float32, trainable=True)
+      weights_init_obj = initializer_weights(stddev=std_dev)
+      self._weights_tf.append(tf.Variable(
+          weights_init_obj(
+              shape=[self._num_mlps, prev_num_inut, cur_layer],
+              dtype=tf.float32),
+          trainable=True,
+          name=self._name + "/weights_" + str(cur_layer_iter)))
+
+      bias_init_obj = initializer_biases()
+      self._bias_tf.append(tf.Variable(
+          bias_init_obj(shape=[self._num_mlps, 1, cur_layer],
+                        dtype=tf.float32),
+          trainable=True,
+          name=self._name + "/bias_" + str(cur_layer_iter)))
+      prev_num_inut = cur_layer
+
+    std_dev = tf.math.sqrt(2.0 / \
+                           float(cur_layer * self._num_features_in))
+
+    weights_init_obj = initializer_weights(stddev=std_dev)
+    self._final_weights_tf = tf.Variable(
+        weights_init_obj(
+            shape=[
+                self._num_mlps,
+                cur_layer * self._num_features_in,
+                self._num_features_out // self._num_mlps],
+            dtype=tf.float32),
+        trainable=True,
+        name=self._name + "/final_weights_" + str(cur_layer_iter))
 
   def _monte_carlo_conv(self,
                         kernel_inputs,
@@ -229,42 +236,38 @@ class MCConv:
 
     """
 
-    with tf.compat.v1.name_scope(name, "Monte-Carlo_convolution",
-                                 [features, point_cloud_in, point_cloud_out,
-                                  radius, neighborhood, bandwidth,
-                                  return_sorted]):
-      features = tf.cast(tf.convert_to_tensor(value=features),
-                         dtype=tf.float32)
-      features = _flatten_features(features, point_cloud_in)
+    features = tf.cast(tf.convert_to_tensor(value=features),
+                       dtype=tf.float32)
+    features = _flatten_features(features, point_cloud_in)
 
-      #Create the radii tensor.
-      radii_tensor = tf.cast(tf.repeat([radius], self._num_dims),
-                             dtype=tf.float32)
-      #Create the badnwidth tensor.
-      bwTensor = tf.repeat(bandwidth, self._num_dims)
+    #Create the radii tensor.
+    radii_tensor = tf.cast(tf.repeat([radius], self._num_dims),
+                           dtype=tf.float32)
+    #Create the badnwidth tensor.
+    bwTensor = tf.repeat(bandwidth, self._num_dims)
 
-      if neighborhood is None:
-        #Compute the grid
-        grid = Grid(point_cloud_in, radii_tensor)
-        #Compute the neighborhoods
-        neigh = Neighborhood(grid, radii_tensor, point_cloud_out)
-      else:
-        neigh = neighborhood
-      pdf = neigh.get_pdf(bandwidth=bwTensor, mode=KDEMode.constant)
+    if neighborhood is None:
+      #Compute the grid
+      grid = Grid(point_cloud_in, radii_tensor)
+      #Compute the neighborhoods
+      neigh = Neighborhood(grid, radii_tensor, point_cloud_out)
+    else:
+     neigh = neighborhood
+    pdf = neigh.get_pdf(bandwidth=bwTensor, mode=KDEMode.constant)
 
-      #Compute kernel inputs.
-      neigh_point_coords = tf.gather(
-          point_cloud_in._points, neigh._original_neigh_ids[:, 0])
-      center_point_coords = tf.gather(
-          point_cloud_out._points, neigh._original_neigh_ids[:, 1])
-      points_diff = (neigh_point_coords - center_point_coords) / \
-          tf.reshape(radii_tensor, [1, self._num_dims])
+    #Compute kernel inputs.
+    neigh_point_coords = tf.gather(
+        point_cloud_in._points, neigh._original_neigh_ids[:, 0])
+    center_point_coords = tf.gather(
+        point_cloud_out._points, neigh._original_neigh_ids[:, 1])
+    points_diff = (neigh_point_coords - center_point_coords) / \
+        tf.reshape(radii_tensor, [1, self._num_dims])
 
-      #Compute Monte-Carlo convolution
-      convolution_result = self._monte_carlo_conv(
-          points_diff, neigh, pdf, features, self._non_linearity_type)
+    #Compute Monte-Carlo convolution
+    convolution_result = self._monte_carlo_conv(
+        points_diff, neigh, pdf, features, self._non_linearity_type)
 
-      return _format_output(convolution_result,
-                            point_cloud_out,
-                            return_sorted,
-                            return_padded)
+    return _format_output(convolution_result,
+                          point_cloud_out,
+                          return_sorted,
+                          return_padded)

@@ -31,7 +31,7 @@ non_linearity_types = {'relu': tf.nn.relu,
                        'elu': tf.nn.elu}
 
 
-class PointConv:
+class PointConv(tf.Module):
   """ Monte-Carlo convolution for point clouds.
 
   Based on the paper [PointConv: Deep Convolutional Networks on 3D Point
@@ -64,75 +64,81 @@ class PointConv:
                initializer_weights=None,
                initializer_biases=None,
                name=None):
-    with tf.compat.v1.name_scope(name, "create PointConv convolution",
-                                 [self, num_features_out, num_features_in,
-                                  num_features_out, num_dims, size_hidden,
-                                  non_linearity_type, initializer_weights,
-                                  initializer_biases]):
-      self._num_features_in = num_features_in
-      self._num_features_out = num_features_out
-      self._size_hidden = size_hidden
-      self._num_dims = num_dims
-      self._non_linearity_type = non_linearity_type
 
-      if name is None:
-        self._name = ''
-      else:
-        self._name = name
+    super().__init__(name=name)
 
-      # initialize variables
-      if initializer_weights is None:
-        initializer_weights = tf.initializers.GlorotNormal
-      if initializer_biases is None:
-        initializer_biases = tf.initializers.zeros
+    self._num_features_in = num_features_in
+    self._num_features_out = num_features_out
+    self._size_hidden = size_hidden
+    self._num_dims = num_dims
+    self._non_linearity_type = non_linearity_type
 
-      # Hidden layer of the kernel.
-      self._basis_axis_tf = tf.compat.v1.get_variable(
-          self._name + '_hidden_vectors',
-          shape=[self._num_dims, self._size_hidden],
-          initializer=initializer_weights(),
-          dtype=tf.float32,
-          trainable=True)
-      self._basis_bias_tf = tf.compat.v1.get_variable(
-          self._name + '_hidden_biases',
-          shape=[1, self._size_hidden],
-          initializer=initializer_biases(),
-          dtype=tf.float32,
-          trainable=True)
+    if name is None:
+      self._name = 'PointConv'
+    else:
+      self._name = name
 
-      # Convolution weights.
-      self._weights = \
-          tf.compat.v1.get_variable(
-              self._name + '_conv_weights',
-              shape=[self._size_hidden * self._num_features_in,
-                     self._num_features_out],
-              initializer=initializer_weights(),
-              dtype=tf.float32, trainable=True)
+    # initialize variables
+    if initializer_weights is None:
+      initializer_weights = tf.initializers.GlorotNormal
+    if initializer_biases is None:
+      initializer_biases = tf.initializers.zeros
 
-      # Weights of the non-linear transform of the pdf.
-      self._weights_pdf = \
-          [tf.compat.v1.get_variable(
-              self._name + '_pdf_weights_1',
+    # Hidden layer of the kernel.
+    weights_init_obj = initializer_weights()
+    self._basis_axis_tf = tf.Variable(
+          weights_init_obj(
+              shape=[self._num_dims, self._size_hidden],
+              dtype=tf.float32),
+          trainable=True,
+          name=self._name + "/hidden_vectors")
+
+    bias_init_obj = initializer_biases()
+    self._basis_bias_tf = tf.Variable(
+        bias_init_obj(
+            shape=[1, self._size_hidden],
+            dtype=tf.float32),
+        trainable=True,
+        name=self._name + "/hidden_bias")
+
+    # Convolution weights.
+    self._weights = tf.Variable(
+          weights_init_obj(
+              shape=[
+                  self._size_hidden * self._num_features_in,
+                  self._num_features_out],
+              dtype=tf.float32),
+          trainable=True,
+          name=self._name + "/conv_weights")
+
+    # Weights of the non-linear transform of the pdf.
+    self._weights_pdf = \
+        [tf.Variable(
+          weights_init_obj(
               shape=[1, 16],
-              initializer=initializer_weights(),
-              dtype=tf.float32, trainable=True),
-           tf.compat.v1.get_variable(
-              self._name + '_pdf_weights_2',
+              dtype=tf.float32),
+          trainable=True,
+          name=self._name + "/pdf_weights_1"),
+         tf.Variable(
+          weights_init_obj(
               shape=[16, 1],
-              initializer=initializer_weights(),
-              dtype=tf.float32, trainable=True)]
+              dtype=tf.float32),
+          trainable=True,
+          name=self._name + "/pdf_weights_2")]
 
-      self._biases_pdf = \
-          [tf.compat.v1.get_variable(
-              self._name + '_pdf_biases_1',
+    self._biases_pdf = \
+        [tf.Variable(
+          bias_init_obj(
               shape=[1, 16],
-              initializer=initializer_biases(),
-              dtype=tf.float32, trainable=True),
-           tf.compat.v1.get_variable(
-              self._name + '_pdf_biases_2',
+              dtype=tf.float32),
+          trainable=True,
+          name=self._name + "/pdf_biases_1"),
+         tf.Variable(
+          bias_init_obj(
               shape=[1, 1],
-              initializer=initializer_biases(),
-              dtype=tf.float32, trainable=True)]
+              dtype=tf.float32),
+          trainable=True,
+          name=self._name + "/pdf_biases_2")]
 
   def _point_conv(self,
                   kernel_inputs,
@@ -238,41 +244,37 @@ class PointConv:
 
     """
 
-    with tf.compat.v1.name_scope(name, "PointConv_convolution",
-                                 [features, point_cloud_in, point_cloud_out,
-                                  radius, neighborhood, bandwidth,
-                                  return_sorted]):
-      features = tf.cast(tf.convert_to_tensor(value=features),
-                         dtype=tf.float32)
-      features = _flatten_features(features, point_cloud_in)
+    features = tf.cast(tf.convert_to_tensor(value=features),
+                       dtype=tf.float32)
+    features = _flatten_features(features, point_cloud_in)
 
-      #Create the radii tensor.
-      radii_tensor = tf.cast(tf.repeat([radius], self._num_dims),
-                             dtype=tf.float32)
-      #Create the badnwidth tensor.
-      bwTensor = tf.repeat(bandwidth, self._num_dims)
+    #Create the radii tensor.
+    radii_tensor = tf.cast(tf.repeat([radius], self._num_dims),
+                           dtype=tf.float32)
+    #Create the badnwidth tensor.
+    bwTensor = tf.repeat(bandwidth, self._num_dims)
 
-      if neighborhood is None:
-        #Compute the grid
-        grid = Grid(point_cloud_in, radii_tensor)
-        #Compute the neighborhoods
-        neigh = Neighborhood(grid, radii_tensor, point_cloud_out)
-      else:
-        neigh = neighborhood
-      pdf = neigh.get_pdf(bandwidth=bwTensor, mode=KDEMode.constant)
+    if neighborhood is None:
+      #Compute the grid
+      grid = Grid(point_cloud_in, radii_tensor)
+      #Compute the neighborhoods
+      neigh = Neighborhood(grid, radii_tensor, point_cloud_out)
+    else:
+      neigh = neighborhood
+    pdf = neigh.get_pdf(bandwidth=bwTensor, mode=KDEMode.constant)
 
-      #Compute kernel inputs.
-      neigh_point_coords = tf.gather(
-          point_cloud_in._points, neigh._original_neigh_ids[:, 0])
-      center_point_coords = tf.gather(
-          point_cloud_out._points, neigh._original_neigh_ids[:, 1])
-      points_diff = (neigh_point_coords - center_point_coords)
+    #Compute kernel inputs.
+    neigh_point_coords = tf.gather(
+        point_cloud_in._points, neigh._original_neigh_ids[:, 0])
+    center_point_coords = tf.gather(
+        point_cloud_out._points, neigh._original_neigh_ids[:, 1])
+    points_diff = (neigh_point_coords - center_point_coords)
 
-      #Compute PointConv convolution
-      convolution_result = self._point_conv(
-          points_diff, neigh, pdf, features, self._non_linearity_type)
+    #Compute PointConv convolution
+    convolution_result = self._point_conv(
+        points_diff, neigh, pdf, features, self._non_linearity_type)
 
-      return _format_output(convolution_result,
-                            point_cloud_out,
-                            return_sorted,
-                            return_padded)
+    return _format_output(convolution_result,
+                          point_cloud_out,
+                          return_sorted,
+                          return_padded)
