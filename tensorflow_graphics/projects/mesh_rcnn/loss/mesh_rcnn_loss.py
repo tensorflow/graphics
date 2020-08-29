@@ -24,7 +24,9 @@ from tensorflow_graphics.projects.mesh_rcnn.loss import normal_distance
 
 def initialize(weights=None,
                gt_sample_size=5000,
-               pred_sample_size=5000):
+               pred_sample_size=5000,
+               sampling_seed=None,
+               stateless_sampling=False):
   """Initialize the mesh prediction loss as defined in the Mesh R-CNN paper.
 
   This functions builds a closure that evaluates the loss function
@@ -49,6 +51,12 @@ def initialize(weights=None,
       truth meshes.
     pred_sample_size: int, denoting the number of points to sample from
       predicted meshes.
+    sampling_seed: Optional seed for the sampling op.
+    stateless_sampling: Optional flag to use stateless random sampler.
+      If stateless_sampling=True, then seed must be provided as shape `[2]` int
+      tensor. Stateless random sampling is useful for testing to generate same
+      sequence across calls.
+
 
   Returns:
     A function with signature (y_true, y_pred) that can be passes to Keras'
@@ -66,27 +74,29 @@ def initialize(weights=None,
 
     Args:
       y_true: Meshes object containing the ground truth meshes
-      y_pred: Meshes object with predictioncs,
+      y_pred: Meshes object with predictions,
         storing the same number of meshes as y_true
 
     Returns:
       float32 scalar tensor containing the weighted Mesh R-CNN loss.
     """
-    gt_vertices, gt_faces = y_true.get_flattened()
-    pred_vertices, pred_faces = y_pred.get_flattened()
+    gt_points_with_normals = _sample_points_and_normals(
+        y_true,
+        gt_sample_size,
+        seed=sampling_seed,
+        stateless=stateless_sampling
+    )
 
-    dim = gt_vertices.shape[-1]
+    pred_points_with_normals = _sample_points_and_normals(
+        y_pred,
+        pred_sample_size,
+        seed=sampling_seed,
+        stateless=stateless_sampling
+    )
 
-    gt_points_with_normals = _sample_points_and_normals(gt_vertices,
-                                                        gt_faces,
-                                                        gt_sample_size)
-
-    pred_points_with_normals = _sample_points_and_normals(pred_vertices,
-                                                          pred_faces,
-                                                          pred_sample_size)
-
-    l_chamfer = chamfer_distance.evaluate(gt_points_with_normals[..., :dim],
-                                          pred_points_with_normals[..., :dim])
+    dim = tf.cast(gt_points_with_normals.shape[-1] / 2., tf.int32)
+    l_chamfer = chamfer_distance.evaluate(gt_points_with_normals[:, :dim],
+                                          pred_points_with_normals[:, :dim])
     l_normal = normal_distance.evaluate(gt_points_with_normals,
                                         pred_points_with_normals)
     l_edge = edge_regularizer.evaluate(y_pred.get_padded()[0],
@@ -100,17 +110,18 @@ def initialize(weights=None,
   return evaluate
 
 
-def _sample_points_and_normals(vertices, faces, sample_size):
+def _sample_points_and_normals(meshes, sample_size, seed=None, stateless=False):
   """
   Helper function to jointly sample points from a mesh together with associated
   face normal vectors.
   Args:
-    vertices: A float32 tensor of shape `[N, D]` representing the
-      mesh vertices. D denotes the dimensionality of the input space.
-    faces: A float32 tensor of shape `[M, V]` representing the
-      mesh vertices. V denotes the number of vertices per face.
+    meshes: A `Meshes` object containing a batch of meshes.
     sample_size: An int scalar denoting the number of points to be sampled from
       the mesh surface.
+    seed: Optional random seed for the sampling op.
+    stateless: Optional flag to use stateless random sampler. If stateless=True,
+      then seed must be provided as shape `[2]` int tensor. Stateless random
+      sampling is useful for testing to generate same sequence across calls.
 
   Returns:
     A float32 tensor of shape `[A1, ..., An, N, 2D]` containing
@@ -120,15 +131,48 @@ def _sample_points_and_normals(vertices, faces, sample_size):
     in a D dimensional space.
 
   """
-  points, face_idx = sampler.area_weighted_random_sample_triangle_mesh(
-      vertices,
-      faces,
-      sample_size
-  )
-  face_positions = normals.gather_faces(vertices, faces)
-  # Setting clockwise to false, since cubify outputs them in CCW order.
-  face_normals = normals.face_normals(face_positions, clockwise=False)
-  sampled_point_normals = tf.gather(face_normals, face_idx, axis=None)
-  points_with_normals = tf.concat([points, sampled_point_normals], -1)
+  padded_vertices, padded_faces = meshes.get_padded()
+  batch_size = padded_vertices.shape[:-2].as_list()
+  flat_batch_vertices = tf.reshape(padded_vertices,
+                                   [-1] + padded_vertices.shape[-2:].as_list())
+  flat_batch_faces = tf.reshape(padded_faces,
+                                [-1] + padded_faces.shape[-2:].as_list())
 
-  return points_with_normals
+  vertex_sizes, face_sizes = meshes.get_sizes()
+  vertex_sizes = tf.reshape(vertex_sizes, [-1])
+  face_sizes = tf.reshape(face_sizes, [-1])
+
+  def sample_per_mesh(args):
+    """Samples points and face indices per sampled point per mesh."""
+    vertices, faces, b_id = args
+    vertices = vertices[:vertex_sizes[b_id]]
+    faces = faces[:face_sizes[b_id]]
+
+    # return zero tensor for empty meshes, because otherwise it will fail
+    # in `normals.gather_faces`
+    if tf.reduce_all(vertices == 0):
+      return tf.zeros((sample_size, vertices.shape[-1] * 2), tf.float32)
+
+    points, face_idx = sampler.area_weighted_random_sample_triangle_mesh(
+        vertices, faces, sample_size, seed=seed, stateless=stateless
+    )
+
+    face_positions = normals.gather_faces(vertices, faces)
+    # Setting clockwise to false, since cubify outputs them in CCW order.
+    face_normals = normals.face_normals(face_positions, clockwise=False)
+    sampled_point_normals = tf.gather(face_normals, face_idx, axis=None)
+    return tf.concat([points, sampled_point_normals], -1)
+
+  # This workaround is needed, since the sampler does not support padded inputs.
+  points_with_normals = tf.map_fn(
+      sample_per_mesh,
+      (
+          flat_batch_vertices,
+          flat_batch_faces,
+          tf.range(padded_vertices.shape[0], dtype=tf.int32)
+      ),
+      dtype=tf.float32
+  )
+
+  return tf.reshape(points_with_normals,
+                    batch_size + points_with_normals.shape[1:].as_list())
