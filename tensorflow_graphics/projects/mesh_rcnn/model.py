@@ -16,10 +16,8 @@
 import tensorflow as tf
 from tensorflow import keras as K
 
-from tensorflow_graphics.projects.mesh_rcnn.branches.mesh_refinement_layer import \
-  MeshRefinementLayer
-from tensorflow_graphics.projects.mesh_rcnn.branches.voxel_layer import \
-  VoxelPredictionLayer
+from tensorflow_graphics.projects.mesh_rcnn.branches.mesh_refinement_layer import MeshRefinementLayer
+from tensorflow_graphics.projects.mesh_rcnn.branches.voxel_layer import VoxelPredictionLayer
 from tensorflow_graphics.projects.mesh_rcnn.loss import mesh_rcnn_loss
 from tensorflow_graphics.projects.mesh_rcnn.ops.cubify import cubify
 
@@ -47,19 +45,23 @@ class MeshRCNN(K.Model):
   def __init__(self, config, name='MeshRCNN'):
     super(MeshRCNN, self).__init__(name=name)
 
+    self.config = config
     self.cubify_threshold = config.cubify_threshold
 
+    self.voxel_loss_fn = None
+    self.mesh_loss_fn = None
+
     self.voxel_prediction = VoxelPredictionLayer(
-        num_convs=config.num_convs_voxel_layer,
-        latent_dim=config.latent_dim_voxel_layer,
-        out_depth=config.voxel_grid_depth,
-        name=config.voxel_layer_name
+        num_convs=config.voxel_prediction_num_convs,
+        latent_dim=config.voxel_prediction_latent_dim,
+        out_depth=config.voxel_prediction_out_depth,
+        name=config.voxel_prediction_layer_name
     )
     self.mesh_refinement = MeshRefinementLayer(
         num_stages=config.mesh_refinement_num_stages,
         num_gconvs=config.mesh_refinement_num_gconvs,
         gconv_dim=config.mesh_refinement_gconv_dim,
-        gconv_init=config.mesh_refinement_gconv_inititalizer,
+        gconv_init=config.mesh_refinement_gconv_initializer,
         name=config.mesh_refinement_layer_name
     )
 
@@ -83,9 +85,10 @@ class MeshRCNN(K.Model):
       Triangle Meshes.
     """
     # ToDo check inputs
-    voxel_occupancy_probabilities = self.voxel_prediction(inputs[0])
+    features, intrinsics = inputs
+    voxel_occupancy_probabilities = self.voxel_prediction(features)
     init_mesh = cubify(voxel_occupancy_probabilities, self.cubify_threshold)
-    meshes = self.mesh_refinement(inputs[0], init_mesh, inputs[1])
+    meshes = self.mesh_refinement(features, init_mesh, intrinsics)
 
     return voxel_occupancy_probabilities, meshes
 
@@ -93,8 +96,6 @@ class MeshRCNN(K.Model):
               optimizer='adam',
               metrics=None,
               loss_weights=None,
-              mesh_loss_sample_size_gt=5000,
-              mesh_loss_sample_size_pred=5000,
               **kwargs):
     """Compiles the Mesh R-CNN Model and initializes all Loss functions, metrics
     and the optimizer.
@@ -112,12 +113,6 @@ class MeshRCNN(K.Model):
           'normal': <`float32` scalar>,
           'edge': <`float32` scalar
         }
-      mesh_loss_sample_size_gt: 'int' scalar denoting the number of points to be
-        sampled from the mesh surfaces of the ground truth shapes for the
-        evaluation of the mesh loss.
-      mesh_loss_sample_size_pred: 'int' scalar denoting the number of points to be
-        sampled from the mesh surfaces of the predicted shapes for the
-        evaluation of the mesh loss.
 
     Raises:
       ValueError: In case of invalid arguments for
@@ -125,11 +120,11 @@ class MeshRCNN(K.Model):
     """
     super(MeshRCNN, self).compile(optimizer=optimizer, metrics=metrics)
     self.loss_weights = loss_weights
-    self.voxel_loss = K.losses.BinaryCrossentropy()
-    self.mesh_loss = mesh_rcnn_loss.initialize(
+    self.voxel_loss_fn = K.losses.BinaryCrossentropy()
+    self.mesh_loss_fn = mesh_rcnn_loss.initialize(
         self.loss_weights,
-        gt_sample_size=mesh_loss_sample_size_gt,
-        pred_sample_size=mesh_loss_sample_size_pred)
+        gt_sample_size=self.config.mesh_loss_sample_size_gt,
+        pred_sample_size=self.config.mesh_loss_sample_size_pred)
 
   def train_step(self, data):
     """Logic of one train step.
@@ -143,22 +138,32 @@ class MeshRCNN(K.Model):
       A `dict` containing the computed losses in the form:
       `{'voxel_loss': 0.2, 'mesh_loss': 0.7}`.
     """
-    inputs, ground_truths = data  # ToDo check format
+    inputs, ground_truths = data
     voxel_gt, mesh_gt = ground_truths
 
-    with tf.GradientTape() as tape:
+    if self.voxel_loss_fn is None:
+      raise ValueError(f'Model {self.name} has no attribute `voxel_loss_fn`. '
+                       f'Call model.compile to initialize the optimizers.')
+
+    if self.mesh_loss_fn is None:
+      raise ValueError(f'Model {self.name} has no attribute `mesh_loss_fn`. '
+                       f'Call model.compile to initialize the optimizers.')
+
+    with tf.GradientTape(persistent=True) as tape:
       # ToDo intermediary mesh predictions from single stages???
       voxel_predictions, mesh_predictions = self(inputs, training=True)
-      voxel_loss = self.voxel_loss(voxel_gt, voxel_predictions)
-      mesh_loss = self.mesh_loss(mesh_gt, mesh_predictions)
+      voxel_loss = self.voxel_loss_fn(voxel_gt, voxel_predictions)
+      mesh_loss = self.mesh_loss_fn(mesh_gt, mesh_predictions)
 
-    voxel_gradients = tape.gradient(voxel_loss,
-                                    self.voxel_prediction.trainable_weights)
     mesh_gradients = tape.gradient(mesh_loss,
                                    self.mesh_refinement.trainable_weights)
 
     self.optimizer.apply_gradients(zip(mesh_gradients,
                                        self.mesh_refinement.trainable_weights))
+
+    voxel_gradients = tape.gradient(voxel_loss,
+                                    self.voxel_prediction.trainable_weights)
+
     self.optimizer.apply_gradients(zip(voxel_gradients,
                                        self.voxel_prediction.trainable_weights))
 
@@ -177,12 +182,13 @@ class MeshRCNN(K.Model):
       `{'voxel_loss': 0.2, 'mesh_loss': 0.7}`.
     """
     inputs, ground_truths = data  # ToDo check format
+    print(inputs)
     voxel_gt, mesh_gt = ground_truths
 
     voxel_predictions, mesh_predictions = self(inputs, training=False)
 
-    voxel_loss = self.voxel_loss(voxel_gt, voxel_predictions)
-    mesh_loss = self.mesh_loss(mesh_gt, mesh_predictions)
+    voxel_loss = self.voxel_loss_fn(voxel_gt, voxel_predictions)
+    mesh_loss = self.mesh_loss_fn(mesh_gt, mesh_predictions)
 
     self.compiled_metrics.update_state(inputs,
                                        (voxel_predictions, mesh_predictions))
