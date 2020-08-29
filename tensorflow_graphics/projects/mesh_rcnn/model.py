@@ -82,6 +82,7 @@ class MeshRCNN(K.Model):
       The 3D outputs as a batch of predicted voxel grids and a batch of 3D
       Triangle Meshes.
     """
+    # ToDo check inputs
     voxel_occupancy_probabilities = self.voxel_prediction(inputs[0])
     init_mesh = cubify(voxel_occupancy_probabilities, self.cubify_threshold)
     meshes = self.mesh_refinement(inputs[0], init_mesh, inputs[1])
@@ -92,7 +93,8 @@ class MeshRCNN(K.Model):
               optimizer='adam',
               metrics=None,
               loss_weights=None,
-              mesh_loss_sample_size=5000,
+              mesh_loss_sample_size_gt=5000,
+              mesh_loss_sample_size_pred=5000,
               **kwargs):
     """Compiles the Mesh R-CNN Model and initializes all Loss functions, metrics
     and the optimizer.
@@ -110,8 +112,12 @@ class MeshRCNN(K.Model):
           'normal': <`float32` scalar>,
           'edge': <`float32` scalar
         }
-      mesh_loss_sample_size: 'int' scalar denoting the number of points to be
-        sampled from the mesh surfaces for the evaluation of the mesh loss.
+      mesh_loss_sample_size_gt: 'int' scalar denoting the number of points to be
+        sampled from the mesh surfaces of the ground truth shapes for the
+        evaluation of the mesh loss.
+      mesh_loss_sample_size_pred: 'int' scalar denoting the number of points to be
+        sampled from the mesh surfaces of the predicted shapes for the
+        evaluation of the mesh loss.
 
     Raises:
       ValueError: In case of invalid arguments for
@@ -122,8 +128,8 @@ class MeshRCNN(K.Model):
     self.voxel_loss = K.losses.BinaryCrossentropy()
     self.mesh_loss = mesh_rcnn_loss.initialize(
         self.loss_weights,
-        gt_sample_size=mesh_loss_sample_size,
-        pred_sample_size=mesh_loss_sample_size)
+        gt_sample_size=mesh_loss_sample_size_gt,
+        pred_sample_size=mesh_loss_sample_size_pred)
 
   def train_step(self, data):
     """Logic of one train step.
@@ -141,10 +147,47 @@ class MeshRCNN(K.Model):
     voxel_gt, mesh_gt = ground_truths
 
     with tf.GradientTape() as tape:
-      voxel_predictions, mesh_predictions = self(inputs, training=True) # ToDo intermediary mesh predictions from single stages???
+      # ToDo intermediary mesh predictions from single stages???
+      voxel_predictions, mesh_predictions = self(inputs, training=True)
       voxel_loss = self.voxel_loss(voxel_gt, voxel_predictions)
       mesh_loss = self.mesh_loss(mesh_gt, mesh_predictions)
 
-    # ToDo compute and apply gradients
+    voxel_gradients = tape.gradient(voxel_loss,
+                                    self.voxel_prediction.trainable_weights)
+    mesh_gradients = tape.gradient(mesh_loss,
+                                   self.mesh_refinement.trainable_weights)
+
+    self.optimizer.apply_gradients(zip(mesh_gradients,
+                                       self.mesh_refinement.trainable_weights))
+    self.optimizer.apply_gradients(zip(voxel_gradients,
+                                       self.voxel_prediction.trainable_weights))
 
     return {'voxel_loss': voxel_loss, 'mesh_loss': mesh_loss}
+
+  def test_step(self, data):
+    """Logic of one test step.
+
+    Args:
+      data: A nested structure of `Tensor`s containing the input features
+        together with the intrinsic camera parameters and the ground truth
+        voxel grid and ground truth meshes.
+
+    Returns:
+      A `dict` containing the computed metrics in the form:
+      `{'voxel_loss': 0.2, 'mesh_loss': 0.7}`.
+    """
+    inputs, ground_truths = data  # ToDo check format
+    voxel_gt, mesh_gt = ground_truths
+
+    voxel_predictions, mesh_predictions = self(inputs, training=False)
+
+    voxel_loss = self.voxel_loss(voxel_gt, voxel_predictions)
+    mesh_loss = self.mesh_loss(mesh_gt, mesh_predictions)
+
+    self.compiled_metrics.update_state(inputs,
+                                       (voxel_predictions, mesh_predictions))
+
+    self.compiled_metrics['voxel_loss'] = voxel_loss
+    self.compiled_metrics['mesh_loss'] = mesh_loss
+
+    return {m.name: m.result() for m in self.metrics}
