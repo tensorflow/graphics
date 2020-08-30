@@ -14,6 +14,7 @@
 """Configuration for Mesh R-CNN shape branches."""
 
 import json
+import jsonschema
 import os
 
 import tensorflow as tf
@@ -34,6 +35,8 @@ class MeshRCNNConfig:
     """
     self.path_to_config_file = os.path.join(os.path.dirname(__file__),
                                             'mesh_r_cnn_base-config.json')
+    self.schema_path = os.path.join(os.path.dirname(__file__),
+                               'config-schema.json')
 
     if not path_to_json is None:
       if not os.path.exists(path_to_json):
@@ -48,6 +51,11 @@ class MeshRCNNConfig:
 
     with tf.io.gfile.GFile(path_to_config_file, mode='r') as config_file:
       config = json.load(config_file)
+
+    with tf.io.gfile.GFile(self.schema_path, mode='r') as schema_file:
+      schema = json.load(schema_file)
+
+    jsonschema.validate(config, schema)
 
     voxel_config = config['voxel_prediction']
     mesh_config = config['mesh_refinement']
@@ -68,5 +76,3 @@ class MeshRCNNConfig:
     self.mesh_refinement_layer_name = mesh_config['layer_name']
 
     self.loss_weights = config['loss_weights']
-
-    # ToDo validate data
