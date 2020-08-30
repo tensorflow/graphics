@@ -13,6 +13,7 @@
 # limitations under the License.
 """Test cases for the Mesh R-CNN implementation."""
 
+from absl.testing import parameterized
 import tensorflow as tf
 from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 from tensorflow_graphics.projects.mesh_rcnn.model import MeshRCNN
@@ -63,6 +64,68 @@ class MeshRCNNTest(test_case.TestCase):
     model.compile(loss_weights=config.loss_weights)
 
     losses = model.train_step([inputs, ground_truths])
+    self.assertTrue('voxel_loss' in losses)
+    self.assertTrue('mesh_loss' in losses)
+    self.assertEqual([], losses['voxel_loss'].shape)
+    self.assertEqual([], losses['mesh_loss'].shape)
+    self.assertNotEqual(losses['voxel_loss'], losses['mesh_loss'])
+
+  @parameterized.parameters(
+      ([2, 8, 8, 1], [4, 3, 3], [2, 28, 28, 28], [2, 4, 3],
+       'Not all batch dimensions are identical'),
+      ([3, 6, 6], [3, 3], [2, 28, 28, 28], [2, 4, 3],
+       'intrinsics must have a rank of 3'),
+      ([2, 6, 6, 6], [2, 3, 4], [2, 28, 28, 28], [2, 4, 3],
+        'intrinsics must have exactly 3 dimensions in axis -1'),
+       ([2, 6, 6, 6], [2, 4, 3], [2, 28, 28, 28], [2, 4, 3],
+         'intrinsics must have exactly 3 dimensions in axis -2'),
+      ([2, 6, 6, 6], [2, 3, 3], [2, 28, 28, 8], [2, 4, 3],
+       'ground_truth_voxels must have exactly 28 dimensions in axis -1'),
+      ([2, 6, 6, 6], [2, 3, 3], [28, 28, 28], [2, 4, 3],
+       'ground_truth_voxels must have a rank of 4'),
+      ([2, 6, 6, 6], [2, 3, 3], [2, 28, 28, 28], None,
+       'Ground truth mesh must be provided as an instance'),
+      ([2, 6, 6, 6], [2, 3, 3], [2, 28, 28, 28], [4, 2, 3],
+       'Not all batch dimensions are identical'),
+      (None, [2, 3, 3], [2, 28, 28, 28], [2, 4, 3],
+       '`inputs` must be a list or tuple of two tensors.')
+  )
+  def test_raising_inputs(self,
+                          features_shape,
+                          intrinsics_shape,
+                          gt_voxel_shape,
+                          gt_meshes_shape,
+                          msg):
+    """Tests the model forward pass with invalid input data."""
+
+    if not features_shape is None:
+      features = tf.random.normal(features_shape)
+    else:
+      features = None
+    intrinsics = tf.random.normal(intrinsics_shape)
+    gt_voxels = tf.random.normal(gt_voxel_shape)
+
+    if not gt_meshes_shape is None:
+      verts = []
+      faces = []
+      for _ in range(gt_meshes_shape[0]):
+        verts.append(tf.random.normal(gt_meshes_shape[1:]))
+        faces.append(tf.ones(gt_meshes_shape[1:], dtype=tf.int32))
+
+      meshes = Meshes(verts, faces)
+    else:
+      meshes = tf.constant([0])
+
+    if not features is None:
+      data = [[features, intrinsics], [gt_voxels, meshes]]
+    else:
+      data = [intrinsics, [gt_voxels, meshes]]
+
+    config = MeshRCNNConfig()
+    model = MeshRCNN(config)
+
+    with self.assertRaisesWithPredicateMatch(ValueError, msg):
+      model.test_step(data)
 
 
 if __name__ == "__main__":

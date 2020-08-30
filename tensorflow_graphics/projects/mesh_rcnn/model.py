@@ -13,13 +13,17 @@
 # limitations under the License.
 """The Mesh R-CNN Architecture as Keras Model."""
 
-import tensorflow as tf
 from tensorflow import keras as K
+import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.branches.mesh_refinement_layer import MeshRefinementLayer
-from tensorflow_graphics.projects.mesh_rcnn.branches.voxel_layer import VoxelPredictionLayer
+from tensorflow_graphics.projects.mesh_rcnn.branches.mesh_refinement_layer import \
+  MeshRefinementLayer
+from tensorflow_graphics.projects.mesh_rcnn.branches.voxel_layer import \
+  VoxelPredictionLayer
 from tensorflow_graphics.projects.mesh_rcnn.loss import mesh_rcnn_loss
 from tensorflow_graphics.projects.mesh_rcnn.ops.cubify import cubify
+from tensorflow_graphics.util import shape
+from tensorflow_graphics.projects.mesh_rcnn.structures.mesh import Meshes
 
 
 class MeshRCNN(K.Model):
@@ -84,8 +88,11 @@ class MeshRCNN(K.Model):
       The 3D outputs as a batch of predicted voxel grids and a batch of 3D
       Triangle Meshes.
     """
-    # ToDo check inputs
-    features, intrinsics = inputs
+    self._check_input_shapes(inputs)
+
+    features = tf.convert_to_tensor(inputs[0])
+    intrinsics = tf.convert_to_tensor(inputs[1])
+
     voxel_occupancy_probabilities = self.voxel_prediction(features)
     init_mesh = cubify(voxel_occupancy_probabilities, self.cubify_threshold)
     meshes = self.mesh_refinement(features, init_mesh, intrinsics)
@@ -167,7 +174,7 @@ class MeshRCNN(K.Model):
     self.optimizer.apply_gradients(zip(voxel_gradients,
                                        self.voxel_prediction.trainable_weights))
 
-    return {'voxel_loss': voxel_loss, 'mesh_loss': mesh_loss}
+    return {'voxel_loss': voxel_loss, 'mesh_loss': tf.reduce_mean(mesh_loss)}
 
   def test_step(self, data):
     """Logic of one test step.
@@ -181,8 +188,10 @@ class MeshRCNN(K.Model):
       A `dict` containing the computed metrics in the form:
       `{'voxel_loss': 0.2, 'mesh_loss': 0.7}`.
     """
-    inputs, ground_truths = data  # ToDo check format
-    print(inputs)
+    inputs, ground_truths = data
+
+    self._check_ground_truth_shapes(ground_truths)
+
     voxel_gt, mesh_gt = ground_truths
 
     voxel_predictions, mesh_predictions = self(inputs, training=False)
@@ -197,3 +206,52 @@ class MeshRCNN(K.Model):
     self.compiled_metrics['mesh_loss'] = mesh_loss
 
     return {m.name: m.result() for m in self.metrics}
+
+  def _check_input_shapes(self, inputs):
+    """Checks tensors provided during training and testing."""
+
+    if not isinstance(inputs, (list, tuple)) or not len(inputs) == 2:
+      raise ValueError('`inputs` must be a list or tuple of two tensors.')
+
+    features = tf.convert_to_tensor(inputs[0])
+    intrinsics = tf.convert_to_tensor(inputs[1])
+
+    shape.compare_batch_dimensions([features, intrinsics],
+                                   last_axes=0,
+                                   broadcast_compatible=False,
+                                   tensor_names=['features', 'intrinsics'])
+    shape.check_static(intrinsics,
+                       has_rank=3,
+                       has_dim_equals=[(-1, 3), (-2, 3)],
+                       tensor_name='intrinsics')
+    shape.check_static(features,
+                       has_rank=4,
+                       tensor_name='features')
+
+  def _check_ground_truth_shapes(self, ground_truth):
+    """Checks the shape of provided ground truth data."""
+
+    if not len(ground_truth) == 2:
+      raise ValueError('`ground_truth` must be a list or tuple of two tensors.')
+
+    voxels = tf.convert_to_tensor(ground_truth[0])
+    mesh = ground_truth[1]
+
+    if not isinstance(mesh, Meshes):
+      raise ValueError(f'Ground truth mesh must be provided as an instance of'
+                       f'{Meshes.__class__}.')
+
+    vertices, faces = mesh.get_padded()
+
+    shape.check_static(voxels,
+                       has_rank=4,
+                       has_dim_equals=[-1,
+                                       self.config.voxel_prediction_out_depth],
+                       tensor_name='ground_truth_voxels')
+
+    shape.compare_batch_dimensions([voxels, vertices, faces],
+                                   last_axes=0,
+                                   broadcast_compatible=False,
+                                   tensor_names=['voxels',
+                                                 'mesh.vertices',
+                                                 'mesh.faces'])
