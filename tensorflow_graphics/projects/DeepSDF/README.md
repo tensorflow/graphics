@@ -1,4 +1,4 @@
-# DeepSDF_tf
+# DeepSDF
 
 This repo contains a TensorFlow 2.x implementation of the paper ["DeepSDF: Learning Continuous Signed Distance Functions for Shape Representation"](https://openaccess.thecvf.com/content_CVPR_2019/html/Park_DeepSDF_Learning_Continuous_Signed_Distance_Functions_for_Shape_Representation_CVPR_2019_paper.html) by Park et al. The codes are based on [the authors's pytorch implementation](https://github.com/facebookresearch/DeepSDF).
 
