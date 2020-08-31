@@ -27,9 +27,9 @@ from pylib.pc.layers import KPConv
 class KPConvTest(test_case.TestCase):
 
   @parameterized.parameters(
-    (2000, 200, [1, 3], 16, 0.7, 5, 3),
-    (4000, 400, [3, 3], 8, 0.7, 5, 3),
-    (4000, 100, [3, 1], 1, np.sqrt(3), 5, 3),
+    (200, 20, [1, 3], 16, 0.7, 5, 3),
+    (400, 40, [3, 3], 8, 0.7, 5, 3),
+    (400, 10, [3, 1], 1, np.sqrt(3), 5, 3),
   )
   def test_convolution(self,
                        num_points,
@@ -131,7 +131,7 @@ class KPConvTest(test_case.TestCase):
         return conv_result
 
       self.assert_jacobian_is_correct_fn(
-          conv_features, [features], atol=1e-4, delta=1e-3)
+          conv_features, [features], atol=1e-3, delta=1e-3)
 
     with self.subTest(name='weights'):
       def conv_weights(weigths_in):
@@ -142,7 +142,7 @@ class KPConvTest(test_case.TestCase):
 
       weights = conv_layer._weights
       self.assert_jacobian_is_correct_fn(
-          conv_weights, [weights], atol=1e-4, delta=1e-3)
+          conv_weights, [weights], atol=1e-3, delta=1e-3)
 
   @parameterized.parameters(
     (8, 4, [2, 2], 2, np.sqrt(3) * 1.25, 5, 3)
@@ -178,7 +178,7 @@ class KPConvTest(test_case.TestCase):
         return conv_result
 
       self.assert_jacobian_is_correct_fn(
-          conv_features, [features], atol=1e-4, delta=1e-3)
+          conv_features, [features], atol=1e-3, delta=1e-3)
 
     with self.subTest(name='weights'):
       def conv_weights(weigths_in):
@@ -189,7 +189,7 @@ class KPConvTest(test_case.TestCase):
 
       weights = conv_layer._weights
       self.assert_jacobian_is_correct_fn(
-          conv_weights, [weights], atol=1e-4, delta=1e-3)
+          conv_weights, [weights], atol=1e-3, delta=1e-3)
 
     with self.subTest(name='offsets'):
       def conv_offset_weights(weigths_in):
@@ -210,7 +210,7 @@ class KPConvTest(test_case.TestCase):
 
       weights = conv_layer._kernel_offsets_weights
       self.assert_jacobian_is_correct_fn(
-          conv_loss, [features], atol=5e-4, delta=5e-3)
+          conv_loss, [features], atol=1e-3, delta=1e-2)
 
   @parameterized.parameters(
     (8, 4, [8, 8], 2, np.sqrt(3) * 1.25, 15, 3),
@@ -252,7 +252,7 @@ class KPConvTest(test_case.TestCase):
       return conv_result
 
     self.assert_jacobian_is_correct_fn(
-        conv_points, [np.float32(points)], atol=5e-4, delta=1e-3)
+        conv_points, [np.float32(points)], atol=1e-3, delta=1e-3)
 
 
 if __name__ == '__main___':
