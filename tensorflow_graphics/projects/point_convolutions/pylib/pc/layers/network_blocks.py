@@ -35,7 +35,7 @@ layer_types = {'mcconv': MCConv,
                'point_conv': PointConv}
 
 
-class PointResNet:
+class PointResNet(tf.Module):
   """ ResNet with pre-activation using point cloud convolution layers on one
   point cloud.
 
@@ -169,7 +169,7 @@ class PointResNet:
                             return_padded)
 
 
-class PointResNetBottleNeck:
+class PointResNetBottleNeck(tf.Module):
   """ ResNet with pre-activation using Monte-Carlo convolution layers on one
   point cloud with a bottle neck in the feature domain.
 
@@ -315,7 +315,7 @@ class PointResNetBottleNeck:
                             return_padded)
 
 
-class PointResNetSpatialBottleNeck:
+class PointResNetSpatialBottleNeck(tf.Module):
   """ ResNet with pre-activation using Monte-Carlo convolution layers with
   spatial down- and upsampling.
 
