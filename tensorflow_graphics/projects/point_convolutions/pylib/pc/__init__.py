@@ -18,7 +18,6 @@ from .PointCloud import PointCloud
 from .Grid import Grid
 from .Neighborhood import Neighborhood
 from .Neighborhood import KDEMode
-from .sampling import poisson_disk_sampling, cell_average_sampling
 from .sampling import sample
 from .PointHierarchy import PointHierarchy
 
