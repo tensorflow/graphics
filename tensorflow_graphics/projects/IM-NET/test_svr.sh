@@ -1,0 +1,1 @@
+python main.py --svr --sample_dir samples/im_svr_out --start 0 --end 9000
