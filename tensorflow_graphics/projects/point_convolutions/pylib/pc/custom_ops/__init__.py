@@ -24,12 +24,8 @@ except ImportError:
   CUSTOM = 0
 
 if CUSTOM:
-  from .custom_ops_wrapper import basis_proj
-  from .custom_ops_wrapper import build_grid_ds
-  from .custom_ops_wrapper import compute_keys
-  from .custom_ops_wrapper import compute_pdf
-  from .custom_ops_wrapper import find_neighbors
-  from .custom_ops_wrapper import sampling
+  from .custom_ops_wrapper import basis_proj, build_grid_ds, compute_keys,\
+      compute_pdf, find_neighbors, sampling
 else:
   from .custom_ops_tf import basis_proj_tf as basis_proj
   from .custom_ops_tf import build_grid_ds_tf as build_grid_ds

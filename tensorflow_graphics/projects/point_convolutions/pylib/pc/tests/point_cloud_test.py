@@ -86,6 +86,13 @@ class PointCloudTest(test_case.TestCase):
     self.assertAllEqual(points_from_ids, points_from_sizes)
     self.assertAllEqual(points_from_sizes, points_from_padded)
 
+    points_from_padded = pc_from_padded.get_points(0)
+    points_from_ids = pc_from_ids.get_points(0)
+    points_from_sizes = pc_from_sizes.get_points(0)
+    self.assertAllEqual(points_from_padded, points_from_ids)
+    self.assertAllEqual(points_from_ids, points_from_sizes)
+    self.assertAllEqual(points_from_sizes, points_from_padded)
+
   @parameterized.parameters(
     (1000,
      ['Invalid input! Point tensor is of dimension 1 \

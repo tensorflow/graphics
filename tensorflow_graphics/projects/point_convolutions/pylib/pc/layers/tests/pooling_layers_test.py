@@ -28,21 +28,22 @@ from pylib.pc.layers import MaxPooling, AveragePooling
 class PoolingTest(test_case.TestCase):
 
   @parameterized.parameters(
-    (10000, 32, 2),
-    (20000, 16, 2),
-    (40000, 8, 2),
-    (10000, 32, 3),
-    (20000, 16, 3),
-    (40000, 8, 3),
-    (40000, 1, 3),
-    (10000, 32, 4),
-    (20000, 16, 4),
-    (40000, 8, 4)
+    (1000, 32, 2),
+    (2000, 16, 2),
+    (4000, 8, 2),
+    (1000, 32, 3),
+    (2000, 16, 3),
+    (4000, 8, 3),
+    (4000, 2, 3),
+    (1000, 32, 4),
+    (2000, 16, 4),
+    (4000, 8, 4)
   )
   def test_global_pooling(self, num_points, batch_size, dimension):
     points, batch_ids = utils._create_random_point_cloud_segmented(
-        batch_size, num_points, dimension=dimension)
-    features = np.random.rand(num_points, dimension)
+        batch_size, num_points * batch_size, dimension=dimension,
+        equal_sized_batches=True)
+    features = np.random.rand(batch_size, num_points, dimension)
     point_cloud = PointCloud(points, batch_ids)
 
     # max pooling
@@ -50,9 +51,13 @@ class PoolingTest(test_case.TestCase):
       PoolLayer = GlobalMaxPooling()
       pool_tf = PoolLayer(features, point_cloud)
       pool_numpy = np.empty([batch_size, dimension])
+      features = features.reshape([-1, dimension])
       for i in range(batch_size):
         pool_numpy[i] = np.max(features[batch_ids == i], axis=0)
       self.assertAllClose(pool_numpy, pool_tf)
+      point_cloud.set_batch_shape([batch_size // 2, 2])
+      padded = PoolLayer(features, point_cloud, return_padded=True)
+      self.assertTrue(padded.shape.rank > 2)
 
     # average pooling
     with self.subTest(name='average_pooling'):
@@ -62,13 +67,16 @@ class PoolingTest(test_case.TestCase):
       for i in range(batch_size):
         pool_numpy[i] = np.mean(features[batch_ids == i], axis=0)
       self.assertAllClose(pool_numpy, pool_tf)
+      point_cloud.set_batch_shape([batch_size // 2, 2])
+      padded = PoolLayer(features, point_cloud, return_padded=True)
+      self.assertTrue(padded.shape.rank > 2)
 
   @parameterized.parameters(
     (2000, 200, 16, 0.7, 2),
     (4000, 400, 8, np.sqrt(2), 2),
     (2000, 200, 16, 0.7, 3),
     (4000, 400, 8, np.sqrt(3), 3),
-    (4000, 100, 1, np.sqrt(3), 3),
+    (4000, 100, 2, np.sqrt(3), 3),
     (2000, 200, 16, 0.7, 4),
     (4000, 400, 8, np.sqrt(4), 4)
   )
@@ -107,6 +115,11 @@ class PoolingTest(test_case.TestCase):
             features_on_neighbors[neighbor_ids[:, 1] == i], axis=0)
 
       self.assertAllClose(pool_tf, pool_numpy)
+      point_cloud.set_batch_shape([batch_size // 2, 2])
+      padded = PoolLayer(
+          features, point_cloud, point_cloud_samples, cell_sizes,
+          return_padded=True)
+      self.assertTrue(padded.shape.rank > 2)
 
     #max pooling
     with self.subTest(name='average_pooling_to_sampled'):
