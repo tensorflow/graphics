@@ -210,7 +210,7 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       describes the cameras position with respect to the scene.
 
       The focal length is originally provided in mm, but will be converted to
-      pixel here using the fixed sensor with of 32 mm, which also originates
+      pixel here using the fixed sensor width of 32 mm, which also originates
       from the Pix3D GitHub repository.
 
       Link to the official Pix3D repository:
@@ -226,9 +226,9 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
       sensor_width = 32.
       return {
           'pose': {
-              'R': np.array([[-1., 0., 0.], [0., -1., 0.], [0., 0., 1.]],
+              'R': np.array([[-1., 0., 0.], [0., 1., 0.], [0., 0., -1.]],
                             dtype=np.float32),
-              't': np.zeros(3, dtype=np.float32)
+              't': np.array([0, 1, 0], dtype=np.float32)
           },
           'optical_center': (img_size[0] / 2, img_size[1] / 2),
           'f': (f / sensor_width * img_size[0])
