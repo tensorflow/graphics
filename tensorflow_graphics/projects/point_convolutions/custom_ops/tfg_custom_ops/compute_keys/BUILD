@@ -77,17 +77,17 @@ py_library(
     srcs_version = "PY2AND3",
 )
 
-py_test(
-    name = "compute_keys_ops_py_test",
-    srcs = [
-        "python/ops/compute_keys_ops_test.py"
-    ],
-    main = "python/ops/compute_keys_ops_test.py",
-    deps = [
-        ":compute_keys_ops_py",
-    ],
-    srcs_version = "PY2AND3",
-)
+# py_test(
+#     name = "compute_keys_ops_py_test",
+#     srcs = [
+#         "python/ops/compute_keys_ops_test.py"
+#     ],
+#     main = "python/ops/compute_keys_ops_test.py",
+#     deps = [
+#         ":compute_keys_ops_py",
+#     ],
+#     srcs_version = "PY2AND3",
+# )
 
 py_library(
     name = "compute_keys_py",
