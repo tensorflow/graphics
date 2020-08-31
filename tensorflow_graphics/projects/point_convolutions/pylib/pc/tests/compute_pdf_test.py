@@ -142,7 +142,7 @@ class ComputePDFTest(test_case.TestCase):
       return neighborhood._pdf / max_num_nb
 
     self.assert_jacobian_is_correct_fn(
-        compute_pdf, [np.float32(points)], atol=1e-4)
+        compute_pdf, [np.float32(points)], atol=1e-3, delta=1e-3)
 
 
 if __name__ == '__main__':
