@@ -97,7 +97,7 @@ def load_points_from_file_to_numpy(filename,
       with tf.io.gfile.GFile(filename, 'r') as in_file:
         i = 0
         for line in in_file:
-          if max_num_points is not None and i < max_num_points:
+          if max_num_points is None or i < max_num_points:
             line_elements = line[:-1].split(delimiter)
             points.append(line_elements[0:dimension])
             if len(line_elements) > 3:

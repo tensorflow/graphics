@@ -19,7 +19,7 @@ import tensorflow as tf
 from absl.testing import parameterized
 from tensorflow_graphics.util import test_case
 
-from pylib.pc import PointCloud
+from pylib.pc import PointCloud, PointHierarchy
 from pylib.pc.tests import utils
 
 
@@ -110,6 +110,25 @@ class PointCloudTest(test_case.TestCase):
       _ = PointCloud(points)
     with self.assertRaisesRegexp(AssertionError, msgs[2]):
       _ = PointCloud(points, batch_ids[1:])
+
+  @parameterized.parameters(
+    ([32], 100, 3),
+    ([5, 2], 100, 2),
+    ([2, 3, 4], 100, 4)
+  )
+  def test_point_hierarchy(self, batch_shape, num_points, dimension):
+    batch_size = np.prod(batch_shape)
+    points, sizes = utils._create_random_point_cloud_padded(
+        num_points, batch_shape, dimension=dimension)
+    point_cloud = PointCloud(points, sizes=sizes)
+    point_hierarchy = PointHierarchy(point_cloud, [[0.1]])
+    points_retrieved = point_hierarchy.get_points(0)
+    self.assertTrue(len(points_retrieved) == 2)
+    sizes_retrieved = point_hierarchy.get_sizes()
+    self.assertTrue(len(sizes_retrieved) == 2)
+    self.assertAllEqual(sizes_retrieved[0], sizes)
+    nbhs = point_hierarchy.get_neighborhood()
+    self.assertTrue(len(nbhs) == 1)
 
 
 if __name__ == '__main__':
