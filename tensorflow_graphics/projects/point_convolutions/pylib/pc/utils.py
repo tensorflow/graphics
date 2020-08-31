@@ -44,34 +44,6 @@ def check_valid_point_cloud_input(points, sizes, batch_ids):
                            ' not equal.')
 
 
-def check_valid_point_hierarchy_input(point_cloud, cell_sizes, pool_mode):
-  """ Checks that inputs to the constructor of class 'PontHierarchy' are valid.
-
-  Args:
-    point_cloud: A 'PointCloud' instance.
-    cell_sizes: A `list` of `float` `Tensors`.
-    pool_mode: An `int`.
-
-  Raises:
-    TypeError: if input is of invalid type
-    ValueError: if pool_mode is invalid, or cell_sizes dimension are invalid
-      or non-positive
-
-  """
-  if not isinstance(point_cloud, (PointCloud)):
-    raise TypeError('Input must be instance of class PointCloud')
-  if pool_mode not in [0, 1]:
-    raise ValueError('Unknown pooling mode.')
-  for curr_cell_sizes in cell_sizes:
-    if any(curr_cell_sizes <= 0):
-      raise ValueError('cell size must be positive.')
-    if not curr_cell_sizes.shape[0] in [1, point_cloud.dimension_]:
-      raise ValueError(
-          'Invalid number of cell sizes for point cloud' +\
-          f'dimension. Must be 1 or {point_cloud.dimension_} but is' +\
-          f'{curr_cell_sizes.shape[0]}.')
-
-
 def _flatten_features(features, point_cloud: PointCloud):
   """ Converts features of shape `[A1, ..., An, C]` to shape `[N, C]`.
 

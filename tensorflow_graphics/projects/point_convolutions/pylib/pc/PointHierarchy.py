@@ -16,7 +16,6 @@
 import numpy as np
 import tensorflow as tf
 
-from pylib.pc.utils import check_valid_point_hierarchy_input
 
 from pylib.pc import PointCloud
 from pylib.pc import Grid
@@ -45,8 +44,6 @@ class PointHierarchy:
     with tf.compat.v1.name_scope(
         name, "hierarchical point cloud constructor",
         [self, point_cloud, cell_sizes, sample_mode]):
-
-      # check_valid_point_hierarchy_input(point_cloud,cell_sizes,sample_mode)
 
       #Initialize the attributes.
       self._aabb = point_cloud.get_AABB()
