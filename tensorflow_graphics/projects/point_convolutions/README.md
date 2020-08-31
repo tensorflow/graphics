@@ -34,10 +34,7 @@ This code contains all necessary operations to perform point cloud convolutions
       - `MCConv`
       - `PointConv`
       - `KPConv`
-    - ResNet building blocks
-      - `ResNet`
-      - `ResNetBottleNeck`
-      - `ResNetSpatialBottleNeck` 
+      - `Conv1x1`
 
 ## Installation
 
