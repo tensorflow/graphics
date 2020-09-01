@@ -56,9 +56,6 @@ class MeshRefinementLayer(keras_layers.Layer):
         pooled from the 2D backbone. It should have the shape
         `[batch_size, height, width, num_features]`, where num_features and
         batch_size can be unknown at model initialization time.
-
-    Returns:
-
     """
     for i in range(self.n_stages):
       # Note: vertex_features_dim represents additional vertex_features to the
