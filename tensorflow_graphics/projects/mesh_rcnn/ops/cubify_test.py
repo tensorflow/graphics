@@ -237,6 +237,8 @@ class CubifyTest(test_case.TestCase):
   def test_jacobian_random(self):
     """Tests the Jacobian of the cubify function."""
     random_voxel_grid = tf.random.uniform((4, 4, 4), 0, 1)
+    # set one voxel greater than threshold.
+    random_voxel_grid[0, 0, 0] = 1.
 
     def cubify_vertices(voxel_grid):
       mesh = cubify(voxel_grid, 0.5)
