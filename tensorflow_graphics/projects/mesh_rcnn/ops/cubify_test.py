@@ -15,6 +15,7 @@
 
 import os
 
+from absl.testing import parameterized
 import numpy as np
 import tensorflow as tf
 
@@ -196,26 +197,26 @@ class CubifyTest(test_case.TestCase):
     self.assertAllClose(expected_sphere_faces, faces[0])
     self.assertAllClose(expected_sphere_vertices, vertices[0])
 
-  def test_no_batch_dimensions(self):
-    """Tests cubify on input voxel grid of shape `[2, 2, 2]` with random
-    values."""
-
-    voxel_grid = tf.random.uniform((2, 2, 2), 0, 1)
-
+  @parameterized.parameters(
+      ([]),
+      ([2]),
+      ([2, 3]),
+      ([4, 4, 4])
+  )
+  def test_batch_dimensions(self, *batch_shapes):
+    """Tests cubify on input voxel grid with multiple batch dimensions and
+    random values."""
+    batch_shapes = list(batch_shapes)
+    shape = batch_shapes + [2, 2, 2]
+    voxel_grid = tf.random.uniform(shape, 0, 1)
     meshes = cubify(voxel_grid, 0.0)
 
-    self.assertEqual([1, 26, 3], meshes.get_padded()[0].shape)
-    self.assertEqual([1, 48, 3], meshes.get_padded()[1].shape)
-
-  def test_multiple_batch_dimensions(self):
-    """Tests cubify on input voxel grid of shape `[2, 3, 2, 2, 2]` with random
-    values."""
-
-    voxel_grid = tf.random.uniform((2, 3, 2, 2, 2), 0, 1)
-    meshes = cubify(voxel_grid, 0.0)
-
-    self.assertEqual([2, 3, 26, 3], meshes.get_padded()[0].shape)
-    self.assertEqual([2, 3, 48, 3], meshes.get_padded()[1].shape)
+    if len(batch_shapes) == 0:
+      batch_shapes = [1]
+    expected_vertices_shape = batch_shapes + [26, 3]
+    expected_face_shape = batch_shapes + [48, 3]
+    self.assertEqual(expected_vertices_shape, meshes.get_padded()[0].shape)
+    self.assertEqual(expected_face_shape, meshes.get_padded()[1].shape)
 
   def test_raises_on_invalid_input(self):
     """Tests cubify with invalid input and checks if the right exceptions are
