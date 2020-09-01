@@ -23,7 +23,7 @@ import tensorflow as tf
 import tensorflow_datasets.public_api as tfds
 
 from tensorflow_graphics.datasets import pix3d
-from tensorflow_graphics.rendering import triangle_rasterizer
+from tensorflow_graphics.rendering import rasterization_backend
 
 
 class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
@@ -59,12 +59,11 @@ class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
         model_to_world = self._build_4x4_transform(object_rotation, object_t)
         world_to_eye = self._build_4x4_transform(camera_rotation, camera_t)
         model_to_eye = tf.matmul(world_to_eye, model_to_world)
-        rendered = triangle_rasterizer.rasterize(vertices,
-                                                 faces,
-                                                 {},
-                                                 model_to_eye,
-                                                 perspective_matrix,
-                                                 item['image'].shape[:3])
+        view_projection_matrix = tf.matmul(perspective_matrix, model_to_eye)
+        _, _, rendered = rasterization_backend.rasterize(vertices,
+                                                   faces,
+                                                   view_projection_matrix,
+                                                   item['image'].shape[:3])
 
         self.assertClose(expected, rendered)
 
