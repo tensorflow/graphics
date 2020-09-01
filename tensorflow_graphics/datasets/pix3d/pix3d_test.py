@@ -23,7 +23,7 @@ import tensorflow as tf
 import tensorflow_datasets.public_api as tfds
 
 from tensorflow_graphics.datasets import pix3d
-from tensorflow_graphics.rendering import rasterization_backend
+from tensorflow_graphics.rendering.opengl import rasterization_backend
 
 
 class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
@@ -55,6 +55,7 @@ class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
         camera_rotation = item['camera']['parameters']['pose']['R']
         camera_t = item['camera']['parameters']['pose']['t']
         intrinsics = item['camera']['parameters']['intrinsics']
+        image_height, image_width = item['image'].shape[:3]
         perspective_matrix = self._build_4x4_projection(intrinsics)
         model_to_world = self._build_4x4_transform(object_rotation, object_t)
         world_to_eye = self._build_4x4_transform(camera_rotation, camera_t)
@@ -64,7 +65,7 @@ class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
             vertices,
             faces,
             view_projection_matrix,
-            item['image'].shape[:3]
+            (image_width, image_height)
         )
 
         self.assertClose(expected, rendered)
