@@ -60,10 +60,12 @@ class Pix3dTest(tfds.testing.DatasetBuilderTestCase):
         world_to_eye = self._build_4x4_transform(camera_rotation, camera_t)
         model_to_eye = tf.matmul(world_to_eye, model_to_world)
         view_projection_matrix = tf.matmul(perspective_matrix, model_to_eye)
-        _, _, rendered = rasterization_backend.rasterize(vertices,
-                                                   faces,
-                                                   view_projection_matrix,
-                                                   item['image'].shape[:3])
+        _, _, rendered = rasterization_backend.rasterize(
+            vertices,
+            faces,
+            view_projection_matrix,
+            item['image'].shape[:3]
+        )
 
         self.assertClose(expected, rendered)
 
