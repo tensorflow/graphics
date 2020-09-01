@@ -13,11 +13,11 @@
 # limitations under the License.
 """Implementation of the VertAlign operation for Mesh R-CNN.
 
-This operation is also called 'perceptual feature pooling' in Wang et al.
+This op is also called 'perceptual feature pooling' in Wang et al.
 
 Given the 3D coordinate of a
 vertex, this OP calculates its 2D projection on input image plane using camera
-intrinsics, and then pool the feature from four nearby pixels using
+intrinsics, and then pools the feature from four nearby pixels using
 bilinear interpolation.
 
 References:

@@ -63,8 +63,8 @@ def cubify(voxel_grid, threshold=0.5):
     `V`: The number of vertices.
     `[A1, ..., An]`: optional batch dimensions
     `D`: depth of input space (representing z coordinates)
-    `W`: width of input space (representing x coordinates)
     `H`: height of input space (representing y coordinates)
+    `W`: width of input space (representing x coordinates)
 
     The coordinates assume a Y-up convention.
 
