@@ -15,7 +15,7 @@
 
 from tensorflow.keras import layers as keras_layers
 
-from tensorflow_graphics.projects.mesh_rcnn.branches.mesh_refinement_stage import MeshRefinementStage
+from tensorflow_graphics.projects.mesh_rcnn.layers.mesh_refinement_stage import MeshRefinementStage
 
 
 class MeshRefinementLayer(keras_layers.Layer):
@@ -49,7 +49,22 @@ class MeshRefinementLayer(keras_layers.Layer):
     self.stages = []
 
   def build(self, input_shape):
+    """Initializes all trainable weights.
+
+    Args:
+      input_shape: 4D float32 tensor denoting the shape of the input features
+        pooled from the 2D backbone. It should have the shape
+        `[batch_size, height, width, num_features]`, where num_features and
+        batch_size can be unknown at model initialization time.
+
+    Returns:
+
+    """
     for i in range(self.n_stages):
+      # Note: vertex_features_dim represents additional vertex_features to the
+      # ones implicitly contained in the mesh vertex list. Therefore, this is
+      # 0 for the first stage, as we only consider image features and vertex
+      # positions.
       vertex_features_dim = 0 if i == 0 else self.gconv_dim
       stage = MeshRefinementStage(image_features_dim=input_shape[-1],
                                   vertex_feature_dim=vertex_features_dim,

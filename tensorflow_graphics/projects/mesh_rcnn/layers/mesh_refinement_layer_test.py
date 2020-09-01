@@ -17,8 +17,8 @@ from copy import deepcopy
 
 from absl.testing import parameterized
 
-from tensorflow_graphics.projects.mesh_rcnn.branches import test_util
-from tensorflow_graphics.projects.mesh_rcnn.branches.mesh_refinement_layer import MeshRefinementLayer
+from tensorflow_graphics.projects.mesh_rcnn.layers import test_util
+from tensorflow_graphics.projects.mesh_rcnn.layers.mesh_refinement_layer import MeshRefinementLayer
 from tensorflow_graphics.util import test_case
 
 
