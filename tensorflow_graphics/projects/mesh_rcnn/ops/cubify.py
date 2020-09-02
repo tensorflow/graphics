@@ -63,8 +63,8 @@ def cubify(voxel_grid, threshold=0.5):
     `V`: The number of vertices.
     `[A1, ..., An]`: optional batch dimensions
     `D`: depth of input space (representing z coordinates)
-    `W`: width of input space (representing x coordinates)
     `H`: height of input space (representing y coordinates)
+    `W`: width of input space (representing x coordinates)
 
     The coordinates assume a Y-up convention.
 
@@ -243,38 +243,40 @@ def _create_face_mask(voxel_occupancy_grid, kernel, axis):
   """Creates face masks along one axis of a voxel occupancy grid.
 
 
-  The boundaries of the represented 3D shape are computed using 3D convolutions.
+  The surfaces of the represented 3D shape are computed using 3D convolutions.
 
   Example:
-    Consider a 1x2x2 fully occupied voxel grid. After applying this function for
-    dimension -1 (x coordinates), one receives two float32 tensors indicating
-    for each voxel in the grid whether it is a boundary or an inside voxel.
-    Thus, the lower bound along axis -1 (left side) for the foremost layer
-    of voxel looks like:
+    Consider a 1x2x2 fully occupied voxel grid the ordering ZYX. After applying
+    this function for dimension 3 (x coordinates), one receives two float32
+    tensors indicating for each voxel in the grid whether it is a boundary or
+    an inside voxel. Thus, the lower bound along axis 3 (which corresponds to
+    the left side) like:
     ```
-    [[1., 0.],
-     [1., 0.]]
+    [[[1., 0.],
+      [1., 0.]]]
     ```
     And the upper bound (i.e. right side) looks like:
     ```
-    [[0., 1.],
-     [0., 1.]]
+    [[[0., 1.],
+      [0., 1.]]]
     ```
+    In this representation, 1. means that the voxel is the farthest voxel facing
+    this direction. In other words, for the example above a 1. means that this
+    voxel is the leftmost (or rightmost, for the upper bound) voxel in a
+    subsequence of occupied voxels and thus is considered to be a part of the
+    object surface.
 
   Args:
-    voxel_occupancy_grid: float32 tensor of shape `[N, D, H, W]` representing
-      a voxel occupancy grid.
+    voxel_occupancy_grid: float32 tensor of shape
+      `[batch_size, depth, height, width]` representing a voxel occupancy grid.
     kernel: A Tensor. Must have the same type as input. Shape
       `[kernel_depth, kernel_height, kernel_width, in_channels,out_channels]`
     axis: int denoting the axis along which to convolve and extract face masks
 
   Returns:
-    Two tensors of shape `[N, D, H, W]`. The first tensor represents faces
-    along the lower bound of the specified axis and the second one represents
-    the upper bound. E.g. if axis=-1, the faces are created along dimension W
-    of the tensor, with the first returned tensor containing faces for the left
-    side of all occupied voxels and the second one containing the right side
-    faces.
+    Two tensors of shape `[batch_size, depth, height, width]`. The first tensor
+    represents faces along the lower bound of the specified axis and the second
+    one represents the upper bound. See the Example above for details.
   """
 
   shape.check_static(voxel_occupancy_grid, has_rank=4)

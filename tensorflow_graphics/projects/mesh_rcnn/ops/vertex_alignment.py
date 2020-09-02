@@ -13,11 +13,11 @@
 # limitations under the License.
 """Implementation of the VertAlign operation for Mesh R-CNN.
 
-This operation is also called 'perceptual feature pooling' in Wang et al.
+This op is also called 'perceptual feature pooling' in Wang et al.
 
 Given the 3D coordinate of a
 vertex, this OP calculates its 2D projection on input image plane using camera
-intrinsics, and then pool the feature from four nearby pixels using
+intrinsics, and then pools the feature from four nearby pixels using
 bilinear interpolation.
 
 References:
@@ -37,9 +37,7 @@ def _check_vert_align_inputs(features, vertices, intrinsics):
   """Validates shapes of the input tensors passed to vert align.
 
   Args:
-    features: tensor with image features passed to vert align.
-    vertices: tensor with vertices passed to vert align
-    intrinsics: tensor with the intrinsic matrices passed to vert align.
+    See vert_align below for tensor shapes and types.
 
   Raises:
     ValueError: if one of the input tensors has a wrong shape, rank or if the
