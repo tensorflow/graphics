@@ -16,9 +16,9 @@
 from tensorflow import keras as K
 import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.branches.mesh_refinement_layer import \
+from tensorflow_graphics.projects.mesh_rcnn.layers.mesh_refinement_layer import \
   MeshRefinementLayer
-from tensorflow_graphics.projects.mesh_rcnn.branches.voxel_layer import \
+from tensorflow_graphics.projects.mesh_rcnn.layers.voxel_layer import \
   VoxelPredictionLayer
 from tensorflow_graphics.projects.mesh_rcnn.loss import mesh_rcnn_loss
 from tensorflow_graphics.projects.mesh_rcnn.ops.cubify import cubify
