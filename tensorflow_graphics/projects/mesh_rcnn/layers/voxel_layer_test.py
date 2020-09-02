@@ -16,8 +16,8 @@
 from absl.testing import parameterized
 import tensorflow as tf
 
-from tensorflow_graphics.projects.mesh_rcnn.branches import test_util
-from tensorflow_graphics.projects.mesh_rcnn.branches.voxel_layer import \
+from tensorflow_graphics.projects.mesh_rcnn.layers import test_util
+from tensorflow_graphics.projects.mesh_rcnn.layers.voxel_layer import \
   VoxelPredictionLayer
 from tensorflow_graphics.util import test_case
 
