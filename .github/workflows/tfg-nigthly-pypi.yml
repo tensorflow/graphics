@@ -21,6 +21,7 @@ jobs:
 
     - name: Install system dependencies
       run: |
+        sudo xargs apt-get update
         sudo xargs apt-get -y install < requirements.unix
     - name: Build rasterizer
       run: |
