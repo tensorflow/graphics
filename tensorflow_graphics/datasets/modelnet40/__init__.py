@@ -63,7 +63,7 @@ class ModelNet40(tfds.core.GeneratorBasedBuilder):
 
   @staticmethod
   def load(*args, **kwargs):
-    return tfds.load('model_net40', *args, **kwargs)
+    return tfds.load('model_net40', *args, **kwargs)  # pytype: disable=wrong-arg-count
 
   def _info(self):
     return tfds.core.DatasetInfo(
