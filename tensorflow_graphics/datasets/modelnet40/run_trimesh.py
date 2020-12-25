@@ -21,6 +21,7 @@ import trimesh
 import tensorflow_datasets as tfds
 from tensorflow_graphics.datasets.modelnet40 import ModelNet40, TRIMESH
 
+
 def main(_):
   builder = ModelNet40(config=TRIMESH)
   builder.download_and_prepare(
@@ -37,8 +38,8 @@ def main(_):
   print("mesh['faces'].shape=", mesh['faces'].shape)
   print("label.shape", label.shape)
 
-  trimesh.Trimesh(
-      vertices=mesh['vertices'].numpy(), faces=mesh['faces'].numpy()).show()
+  trimesh.Trimesh(vertices=mesh['vertices'].numpy(),
+                  faces=mesh['faces'].numpy()).show()
 
 
 if __name__ == "__main__":

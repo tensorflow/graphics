@@ -120,8 +120,7 @@ class OffObject(object):
     try:
       vertices = tuple(
           _parse_off_vertex(next(line_iter)) for _ in range(n_verts))
-      faces = tuple(
-          _parse_off_face(next(line_iter)) for _ in range(num_faces))
+      faces = tuple(_parse_off_face(next(line_iter)) for _ in range(num_faces))
     except StopIteration:
       raise IOError('Invalid off file - insufficient number of lines.')
     try:
@@ -135,16 +134,17 @@ class OffObject(object):
   def to_file(self, fp):
     """Dump object to file in .off format."""
     fp.write(('OFF\n').encode('utf-8'))
-    fp.write(('%d %d %d\n' % (self.num_vertices, self.num_faces, self.num_edges)
-             ).encode('utf-8'))
+    fp.write(
+        ('%d %d %d\n' %
+         (self.num_vertices, self.num_faces, self.num_edges)).encode('utf-8'))
     for v in self.vertices:
       fp.write(('%s\n' % ' '.join(str(vi) for vi in v)).encode('utf-8'))
     values = self.face_values
 
     for face_size in self.face_lengths:
       face, values = np.split(values, (face_size,))  # pylint: disable=unbalanced-tuple-unpacking
-      fp.write(('%d %s\n' % (len(face), ' '.join(str(fi) for fi in face))
-               ).encode('utf-8'))
+      fp.write(('%d %s\n' %
+                (len(face), ' '.join(str(fi) for fi in face))).encode('utf-8'))
 
 
 def triangulated_faces(face_values, face_lengths):
