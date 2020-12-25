@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -249,9 +249,9 @@ def interpolate(knots, positions, degree, cyclical, name=None):
   Args:
     knots: A tensor with shape `[B1, ..., Bk, C]` containing knot values, where
       `C` is the number of knots.
-    positions: Tensor with shape `[A1, .. An]`. Positions must be between `[0, C
-      - D)` for non-cyclical and `[0, C)` for cyclical splines, where `C` is the
-      number of knots and `D` is the spline degree.
+    positions: Tensor with shape `[A1, .. An]`. Positions must be between
+      `[0, C - D)` for non-cyclical and `[0, C)` for cyclical splines,
+      where `C` is the number of knots and `D` is the spline degree.
     degree: An `int` between 0 and 4, or an enumerated constant from the Degree
       class, which is the degree of the splines.
     cyclical: A `bool`, whether the splines are cyclical.

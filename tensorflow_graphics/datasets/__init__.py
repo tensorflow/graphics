@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ if _import_tfg_docs():
   from tensorflow_graphics.datasets import features
   from tensorflow_graphics.datasets import modelnet40
   from tensorflow_graphics.datasets import shapenet
+  from tensorflow_graphics.datasets import pix3d
   from tensorflow_graphics.util import export_api as _export_api
 
   # API contains submodules of tensorflow_graphics.image.

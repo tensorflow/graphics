@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,6 @@
 # limitations under the License.
 """Tests for visual hull voxel rendering."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import flagsaver
 from absl.testing import parameterized
 import tensorflow as tf
@@ -29,20 +25,24 @@ from tensorflow_graphics.util import test_case
 class VisualHullTest(test_case.TestCase):
 
   @parameterized.parameters(
-      ((8, 16, 6, 1),),
-      ((12, 8, 16, 6, 3),),
+      (0, (8, 16, 6, 1)),
+      (1, (12, 8, 16, 6, 3)),
   )
-  def test_render_shape_exception_not_raised(self, *shape):
+  def test_render_shape_exception_not_raised(self, axis, *shape):
     """Tests that the shape exceptions are not raised."""
-    self.assert_exception_is_not_raised(visual_hull.render, shape)
+    self.assert_exception_is_not_raised(visual_hull.render, shape, axis=axis)
 
   @parameterized.parameters(
-      ("must have a rank greater than 3", (3,)),
-      ("must have a rank greater than 3", (16, 6, 3)),
+      ("must have a rank greater than 3", 2, (3,)),
+      ("must have a rank greater than 3", 2, (16, 6, 3)),
+      ("'axis' needs to be 0, 1 or 2", 5, (8, 16, 6, 1)),
   )
-  def test_render_shape_exception_raised(self, error_msg, *shape):
+  def test_render_shape_exception_raised(self, error_msg, axis, *shape):
     """Tests that the shape exception is raised."""
-    self.assert_exception_is_raised(visual_hull.render, error_msg, shape)
+    self.assert_exception_is_raised(visual_hull.render,
+                                    error_msg,
+                                    shape,
+                                    axis=axis)
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_render_jacobian_random(self):

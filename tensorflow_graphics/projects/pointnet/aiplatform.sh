@@ -5,8 +5,11 @@
 JOB_NAME="pointnet_`date +"%b%d_%H%M%S"`"
 PROJECT_ID=${1:-`gcloud config get-value project`}
 LOGDIR=${2:-$TENSORBOARD_DEFAULT_LOGDIR}
-MACHINE_TYPE="--scale-tier basic"
 REGION="us-central1" #< WARNING: match region of bucket!
+
+# see: https://cloud.google.com/ai-platform/training/docs/using-gpus
+MACHINE_TYPE="--scale-tier custom --master-machine-type standard_v100"
+
 
 # --- checks a logdir has been set, exits otherwise
 [ -z "$LOGDIR" ] && echo "Logdir not specified." && exit 1
@@ -52,11 +55,8 @@ if [ "${1}" == "local" ]
 then
   # --- Launches the job locally
   TAG="local_pointnet"
-  gsutil rm -rf gs://taglia/tb/docker_local
   docker build -f /tmp/Dockerfile -t $TAG $PWD/../../../
-  # docker run --gpus all $TAG \
-    # --logdir "gs://taglia/tb/docker_local"
-  docker run --gpus all $TAG
+  docker run --gpus all $TAG --logdir $LOGDIR
 
 else
   # --- Launches the job on aiplatform
@@ -69,7 +69,7 @@ else
     $MACHINE_TYPE \
     -- \
     --job_name $JOB_NAME \
-    --logdir "gs://taglia/tb"
+    --logdir $LOGDIR
 
   # --- Streams the job logs to local terminal
   gcloud ai-platform jobs stream-logs $JOB_NAME

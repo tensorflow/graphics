@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,6 @@
 # limitations under the License.
 """Tests for image pyramids."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import parameterized
 import numpy as np
 import tensorflow as tf
@@ -24,7 +20,7 @@ import tensorflow as tf
 from tensorflow_graphics.image import pyramid
 from tensorflow_graphics.util import test_case
 
-_NUM_LEVELS = 4
+_NUM_LEVELS = 3
 
 
 class PyramidTest(test_case.TestCase):
@@ -189,7 +185,7 @@ class PyramidTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 5, size=4).tolist()
     image_random_init = np.random.uniform(size=tensor_shape)
 
-    for level in range(4):  # pylint: disable=unused-variable
+    for level in range(_NUM_LEVELS):  # pylint: disable=unused-variable
       self.assert_jacobian_is_correct_fn(
           lambda x, level=level: split(x)[level], [image_random_init])
 

@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ class TrimeshFeatureTest(tfds.testing.FeatureExpectationsTestCase):
 
   def test_trimesh(self):
     obj_file_path = os.path.join(_TEST_DATA_DIR, 'cube.obj')
+    obj_file = tf.io.gfile.GFile(obj_file_path)
     obj_mesh = trimesh.load(obj_file_path)
     expected_vertices = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 1.0],
                                   [0.0, 1.0, 0.0], [0.0, 1.0, 1.0],
@@ -70,6 +71,11 @@ class TrimeshFeatureTest(tfds.testing.FeatureExpectationsTestCase):
             # File path
             tfds.testing.FeatureExpectationItem(
                 value=obj_file_path,
+                expected=expected_trimesh,
+            ),
+            # File object
+            tfds.testing.FeatureExpectationItem(
+                value=obj_file,
                 expected=expected_trimesh,
             ),
             # Trimesh

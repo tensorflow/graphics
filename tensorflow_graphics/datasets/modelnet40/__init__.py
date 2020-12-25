@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ class ModelNet40(tfds.core.GeneratorBasedBuilder):
 
   @staticmethod
   def load(*args, **kwargs):
-    return tfds.load('model_net40', *args, **kwargs)
+    return tfds.load('model_net40', *args, **kwargs)  # pytype: disable=wrong-arg-count
 
   def _info(self):
     return tfds.core.DatasetInfo(

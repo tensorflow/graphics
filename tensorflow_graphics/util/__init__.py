@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ from __future__ import print_function
 from tensorflow_graphics.util.doc import _import_tfg_docs
 if _import_tfg_docs():
   from tensorflow_graphics.util import asserts
-  from tensorflow_graphics.util import data_formats
   from tensorflow_graphics.util import export_api
   from tensorflow_graphics.util import safe_ops
   from tensorflow_graphics.util import shape

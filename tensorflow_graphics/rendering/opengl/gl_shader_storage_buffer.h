@@ -1,4 +1,4 @@
-/* Copyright 2020 Google LLC
+/* Copyright 2020 The TensorFlow Authors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <GLES3/gl32.h>
 
+#include "absl/types/span.h"
 #include "tensorflow_graphics/rendering/opengl/macros.h"
 #include "tensorflow_graphics/util/cleanup.h"
 #include "tensorflow/core/lib/core/status.h"

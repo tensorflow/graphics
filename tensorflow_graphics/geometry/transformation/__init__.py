@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ from __future__ import print_function
 from tensorflow_graphics.geometry.transformation import axis_angle
 from tensorflow_graphics.geometry.transformation import euler
 from tensorflow_graphics.geometry.transformation import linear_blend_skinning
+from tensorflow_graphics.geometry.transformation import look_at
 from tensorflow_graphics.geometry.transformation import quaternion
 from tensorflow_graphics.geometry.transformation import rotation_matrix_2d
 from tensorflow_graphics.geometry.transformation import rotation_matrix_3d

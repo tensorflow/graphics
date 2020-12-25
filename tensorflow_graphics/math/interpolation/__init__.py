@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ from __future__ import print_function
 
 from tensorflow_graphics.math.interpolation import bspline
 from tensorflow_graphics.math.interpolation import slerp
+from tensorflow_graphics.math.interpolation import trilinear
 from tensorflow_graphics.math.interpolation import weighted
 from tensorflow_graphics.util import export_api as _export_api
 

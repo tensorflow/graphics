@@ -22,21 +22,26 @@ jobs:
 
     - name: Install system dependencies
       run: |
-        sudo apt-get -y install libopenexr-dev
-        sudo apt-get -y install libgles2-mesa-dev
-        sudo apt-get -y install libc-ares-dev
+        sudo xargs apt-get update
+        sudo xargs apt-get -y install < requirements.unix
     - name: Linter
       run: |
         python -m pip install --upgrade pip
-        pip install pytest
         pip install flake8
         flake8 --config=.flake8 tensorflow_graphics/
+    - name: Build rasterizer
+      run: |
+        docker run -v ${PWD}:/working_dir -w /working_dir  tensorflow/tensorflow:custom-op-ubuntu16 "./build_rasterizer.sh"
     - name: Install pip requirements
       run: |
         pip install -r requirements.txt
     - name: Test
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        pytest tensorflow_graphics
+        pip install pytest coveralls
+        coverage run --source tensorflow_graphics -m py.test
+        coveralls
     - name: Build and Install
       run: |
         python setup.py sdist bdist_wheel

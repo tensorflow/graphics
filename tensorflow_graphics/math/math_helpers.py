@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,7 +59,8 @@ def cartesian_to_spherical_coordinates(point_cartesian, eps=None, name=None):
 
     x, y, z = tf.unstack(point_cartesian, axis=-1)
     radius = tf.norm(tensor=point_cartesian, axis=-1)
-    theta = tf.acos(safe_ops.safe_unsigned_div(z, radius, eps))
+    theta = tf.acos(
+        tf.clip_by_value(safe_ops.safe_unsigned_div(z, radius, eps), -1., 1.))
     phi = tf.atan2(y, x)
     return tf.stack((radius, theta, phi), axis=-1)
 

@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ if _import_tfg_docs():
   # Remove modules notebooks, util and version from API.
   __all__.remove("notebooks")
   __all__.remove("util")
-  __all__.remove("version")
 # pylint: enable=g-statement-before-imports,g-import-not-at-top
 
 __version__ = "HEAD"

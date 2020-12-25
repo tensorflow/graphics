@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,11 @@
 # limitations under the License.
 """Training loop for PointNet v1 on modelnet40."""
 import tensorflow as tf
-
+from tensorflow_graphics.datasets import modelnet40
+from tensorflow_graphics.nn.layer import pointnet
 from tqdm import tqdm
+from . import augment  # pylint: disable=g-bad-import-order
+from . import helpers  # pylint: disable=g-bad-import-order
 
 from tensorflow_graphics.nn.layer.pointnet import VanillaClassifier
 from tensorflow_graphics.projects.pointnet import helpers
@@ -45,7 +48,12 @@ optimizer = tf.keras.optimizers.Adam(
     learning_rate=helpers.decayed_learning_rate(FLAGS.learning_rate) if FLAGS.
     lr_decay else FLAGS.learning_rate)
 
+<<<<<<< HEAD
 model = VanillaClassifier(num_classes=40, momentum=FLAGS.bn_decay)
+=======
+model = pointnet.PointNetVanillaClassifier(
+    num_classes=40, momentum=FLAGS.bn_decay)
+>>>>>>> master
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -108,11 +116,20 @@ def evaluate():
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 ds_train, ds_test = helpers.get_modelnet40_datasets(FLAGS.num_points,
                                                     FLAGS.batch_size,
                                                     FLAGS.augment_jitter,
                                                     FLAGS.augment_rotate,
                                                     FLAGS.num_epochs)
+=======
+ds_train, info = modelnet40.ModelNet40.load(split="train", with_info=True)
+num_examples = info.splits["train"].num_examples
+ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
+ds_train = ds_train.repeat(FLAGS.num_epochs)
+ds_train = ds_train.batch(FLAGS.batch_size)
+ds_test = modelnet40.ModelNet40.load(split="test").batch(FLAGS.batch_size)
+>>>>>>> master
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -122,7 +139,7 @@ try:
   helpers.setup_tensorboard(FLAGS)
   helpers.summary_command(parser, FLAGS)
   total = tf.data.experimental.cardinality(ds_train).numpy()
-  pbar = tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
+  pbar = tqdm.tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
   for train_example in pbar:
     train(train_example)
     best_accuracy = evaluate()

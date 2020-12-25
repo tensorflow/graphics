@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ class Shapenet(tfds.core.GeneratorBasedBuilder):
 
   @staticmethod
   def load(*args, **kwargs):
-    return tfds.load('shapenet', *args, **kwargs)
+    return tfds.load('shapenet', *args, **kwargs)  # pytype: disable=wrong-arg-count
 
   MANUAL_DOWNLOAD_INSTRUCTIONS = textwrap.dedent("""\
   manual_dir should contain the extracted ShapeNetCore.v2.zip archive.
