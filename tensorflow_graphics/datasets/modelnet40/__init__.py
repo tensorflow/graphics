@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Lint as: python3
-"""ModelNet40 classification dataset fom https://modelnet.cs.princeton.edu."""
+"""ModelNet40 classification dataset from https://modelnet.cs.princeton.edu."""
 
 import abc
 import os
@@ -68,6 +68,7 @@ class ModelNet40Config(tfds.core.BuilderConfig):
   data from different locations e.g. pointnet - to exist under the same
   tfds name.
   """
+
   @abc.abstractmethod
   def info(self, builder):
     """Delegated GeneratorBaseBuilder._info"""
@@ -78,6 +79,10 @@ class ModelNet40Config(tfds.core.BuilderConfig):
     """Delegated GeneratorBaseBuilder._split_generators"""
     raise NotImplementedError('Abstract method')
 
+  @staticmethod
+  def load(*args, **kwargs):
+    return tfds.load('model_net40', *args, **kwargs)  # pytype: disable=wrong-arg-count
+
   @abc.abstractmethod
   def generate_examples(self, **kwargs):
     """Delegated GeneratorBaseBuilder._generate_examples"""
@@ -86,12 +91,11 @@ class ModelNet40Config(tfds.core.BuilderConfig):
 
 class PointnetConfig(ModelNet40Config):
   """Config for point cloud data used in Pointnet."""
+
   def __init__(self):
-    super().__init__(
-        name='pointnet',
-        description=_POINTNET_DESCRIPTION,
-        version=tfds.core.Version('1.0.0')
-    )
+    super().__init__(name='pointnet',
+                     description=_POINTNET_DESCRIPTION,
+                     version=tfds.core.Version('1.0.0'))
 
   def info(self, builder):
     return tfds.core.DatasetInfo(
@@ -112,16 +116,12 @@ class PointnetConfig(ModelNet40Config):
     return [
         tfds.core.SplitGenerator(
             name=tfds.Split.TRAIN,
-            gen_kwargs=dict(
-                filename_list_path=os.path.join(
-                    extracted_path,
-                    'modelnet40_ply_hdf5_2048/train_files.txt'),)),
+            gen_kwargs=dict(filename_list_path=os.path.join(
+                extracted_path, 'modelnet40_ply_hdf5_2048/train_files.txt'),)),
         tfds.core.SplitGenerator(
             name=tfds.Split.TEST,
-            gen_kwargs=dict(
-                filename_list_path=os.path.join(
-                    extracted_path,
-                    'modelnet40_ply_hdf5_2048/test_files.txt'),)),
+            gen_kwargs=dict(filename_list_path=os.path.join(
+                extracted_path, 'modelnet40_ply_hdf5_2048/test_files.txt'),)),
     ]
 
   def generate_examples(self, filename_list_path):  # pylint:disable=arguments-differ
@@ -173,6 +173,7 @@ _MODELNET_CITATION = """\
 
 class MeshConfig(ModelNet40Config):
   """Base class for derivatives of the original .off mesh data."""
+
   def __init__(self, input_key, input_feature, **kwargs):
     self._input_key = input_key
     self._input_feature = input_feature
@@ -231,18 +232,20 @@ class MeshConfig(ModelNet40Config):
 
 class PolymeshConfig(MeshConfig):
   """MeshConfig with original polygonal meshes."""
+
   def __init__(self):
-    super().__init__(
-        input_key='polymesh',
-        input_feature=dict(
-            vertices=tfds.features.Tensor(shape=(None, 3), dtype=tf.float32),
-            face_values=tfds.features.Tensor(shape=(None,), dtype=tf.int64),
-            face_lengths=tfds.features.Tensor(shape=(None,), dtype=tf.int64),
-        ),
-        name='polymesh',
-        version=tfds.core.Version('1.0.0'),
-        description=_POLYMESH_DESCRIPTION
-    )
+    super().__init__(input_key='polymesh',
+                     input_feature=dict(
+                         vertices=tfds.features.Tensor(shape=(None, 3),
+                                                       dtype=tf.float32),
+                         face_values=tfds.features.Tensor(shape=(None,),
+                                                          dtype=tf.int64),
+                         face_lengths=tfds.features.Tensor(shape=(None,),
+                                                           dtype=tf.int64),
+                     ),
+                     name='polymesh',
+                     version=tfds.core.Version('1.0.0'),
+                     description=_POLYMESH_DESCRIPTION)
 
   def load(self, fp):  # pylint: disable=unused-argument
     data = off.OffObject.from_file(fp)
@@ -255,6 +258,7 @@ class PolymeshConfig(MeshConfig):
 
 class TrimeshConfig(MeshConfig):
   """MeshConfig with triangular mesh features."""
+
   def __init__(self):
     super().__init__(
         input_key='trimesh',
@@ -269,10 +273,9 @@ class TrimeshConfig(MeshConfig):
 
   def load(self, fp):
     data = off.OffObject.from_file(fp)
-    return dict(
-        vertices=data.vertices.astype(np.float32),
-        faces=off.triangulated_faces(data.face_values, data.face_lengths)
-    )
+    return dict(vertices=data.vertices.astype(np.float32),
+                faces=off.triangulated_faces(data.face_values,
+                                             data.face_lengths))
 
 
 POINTNET = PointnetConfig()

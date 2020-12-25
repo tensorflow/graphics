@@ -1,0 +1,8 @@
+cython>=0.29.15
+numpy>=1.18.1
+scipy>=1.4.1
+scikit-image>=0.16.2
+tensorflow>=2.3.0
+tensorflow-probability>=0.11.0
+tqdm>=4.42.1
+trimesh>=3.6.4

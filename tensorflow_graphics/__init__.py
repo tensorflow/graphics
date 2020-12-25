@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow_graphics import version
-__version__ = version.__version__
-
 # pylint: disable=g-statement-before-imports,g-import-not-at-top
 try:
   import tensorflow as tf
@@ -33,11 +30,13 @@ except ImportError:
 # pylint: disable=g-statement-before-imports,g-import-not-at-top,ungrouped-imports
 from tensorflow_graphics.util.doc import _import_tfg_docs
 if _import_tfg_docs():
+  from tensorflow_graphics import datasets
   from tensorflow_graphics import geometry
   from tensorflow_graphics import image
   from tensorflow_graphics import math
   from tensorflow_graphics import nn
   from tensorflow_graphics import notebooks
+  from tensorflow_graphics import projects
   from tensorflow_graphics import rendering
   from tensorflow_graphics import util
 
@@ -47,5 +46,6 @@ if _import_tfg_docs():
   # Remove modules notebooks, util and version from API.
   __all__.remove("notebooks")
   __all__.remove("util")
-  __all__.remove("version")
 # pylint: enable=g-statement-before-imports,g-import-not-at-top
+
+__version__ = "HEAD"

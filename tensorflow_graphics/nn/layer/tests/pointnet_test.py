@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 from absl.testing import parameterized
 import tensorflow as tf
+
 from tensorflow_graphics.nn.layer.pointnet import ClassificationHead
 from tensorflow_graphics.nn.layer.pointnet import PointNetConv2Layer
 from tensorflow_graphics.nn.layer.pointnet import PointNetDenseLayer

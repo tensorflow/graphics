@@ -1,0 +1,1 @@
+http://shapenet.cs.stanford.edu/shapenet/obj-zip/SHREC16/all.csv 3249007 f73c15b7c3eaaa38557768709801cbbd5919d305acc8e408e50cc104ed7136ab

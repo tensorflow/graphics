@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def render(voxels, absorption_factor=0.1, cell_size=1.0, name=None):
+def render(voxels, absorption_factor=0.1, cell_size=1.0, axis=2, name=None):
   """Renders a voxel grid using the emission-absorption model, as described in ["Escaping Plato's Cave: 3D Shape From Adversarial Rendering" (Henzler 2019)](https://github.com/henzler/platonicgan).
 
   Note:
@@ -35,6 +35,7 @@ def render(voxels, absorption_factor=0.1, cell_size=1.0, name=None):
       information stored in each voxel (e.g. 3 for RGB color).
     absorption_factor: A scalar representing the density of the volume.
     cell_size: A scalar representing the size of a cell.
+    axis: An index to the projection axis (0 for X, 1 for Y or 2 for Z).
     name: A name for this op. Defaults to "emission_absorption_render".
 
   Returns:
@@ -49,20 +50,22 @@ def render(voxels, absorption_factor=0.1, cell_size=1.0, name=None):
 
     shape.check_static(
         tensor=voxels, tensor_name="voxels", has_rank_greater_than=3)
+    if axis not in [0, 1, 2]:
+      raise ValueError("'axis' needs to be 0, 1 or 2")
 
     signal, density = tf.split(voxels, (-1, 1), axis=-1)
 
     density = tf.scalar_mul(absorption_factor / cell_size, density)
     one_minus_density = tf.ones_like(density) - density
-    transmission = tf.math.cumprod(one_minus_density, axis=-2)
+    transmission = tf.math.cumprod(one_minus_density, axis=axis - 4)
 
     weight = density * transmission
-    weight_sum = tf.reduce_sum(input_tensor=weight, axis=-2)
+    weight_sum = tf.reduce_sum(input_tensor=weight, axis=axis - 4)
 
-    rendering = tf.reduce_sum(input_tensor=weight * signal, axis=-2)
+    rendering = tf.reduce_sum(input_tensor=weight * signal, axis=axis - 4)
     rendering = rendering / (weight_sum + 1e-8)
 
-    transparency = tf.reduce_prod(input_tensor=one_minus_density, axis=-2)
+    transparency = tf.reduce_prod(input_tensor=one_minus_density, axis=axis - 4)
     alpha = tf.ones_like(transparency) - transparency
 
     rendering = rendering * alpha

@@ -1,19 +1,8 @@
-#Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 workspace(name = "tensorflow_graphics")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//third_party:tf.bzl", "tf_configure")
+
 
 http_archive(
     name = "bazel_skylib",
@@ -39,4 +28,14 @@ http_archive(
     strip_prefix = "rules_cc-master",
     urls = ["https://github.com/bazelbuild/rules_cc/archive/master.zip"],
 )
+
+http_archive(
+    name = "com_google_absl",
+    strip_prefix = "abseil-cpp-43ef2148c0936ebf7cb4be6b19927a9d9d145b8f",
+    url = "https://github.com/abseil/abseil-cpp/archive/43ef2148c0936ebf7cb4be6b19927a9d9d145b8f.tar.gz",
+    sha256 = "acd93f6baaedc4414ebd08b33bebca7c7a46888916101d8c0b8083573526d070",
+)
+
+# Set up dependency to tensorflow pip package.
+tf_configure()
 

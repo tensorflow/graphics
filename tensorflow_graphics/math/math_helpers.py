@@ -1,4 +1,4 @@
-#Copyright 2019 Google LLC
+# Copyright 2020 The TensorFlow Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
 
 
-def cartesian_to_spherical_coordinates(point_cartesian, name=None):
+def cartesian_to_spherical_coordinates(point_cartesian, eps=None, name=None):
   """Function to transform Cartesian coordinates to spherical coordinates.
 
   This function assumes a right handed coordinate system with `z` pointing up.
@@ -39,6 +39,8 @@ def cartesian_to_spherical_coordinates(point_cartesian, name=None):
   Args:
     point_cartesian: A tensor of shape `[A1, ..., An, 3]`. In the last
       dimension, the data follows the `x`, `y`, `z` order.
+    eps: A small `float`, to be added to the denominator. If left as `None`,
+      its value is automatically selected using `point_cartesian.dtype`.
     name: A name for this op. Defaults to `cartesian_to_spherical_coordinates`.
 
   Returns:
@@ -57,7 +59,8 @@ def cartesian_to_spherical_coordinates(point_cartesian, name=None):
 
     x, y, z = tf.unstack(point_cartesian, axis=-1)
     radius = tf.norm(tensor=point_cartesian, axis=-1)
-    theta = tf.acos(safe_ops.safe_unsigned_div(z, radius))
+    theta = tf.acos(
+        tf.clip_by_value(safe_ops.safe_unsigned_div(z, radius, eps), -1., 1.))
     phi = tf.atan2(y, x)
     return tf.stack((radius, theta, phi), axis=-1)
 
