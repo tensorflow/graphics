@@ -1,1 +1,2 @@
+http://modelnet.cs.princeton.edu/ModelNet40.zip 2039180837 42dc3e656932e387f554e25a4eb2cc0e1a1bd3ab54606e2a9eae444c60e536ac
 https://shapenet.cs.stanford.edu/media/modelnet40_ply_hdf5_2048.zip 435212151 07670e237db72ece0f723b9abb571534c9ad655a6456b389646587dc72bb8bae

@@ -19,19 +19,22 @@ import tensorflow_datasets as tfds
 from tensorflow_graphics.datasets import modelnet40
 
 
-class ModelNet40Test(tfds.testing.DatasetBuilderTestCase):
+class ModelNet40MeshTest(tfds.testing.DatasetBuilderTestCase):
   """Tests the ModelNet40 dataset with fake data."""
   DATASET_CLASS = modelnet40.ModelNet40
+  BUILDER_CONFIG_NAMES_TO_TEST = [
+      "mesh",
+  ]
   SPLITS = {
-      "train": 24,  # Number of fake train example
-      "test": 16,  # Number of fake test example
+      "train": 120,  # Number of fake train example
+      "test": 80,  # Number of fake test example
   }
 
   # If you are calling `download/download_and_extract` with a dict, like:
   #   dl_manager.download({'some_key': 'http://a.org/out.txt', ...})
   # then the tests needs to provide the fake output paths relative to the
   # fake data directory
-  DL_EXTRACT_RESULT = ""
+  DL_EXTRACT_RESULT = "modelnet40.zip"
   EXAMPLE_DIR = os.path.join(os.path.dirname(__file__), "fakes")
   # SKIP_CHECKSUMS = True
 
