@@ -2,10 +2,6 @@
 import numpy as np
 
 
-def _num_edges(face_lengths):
-  return sum(face_lengths)
-
-
 def _parse_off_vertex(line):
   return tuple(float(s) for s in line.split(' '))
 
@@ -85,7 +81,7 @@ class OffObject(object):
   @property
   def num_edges(self):
     if self._num_edges is None:
-      self._num_edges = _num_edges(self._face_lengths)
+      self._num_edges = sum(self._face_lengths)
     return self._num_edges
 
   @property
@@ -94,7 +90,7 @@ class OffObject(object):
 
   @property
   def num_faces(self):
-    return len(self._face_values)
+    return len(self._face_lengths)
 
   @staticmethod
   def from_file(fp):
@@ -139,12 +135,41 @@ class OffObject(object):
          (self.num_vertices, self.num_faces, self.num_edges)).encode('utf-8'))
     for v in self.vertices:
       fp.write(('%s\n' % ' '.join(str(vi) for vi in v)).encode('utf-8'))
-    values = self.face_values
 
-    for face_size in self.face_lengths:
-      face, values = np.split(values, (face_size,))  # pylint: disable=unbalanced-tuple-unpacking
+    faces = np.split(self.face_values, np.cumsum(self.face_lengths[:-1]))
+    for face in faces:
       fp.write(('%d %s\n' %
                 (len(face), ' '.join(str(fi) for fi in face))).encode('utf-8'))
+
+
+def random_off(seed,
+               num_vertices=(100, 200),
+               num_faces=(10, 20),
+               max_vertices_per_face=6):
+  """
+  Create a random OffObject.
+
+  Args:
+    num_vertices: int, number of vertices, or (lower, upper) that generates a
+      random number of vertices in the range [lower, upper)
+    num_faces: int, number of faces, or (lower, upper) that generates a random
+      number of faces in the range [lower, upper)
+    max_vertices_per_face: maximum number of vertices per face. Each face will
+      have a number of vertices sampled from [3, max_vertices_per_face].
+
+  Returns:
+    OffObject
+  """
+  rng = np.random.default_rng(seed)
+  if not isinstance(num_vertices, int):
+    num_vertices = rng.integers(*num_vertices)
+  if not isinstance(num_faces, int):
+    num_faces = rng.integers(*num_faces)
+  face_lengths = rng.integers(3, max_vertices_per_face + 1, size=num_faces)
+  num_face_values = np.sum(face_lengths)
+  face_values = rng.integers(0, num_vertices, size=num_face_values)
+  vertices = rng.uniform(size=(num_vertices, 3))
+  return OffObject(vertices, face_values, face_lengths)
 
 
 def triangulated_faces(face_values, face_lengths):

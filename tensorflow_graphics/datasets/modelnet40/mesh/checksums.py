@@ -16,12 +16,12 @@
 
 from absl import app
 import tensorflow_datasets as tfds
-from tensorflow_graphics.datasets.modelnet40 import ModelNet40
+from tensorflow_graphics.datasets.modelnet40 import ModelNet40, MESH
 
 
 def main(_):
   config = tfds.download.DownloadConfig(register_checksums=True)
-  modelnet40_builder = ModelNet40(data_dir="~/tensorflow_datasets")
+  modelnet40_builder = ModelNet40(config=MESH, data_dir="~/tensorflow_datasets")
   modelnet40_builder.download_and_prepare(download_config=config)
 
 

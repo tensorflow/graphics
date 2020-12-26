@@ -1,4 +1,4 @@
-# Copyright 2020 The TensorFlow Authors
+#Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,29 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Lint as: python3
-"""Visualization in 3D of modelnet40 dataset.
+"""Simple demo of modelnet40 dataset.
 
 See: https://www.tensorflow.org/datasets/api_docs/python/tfds/load
 """
 from absl import app
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D  # pylint:disable=unused-import
-from tensorflow_graphics.datasets.modelnet40 import ModelNet40
+import numpy as np
+import tensorflow_datasets as tfds
+from tensorflow_graphics.datasets.modelnet40 import ModelNet40, MESH, LABELS
 
 
 def main(_):
-  ds_train, _ = ModelNet40.load(
-      split="train", data_dir="~/tensorflow_dataset", with_info=True)
+  builder = ModelNet40(config=MESH)
+  builder.download_and_prepare(
+      download_config=tfds.core.download.DownloadConfig(
+          register_checksums=True))
+  ds_train = builder.as_dataset(split='test')
 
-  for example in ds_train.take(1):
-    points = example["points"]
+  for example in ds_train:
+    mesh = example["mesh"]
     label = example["label"]
 
-  fig = plt.figure()
-  ax3 = fig.add_subplot(111, projection="3d")
-  ax3.set_title("Example with label {}".format(label))
-  scatter3 = lambda p, c="r", *args: ax3.scatter(p[:, 0], p[:, 1], p[:, 2], c)
-  scatter3(points)
+  # --- example accessing data
+  print("mesh['vertices'].shape=", mesh['vertices'].shape)
+  print("mesh['faces'].shape=", mesh['faces'].shape)
+  print("label=", LABELS[label])
 
 
 if __name__ == "__main__":

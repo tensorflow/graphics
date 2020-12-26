@@ -18,12 +18,13 @@ See: https://www.tensorflow.org/datasets/api_docs/python/tfds/load
 """
 from absl import app
 
-from tensorflow_graphics.datasets.modelnet40 import ModelNet40
+from tensorflow_graphics.datasets.modelnet40 import ModelNet40, POINTNET
 
 
 def main(_):
-  ds_train, info = ModelNet40.load(
-      split="train", data_dir="~/tensorflow_dataset", with_info=True)
+  ds_train, info = POINTNET.load(split="train",
+                                 data_dir="~/tensorflow_datasets",
+                                 with_info=True)
 
   for example in ds_train.take(1):
     points = example["points"]

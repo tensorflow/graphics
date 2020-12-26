@@ -12,15 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Lint as: python3
-"""ModelNet40 classification dataset from https://modelnet.cs.princeton.edu."""
-from .builder import ModelNet40
-from .core import LABELS
-from .mesh import MESH
-from .pointnet import POINTNET
+"""Download, computes and stores the checksums."""
 
-__all__ = [
-    'LABELS',
-    'MESH',
-    'POINTNET',
-    'ModelNet40',
-]
+from absl import app
+import tensorflow_datasets as tfds
+from tensorflow_graphics.datasets.modelnet40 import ModelNet40, POINTNET
+
+
+def main(_):
+  config = tfds.download.DownloadConfig(register_checksums=True)
+  modelnet40_builder = ModelNet40(config=POINTNET,
+                                  data_dir="~/tensorflow_datasets")
+  modelnet40_builder.download_and_prepare(download_config=config)
+
+
+if __name__ == "__main__":
+  app.run(main)
