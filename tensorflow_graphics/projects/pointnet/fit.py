@@ -82,8 +82,6 @@ def augment_train(points, label):
 
 
 num_examples = info.splits["train"].num_examples
-steps_per_epoch = num_examples // FLAGS.batch_size
-ds_train = ds_train.repeat()
 ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
 ds_train = ds_train.map(augment_train,
                         num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -118,7 +116,6 @@ try:
             validation_freq=FLAGS.ev_every,
             validation_data=ds_test,
             callbacks=callbacks,
-            steps_per_epoch=steps_per_epoch,
             verbose=FLAGS.verbose)
 except KeyboardInterrupt:
   helpers.handle_keyboard_interrupt(FLAGS)
