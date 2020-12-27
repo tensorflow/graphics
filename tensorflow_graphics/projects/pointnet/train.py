@@ -13,13 +13,12 @@
 # limitations under the License.
 """Training loop for PointNet v1 on modelnet40."""
 import tensorflow as tf
+from tqdm import tqdm
+
 from tensorflow_graphics.datasets import modelnet40
 from tensorflow_graphics.nn.layer import pointnet
-from tqdm import tqdm
-from . import augment  # pylint: disable=g-bad-import-order
-from . import helpers  # pylint: disable=g-bad-import-order
-
 from tensorflow_graphics.nn.layer.pointnet import VanillaClassifier
+from tensorflow_graphics.projects.pointnet import augment
 from tensorflow_graphics.projects.pointnet import helpers
 
 # ------------------------------------------------------------------------------
@@ -44,16 +43,17 @@ FLAGS = parser.parse_args()
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-optimizer = tf.keras.optimizers.Adam(
-    learning_rate=helpers.decayed_learning_rate(FLAGS.learning_rate) if FLAGS.
-    lr_decay else FLAGS.learning_rate)
+if FLAGS.lr_decay:
+  learning_rate = tf.keras.optimizers.schedules.ExponentialDecay(
+      FLAGS.learning_rate,
+      decay_steps=6250,  #< 200.000 / 32 (batch size) (from original pointnet)
+      decay_rate=0.7,
+      staircase=True)
+else:
+  learning_rate = FLAGS.learning_rate
+optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
-<<<<<<< HEAD
-model = VanillaClassifier(num_classes=40, momentum=FLAGS.bn_decay)
-=======
-model = pointnet.PointNetVanillaClassifier(
-    num_classes=40, momentum=FLAGS.bn_decay)
->>>>>>> master
+model = pointnet.VanillaClassifier(num_classes=40, momentum=FLAGS.bn_decay)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -103,9 +103,9 @@ def evaluate():
   if step % FLAGS.ev_every != 0:
     return evaluate.best_accuracy
   aggregator = tf.keras.metrics.SparseCategoricalAccuracy()
-  for points, labels in ds_test:
+  for points, label in ds_test:
     logits = model(points, training=False)
-    aggregator.update_state(labels, logits)
+    aggregator.update_state(label, logits)
   accuracy = aggregator.result()
   evaluate.best_accuracy = max(accuracy, evaluate.best_accuracy)
   tf.summary.scalar(name="accuracy_test", data=accuracy, step=step)
@@ -116,20 +116,39 @@ def evaluate():
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-<<<<<<< HEAD
-ds_train, ds_test = helpers.get_modelnet40_datasets(FLAGS.num_points,
-                                                    FLAGS.batch_size,
-                                                    FLAGS.augment_jitter,
-                                                    FLAGS.augment_rotate,
-                                                    FLAGS.num_epochs)
-=======
-ds_train, info = modelnet40.ModelNet40.load(split="train", with_info=True)
+(ds_train, ds_test), info = modelnet40.ModelNet40().load(split=("train",
+                                                                "test"),
+                                                         with_info=True,
+                                                         as_supervised=True)
+
+
+# Train data pipeling
+def augment_train(points, label):
+  points = points[:FLAGS.num_points]
+  if FLAGS.augment_jitter:
+    points = augment.jitter(points, stddev=0.01, clip=0.05)
+  if FLAGS.augment_rotate:
+    points = augment.rotate(points)
+  return points, label
+
+
 num_examples = info.splits["train"].num_examples
-ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
 ds_train = ds_train.repeat(FLAGS.num_epochs)
+ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
+ds_train = ds_train.map(augment_train,
+                        num_parallel_calls=tf.data.experimental.AUTOTUNE)
 ds_train = ds_train.batch(FLAGS.batch_size)
-ds_test = modelnet40.ModelNet40.load(split="test").batch(FLAGS.batch_size)
->>>>>>> master
+ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
+
+
+# Test data pipeline
+def augment_test(points, label):
+  return points[:FLAGS.num_points], label
+
+
+ds_test = ds_test.map(augment_test)
+ds_test = ds_test.batch(FLAGS.batch_size)
+ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -139,7 +158,7 @@ try:
   helpers.setup_tensorboard(FLAGS)
   helpers.summary_command(parser, FLAGS)
   total = tf.data.experimental.cardinality(ds_train).numpy()
-  pbar = tqdm.tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
+  pbar = tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
   for train_example in pbar:
     train(train_example)
     best_accuracy = evaluate()

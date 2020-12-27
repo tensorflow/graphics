@@ -19,12 +19,13 @@ import tensorflow as tf
 from tensorflow_graphics.geometry.transformation import rotation_matrix_3d
 
 
-def jitter(points, stddev=0.01, clip=0.05):
+def jitter(points, stddev=0.01, clip=None):
   """Randomly jitters points with (clipped) Gaussian noise."""
   assert (stddev > 0), "jitter needs a positive sigma"
-  assert (clip > 0), "jitter needs a positive clip"
+  assert (clip is None or clip > 0), "jitter needs a positive clip"
   noise = tf.random.normal(points.shape, stddev=stddev)
-  noise = tf.clip_by_value(noise, -clip, +clip)
+  if clip is not None:
+    noise = tf.clip_by_value(noise, -clip, +clip)
   return points + noise
 
 
