@@ -24,9 +24,6 @@ import time
 import tensorflow as tf
 import termcolor
 
-from tensorflow_graphics.datasets.modelnet40 import ModelNet40
-from tensorflow_graphics.projects.pointnet import augment
-
 
 class ArgumentParser(argparse.ArgumentParser):
   """Argument parser with default flags, and tensorboard helpers."""
