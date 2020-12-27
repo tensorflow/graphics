@@ -46,6 +46,6 @@ cp libglapi-mesa/usr/lib/x86_64-linux-gnu/libglapi.so.0.0.0  /usr/lib/x86_64-lin
 ##############################
 # Build rasterizer op w/ Bazel
 ##############################
-pip3 install tensorflow
+pip3 install tensorflow==2.2
 bazel build tensorflow_graphics/rendering/opengl:rasterizer_op.so --crosstool_top=//third_party/preconfig/ubuntu16.04/gcc7_manylinux2010-nvcc-cuda10.1:toolchain
 cp bazel-bin/tensorflow_graphics/rendering/opengl/rasterizer_op.so tensorflow_graphics/rendering/opengl/rasterizer_op.so
