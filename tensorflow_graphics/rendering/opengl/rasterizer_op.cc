@@ -15,9 +15,9 @@ limitations under the License.
 #include <memory>
 
 #include "absl/types/span.h"
-#include "tensorflow_graphics/rendering/opengl/macros.h"
-#include "tensorflow_graphics/rendering/opengl/rasterizer_with_context.h"
-#include "tensorflow_graphics/rendering/opengl/thread_safe_resource_pool.h"
+#include "macros.h"
+#include "rasterizer_with_context.h"
+#include "thread_safe_resource_pool.h"
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/shape_inference.h"

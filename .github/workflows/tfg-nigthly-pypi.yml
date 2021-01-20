@@ -13,49 +13,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'
-
+        python-version: 3.8
     - name: Install system dependencies
       run: |
         sudo xargs apt-get update
         sudo xargs apt-get -y install < requirements.unix
-    - name: Build rasterizer
-      run: |
-        docker run -v ${PWD}:/working_dir -w /working_dir  tensorflow/tensorflow:custom-op-ubuntu16 "./build_rasterizer.sh"
     - name: Install pip requirements
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine pytest
-        pip install -r requirements.txt
-    - name: Test
+        pip install -U -r requirements.txt
+        pip install -U pytest
+        pip install -U setuptools wheel
+        pip install -U twine
+    - name: Build ops
+      run: |
+        bazel build tensorflow_graphics/... --define=BASEDIR=$(pwd) --sandbox_writable_path=$(pwd)
+        bazel clean --expunge
+    - name: Run python tests
+      env:
+        MESA_GL_VERSION_OVERRIDE: 4.5
+        MESA_GLSL_VERSION_OVERRIDE: 450
       run: |
         pytest tensorflow_graphics
-
-    - name: Build nightly
+    - name: Build pip package and install
       run: |
         python setup.py sdist bdist_wheel --nightly
-        
-    - name: Install (and test)
-      run: |
         pip install dist/*.whl
-        cd $(mktemp -d) && python -c 'import tensorflow_graphics as tfg'     
-        
-    # https://pypi.org/project/tfg-nightly
-    - name: Publish to PyPi
+    - name: Test install
+      run: |
+        cd $(mktemp -d) && python -c 'import tensorflow_graphics as tfg'
+    - name: Publish to PyPi # https://pypi.org/project/tfg-nightly
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        twine upload dist/* 
-
-    # # https://test.pypi.org/project/tfg-nightly
-    # - name: Publish to test-pypi
-    #   env:
-    #     TWINE_USERNAME: ${{ secrets.TEST_PYPI_USERNAME }}
-    #     TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
-    #   run: |
-    #     twine upload --repository testpypi dist/*
+        twine upload dist/*

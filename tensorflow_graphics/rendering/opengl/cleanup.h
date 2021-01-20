@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#ifndef THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_UTIL_CLEANUP_H_
-#define THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_UTIL_CLEANUP_H_
+#ifndef THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_CLEANUP_H_
+#define THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_CLEANUP_H_
 
 #include <type_traits>
 #include <utility>
@@ -101,4 +101,4 @@ Cleanup<DecayF> MakeCleanup(F&& f) {
   return Cleanup<DecayF>(std::forward<F>(f));
 }
 
-#endif  // THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_UTIL_CLEANUP_H_
+#endif  // THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_CLEANUP_H_

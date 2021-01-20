@@ -15,9 +15,17 @@
 
 import tensorflow as tf
 
-from tensorflow_graphics.rendering.opengl import gen_rasterizer_op as render_ops
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+
+# pylint: disable=g-import-not-at-top
+try:
+  from tensorflow_graphics.rendering.opengl import gen_rasterizer_op as render_ops
+except ImportError:
+  import os
+  dir_path = os.path.dirname(os.path.abspath(__file__))
+  render_ops = tf.load_op_library(os.path.join(dir_path, "rasterizer_op.so"))
+# pylint: enable=g-import-not-at-top
 
 
 def _dim_value(dim):
@@ -43,7 +51,6 @@ layout(triangle_strip, max_vertices=3) out;
 out layout(location = 0) vec2 barycentric_coordinates;
 out layout(location = 1) float triangle_index;
 
-in int gl_PrimitiveIDIn;
 layout(binding=0) buffer triangular_mesh { float mesh_buffer[]; };
 
 

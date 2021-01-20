@@ -19,10 +19,10 @@ limitations under the License.
 #include <string>
 #include <unordered_map>
 
-#include "tensorflow_graphics/rendering/opengl/gl_program.h"
-#include "tensorflow_graphics/rendering/opengl/gl_render_targets.h"
-#include "tensorflow_graphics/rendering/opengl/gl_shader_storage_buffer.h"
-#include "tensorflow_graphics/util/cleanup.h"
+#include "gl_program.h"
+#include "gl_render_targets.h"
+#include "gl_shader_storage_buffer.h"
+#include "cleanup.h"
 
 class RasterizerWithContext;
 

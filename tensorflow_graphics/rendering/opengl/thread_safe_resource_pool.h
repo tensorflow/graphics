@@ -21,7 +21,7 @@ limitations under the License.
 #include <vector>
 
 #include "absl/synchronization/mutex.h"
-#include "tensorflow_graphics/rendering/opengl/macros.h"
+#include "macros.h"
 #include "tensorflow/core/lib/core/status.h"
 
 template <typename T>

@@ -12,13 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#include "tensorflow_graphics/rendering/opengl/egl_offscreen_context.h"
+#include "egl_offscreen_context.h"
 
 #include <EGL/egl.h>
 
-#include "tensorflow_graphics/rendering/opengl/egl_util.h"
-#include "tensorflow_graphics/rendering/opengl/macros.h"
-#include "tensorflow_graphics/util/cleanup.h"
+#include "egl_util.h"
+#include "macros.h"
+#include "cleanup.h"
 #include "tensorflow/core/lib/core/status.h"
 
 EGLOffscreenContext::EGLOffscreenContext(EGLContext context, EGLDisplay display,

@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#include "tensorflow_graphics/rendering/opengl/rasterizer.h"
+#include "rasterizer.h"
 
 Rasterizer::Rasterizer(
     std::unique_ptr<gl_utils::Program>&& program,

@@ -14,38 +14,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
-        python-version: 3.x
-
-    - name: Install system dependencies
+        python-version: 3.8
+    - name: Install system requirements
       run: |
         sudo xargs apt-get update
         sudo xargs apt-get -y install < requirements.unix
-    - name: Linter
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8
-        flake8 --config=.flake8 tensorflow_graphics/
-    - name: Build rasterizer
-      run: |
-        docker run -v ${PWD}:/working_dir -w /working_dir  tensorflow/tensorflow:custom-op-ubuntu16 "./build_rasterizer.sh"
     - name: Install pip requirements
       run: |
-        pip install -r requirements.txt
-    - name: Test
+        python -m pip install --upgrade pip
+        pip install -U -r requirements.txt
+        pip install -U pytest coveralls
+        pip install -U flake8
+        pip install -U setuptools wheel
+    - name: Build ops
+      run: |
+        bazel build tensorflow_graphics/... --define=BASEDIR=$(pwd) --sandbox_writable_path=$(pwd)
+        bazel clean --expunge
+    - name: Run python tests and coverage
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MESA_GL_VERSION_OVERRIDE: 4.5
+        MESA_GLSL_VERSION_OVERRIDE: 450
       run: |
-        pip install pytest coveralls
         coverage run --source tensorflow_graphics -m py.test
-        coveralls
-    - name: Build and Install
+        coveralls --service=github
+    - name: Linter
+      run: |
+        flake8 --config=.flake8 tensorflow_graphics/
+    - name: Build pip package and install
       run: |
         python setup.py sdist bdist_wheel
-        pip install dist/tensorflow_graphics*.whl
+        pip install dist/*.whl
     - name: Test install
       run: |
         cd $(mktemp -d) && python -c 'import tensorflow_graphics as tfg'

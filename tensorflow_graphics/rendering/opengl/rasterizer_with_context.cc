@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#include "tensorflow_graphics/rendering/opengl/rasterizer_with_context.h"
+#include "rasterizer_with_context.h"
 
 RasterizerWithContext::RasterizerWithContext(
     std::unique_ptr<EGLOffscreenContext>&& egl_context,

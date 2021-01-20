@@ -1,5 +1,1 @@
 tensorflow_graphics/rendering/opengl/BUILD
-tensorflow_graphics/util/BUILD
-third_party/BUILD
-third_party/preconfig/ubuntu16.04/gcc7_manylinux2010-nvcc-cuda10.1/BUILD
-third_party/preconfig/ubuntu16.04/gcc7_manylinux2010-nvcc-cuda10.1/cc_toolchain_config.bzl

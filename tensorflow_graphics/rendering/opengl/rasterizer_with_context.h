@@ -15,9 +15,9 @@ limitations under the License.
 #ifndef THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_RASTERIZER_WITH_CONTEXT_H_
 #define THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_RASTERIZER_WITH_CONTEXT_H_
 
-#include "tensorflow_graphics/rendering/opengl/egl_offscreen_context.h"
-#include "tensorflow_graphics/rendering/opengl/rasterizer.h"
-#include "tensorflow_graphics/util/cleanup.h"
+#include "egl_offscreen_context.h"
+#include "rasterizer.h"
+#include "cleanup.h"
 #include "tensorflow/core/lib/core/status.h"
 
 class RasterizerWithContext : public Rasterizer {

@@ -1,5 +1,1 @@
 build --verbose_failures
-test --keep_going
-test --build_tests_only
-test --test_output=errors
-test --test_verbose_timeout_warnings

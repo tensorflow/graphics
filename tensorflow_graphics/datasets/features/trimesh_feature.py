@@ -66,8 +66,9 @@ class TriangleMesh(features.FeaturesDict):
         features_dict = self._convert_to_trimesh_feature(
             triangle_mesh.load(tmesh_file))
     elif hasattr(path_or_trianglemesh, 'read') and hasattr(
-        path_or_trianglemesh, 'name'):
+        path_or_trianglemesh, 'name') and hasattr(path_or_trianglemesh, 'seek'):
       # The parameter is a file object.
+      path_or_trianglemesh.seek(0)  # reset
       features_dict = self._convert_to_trimesh_feature(
           triangle_mesh.load(path_or_trianglemesh))
     elif isinstance(path_or_trianglemesh, dict):

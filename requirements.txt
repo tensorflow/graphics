@@ -1,6 +1,6 @@
-tensorflow == 2.2.0
-tensorflow-addons == 0.10.0
-tensorflow-datasets == 2.0.0
+tensorflow >= 2.2.0
+tensorflow-addons >= 0.10.0
+tensorflow-datasets >= 2.0.0
 absl-py >= 0.6.1
 h5py >= 2.10.0
 matplotlib >= 2.2.5

@@ -20,19 +20,19 @@ import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import look_at
 from tensorflow_graphics.rendering.camera import perspective
-from tensorflow_graphics.rendering.opengl import gen_rasterizer_op as rasterizer
+from tensorflow_graphics.rendering.opengl import rasterization_backend
 from tensorflow_graphics.util import test_case
 
 # Empty vertex shader
 test_vertex_shader = """
-#version 460
+#version 450
 void main() { }
 """
 
 # Geometry shader that projects the vertices of visible triangles onto the image
 # plane.
 test_geometry_shader = """
-#version 460
+#version 450
 
 uniform mat4 view_projection_matrix;
 
@@ -44,7 +44,6 @@ out layout(location = 1) vec3 normal;
 out layout(location = 2) vec2 bar_coord;
 out layout(location = 3) float tri_id;
 
-in int gl_PrimitiveIDIn;
 layout(binding=0) buffer triangular_mesh { float mesh_buffer[]; };
 
 vec3 get_vertex_position(int i) {
@@ -93,7 +92,7 @@ void main() {
 # Fragment shader that packs barycentric coordinates, triangle index, and depth
 # map in a resulting vec4 per pixel.
 test_fragment_shader = """
-#version 420
+#version 450
 
 in layout(location = 0) vec3 position;
 in layout(location = 1) vec3 normal;
@@ -164,7 +163,7 @@ class RasterizerOPTest(test_case.TestCase):
     variable_values = [v[1][1] for v in render_parameters]
 
     def rasterize():
-      return rasterizer.rasterize(
+      return rasterization_backend.render_ops.rasterize(
           num_points=3,
           variable_names=variable_names,
           variable_kinds=variable_kinds,
@@ -210,14 +209,14 @@ class RasterizerOPTest(test_case.TestCase):
                                    error_graph_mode):
     height = 1
     width = 1
-    empty_shader_code = "#version 460\n void main() { }\n"
+    empty_shader_code = "#version 450\n void main() { }\n"
     if tf.executing_eagerly():
       error = error_eager
     else:
       error = error_graph_mode
     with self.assertRaisesRegexp(error, error_msg):
       self.evaluate(
-          rasterizer.rasterize(
+          rasterization_backend.render_ops.rasterize(
               num_points=0,
               variable_names=variable_names,
               variable_kinds=variable_kinds,

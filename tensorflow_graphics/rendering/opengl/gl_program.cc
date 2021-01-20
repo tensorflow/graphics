@@ -12,10 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#include "tensorflow_graphics/rendering/opengl/gl_program.h"
+#include "gl_program.h"
 
-#include "tensorflow_graphics/rendering/opengl/macros.h"
-#include "tensorflow_graphics/util/cleanup.h"
+#include "macros.h"
+#include "cleanup.h"
 #include "tensorflow/core/lib/core/status.h"
 
 namespace gl_utils {

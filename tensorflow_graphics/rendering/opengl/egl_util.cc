@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#include "tensorflow_graphics/rendering/opengl/egl_util.h"
+#include "egl_util.h"
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
