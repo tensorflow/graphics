@@ -53,10 +53,6 @@ _TAXONOMY_FILE_NAME = 'taxonomy.json'
 _SPLIT_FILE_URL = \
     'http://shapenet.cs.stanford.edu/shapenet/obj-zip/SHREC16/all.csv'
 
-_CHECKSUMS_DIR = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), 'checksums/'))
-tfds.download.add_checksums_dir(_CHECKSUMS_DIR)
-
 
 class ShapenetConfig(tfds.core.BuilderConfig):
   """Base class for Shapenet BuilderConfigs.

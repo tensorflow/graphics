@@ -80,11 +80,6 @@ Train/Test split:
   models appearing in the train and test sets are disjoint.
 '''
 
-_CHECKSUMS_DIR = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), 'checksums/')
-)
-tfds.download.add_checksums_dir(_CHECKSUMS_DIR)
-
 
 class Pix3d(tfds.core.GeneratorBasedBuilder):
   """Pix3D is a large-scale dataset of diverse image-shape pairs with pixel-level 2D-3D alignment."""
