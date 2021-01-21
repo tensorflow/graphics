@@ -21,8 +21,6 @@ from __future__ import print_function
 
 import Imath
 import numpy as np
-import OpenEXR
-
 
 _np_to_exr = {
     np.float16: Imath.PixelType.HALF,
@@ -50,7 +48,12 @@ def channels_to_ndarray(exr, channel_names):
   Raises:
     ValueError: If the channels have different datatypes.
     RuntimeError: If a channel has an unknown type.
+    ImportError: If OpenEXR cannot be installed. This is an optional dependency.
   """
+  try:
+    import OpenEXR
+  except ImportError:
+    raise ImportError("Cannot import OpenEXR. Please install OpenEXR >= 1.3.2")
   channels_header = exr.header()['channels']
   window = exr.header()['dataWindow']
   width = window.max.x - window.min.x + 1
@@ -93,7 +96,13 @@ def read_exr(filename, channel_names=None):
   Returns:
     A numpy array containing the image data, and a list of the corresponding
       channel names.
+  Raises:
+    ImportError: If OpenEXR cannot be installed. This is an optional dependency.
   """
+  try:
+    import OpenEXR
+  except ImportError:
+    raise ImportError("Cannot import OpenEXR. Please install OpenEXR >= 1.3.2")
   exr = OpenEXR.InputFile(filename)
   if channel_names is None:
     remaining_channel_names = list(exr.header()['channels'].keys())
