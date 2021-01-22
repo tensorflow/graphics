@@ -46,6 +46,8 @@ with open(ini_file_path, "w") as f:
 # --- Extract the dependencies
 REQS = [line.strip() for line in open("requirements.txt")]
 INSTALL_PACKAGES = [line for line in REQS if not line.startswith("#")]
+EXTRAS_REQUIRE = {'exr': ["OpenEXR >= 1.3.2"]}
+EXTRAS_REQUIRE['all'] = sum(EXTRAS_REQUIRE.values(), [])
 
 # --- Build the whl file
 setuptools.setup(
@@ -60,6 +62,7 @@ setuptools.setup(
     author_email="tf-graphics-eng@google.com",
     install_requires=INSTALL_PACKAGES,
     include_package_data=True,
+    extras_require=
     packages=setuptools.find_packages(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
