@@ -62,7 +62,7 @@ setuptools.setup(
     author_email="tf-graphics-eng@google.com",
     install_requires=INSTALL_PACKAGES,
     include_package_data=True,
-    extras_require=
+    extras_require=EXTRAS_REQUIRE,
     packages=setuptools.find_packages(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
