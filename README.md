@@ -1,5 +1,6 @@
 # TensorFlow Graphics
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Build](https://github.com/tensorflow/graphics/workflows/Build/badge.svg?branch=master)](https://github.com/tensorflow/graphics/actions)
 [![Code coverage](https://img.shields.io/coveralls/github/tensorflow/graphics.svg)](https://coveralls.io/github/tensorflow/graphics)
 [![PyPI project status](https://img.shields.io/pypi/status/tensorflow-graphics.svg)](https://pypi.org/project/tensorflow-graphics/)
