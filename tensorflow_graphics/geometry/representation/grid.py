@@ -68,11 +68,11 @@ def generate(starts, stops, nums, name=None):
 
   Returns:
     A tensor of shape `[nums[0], ..., nums[M-1], M]` containing an M-D uniform
-      grid or a tensor of shape [B, nums[0], ..., nums[M-1], M]` containing B
+      grid or a tensor of shape `[B, nums[0], ..., nums[M-1], M]` containing B
       M-D uniform grids. Please refer to the example below for more details.
 
   Raises:
-    ValueError: If the shape of `starts`, `stops`, or 'nums' is not supported.
+    ValueError: If the shape of `starts`, `stops`, or `nums` is not supported.
 
   Examples:
     ```python
