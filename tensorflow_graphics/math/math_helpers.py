@@ -46,7 +46,7 @@ def cartesian_to_spherical_coordinates(point_cartesian, eps=None, name=None):
   Returns:
     A tensor of shape `[A1, ..., An, 3]`. The last dimensions contains
     (`r`,`theta`,`phi`), where `r` is the sphere radius, `theta` is the polar
-    angle and `phi` is the azimuthal angle.
+    angle and `phi` is the azimuthal angle. Returns `NaN` gradient if x = y = 0.
   """
   with tf.compat.v1.name_scope(name, "cartesian_to_spherical_coordinates",
                                [point_cartesian]):
