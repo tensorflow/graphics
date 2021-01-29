@@ -37,6 +37,7 @@ import tensorflow.compat.v2 as tf
 
 from tensorflow_graphics.geometry.transformation import quaternion
 from tensorflow_graphics.util import asserts
+from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
@@ -74,3 +75,6 @@ def conjugate(dual_quaternion, name=None):
     return tf.concat((quaternion.conjugate(quaternion_real),
                       quaternion.conjugate(quaternion_dual)),
                      axis=-1)
+
+# API contains all public functions and classes.
+__all__ = export_api.get_functions_and_classes()

@@ -39,6 +39,7 @@ This shorthand notation is used throughout this module:
 """
 
 import tensorflow as tf
+from tensorflow_graphics.util import export_api
 
 
 class PointNetConv2Layer(tf.keras.layers.Layer):
@@ -239,3 +240,7 @@ class PointNetVanillaClassifier(tf.keras.layers.Layer):
     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits
     residual = cross_entropy(labels, logits)
     return tf.reduce_mean(input_tensor=residual)
+
+
+# API contains all public functions and classes.
+__all__ = export_api.get_functions_and_classes()

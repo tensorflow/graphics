@@ -41,6 +41,7 @@ import tensorflow as tf
 from tensorflow_graphics.geometry.representation import triangle
 from tensorflow_graphics.geometry.representation.mesh import normals
 from tensorflow_graphics.util import asserts
+from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
@@ -395,3 +396,6 @@ def area_weighted_random_sample_triangle_mesh(vertex_attributes,
         face_weights=triangle_areas,
         seed=seed,
         stateless=stateless)
+
+# API contains all public functions and classes.
+__all__ = export_api.get_functions_and_classes()
