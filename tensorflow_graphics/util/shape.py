@@ -19,6 +19,7 @@ from __future__ import print_function
 
 import itertools
 
+import numpy as np
 import six
 import tensorflow as tf
 
@@ -378,6 +379,47 @@ def is_static(tensor_shape):
     return None not in tensor_shape
   else:
     return None not in tensor_shape.as_list()
+
+
+def add_batch_dimensions(tensor, tensor_name, batch_shape, last_axis=None):
+  """Broadcasts tensor to match batch dimensions.
+
+  It will either broadcast to all provided batch dimensions, therefore
+  increasing tensor shape by len(batch_shape) dimensions or will do nothing if
+  batch dimensions already present and equal to expected batch dimensions.
+
+  Args:
+    tensor: A tensor to broadcast of a shape [A1, ..., An, B1, ..., Bn]. Where
+      [A1, ..., An] is batch dimensions (it is allowed to have no batch
+      dimensions), and [B1, ..., Bn] are other tensor dimensions. If [A1, ...,
+      An] are present but different from values in `batch_shape` the error will
+      be thrown.
+    tensor_name: Name of `tensor` to be used in the error message if one is
+    batch_shape: list of `int` representing desired batch dimensions.
+    last_axis: An `int` corresponding to the last axis of the batch (with zero
+      based indices). For instance, if there is only a single batch dimension,
+      last axis should be `0`. If there is no batch dimensions it must be set to
+      `None`. thrown.
+
+  Returns:
+    Tensor of a shape `batch_shape` + [B1, ..., Bn] or unmodified tensor if
+    `batch_shape` = [A1, ..., An].
+  Raises:
+    ValueError if tensor already has batch dimensions different from desired
+      one.
+  """
+  if last_axis is not None:
+    last_axis = _fix_axes([tensor], [last_axis], allow_negative=True)[0]
+    tensor_batch_shape = tensor.shape.as_list()[:last_axis + 1]
+    if np.array_equal(tensor_batch_shape, batch_shape):
+      return tensor
+    elif tensor_batch_shape:
+      raise ValueError(
+          'Tensor {} has batch dimensions different from target '
+          'one. Found {}, but expected no batch dimensions or {}'.format(
+              tensor_name, tensor.shape[:last_axis + 1], batch_shape))
+
+  return tf.broadcast_to(tensor, batch_shape + list(tensor.shape))
 
 
 # The util functions or classes are not exported.

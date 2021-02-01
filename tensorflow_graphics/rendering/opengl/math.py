@@ -426,6 +426,19 @@ def perspective_correct_barycentrics(triangle_vertices_model_space,
         tensor_name="triangle_vertices_model_space",
         has_dim_equals=((-2, 3), (-1, 3)))
 
+    lower_left_corner = tf.convert_to_tensor(value=lower_left_corner)
+    screen_dimensions = tf.convert_to_tensor(value=screen_dimensions)
+    lower_left_corner = shape.add_batch_dimensions(
+        lower_left_corner,
+        "lower_left_corner",
+        model_to_eye_matrix.shape[:-2],
+        last_axis=-2)
+    screen_dimensions = shape.add_batch_dimensions(
+        screen_dimensions,
+        "screen_dimensions",
+        model_to_eye_matrix.shape[:-2],
+        last_axis=-2)
+
     vertices_screen, vertices_w = model_to_screen(triangle_vertices_model_space,
                                                   model_to_eye_matrix,
                                                   perspective_matrix,

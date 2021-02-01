@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from absl.testing import parameterized
 import numpy as np
 import tensorflow as tf
@@ -96,8 +95,8 @@ class RasterizationBackendTest(test_case.TestCase):
                                                  (_IMAGE_WIDTH, _IMAGE_HEIGHT))
     self.assertAllEqual(mask[0, ...], tf.ones_like(mask[0, ...]))
 
-    gt_layer_1 = np.zeros((_IMAGE_HEIGHT, _IMAGE_WIDTH), np.float32)
-    gt_layer_1[_IMAGE_HEIGHT // 2:, _IMAGE_WIDTH // 2:] = 1.0
+    gt_layer_1 = np.zeros((_IMAGE_HEIGHT, _IMAGE_WIDTH, 1), np.float32)
+    gt_layer_1[_IMAGE_HEIGHT // 2:, _IMAGE_WIDTH // 2:, 0] = 1.0
     self.assertAllEqual(mask[1, ...], gt_layer_1)
 
   def test_rasterize_batch_view_only(self):
@@ -138,15 +137,16 @@ class RasterizationBackendTest(test_case.TestCase):
         (_IMAGE_WIDTH, _IMAGE_HEIGHT))
 
     with self.subTest(name="triangle_index"):
-      groundtruth_triangle_index = np.zeros((_IMAGE_HEIGHT, _IMAGE_WIDTH),
+      groundtruth_triangle_index = np.zeros((_IMAGE_HEIGHT, _IMAGE_WIDTH, 1),
                                             dtype=np.int32)
-      groundtruth_triangle_index[..., :_IMAGE_WIDTH // 2] = -1
-      groundtruth_triangle_index[:_IMAGE_HEIGHT // 2, _IMAGE_WIDTH // 2:] = 1
+      groundtruth_triangle_index[..., :_IMAGE_WIDTH // 2, 0] = -1
+      groundtruth_triangle_index[:_IMAGE_HEIGHT // 2, _IMAGE_WIDTH // 2:, 0] = 1
       self.assertAllEqual(groundtruth_triangle_index, predicted_triangle_index)
 
     with self.subTest(name="mask"):
-      groundtruth_mask = np.ones((_IMAGE_HEIGHT, _IMAGE_WIDTH), dtype=np.int32)
-      groundtruth_mask[..., :_IMAGE_WIDTH // 2] = 0
+      groundtruth_mask = np.ones((_IMAGE_HEIGHT, _IMAGE_WIDTH, 1),
+                                 dtype=np.int32)
+      groundtruth_mask[..., :_IMAGE_WIDTH // 2, 0] = 0
       self.assertAllEqual(groundtruth_mask, predicted_mask)
 
     attributes = np.array(

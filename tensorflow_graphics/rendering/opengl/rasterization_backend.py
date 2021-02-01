@@ -128,7 +128,7 @@ def rasterize(vertices,
     is associated to a pixel, the index is set to -1.
     The second element in the tuple is of shape `[A1, ..., An, H, W, 3]` and
     correspond to barycentric coordinates per pixel. The last element in the
-    tuple is of shape `[A1, ..., An, H, W]` and stores a value of `0` of the
+    tuple is of shape `[A1, ..., An, H, W, 1]` and stores a value of `0` of the
     pixel is assciated with the background, and `1` with the foreground.
   """
   with tf.compat.v1.name_scope(name, "rasterization_backend_rasterize",
@@ -183,12 +183,19 @@ def rasterize(vertices,
         fragment_shader=fragment_shader)
 
     triangle_index = tf.cast(rasterized[..., 0], tf.int32) - 1
+    # Slicing of the tensor will result in all batch dimensions being
+    # `None` for tensorflow graph mode, therefore we have to fix it in order to
+    # have explicit shape.
+    width, height = image_size
+    triangle_index = tf.reshape(triangle_index,
+                                common_batch_shape + [height, width, 1])
     barycentric_coordinates = rasterized[..., 1:3]
     barycentric_coordinates = tf.concat(
         (barycentric_coordinates, 1.0 - barycentric_coordinates[..., 0:1] -
          barycentric_coordinates[..., 1:2]),
         axis=-1)
     mask = tf.cast(rasterized[..., 3], tf.int32)
+    mask = tf.reshape(mask, common_batch_shape + [height, width, 1])
 
     return triangle_index, barycentric_coordinates, mask
 
