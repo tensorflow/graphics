@@ -15,6 +15,7 @@
 
 import tensorflow as tf
 
+from tensorflow_graphics.rendering import framebuffer as fb
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
@@ -92,7 +93,7 @@ in layout(location = 1) float triangle_index;
 out vec4 output_color;
 
 void main() {
-  output_color = vec4(round(triangle_index + 1.0), barycentric_coordinates, 1.0);
+  output_color = vec4(round(triangle_index), barycentric_coordinates, 1.0);
 }
 """
 
@@ -123,13 +124,17 @@ def rasterize(vertices,
     name: A name for this op. Defaults to 'rasterization_backend_rasterize'.
 
   Returns:
-    A tuple of 3 elements. The first one of shape `[A1, ..., An, H, W, 1]`
-    representing the triangle index associated with each pixel. If no triangle
-    is associated to a pixel, the index is set to -1.
-    The second element in the tuple is of shape `[A1, ..., An, H, W, 3]` and
-    correspond to barycentric coordinates per pixel. The last element in the
-    tuple is of shape `[A1, ..., An, H, W, 1]` and stores a value of `0` of the
-    pixel is assciated with the background, and `1` with the foreground.
+    A Framebuffer containing the rasterized values: barycentrics, triangle_id,
+    foreground_mask, vertex_ids. Returned Tensors have shape
+    [batch, num_layers, height, width, channels]
+    Note: triangle_id contains the triangle id value for each pixel in the
+    output image. For pixels within the mesh, this is the integer value in the
+    range [0, num_vertices] from triangles. For vertices outside the mesh this
+    is 0; 0 can either indicate belonging to triangle 0, or being outside the
+    mesh. This ensures all returned triangle ids will validly index into the
+    vertex array, enabling the use of tf.gather with indices from this tensor.
+    The barycentric coordinates can be used to determine pixel validity instead.
+    See framebuffer.py for a description of the Framebuffer fields.
   """
   with tf.compat.v1.name_scope(name, "rasterization_backend_rasterize",
                                (vertices, triangles, view_projection_matrices)):
@@ -182,7 +187,7 @@ def rasterize(vertices,
         geometry_shader=geometry_shader,
         fragment_shader=fragment_shader)
 
-    triangle_index = tf.cast(rasterized[..., 0], tf.int32) - 1
+    triangle_index = tf.cast(rasterized[..., 0], tf.int32)
     # Slicing of the tensor will result in all batch dimensions being
     # `None` for tensorflow graph mode, therefore we have to fix it in order to
     # have explicit shape.
@@ -197,7 +202,18 @@ def rasterize(vertices,
     mask = tf.cast(rasterized[..., 3], tf.int32)
     mask = tf.reshape(mask, common_batch_shape + [height, width, 1])
 
-    return triangle_index, barycentric_coordinates, mask
+    triangles_batch = tf.broadcast_to(triangles,
+                                      common_batch_shape + triangles.shape)
+    vertex_ids = tf.gather(
+        triangles_batch, triangle_index[..., 0],
+        batch_dims=len(common_batch_shape))
+
+    return fb.Framebuffer(
+        foreground_mask=mask,
+        triangle_id=triangle_index,
+        vertex_ids=vertex_ids,
+        barycentrics=fb.RasterizedAttribute(
+            value=barycentric_coordinates, d_dx=None, d_dy=None))
 
 
 # API contains all public functions and classes.

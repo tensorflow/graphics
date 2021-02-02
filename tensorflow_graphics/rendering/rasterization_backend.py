@@ -55,13 +55,17 @@ def rasterize(vertices,
       Supported options are defined in the RasterizationBackends enum.
 
   Returns:
-    A tuple of 3 elements. The first one of shape `[A1, ..., An, H, W, 1]`
-    representing the triangle index associated with each pixel. If no triangle
-    is associated to a pixel, the index is set to -1.
-    The second element in the tuple is of shape `[A1, ..., An, H, W, 3]` and
-    correspond to barycentric coordinates per pixel. The last element in the
-    tuple is of shape `[A1, ..., An, H, W]` and stores a value of `0` of the
-    pixel is assciated with the background, and `1` with the foreground.
+    A Framebuffer containing the rasterized values: barycentrics, triangle_id,
+    foreground_mask, vertex_ids. Returned Tensors have shape
+    [batch, num_layers, height, width, channels]
+    Note: triangle_id contains the triangle id value for each pixel in the
+    output image. For pixels within the mesh, this is the integer value in the
+    range [0, num_vertices] from triangles. For vertices outside the mesh this
+    is 0; 0 can either indicate belonging to triangle 0, or being outside the
+    mesh. This ensures all returned triangle ids will validly index into the
+    vertex array, enabling the use of tf.gather with indices from this tensor.
+    The barycentric coordinates can be used to determine pixel validity instead.
+    See framebuffer.py for a description of the Framebuffer fields.
   """
   return _BACKENDS[backend].rasterize(vertices, triangles,
                                       view_projection_matrices, image_size)

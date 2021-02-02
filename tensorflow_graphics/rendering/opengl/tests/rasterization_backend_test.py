@@ -90,9 +90,10 @@ class RasterizationBackendTest(test_case.TestCase):
   def test_rasterize_batch_vertices_only(self):
     triangles = np.array(((0, 1, 2),), np.int32)
     vertices, view_projection_matrix = _generate_vertices_and_view_matrices()
-    _, _, mask = rasterization_backend.rasterize(vertices, triangles,
-                                                 view_projection_matrix[0],
-                                                 (_IMAGE_WIDTH, _IMAGE_HEIGHT))
+    predicted_fb = rasterization_backend.rasterize(
+        vertices, triangles, view_projection_matrix[0],
+        (_IMAGE_WIDTH, _IMAGE_HEIGHT))
+    mask = predicted_fb.foreground_mask
     self.assertAllEqual(mask[0, ...], tf.ones_like(mask[0, ...]))
 
     gt_layer_1 = np.zeros((_IMAGE_HEIGHT, _IMAGE_WIDTH, 1), np.float32)
@@ -103,11 +104,13 @@ class RasterizationBackendTest(test_case.TestCase):
     triangles = np.array(((0, 1, 2),), np.int32)
     vertices, view_projection_matrix = _generate_vertices_and_view_matrices()
 
-    _, _, mask = rasterization_backend.rasterize(vertices[0], triangles,
-                                                 view_projection_matrix,
-                                                 (_IMAGE_WIDTH, _IMAGE_HEIGHT))
-    self.assertAllEqual(mask[0, ...], tf.ones_like(mask[0, ...]))
-    self.assertAllEqual(mask[1, ...], tf.zeros_like(mask[1, ...]))
+    predicted_fb = rasterization_backend.rasterize(
+        vertices[0], triangles, view_projection_matrix,
+        (_IMAGE_WIDTH, _IMAGE_HEIGHT))
+    self.assertAllEqual(predicted_fb.foreground_mask[0, ...],
+                        tf.ones_like(predicted_fb.foreground_mask[0, ...]))
+    self.assertAllEqual(predicted_fb.foreground_mask[1, ...],
+                        tf.zeros_like(predicted_fb.foreground_mask[1, ...]))
 
   def test_rasterize_preset(self):
     camera_origin = (0.0, 0.0, 0.0)
@@ -132,22 +135,22 @@ class RasterizationBackendTest(test_case.TestCase):
                 (0.0, -_TRIANGLE_SIZE, depth))
     triangles = np.array(((1, 2, 0), (0, 2, 3)), np.int32)
 
-    predicted_triangle_index, predicted_barycentrics, predicted_mask = rasterization_backend.rasterize(
+    predicted_fb = rasterization_backend.rasterize(
         vertices, triangles, view_projection_matrix,
         (_IMAGE_WIDTH, _IMAGE_HEIGHT))
 
     with self.subTest(name="triangle_index"):
       groundtruth_triangle_index = np.zeros((_IMAGE_HEIGHT, _IMAGE_WIDTH, 1),
                                             dtype=np.int32)
-      groundtruth_triangle_index[..., :_IMAGE_WIDTH // 2, 0] = -1
+      groundtruth_triangle_index[..., :_IMAGE_WIDTH // 2, 0] = 0
       groundtruth_triangle_index[:_IMAGE_HEIGHT // 2, _IMAGE_WIDTH // 2:, 0] = 1
-      self.assertAllEqual(groundtruth_triangle_index, predicted_triangle_index)
+      self.assertAllEqual(groundtruth_triangle_index, predicted_fb.triangle_id)
 
     with self.subTest(name="mask"):
       groundtruth_mask = np.ones((_IMAGE_HEIGHT, _IMAGE_WIDTH, 1),
                                  dtype=np.int32)
       groundtruth_mask[..., :_IMAGE_WIDTH // 2, 0] = 0
-      self.assertAllEqual(groundtruth_mask, predicted_mask)
+      self.assertAllEqual(groundtruth_mask, predicted_fb.foreground_mask)
 
     attributes = np.array(
         ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))).astype(np.float32)
@@ -162,7 +165,9 @@ class RasterizationBackendTest(test_case.TestCase):
       barycentrics_gt_0 = perspective_correct_interpolation(
           geometry_0, pixels_0)
       self.assertAllClose(
-          barycentrics_gt_0, predicted_barycentrics[2:, 3:, :], atol=1e-3)
+          barycentrics_gt_0,
+          predicted_fb.barycentrics.value[2:, 3:, :],
+          atol=1e-3)
 
     with self.subTest(name="barycentric_coordinates_triangle_1"):
       geometry_1 = tf.gather(vertices, triangles[1, :])
@@ -171,4 +176,6 @@ class RasterizationBackendTest(test_case.TestCase):
       barycentrics_gt_1 = perspective_correct_interpolation(
           geometry_1, pixels_1)
       self.assertAllClose(
-          barycentrics_gt_1, predicted_barycentrics[0:2, 3:, :], atol=1e-3)
+          barycentrics_gt_1,
+          predicted_fb.barycentrics.value[0:2, 3:, :],
+          atol=1e-3)

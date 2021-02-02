@@ -130,36 +130,32 @@ def rasterize(vertices,
 
     view_projection_matrix = tf.linalg.matmul(perspective_matrix,
                                               model_to_eye_matrix)
-    triangle_index, _, mask = rasterization_backend.rasterize(
-        vertices, triangles, view_projection_matrix, image_size_backend,
-        backend)
-    outputs = {"mask": mask, "triangle_indices": triangle_index}
+    rasterized = rasterization_backend.rasterize(vertices, triangles,
+                                                 view_projection_matrix,
+                                                 image_size_backend, backend)
+    outputs = {
+        "mask": rasterized.foreground_mask,
+        "triangle_indices": rasterized.triangle_id
+    }
 
-    vertices = tf.gather(vertices, triangles, axis=-2)
-
-    # Gather does not work on negative indices, which is the case for the pixel
-    # associated to the background.
-    triangle_index = triangle_index * mask
     # Extract batch shape in order to make sure it is preserved after `gather`
     # operation.
-    batch_shape = triangle_index.shape[:-3]
+    batch_shape = rasterized.triangle_id.shape[:-3]
     batch_shape = [_dim_value(dim) for dim in batch_shape]
-    # Remove last dimension of `triangle_index` in order to make it compatible
-    # with gather operations.
-    triangle_index_lean = tf.squeeze(triangle_index, axis=-1)
+
     vertices_per_pixel = tf.gather(
-        vertices, triangle_index_lean, axis=-3, batch_dims=len(batch_shape))
+        vertices, rasterized.vertex_ids, batch_dims=len(batch_shape))
     barycentrics = _perspective_correct_barycentrics(vertices_per_pixel,
                                                      model_to_eye_matrix,
                                                      perspective_matrix,
                                                      image_size_float)
-    mask_float = tf.cast(mask, vertices.dtype)
+    mask_float = tf.cast(rasterized.foreground_mask, vertices.dtype)
     outputs["barycentrics"] = mask_float * barycentrics
 
     for key, attribute in attributes.items():
       attribute = tf.convert_to_tensor(value=attribute)
       outputs[key] = mask_float * _perspective_correct_attributes(
-          attribute, barycentrics, triangles, triangle_index_lean,
+          attribute, barycentrics, triangles, rasterized.triangle_id[..., 0],
           len(batch_shape))
 
     return outputs
