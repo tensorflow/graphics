@@ -186,12 +186,16 @@ class EulerTest(test_case.TestCase):
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_from_rotation_matrix_jacobian_preset(self):
     """Test the Jacobian of the from_rotation_matrix function."""
-    x_init = test_helpers.generate_preset_test_rotation_matrices_3d()
-    x = tf.convert_to_tensor(value=x_init)
+    if tf.executing_eagerly():
+      self.skipTest(reason="Graph mode only test")
+    with tf.compat.v1.Session() as sess:
+      x_init = np.array(
+          sess.run(test_helpers.generate_preset_test_rotation_matrices_3d()))
+      x = tf.convert_to_tensor(value=x_init)
 
-    y = euler.from_rotation_matrix(x)
+      y = euler.from_rotation_matrix(x)
 
-    self.assert_jacobian_is_finite(x, x_init, y)
+      self.assert_jacobian_is_finite(x, x_init, y)
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_from_rotation_matrix_jacobian_random(self):

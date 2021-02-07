@@ -39,7 +39,7 @@ from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
 
 
-def from_axis_angle(axis, angle, name=None):
+def from_axis_angle(axis, angle, name="euler_from_axis_angle"):
   """Converts axis-angle to Euler angles.
 
   Note:
@@ -56,11 +56,11 @@ def from_axis_angle(axis, angle, name=None):
     A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
     the three Euler angles.
   """
-  with tf.compat.v1.name_scope(name, "euler_from_axis_angle", [axis, angle]):
+  with tf.name_scope(name):
     return from_quaternion(quaternion.from_axis_angle(axis, angle))
 
 
-def from_quaternion(quaternions, name=None):
+def from_quaternion(quaternions, name="euler_from_quaternion"):
   """Converts quaternions to Euler angles.
 
   Args:
@@ -93,13 +93,11 @@ def from_quaternion(quaternions, name=None):
     angles = tf.stack((theta_x, theta_y, theta_z), axis=-1)
     return angles
 
-  with tf.compat.v1.name_scope(name, "euler_from_quaternion", [quaternions]):
+  with tf.name_scope(name):
     quaternions = tf.convert_to_tensor(value=quaternions)
 
     shape.check_static(
-        tensor=quaternions,
-        tensor_name="quaternions",
-        has_dim_equals=(-1, 4))
+        tensor=quaternions, tensor_name="quaternions", has_dim_equals=(-1, 4))
 
     x, y, z, w = tf.unstack(quaternions, axis=-1)
     tx = safe_ops.safe_shrink(2.0 * x, -2.0, 2.0, True)
@@ -131,10 +129,10 @@ def from_quaternion(quaternions, name=None):
     # solution is not toooff in these cases.
     is_gimbal = tf.less(tf.abs(tf.abs(r20) - 1.0), 1.0e-6)
     gimbal_mask = tf.stack((is_gimbal, is_gimbal, is_gimbal), axis=-1)
-    return tf.compat.v1.where(gimbal_mask, gimbal_solution, general_solution)
+    return tf.where(gimbal_mask, gimbal_solution, general_solution)
 
 
-def from_rotation_matrix(rotation_matrix, name=None):
+def from_rotation_matrix(rotation_matrix, name="euler_from_rotation_matrix"):
   """Converts rotation matrices to Euler angles.
 
   The rotation matrices are assumed to have been constructed by rotation around
@@ -189,8 +187,7 @@ def from_rotation_matrix(rotation_matrix, name=None):
     angles = tf.stack((theta_x, theta_y, theta_z), axis=-1)
     return angles
 
-  with tf.compat.v1.name_scope(name, "euler_from_rotation_matrix",
-                               [rotation_matrix]):
+  with tf.name_scope(name):
     rotation_matrix = tf.convert_to_tensor(value=rotation_matrix)
 
     shape.check_static(
@@ -207,10 +204,10 @@ def from_rotation_matrix(rotation_matrix, name=None):
     gimbal_solution = gimbal_lock(rotation_matrix, r20, eps_addition)
     is_gimbal = tf.equal(tf.abs(r20), 1)
     gimbal_mask = tf.stack((is_gimbal, is_gimbal, is_gimbal), axis=-1)
-    return tf.compat.v1.where(gimbal_mask, gimbal_solution, general_solution)
+    return tf.where(gimbal_mask, gimbal_solution, general_solution)
 
 
-def inverse(euler_angle, name=None):
+def inverse(euler_angle, name="euler_inverse"):
   """Computes the angles that would inverse a transformation by euler_angle.
 
   Note:
@@ -228,13 +225,11 @@ def inverse(euler_angle, name=None):
   Raises:
     ValueError: If the shape of `euler_angle` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "euler_inverse", [euler_angle]):
+  with tf.name_scope(name):
     euler_angle = tf.convert_to_tensor(value=euler_angle)
 
     shape.check_static(
-        tensor=euler_angle,
-        tensor_name="euler_angle",
-        has_dim_equals=(-1, 3))
+        tensor=euler_angle, tensor_name="euler_angle", has_dim_equals=(-1, 3))
 
     return -euler_angle
 

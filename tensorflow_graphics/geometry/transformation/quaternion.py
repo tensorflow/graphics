@@ -65,7 +65,9 @@ def _build_quaternion_from_sines_and_cosines(sin_half_angles, cos_half_angles):
   return tf.stack((x, y, z, w), axis=-1)
 
 
-def between_two_vectors_3d(vector1, vector2, name=None):
+def between_two_vectors_3d(vector1,
+                           vector2,
+                           name="quaternion_between_two_vectors_3d"):
   """Computes quaternion over the shortest arc between two vectors.
 
   Result quaternion describes shortest geodesic rotation from
@@ -89,8 +91,7 @@ def between_two_vectors_3d(vector1, vector2, name=None):
   Raises:
     ValueError: If the shape of `vector1` or `vector2` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_between_two_vectors_3d",
-                               [vector1, vector2]):
+  with tf.name_scope(name):
     vector1 = tf.convert_to_tensor(value=vector1)
     vector2 = tf.convert_to_tensor(value=vector2)
 
@@ -113,21 +114,21 @@ def between_two_vectors_3d(vector1, vector2, name=None):
     x, y, z = tf.split(vector1, (1, 1, 1), axis=-1)
     x_bigger_z = tf.abs(x) > tf.abs(z)
     x_bigger_z = tf.concat([x_bigger_z] * 3, axis=-1)
-    antiparallel_axis = tf.compat.v1.where(
-        x_bigger_z, tf.concat((-y, x, tf.zeros_like(z)), axis=-1),
-        tf.concat((tf.zeros_like(x), -z, y), axis=-1))
+    antiparallel_axis = tf.where(x_bigger_z,
+                                 tf.concat((-y, x, tf.zeros_like(z)), axis=-1),
+                                 tf.concat((tf.zeros_like(x), -z, y), axis=-1))
 
     # Compute rotation between two vectors.
     is_antiparallel = real_part < 1e-6
     is_antiparallel = tf.concat([is_antiparallel] * 4, axis=-1)
-    rot = tf.compat.v1.where(
+    rot = tf.where(
         is_antiparallel,
         tf.concat((antiparallel_axis, tf.zeros_like(real_part)), axis=-1),
         tf.concat((axis, real_part), axis=-1))
     return tf.nn.l2_normalize(rot, axis=-1)
 
 
-def conjugate(quaternion, name=None):
+def conjugate(quaternion, name="quaternion_conjugate"):
   """Computes the conjugate of a quaternion.
 
   Note:
@@ -145,7 +146,7 @@ def conjugate(quaternion, name=None):
   Raises:
     ValueError: If the shape of `quaternion` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_conjugate", [quaternion]):
+  with tf.name_scope(name):
     quaternion = tf.convert_to_tensor(value=quaternion)
 
     shape.check_static(
@@ -156,7 +157,7 @@ def conjugate(quaternion, name=None):
     return tf.concat((-xyz, w), axis=-1)
 
 
-def from_axis_angle(axis, angle, name=None):
+def from_axis_angle(axis, angle, name="quaternion_from_axis_angle"):
   """Converts an axis-angle representation to a quaternion.
 
   Note:
@@ -176,8 +177,7 @@ def from_axis_angle(axis, angle, name=None):
   Raises:
     ValueError: If the shape of `axis` or `angle` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_from_axis_angle",
-                               [axis, angle]):
+  with tf.name_scope(name):
     axis = tf.convert_to_tensor(value=axis)
     angle = tf.convert_to_tensor(value=angle)
 
@@ -194,7 +194,7 @@ def from_axis_angle(axis, angle, name=None):
     return tf.concat((xyz, w), axis=-1)
 
 
-def from_euler(angles, name=None):
+def from_euler(angles, name="quaternion_from_euler"):
   """Converts an Euler angle representation to a quaternion.
 
   Note:
@@ -217,7 +217,7 @@ def from_euler(angles, name=None):
   Raises:
     ValueError: If the shape of `angles` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_from_euler", [angles]):
+  with tf.name_scope(name):
     angles = tf.convert_to_tensor(value=angles)
 
     shape.check_static(
@@ -230,7 +230,8 @@ def from_euler(angles, name=None):
                                                     cos_half_angles)
 
 
-def from_euler_with_small_angles_approximation(angles, name=None):
+def from_euler_with_small_angles_approximation(angles,
+                                               name="quaternion_from_euler"):
   r"""Converts small Euler angles to quaternions.
 
   Under the small angle assumption, $$\sin(x)$$ and $$\cos(x)$$ can be
@@ -258,7 +259,7 @@ def from_euler_with_small_angles_approximation(angles, name=None):
   Raises:
     ValueError: If the shape of `angles` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_from_euler", [angles]):
+  with tf.name_scope(name):
     angles = tf.convert_to_tensor(value=angles)
 
     shape.check_static(
@@ -273,7 +274,8 @@ def from_euler_with_small_angles_approximation(angles, name=None):
     return tf.nn.l2_normalize(quaternion, axis=-1)
 
 
-def from_rotation_matrix(rotation_matrix, name=None):
+def from_rotation_matrix(rotation_matrix,
+                         name="quaternion_from_rotation_matrix"):
   """Converts a rotation matrix representation to a quaternion.
 
   Warning:
@@ -294,8 +296,7 @@ def from_rotation_matrix(rotation_matrix, name=None):
   Raises:
     ValueError: If the shape of `rotation_matrix` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_from_rotation_matrix",
-                               [rotation_matrix]):
+  with tf.name_scope(name):
     rotation_matrix = tf.convert_to_tensor(value=rotation_matrix)
 
     shape.check_static(
@@ -351,16 +352,16 @@ def from_rotation_matrix(rotation_matrix, name=None):
       cond = tf.tile(cond, [1] * (rotation_matrix.shape.ndims - 2) + [4])
       return cond
 
-    where_2 = tf.compat.v1.where(
+    where_2 = tf.where(
         cond_idx(entries[1][1] > entries[2][2]), cond_2(), cond_3())
-    where_1 = tf.compat.v1.where(
+    where_1 = tf.where(
         cond_idx((entries[0][0] > entries[1][1])
                  & (entries[0][0] > entries[2][2])), cond_1(), where_2)
-    quat = tf.compat.v1.where(cond_idx(trace > 0), tr_positive(), where_1)
+    quat = tf.where(cond_idx(trace > 0), tr_positive(), where_1)
     return quat
 
 
-def inverse(quaternion, name=None):
+def inverse(quaternion, name="quaternion_inverse"):
   """Computes the inverse of a quaternion.
 
   Note:
@@ -378,7 +379,7 @@ def inverse(quaternion, name=None):
   Raises:
     ValueError: If the shape of `quaternion` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_inverse", [quaternion]):
+  with tf.name_scope(name):
     quaternion = tf.convert_to_tensor(value=quaternion)
 
     shape.check_static(
@@ -390,7 +391,7 @@ def inverse(quaternion, name=None):
     return safe_ops.safe_unsigned_div(conjugate(quaternion), squared_norm)
 
 
-def is_normalized(quaternion, atol=1e-3, name=None):
+def is_normalized(quaternion, atol=1e-3, name="quaternion_is_normalized"):
   """Determines if quaternion is normalized quaternion or not.
 
   Note:
@@ -409,19 +410,19 @@ def is_normalized(quaternion, atol=1e-3, name=None):
   Raises:
     ValueError: If the shape of `quaternion` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_is_normalized", [quaternion]):
+  with tf.name_scope(name):
     quaternion = tf.convert_to_tensor(value=quaternion)
 
     shape.check_static(
         tensor=quaternion, tensor_name="quaternion", has_dim_equals=(-1, 4))
 
     norms = tf.norm(tensor=quaternion, axis=-1, keepdims=True)
-    return tf.compat.v1.where(
+    return tf.where(
         tf.abs(norms - 1.) < atol, tf.ones_like(norms, dtype=bool),
         tf.zeros_like(norms, dtype=bool))
 
 
-def normalize(quaternion, eps=1e-12, name=None):
+def normalize(quaternion, eps=1e-12, name="quaternion_normalize"):
   """Normalizes a quaternion.
 
   Note:
@@ -440,7 +441,7 @@ def normalize(quaternion, eps=1e-12, name=None):
   Raises:
     ValueError: If the shape of `quaternion` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_normalize", [quaternion]):
+  with tf.name_scope(name):
     quaternion = tf.convert_to_tensor(value=quaternion)
 
     shape.check_static(
@@ -449,7 +450,7 @@ def normalize(quaternion, eps=1e-12, name=None):
     return tf.math.l2_normalize(quaternion, axis=-1, epsilon=eps)
 
 
-def multiply(quaternion1, quaternion2, name=None):
+def multiply(quaternion1, quaternion2, name="quaternion_multiply"):
   """Multiplies two quaternions.
 
   Note:
@@ -468,8 +469,7 @@ def multiply(quaternion1, quaternion2, name=None):
   Raises:
     ValueError: If the shape of `quaternion1` or `quaternion2` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_multiply",
-                               [quaternion1, quaternion2]):
+  with tf.name_scope(name):
     quaternion1 = tf.convert_to_tensor(value=quaternion1)
     quaternion2 = tf.convert_to_tensor(value=quaternion2)
 
@@ -487,7 +487,8 @@ def multiply(quaternion1, quaternion2, name=None):
     return tf.stack((x, y, z, w), axis=-1)
 
 
-def normalized_random_uniform(quaternion_shape, name=None):
+def normalized_random_uniform(quaternion_shape,
+                              name="quaternion_normalized_random_uniform"):
   """Random normalized quaternion following a uniform distribution law on SO(3).
 
   Args:
@@ -499,10 +500,9 @@ def normalized_random_uniform(quaternion_shape, name=None):
     A tensor of shape `[quaternion_shape[0],...,quaternion_shape[-1], 4]`
     representing random normalized quaternions.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_normalized_random_uniform",
-                               [quaternion_shape]):
-    quaternion_shape = tf.convert_to_tensor(value=quaternion_shape,
-                                            dtype=tf.int32)
+  with tf.name_scope(name):
+    quaternion_shape = tf.convert_to_tensor(
+        value=quaternion_shape, dtype=tf.int32)
     quaternion_shape = tf.concat((quaternion_shape, tf.constant([4])), axis=0)
     random_normal = tf.random.normal(quaternion_shape)
   return normalize(random_normal)
@@ -545,7 +545,7 @@ def normalized_random_uniform_initializer():
   # pylint: enable=redefined-outer-name
 
 
-def rotate(point, quaternion, name=None):
+def rotate(point, quaternion, name="quaternion_rotate"):
   """Rotates a point using a quaternion.
 
   Note:
@@ -565,7 +565,7 @@ def rotate(point, quaternion, name=None):
   Raises:
     ValueError: If the shape of `point` or `quaternion` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_rotate", [point, quaternion]):
+  with tf.name_scope(name):
     point = tf.convert_to_tensor(value=point)
     quaternion = tf.convert_to_tensor(value=quaternion)
 
@@ -586,7 +586,7 @@ def rotate(point, quaternion, name=None):
     return xyz
 
 
-def relative_angle(quaternion1, quaternion2, name=None):
+def relative_angle(quaternion1, quaternion2, name="quaternion_relative_angle"):
   r"""Computes the unsigned relative rotation angle between 2 unit quaternions.
 
   Given two normalized quanternions $$\mathbf{q}_1$$ and $$\mathbf{q}_2$$, the
@@ -610,8 +610,7 @@ def relative_angle(quaternion1, quaternion2, name=None):
   Raises:
     ValueError: If the shape of `quaternion1` or `quaternion2` is not supported.
   """
-  with (tf.compat.v1.name_scope(name, "quaternion_relative_angle",
-                                [quaternion1, quaternion2])):
+  with tf.name_scope(name):
     quaternion1 = tf.convert_to_tensor(value=quaternion1)
     quaternion2 = tf.convert_to_tensor(value=quaternion2)
 

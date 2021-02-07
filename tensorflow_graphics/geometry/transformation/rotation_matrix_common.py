@@ -23,7 +23,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def is_valid(matrix, atol=1e-3, name=None):
+def is_valid(matrix, atol=1e-3, name="rotation_matrix_common_is_valid"):
   r"""Determines if a matrix in K-dimensions is a valid rotation matrix.
 
   Determines if a matrix $$\mathbf{R}$$ is a valid rotation matrix by checking
@@ -41,8 +41,7 @@ def is_valid(matrix, atol=1e-3, name=None):
     A tensor of type `bool` and shape `[A1, ..., An, 1]` where False indicates
     that the input is not a valid rotation matrix.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_common_is_valid",
-                               [matrix]):
+  with tf.name_scope(name):
     matrix = tf.convert_to_tensor(value=matrix)
 
     shape.check_static(
@@ -58,15 +57,15 @@ def is_valid(matrix, atol=1e-3, name=None):
     ndims = matrix.shape.ndims
     permutation = list(range(ndims - 2)) + [ndims - 1, ndims - 2]
     identity = tf.eye(
-        tf.compat.v1.dimension_value(matrix.shape[-1]), dtype=matrix.dtype)
+        tf.compat.dimension_value(matrix.shape[-1]), dtype=matrix.dtype)
     difference_to_identity = tf.matmul(
         tf.transpose(a=matrix, perm=permutation), matrix) - identity
     norm_diff = tf.norm(tensor=difference_to_identity, axis=(-2, -1))
     # Computes the mask of entries that satisfies all conditions.
     mask = tf.logical_and(distance_to_unit_determinant < atol, norm_diff < atol)
-    output = tf.compat.v1.where(
-        mask, tf.ones_like(distance_to_unit_determinant, dtype=bool),
-        tf.zeros_like(distance_to_unit_determinant, dtype=bool))
+    output = tf.where(mask,
+                      tf.ones_like(distance_to_unit_determinant, dtype=bool),
+                      tf.zeros_like(distance_to_unit_determinant, dtype=bool))
     return tf.expand_dims(output, axis=-1)
 
 

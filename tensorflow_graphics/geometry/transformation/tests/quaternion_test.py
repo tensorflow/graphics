@@ -278,12 +278,16 @@ class QuaternionTest(test_case.TestCase):
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_from_rotation_matrix_jacobian_preset(self):
     """Test the Jacobian of the from_rotation_matrix function."""
-    x_init = test_helpers.generate_preset_test_rotation_matrices_3d()
-    x = tf.convert_to_tensor(value=x_init)
+    if tf.executing_eagerly():
+      self.skipTest(reason="Graph mode only test")
+    with tf.compat.v1.Session() as sess:
+      x_init = np.array(
+          sess.run(test_helpers.generate_preset_test_rotation_matrices_3d()))
+      x = tf.convert_to_tensor(value=x_init)
 
-    y = quaternion.from_rotation_matrix(x)
+      y = quaternion.from_rotation_matrix(x)
 
-    self.assert_jacobian_is_finite(x, x_init, y)
+      self.assert_jacobian_is_finite(x, x_init, y)
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_from_rotation_matrix_jacobian_random(self):
@@ -505,37 +509,23 @@ class QuaternionTest(test_case.TestCase):
 
     with self.subTest(name="dtype"):
       with self.assertRaisesRegexp(ValueError, "'dtype' must be tf.float32."):
-        tf.compat.v1.get_variable(
-            "test_variable",
-            shape=tensor_shape + [4],
-            dtype=tf.uint8,
-            initializer=quaternion.normalized_random_uniform_initializer(),
-            use_resource=False)
+        quaternion.normalized_random_uniform_initializer()(
+            tensor_shape + [4], dtype=tf.uint8)
 
     with self.subTest(name="shape"):
       with self.assertRaisesRegexp(ValueError,
                                    "Last dimension of 'shape' must be 4."):
-        tf.compat.v1.get_variable(
-            "test_variable",
-            shape=tensor_shape + [3],
-            dtype=tf.float32,
-            initializer=quaternion.normalized_random_uniform_initializer(),
-            use_resource=False)
+        quaternion.normalized_random_uniform_initializer()(
+            tensor_shape + [3], dtype=tf.float32)
 
   def test_normalized_random_uniform_initializer_is_normalized(self):
     """Tests normalized_random_uniform_initializer outputs are normalized."""
     tensor_size = np.random.randint(3)
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
 
-    variable = tf.compat.v1.get_variable(
-        "test_variable",
-        shape=tensor_shape + [4],
-        dtype=tf.float32,
-        initializer=quaternion.normalized_random_uniform_initializer(),
-        use_resource=False)
-    self.evaluate(tf.compat.v1.global_variables_initializer())
-    value = self.evaluate(variable)
-    norms = np.linalg.norm(value, axis=-1)
+    tensor = quaternion.normalized_random_uniform_initializer()(
+        tensor_shape + [4], dtype=tf.float32)
+    norms = tf.norm(tensor=tensor, axis=-1)
     ones = np.ones(tensor_shape)
 
     self.assertAllClose(norms, ones, rtol=1e-3)

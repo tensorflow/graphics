@@ -28,7 +28,7 @@ def blend(points,
           skinning_weights,
           bone_rotations,
           bone_translations,
-          name=None):
+          name="linear_blend_skinning_blend"):
   """Transforms the points using Linear Blend Skinning.
 
   Note:
@@ -55,9 +55,7 @@ def blend(points,
   Raises:
     ValueError: If the shape of the input tensors are not supported.
   """
-  with tf.compat.v1.name_scope(
-      name, "linear_blend_skinning_blend",
-      [points, skinning_weights, bone_rotations, bone_translations]):
+  with tf.name_scope(name):
     points = tf.convert_to_tensor(value=points)
     skinning_weights = tf.convert_to_tensor(value=skinning_weights)
     bone_rotations = tf.convert_to_tensor(value=bone_rotations)
@@ -97,7 +95,7 @@ def blend(points,
     num_bones = skinning_weights.shape[-1]
 
     def dim_value(dim):
-      return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+      return 1 if dim is None else tf.compat.dimension_value(dim)
 
     # TODO(b/148362025): factorize this block out
     points_batch_shape = shape.get_broadcasted_shape(

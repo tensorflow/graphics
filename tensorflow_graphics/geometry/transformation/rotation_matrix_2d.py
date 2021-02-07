@@ -40,7 +40,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def from_euler(angle, name=None):
+def from_euler(angle, name="rotation_matrix_2d_from_euler_angle"):
   r"""Converts an angle to a 2d rotation matrix.
 
   Converts an angle $$\theta$$ to a 2d rotation matrix following the equation
@@ -72,8 +72,7 @@ def from_euler(angle, name=None):
   Raises:
     ValueError: If the shape of `angle` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_2d_from_euler_angle",
-                               [angle]):
+  with tf.name_scope(name):
     angle = tf.convert_to_tensor(value=angle)
 
     shape.check_static(
@@ -88,7 +87,9 @@ def from_euler(angle, name=None):
     return tf.reshape(matrix, shape=output_shape)
 
 
-def from_euler_with_small_angles_approximation(angles, name=None):
+def from_euler_with_small_angles_approximation(
+    angles,
+    name="rotation_matrix_2d_from_euler_with_small_angles_approximation"):
   r"""Converts an angle to a 2d rotation matrix under the small angle assumption.
 
   Under the small angle assumption, $$\sin(x)$$ and $$\cos(x)$$ can be
@@ -125,9 +126,7 @@ def from_euler_with_small_angles_approximation(angles, name=None):
   Raises:
     ValueError: If the shape of `angle` is not supported.
   """
-  with tf.compat.v1.name_scope(
-      name, "rotation_matrix_2d_from_euler_with_small_angles_approximation",
-      [angles]):
+  with tf.name_scope(name):
     angles = tf.convert_to_tensor(value=angles)
 
     shape.check_static(
@@ -142,7 +141,7 @@ def from_euler_with_small_angles_approximation(angles, name=None):
     return tf.reshape(matrix, shape=output_shape)
 
 
-def inverse(matrix, name=None):
+def inverse(matrix, name="rotation_matrix_2d_inverse"):
   """Computes the inverse of a 2D rotation matrix.
 
   Note:
@@ -160,7 +159,7 @@ def inverse(matrix, name=None):
   Raises:
     ValueError: If the shape of `matrix` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_2d_inverse", [matrix]):
+  with tf.name_scope(name):
     matrix = tf.convert_to_tensor(value=matrix)
 
     shape.check_static(
@@ -174,7 +173,7 @@ def inverse(matrix, name=None):
     return tf.transpose(a=matrix, perm=perm)
 
 
-def is_valid(matrix, atol=1e-3, name=None):
+def is_valid(matrix, atol=1e-3, name="rotation_matrix_2d_is_valid"):
   r"""Determines if a matrix is a valid rotation matrix.
 
   Determines if a matrix $$\mathbf{R}$$ is a valid rotation matrix by checking
@@ -193,7 +192,7 @@ def is_valid(matrix, atol=1e-3, name=None):
     A tensor of type `bool` and shape `[A1, ..., An, 1]` where False indicates
     that the input is not a valid rotation matrix.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_2d_is_valid", [matrix]):
+  with tf.name_scope(name):
     matrix = tf.convert_to_tensor(value=matrix)
 
     shape.check_static(
@@ -205,7 +204,7 @@ def is_valid(matrix, atol=1e-3, name=None):
     return rotation_matrix_common.is_valid(matrix, atol)
 
 
-def rotate(point, matrix, name=None):
+def rotate(point, matrix, name="rotation_matrix_2d_rotate"):
   """Rotates a 2d point using a 2d rotation matrix.
 
   Note:
@@ -226,8 +225,7 @@ def rotate(point, matrix, name=None):
   Raises:
     ValueError: If the shape of `point` or `matrix` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_2d_rotate",
-                               [point, matrix]):
+  with tf.name_scope(name):
     point = tf.convert_to_tensor(value=point)
     matrix = tf.convert_to_tensor(value=matrix)
 
@@ -245,10 +243,12 @@ def rotate(point, matrix, name=None):
         broadcast_compatible=True)
 
     point = tf.expand_dims(point, axis=-1)
-    common_batch_shape = shape.get_broadcasted_shape(
-        point.shape[:-2], matrix.shape[:-2])
+    common_batch_shape = shape.get_broadcasted_shape(point.shape[:-2],
+                                                     matrix.shape[:-2])
+
     def dim_value(dim):
-      return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+      return 1 if dim is None else tf.compat.dimension_value(dim)
+
     common_batch_shape = [dim_value(dim) for dim in common_batch_shape]
     point = tf.broadcast_to(point, common_batch_shape + [2, 1])
     matrix = tf.broadcast_to(matrix, common_batch_shape + [2, 2])

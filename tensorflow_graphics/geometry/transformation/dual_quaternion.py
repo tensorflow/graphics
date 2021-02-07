@@ -41,7 +41,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def conjugate(dual_quaternion, name=None):
+def conjugate(dual_quaternion, name="dual_quaternion_conjugate"):
   """Computes the conjugate of a dual quaternion.
 
   Note:
@@ -49,7 +49,7 @@ def conjugate(dual_quaternion, name=None):
 
   Args:
     dual_quaternion: A tensor of shape `[A1, ..., An, 8]`, where the last
-    dimension represents a normalized dual quaternion.
+      dimension represents a normalized dual quaternion.
     name: A name for this op that defaults to "dual_quaternion_conjugate".
 
   Returns:
@@ -59,12 +59,12 @@ def conjugate(dual_quaternion, name=None):
   Raises:
     ValueError: If the shape of `dual_quaternion` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "dual_quaternion_conjugate",
-                               [dual_quaternion]):
+  with tf.name_scope(name):
     dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
 
     shape.check_static(
-        tensor=dual_quaternion, tensor_name="dual_quaternion",
+        tensor=dual_quaternion,
+        tensor_name="dual_quaternion",
         has_dim_equals=(-1, 8))
 
     quaternion_real, quaternion_dual = tf.split(

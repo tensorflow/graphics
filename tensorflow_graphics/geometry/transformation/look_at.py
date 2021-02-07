@@ -24,7 +24,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def right_handed(camera_position, look_at, up_vector, name=None):
+def right_handed(camera_position, look_at, up_vector, name="right_handed"):
   """Builds a right handed look at view matrix.
 
   Note:
@@ -47,8 +47,7 @@ def right_handed(camera_position, look_at, up_vector, name=None):
     A tensor of shape `[A1, ..., An, 4, 4]`, containing right handed look at
     matrices.
   """
-  with tf.compat.v1.name_scope(name, "right_handed",
-                               [camera_position, look_at, up_vector]):
+  with tf.name_scope(name):
     camera_position = tf.convert_to_tensor(value=camera_position)
     look_at = tf.convert_to_tensor(value=look_at)
     up_vector = tf.convert_to_tensor(value=up_vector)

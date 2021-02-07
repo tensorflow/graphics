@@ -70,7 +70,9 @@ def _build_matrix_from_sines_and_cosines(sin_angles, cos_angles):
   return tf.reshape(matrix, shape=output_shape)
 
 
-def assert_rotation_matrix_normalized(matrix, eps=1e-3, name=None):
+def assert_rotation_matrix_normalized(matrix,
+                                      eps=1e-3,
+                                      name="assert_rotation_matrix_normalized"):
   """Checks whether a matrix is a rotation matrix.
 
   Note:
@@ -92,8 +94,7 @@ def assert_rotation_matrix_normalized(matrix, eps=1e-3, name=None):
   if not FLAGS[tfg_flags.TFG_ADD_ASSERTS_TO_GRAPH].value:
     return matrix
 
-  with tf.compat.v1.name_scope(name, "assert_rotation_matrix_normalized",
-                               [matrix]):
+  with tf.name_scope(name):
     matrix = tf.convert_to_tensor(value=matrix)
 
     shape.check_static(
@@ -104,14 +105,14 @@ def assert_rotation_matrix_normalized(matrix, eps=1e-3, name=None):
 
     is_matrix_normalized = is_valid(matrix, atol=eps)
     with tf.control_dependencies([
-        tf.compat.v1.assert_equal(
+        tf.debugging.assert_equal(
             is_matrix_normalized,
             tf.ones_like(is_matrix_normalized, dtype=tf.bool))
     ]):
       return tf.identity(matrix)
 
 
-def from_axis_angle(axis, angle, name=None):
+def from_axis_angle(axis, angle, name="rotation_matrix_3d_from_axis_angle"):
   """Convert an axis-angle representation to a rotation matrix.
 
   Note:
@@ -133,8 +134,7 @@ def from_axis_angle(axis, angle, name=None):
   Raises:
     ValueError: If the shape of `axis` or `angle` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_3d_from_axis_angle",
-                               [axis, angle]):
+  with tf.name_scope(name):
     axis = tf.convert_to_tensor(value=axis)
     angle = tf.convert_to_tensor(value=angle)
 
@@ -173,7 +173,7 @@ def from_axis_angle(axis, angle, name=None):
     return tf.reshape(matrix, shape=output_shape)
 
 
-def from_euler(angles, name=None):
+def from_euler(angles, name="rotation_matrix_3d_from_euler"):
   r"""Convert an Euler angle representation to a rotation matrix.
 
   The resulting matrix is $$\mathbf{R} = \mathbf{R}_z\mathbf{R}_y\mathbf{R}_x$$.
@@ -195,7 +195,7 @@ def from_euler(angles, name=None):
   Raises:
     ValueError: If the shape of `angles` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_3d_from_euler", [angles]):
+  with tf.name_scope(name):
     angles = tf.convert_to_tensor(value=angles)
 
     shape.check_static(
@@ -206,7 +206,8 @@ def from_euler(angles, name=None):
     return _build_matrix_from_sines_and_cosines(sin_angles, cos_angles)
 
 
-def from_euler_with_small_angles_approximation(angles, name=None):
+def from_euler_with_small_angles_approximation(
+    angles, name="rotation_matrix_3d_from_euler_with_small_angles"):
   r"""Convert an Euler angle representation to a rotation matrix.
 
   The resulting matrix is $$\mathbf{R} = \mathbf{R}_z\mathbf{R}_y\mathbf{R}_x$$.
@@ -223,7 +224,8 @@ def from_euler_with_small_angles_approximation(angles, name=None):
       represents the three small Euler angles. `[A1, ..., An, 0]` is the angle
       about `x` in radians, `[A1, ..., An, 1]` is the angle about `y` in radians
       and `[A1, ..., An, 2]` is the angle about `z` in radians.
-    name: A name for this op that defaults to "rotation_matrix_3d_from_euler".
+    name: A name for this op that defaults to
+      "rotation_matrix_3d_from_euler_with_small_angles".
 
   Returns:
     A tensor of shape `[A1, ..., An, 3, 3]`, where the last two dimensions
@@ -232,8 +234,7 @@ def from_euler_with_small_angles_approximation(angles, name=None):
   Raises:
     ValueError: If the shape of `angles` is not supported.
   """
-  with tf.compat.v1.name_scope(
-      name, "rotation_matrix_3d_from_euler_with_small_angles", [angles]):
+  with tf.name_scope(name):
     angles = tf.convert_to_tensor(value=angles)
 
     shape.check_static(
@@ -244,7 +245,7 @@ def from_euler_with_small_angles_approximation(angles, name=None):
     return _build_matrix_from_sines_and_cosines(sin_angles, cos_angles)
 
 
-def from_quaternion(quaternion, name=None):
+def from_quaternion(quaternion, name="rotation_matrix_3d_from_quaternion"):
   """Convert a quaternion to a rotation matrix.
 
   Note:
@@ -263,8 +264,7 @@ def from_quaternion(quaternion, name=None):
   Raises:
     ValueError: If the shape of `quaternion` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_3d_from_quaternion",
-                               [quaternion]):
+  with tf.name_scope(name):
     quaternion = tf.convert_to_tensor(value=quaternion)
 
     shape.check_static(
@@ -292,7 +292,7 @@ def from_quaternion(quaternion, name=None):
     return tf.reshape(matrix, shape=output_shape)
 
 
-def inverse(matrix, name=None):
+def inverse(matrix, name="rotation_matrix_3d_inverse"):
   """Computes the inverse of a 3D rotation matrix.
 
   Note:
@@ -310,7 +310,7 @@ def inverse(matrix, name=None):
   Raises:
     ValueError: If the shape of `matrix` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_3d_inverse", [matrix]):
+  with tf.name_scope(name):
     matrix = tf.convert_to_tensor(value=matrix)
 
     shape.check_static(
@@ -325,7 +325,7 @@ def inverse(matrix, name=None):
     return tf.transpose(a=matrix, perm=perm)
 
 
-def is_valid(matrix, atol=1e-3, name=None):
+def is_valid(matrix, atol=1e-3, name="rotation_matrix_3d_is_valid"):
   """Determines if a matrix is a valid rotation matrix.
 
   Note:
@@ -341,7 +341,7 @@ def is_valid(matrix, atol=1e-3, name=None):
     A tensor of type `bool` and shape `[A1, ..., An, 1]` where False indicates
     that the input is not a valid rotation matrix.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_3d_is_valid", [matrix]):
+  with tf.name_scope(name):
     matrix = tf.convert_to_tensor(value=matrix)
 
     shape.check_static(
@@ -353,7 +353,7 @@ def is_valid(matrix, atol=1e-3, name=None):
     return rotation_matrix_common.is_valid(matrix, atol)
 
 
-def rotate(point, matrix, name=None):
+def rotate(point, matrix, name="rotation_matrix_3d_rotate"):
   """Rotate a point using a rotation matrix 3d.
 
   Note:
@@ -375,8 +375,7 @@ def rotate(point, matrix, name=None):
     ValueError: If the shape of `point` or `rotation_matrix_3d` is not
     supported.
   """
-  with tf.compat.v1.name_scope(name, "rotation_matrix_3d_rotate",
-                               [point, matrix]):
+  with tf.name_scope(name):
     point = tf.convert_to_tensor(value=point)
     matrix = tf.convert_to_tensor(value=matrix)
 
@@ -395,10 +394,12 @@ def rotate(point, matrix, name=None):
     matrix = assert_rotation_matrix_normalized(matrix)
 
     point = tf.expand_dims(point, axis=-1)
-    common_batch_shape = shape.get_broadcasted_shape(
-        point.shape[:-2], matrix.shape[:-2])
+    common_batch_shape = shape.get_broadcasted_shape(point.shape[:-2],
+                                                     matrix.shape[:-2])
+
     def dim_value(dim):
-      return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+      return 1 if dim is None else tf.compat.dimension_value(dim)
+
     common_batch_shape = [dim_value(dim) for dim in common_batch_shape]
     point = tf.broadcast_to(point, common_batch_shape + [3, 1])
     matrix = tf.broadcast_to(matrix, common_batch_shape + [3, 3])

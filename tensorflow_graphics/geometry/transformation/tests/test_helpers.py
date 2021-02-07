@@ -45,40 +45,28 @@ def generate_preset_test_rotation_matrices_3d():
   """Generates pre-set test 3d rotation matrices."""
   angles = generate_preset_test_euler_angles()
   preset_rotation_matrix = rotation_matrix_3d.from_euler(angles)
-  if tf.executing_eagerly():
-    return np.array(preset_rotation_matrix)
-  with tf.compat.v1.Session() as sess:
-    return np.array(sess.run([preset_rotation_matrix]))
+  return preset_rotation_matrix
 
 
 def generate_preset_test_rotation_matrices_2d():
   """Generates pre-set test 2d rotation matrices."""
   angles = generate_preset_test_euler_angles(dimensions=1)
   preset_rotation_matrix = rotation_matrix_2d.from_euler(angles)
-  if tf.executing_eagerly():
-    return np.array(preset_rotation_matrix)
-  with tf.compat.v1.Session() as sess:
-    return np.array(sess.run([preset_rotation_matrix]))
+  return preset_rotation_matrix
 
 
 def generate_preset_test_axis_angle():
   """Generates pre-set test rotation matrices."""
   angles = generate_preset_test_euler_angles()
   axis, angle = axis_angle.from_euler(angles)
-  if tf.executing_eagerly():
-    return np.array(axis), np.array(angle)
-  with tf.compat.v1.Session() as sess:
-    return np.array(sess.run([axis])), np.array(sess.run([angle]))
+  return axis, angle
 
 
 def generate_preset_test_quaternions():
   """Generates pre-set test quaternions."""
   angles = generate_preset_test_euler_angles()
   preset_quaternion = quaternion.from_euler(angles)
-  if tf.executing_eagerly():
-    return np.array(preset_quaternion)
-  with tf.compat.v1.Session() as sess:
-    return np.array(sess.run([preset_quaternion]))
+  return preset_quaternion
 
 
 def generate_preset_test_dual_quaternions():
