@@ -25,7 +25,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def triangulate(startpoints, endpoints, weights, name=None):
+def triangulate(startpoints, endpoints, weights, name="ray_triangulate"):
   """Triangulates 3d points by miminizing the sum of squared distances to rays.
 
   The rays are defined by their start points and endpoints. At least two rays
@@ -56,8 +56,7 @@ def triangulate(startpoints, endpoints, weights, name=None):
   Raises:
     ValueError: If the shape of the arguments is not supported.
   """
-  with tf.compat.v1.name_scope(name, "ray_triangulate",
-                               [startpoints, endpoints, weights]):
+  with tf.name_scope(name):
     startpoints = tf.convert_to_tensor(value=startpoints)
     endpoints = tf.convert_to_tensor(value=endpoints)
     weights = tf.convert_to_tensor(value=weights)
@@ -121,7 +120,7 @@ def intersection_ray_sphere(sphere_center,
                             sphere_radius,
                             ray,
                             point_on_ray,
-                            name=None):
+                            name="ray_intersection_ray_sphere"):
   """Finds positions and surface normals where the sphere and the ray intersect.
 
   Note:
@@ -148,9 +147,7 @@ def intersection_ray_sphere(sphere_center,
       `point_on_ray` is not supported.
     tf.errors.InvalidArgumentError: If `ray` is not normalized.
   """
-  with tf.compat.v1.name_scope(
-      name, "ray_intersection_ray_sphere",
-      [sphere_center, sphere_radius, ray, point_on_ray]):
+  with tf.name_scope(name):
     sphere_center = tf.convert_to_tensor(value=sphere_center)
     sphere_radius = tf.convert_to_tensor(value=sphere_radius)
     ray = tf.convert_to_tensor(value=ray)

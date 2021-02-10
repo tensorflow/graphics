@@ -25,7 +25,11 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def distance_to_ray(point, origin, direction, keepdims=True, name=None):
+def distance_to_ray(point,
+                    origin,
+                    direction,
+                    keepdims=True,
+                    name="point_distance_to_ray"):
   """Computes the distance from a M-d point to a M-d ray.
 
   Note:
@@ -49,8 +53,7 @@ def distance_to_ray(point, origin, direction, keepdims=True, name=None):
     ValueError: If the shape of `point`, `origin`, or 'direction' is not
     supported.
   """
-  with tf.compat.v1.name_scope(name, "point_distance_to_ray",
-                               [point, origin, direction]):
+  with tf.name_scope(name):
     point = tf.convert_to_tensor(value=point)
     origin = tf.convert_to_tensor(value=origin)
     direction = tf.convert_to_tensor(value=direction)
@@ -69,7 +72,7 @@ def distance_to_ray(point, origin, direction, keepdims=True, name=None):
     return tf.norm(tensor=vec, axis=-1, keepdims=keepdims)
 
 
-def project_to_ray(point, origin, direction, name=None):
+def project_to_ray(point, origin, direction, name="point_project_to_ray"):
   """Computes the projection of a M-d point on a M-d ray.
 
   Note:
@@ -90,8 +93,7 @@ def project_to_ray(point, origin, direction, name=None):
     ValueError: If the shape of `point`, `origin`, or 'direction' is not
     supported.
   """
-  with tf.compat.v1.name_scope(name, "point_project_to_ray",
-                               [point, origin, direction]):
+  with tf.name_scope(name):
     point = tf.convert_to_tensor(value=point)
     origin = tf.convert_to_tensor(value=origin)
     direction = tf.convert_to_tensor(value=direction)

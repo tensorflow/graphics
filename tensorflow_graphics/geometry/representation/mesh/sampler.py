@@ -45,7 +45,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def triangle_area(vertex0, vertex1, vertex2, name=None):
+def triangle_area(vertex0, vertex1, vertex2, name="triangle_area"):
   """Computes triangle areas.
 
   Note:
@@ -70,7 +70,7 @@ def triangle_area(vertex0, vertex1, vertex2, name=None):
     A tensor of shape `[A1, ..., An, 1]`, where the last dimension represents
       the triangle areas.
   """
-  with tf.compat.v1.name_scope(name, "triangle_area"):
+  with tf.name_scope(name):
     vertex0 = tf.convert_to_tensor(value=vertex0)
     vertex1 = tf.convert_to_tensor(value=vertex1)
     vertex2 = tf.convert_to_tensor(value=vertex2)
@@ -85,7 +85,7 @@ def _random_categorical_sample(num_samples,
                                weights,
                                seed=None,
                                stateless=False,
-                               name=None,
+                               name="random_categorical_sample",
                                sample_dtype=tf.int32):
   """Samples from a categorical distribution with arbitrary batch dimensions.
 
@@ -110,7 +110,7 @@ def _random_categorical_sample(num_samples,
   Returns:
     A `sample_dtype` tensor of shape `[A1, ..., An, num_samples]`.
   """
-  with tf.compat.v1.name_scope(name, "random_categorical_sample"):
+  with tf.name_scope(name):
     asserts.assert_all_above(weights, 0)
     logits = tf.math.log(weights)
     num_faces = tf.shape(input=logits)[-1]
@@ -138,7 +138,7 @@ def generate_random_face_indices(num_samples,
                                  face_weights,
                                  seed=None,
                                  stateless=False,
-                                 name=None):
+                                 name="generate_random_face_indices"):
   """Generate a sample of face ids given per face probability.
 
   Note:
@@ -161,7 +161,7 @@ def generate_random_face_indices(num_samples,
     An `int32` tensor of shape `[A1, ..., An, num_samples]` denoting sampled
       face indices.
   """
-  with tf.compat.v1.name_scope(name, "generate_random_face_indices"):
+  with tf.name_scope(name):
     num_samples = tf.convert_to_tensor(value=num_samples)
     face_weights = tf.convert_to_tensor(value=face_weights)
     shape.check_static(
@@ -182,11 +182,12 @@ def generate_random_face_indices(num_samples,
     return sampled_face_indices
 
 
-def generate_random_barycentric_coordinates(sample_shape,
-                                            dtype=tf.dtypes.float32,
-                                            seed=None,
-                                            stateless=False,
-                                            name=None):
+def generate_random_barycentric_coordinates(
+    sample_shape,
+    dtype=tf.dtypes.float32,
+    seed=None,
+    stateless=False,
+    name="generate_random_barycentric_coordinates"):
   """Generate uniformly sampled random barycentric coordinates.
 
   Note:
@@ -213,7 +214,7 @@ def generate_random_barycentric_coordinates(sample_shape,
 
 
   """
-  with tf.compat.v1.name_scope(name, "generate_random_barycentric_coordinates"):
+  with tf.name_scope(name):
     sample_shape = tf.convert_to_tensor(value=sample_shape)
     shape.check_static(
         tensor=sample_shape, tensor_name="sample_shape", has_rank=1)
@@ -235,13 +236,14 @@ def generate_random_barycentric_coordinates(sample_shape,
     return barycentric
 
 
-def weighted_random_sample_triangle_mesh(vertex_attributes,
-                                         faces,
-                                         num_samples,
-                                         face_weights,
-                                         seed=None,
-                                         stateless=False,
-                                         name=None):
+def weighted_random_sample_triangle_mesh(
+    vertex_attributes,
+    faces,
+    num_samples,
+    face_weights,
+    seed=None,
+    stateless=False,
+    name="weighted_random_sample_triangle_mesh"):
   """Performs a face probability weighted random sampling of a tri mesh.
 
   Note:
@@ -268,7 +270,7 @@ def weighted_random_sample_triangle_mesh(vertex_attributes,
       where D is dimensionality of each sampled point.
     sample_face_indices: A `int` tensor of shape `[A1, ..., An, num_samples]`.
   """
-  with tf.compat.v1.name_scope(name, "weighted_random_sample_triangle_mesh"):
+  with tf.name_scope(name):
     faces = tf.convert_to_tensor(value=faces)
     vertex_attributes = tf.convert_to_tensor(value=vertex_attributes)
     face_weights = tf.convert_to_tensor(value=face_weights)
@@ -321,13 +323,14 @@ def weighted_random_sample_triangle_mesh(vertex_attributes,
     return sample_points, sample_face_indices
 
 
-def area_weighted_random_sample_triangle_mesh(vertex_attributes,
-                                              faces,
-                                              num_samples,
-                                              vertex_positions=None,
-                                              seed=None,
-                                              stateless=False,
-                                              name=None):
+def area_weighted_random_sample_triangle_mesh(
+    vertex_attributes,
+    faces,
+    num_samples,
+    vertex_positions=None,
+    seed=None,
+    stateless=False,
+    name="area_weighted_random_sample_triangle_mesh"):
   """Performs a face area weighted random sampling of a tri mesh.
 
   Note:
@@ -356,8 +359,7 @@ def area_weighted_random_sample_triangle_mesh(vertex_attributes,
       where D is dimensionality of each sampled point.
     sample_face_indices: A `int` tensor of shape `[A1, ..., An, num_samples]`.
   """
-  with tf.compat.v1.name_scope(name,
-                               "area_weighted_random_sample_triangle_mesh"):
+  with tf.name_scope(name):
     faces = tf.convert_to_tensor(value=faces)
     vertex_attributes = tf.convert_to_tensor(value=vertex_attributes)
     num_samples = tf.convert_to_tensor(value=num_samples)

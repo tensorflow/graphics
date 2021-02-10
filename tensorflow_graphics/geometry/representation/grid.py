@@ -47,7 +47,7 @@ def _grid(starts, stops, nums):
   return tf.stack(tf.meshgrid(*layout, indexing="ij"), axis=-1)
 
 
-def generate(starts, stops, nums, name=None):
+def generate(starts, stops, nums, name="grid_generate"):
   r"""Generates a M-D uniform axis-aligned grid.
 
   Warning:
@@ -97,7 +97,7 @@ def generate(starts, stops, nums, name=None):
     axis and from -2.0 to 2.0 with 5 subdivisions for the y axis. This lead to a
     tensor of shape (3, 5, 2).
   """
-  with tf.compat.v1.name_scope(name, "grid_generate", [starts, stops, nums]):
+  with tf.name_scope(name):
     starts = tf.convert_to_tensor(value=starts)
     stops = tf.convert_to_tensor(value=stops)
     nums = tf.convert_to_tensor(value=nums)

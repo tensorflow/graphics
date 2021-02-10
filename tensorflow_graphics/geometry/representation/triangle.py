@@ -25,7 +25,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def normal(v0, v1, v2, clockwise=False, normalize=True, name=None):
+def normal(v0, v1, v2, clockwise=False, normalize=True, name="triangle_normal"):
   """Computes face normals (triangles).
 
   Note:
@@ -51,7 +51,7 @@ def normal(v0, v1, v2, clockwise=False, normalize=True, name=None):
   Raises:
     ValueError: If the shape of `v0`, `v1`, or `v2` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "triangle_normal", [v0, v1, v2]):
+  with tf.name_scope(name):
     v0 = tf.convert_to_tensor(value=v0)
     v1 = tf.convert_to_tensor(value=v1)
     v2 = tf.convert_to_tensor(value=v2)
@@ -71,7 +71,7 @@ def normal(v0, v1, v2, clockwise=False, normalize=True, name=None):
     return normal_vector
 
 
-def area(v0, v1, v2, name=None):
+def area(v0, v1, v2, name="triangle_area"):
   """Computes triangle areas.
 
     Note: Computed triangle area = 0.5 * | e1 x e2 | where e1 and e2 are edges
@@ -95,7 +95,7 @@ def area(v0, v1, v2, name=None):
     A tensor of shape `[A1, ..., An, 1]`, where the last dimension represents
       a normalized vector.
   """
-  with tf.compat.v1.name_scope(name, "triangle_area", [v0, v1, v2]):
+  with tf.name_scope(name):
     v0 = tf.convert_to_tensor(value=v0)
     v1 = tf.convert_to_tensor(value=v1)
     v2 = tf.convert_to_tensor(value=v2)

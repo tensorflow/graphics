@@ -27,7 +27,7 @@ from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
 
 
-def gather_faces(vertices, indices, name=None):
+def gather_faces(vertices, indices, name="normals_gather_faces"):
   """Gather corresponding vertices for each face.
 
   Note:
@@ -49,8 +49,7 @@ def gather_faces(vertices, indices, name=None):
   Raises:
     ValueError: If the shape of `vertices` or `indices` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "normals_gather_faces",
-                               [vertices, indices]):
+  with tf.name_scope(name):
     vertices = tf.convert_to_tensor(value=vertices)
     indices = tf.convert_to_tensor(value=indices)
 
@@ -71,13 +70,16 @@ def gather_faces(vertices, indices, name=None):
       broadcasted_vertices = tf.broadcast_to(
           expanded_vertices,
           broadcasted_shape)
-      return tf.compat.v1.batch_gather(broadcasted_vertices, indices)
+      return tf.gather(broadcasted_vertices, indices, batch_dims=-1)
     else:
       return tf.gather(
           vertices, indices, axis=-2, batch_dims=indices.shape.ndims - 2)
 
 
-def face_normals(faces, clockwise=True, normalize=True, name=None):
+def face_normals(faces,
+                 clockwise=True,
+                 normalize=True,
+                 name="normals_face_normals"):
   """Computes face normals for meshes.
 
   This function supports planar convex polygon faces. Note that for
@@ -102,7 +104,7 @@ def face_normals(faces, clockwise=True, normalize=True, name=None):
   Raises:
     ValueError: If the shape of `vertices`, `faces` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "normals_face_normals", [faces]):
+  with tf.name_scope(name):
     faces = tf.convert_to_tensor(value=faces)
 
     shape.check_static(
@@ -117,7 +119,10 @@ def face_normals(faces, clockwise=True, normalize=True, name=None):
     return triangle.normal(*vertices, clockwise=clockwise, normalize=normalize)
 
 
-def vertex_normals(vertices, indices, clockwise=True, name=None):
+def vertex_normals(vertices,
+                   indices,
+                   clockwise=True,
+                   name="normals_vertex_normals"):
   """Computes vertex normals from a mesh.
 
   This function computes vertex normals as the weighted sum of the adjacent
@@ -147,8 +152,7 @@ def vertex_normals(vertices, indices, clockwise=True, name=None):
   Raises:
     ValueError: If the shape of `vertices`, `indices` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "normals_vertex_normals",
-                               [vertices, indices]):
+  with tf.name_scope(name):
     vertices = tf.convert_to_tensor(value=vertices)
     indices = tf.convert_to_tensor(value=indices)
 
@@ -214,12 +218,12 @@ def vertex_normals(vertices, indices, clockwise=True, name=None):
       for i in range(shape_indices[-1]):
         scatter_indices = tf.concat([outer_indices, indices[..., i:i + 1]],
                                     axis=-1)
-        unnormalized_vertex_normals = tf.compat.v1.tensor_scatter_add(
+        unnormalized_vertex_normals = tf.tensor_scatter_nd_add(
             unnormalized_vertex_normals, scatter_indices, mesh_face_normals)
     else:
       unnormalized_vertex_normals = tf.zeros_like(vertices)
       for i in range(shape_indices[-1]):
-        unnormalized_vertex_normals = tf.compat.v1.tensor_scatter_add(
+        unnormalized_vertex_normals = tf.tensor_scatter_nd_add(
             unnormalized_vertex_normals, indices[..., i:i + 1],
             mesh_face_normals)
 
