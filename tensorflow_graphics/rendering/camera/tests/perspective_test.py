@@ -221,8 +221,10 @@ class PerspectiveTest(test_case.TestCase):
                                     error_msg, shapes)
 
   @parameterized.parameters(
-      ((((0., 0., 0.), (0., 0., 0.), (0., 0., 1.)),), ((0., 0.), (0., 0.))),
-      ((((1., 0., 3.), (0., 2., 4.), (0., 0., 1.)),), ((1., 2.), (3., 4.))),
+      ((((0., 0., 0.), (0., 0., 0.), (0., 0., 1.)),), ((0., 0.), (0., 0.),
+                                                       (0.0,))),
+      ((((1., 0., 3.), (0., 2., 4.), (0., 0., 1.)),), ((1., 2.), (3., 4.),
+                                                       (0.0,))),
   )
   def test_intrinsics_from_matrix_preset(self, test_inputs, test_outputs):
     """Tests that intrinsics_from_matrix gives the correct result."""
@@ -235,20 +237,36 @@ class PerspectiveTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
     random_focal = np.random.normal(size=tensor_shape + [2])
     random_principal_point = np.random.normal(size=tensor_shape + [2])
+    random_skew_coeff = np.random.normal(size=tensor_shape + [1])
 
     matrix = perspective.matrix_from_intrinsics(random_focal,
-                                                random_principal_point)
-    focal, principal_point = perspective.intrinsics_from_matrix(matrix)
+                                                random_principal_point,
+                                                random_skew_coeff)
+    focal, principal_point, skew_coeff = perspective.intrinsics_from_matrix(
+        matrix)
+    random_skew_coeff = np.reshape(random_skew_coeff, (1, 1))
 
     self.assertAllClose(random_focal, focal, rtol=1e-3)
     self.assertAllClose(random_principal_point, principal_point, rtol=1e-3)
+    self.assertAllClose(random_skew_coeff, skew_coeff, rtol=1e-3)
+
+  @parameterized.parameters(
+      ((2,), (2,), (1,)),
+      ((2, 2), (2, 2), (2, 1)),
+      ((None, 2), (None, 2), (None, 1)),
+  )
+  def test_matrix_from_intrinsics_exception_not_raised(self, *shapes):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(perspective.matrix_from_intrinsics,
+                                        shapes)
 
   @parameterized.parameters(
       ((2,), (2,)),
       ((2, 2), (2, 2)),
       ((None, 2), (None, 2)),
   )
-  def test_matrix_from_intrinsics_exception_not_raised(self, *shapes):
+  def test_matrix_from_intrinsics_exception_not_raised_when_skew_not_passed(
+      self, *shapes):
     """Tests that the shape exceptions are not raised."""
     self.assert_exception_is_not_raised(perspective.matrix_from_intrinsics,
                                         shapes)
@@ -264,9 +282,10 @@ class PerspectiveTest(test_case.TestCase):
                                     error_msg, shapes)
 
   @parameterized.parameters(
-      (((0., 0.), (0., 0.)), (((0., 0., 0.), (0., 0., 0.), (0., 0., 1.)),)),
-      (((1., 2.), (3., 4.)), (((1., 0., 3.), (0., 2., 4.), (0., 0., 1.)),)),
-  )
+      (((0.0, 0.0), (0.0, 0.0), (0.0,)), (((0.0, 0.0, 0.0), (0.0, 0.0, 0.0),
+                                           (0.0, 0.0, 1.0)),)),
+      (((1.0, 2.0), (3.0, 4.0), (0.0,)), (((1.0, 0.0, 3.0), (0.0, 2.0, 4.0),
+                                           (0.0, 0.0, 1.0)),)))
   def test_matrix_from_intrinsics_preset(self, test_inputs, test_outputs):
     """Tests that matrix_from_intrinsics gives the correct result."""
     self.assert_output_is_correct(perspective.matrix_from_intrinsics,
@@ -287,8 +306,11 @@ class PerspectiveTest(test_case.TestCase):
     random_matrix = np.stack((fx, zero, cx, zero, fy, cy, zero, zero, one),
                              axis=-1).reshape(tensor_shape + [3, 3])
 
-    focal, principal_point = perspective.intrinsics_from_matrix(random_matrix)
-    matrix = perspective.matrix_from_intrinsics(focal, principal_point)
+    focal, principal_point, skew_coefficient = perspective.intrinsics_from_matrix(
+        random_matrix)
+    matrix = perspective.matrix_from_intrinsics(focal,
+                                                principal_point,
+                                                skew_coefficient)
 
     self.assertAllClose(random_matrix, matrix, rtol=1e-3)
 

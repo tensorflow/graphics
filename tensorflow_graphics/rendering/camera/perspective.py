@@ -179,13 +179,14 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
 def intrinsics_from_matrix(matrix, name=None):
   r"""Extracts intrinsic parameters from a calibration matrix.
 
-  Extracts the focal length \\((f_x, f_y)\\) and the principal point
-  \\((c_x, c_y)\\) from a camera calibration matrix
+  Extracts the focal length \\((f_x, f_y)\\), the principal point
+  \\((c_x, c_y)\\) and the skew_coefficient(\\sc\\) from a camera calibration
+  matrix
 
   $$
   \mathbf{C} =
   \begin{bmatrix}
-  f_x & 0 & c_x \\
+  f_x & sc & c_x \\
   0  & f_y & c_y \\
   0  & 0  & 1 \\
   \end{bmatrix}.
@@ -201,13 +202,16 @@ def intrinsics_from_matrix(matrix, name=None):
       "perspective_intrinsics_from_matrix".
 
   Returns:
-    Tuple of two tensors, each one of shape `[A1, ..., An, 2]`. The first
-    tensor represents the focal length, and the second one the principle point.
+    Tuple of three tensors, the first two of shape `[A1, ..., An, 2]` and
+    the third of shape `[A1, ..., An, 1]`. The first tensor represents the
+    focal length, and the second one the principle point and the third one
+    represents the skew coefficient.
 
   Raises:
     ValueError: If the shape of `matrix` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "perspective_intrinsics_from_matrix",
+  with tf.compat.v1.name_scope(name,
+                               "perspective_intrinsics_from_matrix",
                                [matrix]):
     matrix = tf.convert_to_tensor(value=matrix)
 
@@ -216,17 +220,18 @@ def intrinsics_from_matrix(matrix, name=None):
         tensor_name="matrix",
         has_rank_greater_than=1,
         has_dim_equals=((-1, 3), (-2, 3)))
-
     fx = matrix[..., 0, 0]
     fy = matrix[..., 1, 1]
     cx = matrix[..., 0, 2]
     cy = matrix[..., 1, 2]
+    skew = matrix[..., 0, 1]
     focal = tf.stack((fx, fy), axis=-1)
     principal_point = tf.stack((cx, cy), axis=-1)
-  return focal, principal_point
+    skew = tf.expand_dims(skew, axis=-1)
+    return focal, principal_point, skew
 
 
-def matrix_from_intrinsics(focal, principal_point, name=None):
+def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
   r"""Builds calibration matrix from intrinsic parameters.
 
   Builds the camera calibration matrix as
@@ -234,7 +239,7 @@ def matrix_from_intrinsics(focal, principal_point, name=None):
   $$
   \mathbf{C} =
   \begin{bmatrix}
-  f_x & 0 & c_x \\
+  f_x & sc & c_x \\
   0  & f_y & c_y \\
   0  & 0  & 1 \\
   \end{bmatrix}
@@ -251,6 +256,8 @@ def matrix_from_intrinsics(focal, principal_point, name=None):
       represents a camera focal length.
     principal_point: A tensor of shape `[A1, ..., An, 2]`, where the last
       dimension represents a camera principal point.
+    skew: A tensor of shape `[A1, ..., An, 1]`, where the last dimension
+      represents a skew coefficient.
     name: A name for this op that defaults to
       "perspective_matrix_from_intrinsics".
 
@@ -266,16 +273,28 @@ def matrix_from_intrinsics(focal, principal_point, name=None):
                                [focal, principal_point]):
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
-
-    shape.check_static(
-        tensor=focal, tensor_name="focal", has_dim_equals=(-1, 2))
+    skew = tf.convert_to_tensor(value=skew)
+    common_batch_shape = shape.get_broadcasted_shape(
+        focal.shape[:-1], skew.shape[:-1])
+    def dim_value(dim):
+      return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+    common_batch_shape = [dim_value(dim) for dim in common_batch_shape]
+    skew = tf.broadcast_to(skew, common_batch_shape + [1])
+    shape.check_static(tensor=focal,
+                       tensor_name="focal",
+                       has_dim_equals=(-1, 2))
     shape.check_static(
         tensor=principal_point,
         tensor_name="principal_point",
         has_dim_equals=(-1, 2))
+    shape.check_static(
+        tensor=skew,
+        tensor_name="skew",
+        has_dim_equals=(-1, 1),
+    )
     shape.compare_batch_dimensions(
-        tensors=(focal, principal_point),
-        tensor_names=("focal", "principal_point"),
+        tensors=(focal, principal_point, skew),
+        tensor_names=("focal", "principal_point", "skew"),
         last_axes=-2,
         broadcast_compatible=False)
 
@@ -283,7 +302,8 @@ def matrix_from_intrinsics(focal, principal_point, name=None):
     cx, cy = tf.unstack(principal_point, axis=-1)
     zero = tf.zeros_like(fx)
     one = tf.ones_like(fx)
-    matrix = tf.stack((fx, zero, cx,
+    skew = tf.reshape(skew, tf.shape(fx))
+    matrix = tf.stack((fx, skew, cx,
                        zero, fy, cy,
                        zero, zero, one),
                       axis=-1)  # pyformat: disable
