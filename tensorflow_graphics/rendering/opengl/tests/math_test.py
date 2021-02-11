@@ -205,17 +205,17 @@ class MathTest(test_case.TestCase):
 
   def test_ndc_to_screen_preset(self):
     """Tests that ndc_to_screen generates expected results."""
-    point = ((1.1, 2.2, 3.3), (5.1, 5.2, 5.3))
-    lower_left_corner = ((6.4, 4.8), (0.0, 0.0))
-    screen_dimensions = ((640.0, 480.0), (300.0, 400.0))
-    near = ((1.0,), (11.0,))
-    far = ((10.0,), (100.0,))
+    point = ((0.0, 0.0, 0.0), (1.0, 1.0, 0.0), (-1.0, -1.0, 1.0), (1.0, -1.0,
+                                                                   -1.0))
+    lower_left_corner = ((0.0, 0.0), (0.0, 0.0), (3.0, 4.0), (4.0, 3.0))
+    screen_dimensions = ((10.0, 10.0), (5.0, 10.0), (20.0, 20.0), (15.0, 35.0))
+    near = ((1.0,), (1.0,), (2.0,), (3.0,))
+    far = ((11.0,), (11.0,), (20.0,), (4.0,))
 
     pred = glm.ndc_to_screen(point, lower_left_corner, screen_dimensions, near,
                              far)
 
-    gt = ((678.40002441, 772.79998779, 20.34999847), (915.0, 1240.0,
-                                                      291.3500061))
+    gt = ((5.0, 5.0, 6.0), (5.0, 10.0, 6.0), (3.0, 4.0, 20.0), (19.0, 3.0, 3.0))
     self.assertAllClose(pred, gt)
 
   @parameterized.parameters(
