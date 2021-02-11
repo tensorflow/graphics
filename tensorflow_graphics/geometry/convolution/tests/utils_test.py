@@ -452,7 +452,7 @@ class UtilsUnflatten2dToBatchTest(test_case.TestCase):
 
     unflattened = utils.unflatten_2d_to_batch(data, sizes, max_rows)
     flattened = tf.reshape(unflattened, (-1, num_features))
-    nonzero_rows = tf.compat.v1.where(tf.norm(tensor=flattened, axis=-1))
+    nonzero_rows = tf.where(tf.norm(tensor=flattened, axis=-1))
     flattened_unpadded = tf.gather(
         params=flattened, indices=tf.squeeze(input=nonzero_rows, axis=-1))
 

@@ -78,7 +78,6 @@ class GraphConvolutionTestFeatureSteeredConvolutionLayerTests(
               translation_invariant=translation_invariant,
               num_weight_matrices=num_weight_matrices,
               num_output_channels=out_channels,
-              name=None,
               var_name=name_scope)
         except Exception as e:  # pylint: disable=broad-except
           self.fail("Exception raised: %s" % str(e))

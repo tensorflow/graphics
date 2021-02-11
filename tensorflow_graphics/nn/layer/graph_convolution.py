@@ -31,7 +31,7 @@ def feature_steered_convolution_layer(
     num_weight_matrices=8,
     num_output_channels=None,
     initializer=tf.compat.v1.truncated_normal_initializer(stddev=0.1),
-    name=None,
+    name='graph_convolution_feature_steered_convolution',
     var_name=None):
   # pyformat: disable
   """Wraps the function `feature_steered_convolution` as a TensorFlow layer.
@@ -329,8 +329,7 @@ class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
       name: A name for this layer.
       **kwargs: Additional keyword arguments passed to the base layer.
     """
-    super(DynamicGraphConvolutionKerasLayer, self).__init__(
-        name=name, **kwargs)
+    super(DynamicGraphConvolutionKerasLayer, self).__init__(name=name, **kwargs)
     self._num_output_channels = num_output_channels
     self._reduction = reduction
     self._activation = activation

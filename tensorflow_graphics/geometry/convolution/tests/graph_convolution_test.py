@@ -532,7 +532,7 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
             keepdims=True))
     edge_length_squared = tf.reduce_sum(
         input_tensor=yx_diff * yx_diff, axis=-1, keepdims=True)
-    return tf.compat.v1.where(
+    return tf.where(
         tf.less(edge_length_squared, 1e-7), tf.zeros_like(edge_length_squared),
         curvature_unscaled / edge_length_squared)
 

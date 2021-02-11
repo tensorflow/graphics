@@ -187,7 +187,7 @@ def check_valid_graph_unpooling_input(data, pool_map, sizes):
         broadcast_compatible=False)
 
 
-def flatten_batch_to_2d(data, sizes=None, name=None):
+def flatten_batch_to_2d(data, sizes=None, name="utils_flatten_batch_to_2d"):
   """Reshapes a batch of 2d Tensors by flattening across the batch dimensions.
 
   Note:
@@ -237,8 +237,7 @@ def flatten_batch_to_2d(data, sizes=None, name=None):
   Raises:
     ValueError: if the input tensor dimensions are invalid.
   """
-  with tf.compat.v1.name_scope(name, "utils_flatten_batch_to_2d",
-                               [data, sizes]):
+  with tf.name_scope(name):
     data = tf.convert_to_tensor(value=data)
     if sizes is not None:
       sizes = tf.convert_to_tensor(value=sizes)
@@ -259,9 +258,9 @@ def flatten_batch_to_2d(data, sizes=None, name=None):
     if sizes is None:
       flat = tf.reshape(data, shape=(-1, data_shape[-1]))
 
-      def unflatten(flat, name=None):
+      def unflatten(flat, name="utils_unflatten"):
         """Invert flatten_batch_to_2d."""
-        with tf.compat.v1.name_scope(name, "utils_unflatten", [flat]):
+        with tf.name_scope(name):
           flat = tf.convert_to_tensor(value=flat)
           output_shape = tf.concat((data_shape[:-1], tf.shape(input=flat)[-1:]),
                                    axis=0)
@@ -272,12 +271,12 @@ def flatten_batch_to_2d(data, sizes=None, name=None):
       # `mask[a1, ..., an, :] = [True, ..., True, False, ..., False]` where
       # the number of True elements is `sizes[a1, ..., an]`.
       mask = tf.sequence_mask(sizes, data_shape[-2])
-      mask_indices = tf.cast(tf.compat.v1.where(mask), tf.int32)
+      mask_indices = tf.cast(tf.where(mask), tf.int32)
       flat = tf.gather_nd(params=data, indices=mask_indices)
 
-      def unflatten(flat, name=None):
+      def unflatten(flat, name="utils_unflatten"):
         """Invert flatten_batch_to_2d."""
-        with tf.compat.v1.name_scope(name, "utils_unflatten", [flat]):
+        with tf.name_scope(name):
           flat = tf.convert_to_tensor(value=flat)
           output_shape = tf.concat((data_shape[:-1], tf.shape(input=flat)[-1:]),
                                    axis=0)
@@ -287,7 +286,10 @@ def flatten_batch_to_2d(data, sizes=None, name=None):
     return flat, unflatten
 
 
-def unflatten_2d_to_batch(data, sizes, max_rows=None, name=None):
+def unflatten_2d_to_batch(data,
+                          sizes,
+                          max_rows=None,
+                          name="utils_unflatten_2d_to_batch"):
   r"""Reshapes a 2d Tensor into a batch of 2d Tensors.
 
   The `data` tensor with shape `[D1, D2]` will be mapped to a tensor with shape
@@ -348,8 +350,7 @@ def unflatten_2d_to_batch(data, sizes, max_rows=None, name=None):
   Returns:
     A tensor with shape `[A1, A2, ..., max_rows, D2]`.
   """
-  with tf.compat.v1.name_scope(name, "utils_unflatten_2d_to_batch",
-                               [data, sizes]):
+  with tf.name_scope(name):
     data = tf.convert_to_tensor(value=data)
     sizes = tf.convert_to_tensor(value=sizes)
     if max_rows is None:
@@ -362,7 +363,7 @@ def unflatten_2d_to_batch(data, sizes, max_rows=None, name=None):
       raise TypeError("'sizes' must have an integer type.")
 
     mask = tf.sequence_mask(sizes, max_rows)
-    mask_indices = tf.cast(tf.compat.v1.where(mask), tf.int32)
+    mask_indices = tf.cast(tf.where(mask), tf.int32)
     output_shape = tf.concat(
         (tf.shape(input=sizes), (max_rows,), tf.shape(input=data)[-1:]), axis=0)
     return tf.scatter_nd(indices=mask_indices, updates=data, shape=output_shape)
@@ -371,7 +372,7 @@ def unflatten_2d_to_batch(data, sizes, max_rows=None, name=None):
 def convert_to_block_diag_2d(data,
                              sizes=None,
                              validate_indices=False,
-                             name=None):
+                             name="utils_convert_to_block_diag_2d"):
   """Convert a batch of 2d SparseTensors to a 2d block diagonal SparseTensor.
 
   Note:
@@ -405,8 +406,7 @@ def convert_to_block_diag_2d(data,
     TypeError: if the input types are invalid.
     ValueError: if the input dimensions are invalid.
   """
-  with tf.compat.v1.name_scope(name, "utils_convert_to_block_diag_2d",
-                               [data, sizes, validate_indices]):
+  with tf.name_scope(name):
     data = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=data)
     if sizes is not None:
       sizes = tf.convert_to_tensor(value=sizes)

@@ -24,15 +24,16 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def feature_steered_convolution(data,
-                                neighbors,
-                                sizes,
-                                var_u,
-                                var_v,
-                                var_c,
-                                var_w,
-                                var_b,
-                                name=None):
+def feature_steered_convolution(
+    data,
+    neighbors,
+    sizes,
+    var_u,
+    var_v,
+    var_c,
+    var_w,
+    var_b,
+    name="graph_convolution_feature_steered_convolution"):
   #  pyformat: disable
   """Implements the Feature Steered graph convolution.
 
@@ -92,9 +93,7 @@ def feature_steered_convolution(data,
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
-  with tf.compat.v1.name_scope(
-      name, "graph_convolution_feature_steered_convolution",
-      [data, neighbors, sizes, var_u, var_v, var_c, var_w, var_b]):
+  with tf.name_scope(name):
     data = tf.convert_to_tensor(value=data)
     neighbors = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=neighbors)
     if sizes is not None:
@@ -159,13 +158,14 @@ def feature_steered_convolution(data,
     return y_out
 
 
-def edge_convolution_template(data,
-                              neighbors,
-                              sizes,
-                              edge_function,
-                              reduction,
-                              edge_function_kwargs,
-                              name=None):
+def edge_convolution_template(
+    data,
+    neighbors,
+    sizes,
+    edge_function,
+    reduction,
+    edge_function_kwargs,
+    name="graph_convolution_edge_convolution_template"):
   #  pyformat: disable
   r"""A template for edge convolutions.
 
@@ -235,9 +235,7 @@ def edge_convolution_template(data,
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
-  with tf.compat.v1.name_scope(name,
-                               "graph_convolution_edge_convolution_template",
-                               [data, neighbors, sizes]):
+  with tf.name_scope(name):
     data = tf.convert_to_tensor(value=data)
     neighbors = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=neighbors)
     if sizes is not None:
@@ -273,14 +271,15 @@ def edge_convolution_template(data,
           segment_ids=adjacency_ind_0,
           num_segments=tf.shape(input=x_flat)[0])
     elif reduction == "max":
-      features = tf.math.segment_max(data=edge_features,
-                                     segment_ids=adjacency_ind_0)
+      features = tf.math.segment_max(
+          data=edge_features, segment_ids=adjacency_ind_0)
     else:
       raise ValueError("The reduction method must be 'weighted' or 'max'")
 
-    features.set_shape(features.shape.merge_with(
-        (tf.compat.v1.dimension_value(x_flat.shape[0]),
-         tf.compat.v1.dimension_value(edge_features.shape[-1]))))
+    features.set_shape(
+        features.shape.merge_with(
+            (tf.compat.dimension_value(x_flat.shape[0]),
+             tf.compat.dimension_value(edge_features.shape[-1]))))
 
     if data_ndims > 2:
       features = unflatten(features)

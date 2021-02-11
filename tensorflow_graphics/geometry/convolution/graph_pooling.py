@@ -23,7 +23,7 @@ from tensorflow_graphics.geometry.convolution import utils
 from tensorflow_graphics.util import export_api
 
 
-def pool(data, pool_map, sizes, algorithm='max', name=None):
+def pool(data, pool_map, sizes, algorithm='max', name='graph_pooling_pool'):
   #  pyformat: disable
   """Implements graph pooling.
 
@@ -67,8 +67,7 @@ def pool(data, pool_map, sizes, algorithm='max', name=None):
     ValueError: if `algorithm` is invalid.
   """
   #  pyformat: enable
-  with tf.compat.v1.name_scope(
-      name, 'graph_pooling_pool', [data, pool_map, sizes]):
+  with tf.name_scope(name):
     data = tf.convert_to_tensor(value=data)
     pool_map = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=pool_map)
     if sizes is not None:
@@ -110,7 +109,7 @@ def pool(data, pool_map, sizes, algorithm='max', name=None):
     return pooled
 
 
-def unpool(data, pool_map, sizes, name=None):
+def unpool(data, pool_map, sizes, name='graph_pooling_unpool'):
   #  pyformat: disable
   r"""Graph upsampling by inverting the pooling map.
 
@@ -152,8 +151,7 @@ def unpool(data, pool_map, sizes, name=None):
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
-  with tf.compat.v1.name_scope(
-      name, 'graph_pooling_unpool', [data, pool_map, sizes]):
+  with tf.name_scope(name):
     data = tf.convert_to_tensor(value=data)
     pool_map = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=pool_map)
     if sizes is not None:
@@ -168,8 +166,7 @@ def unpool(data, pool_map, sizes, name=None):
     pool_map_transpose = tf.sparse.transpose(pool_map, permutation)
     row_sum = tf.sparse.reduce_sum(
         tf.abs(pool_map_transpose), keepdims=True, axis=-1)
-    normalize_weights = tf.compat.v1.where(
-        tf.equal(row_sum, 0), row_sum, 1.0 / row_sum)
+    normalize_weights = tf.where(tf.equal(row_sum, 0), row_sum, 1.0 / row_sum)
     pool_map_normalize = normalize_weights * pool_map_transpose
 
     if sizes is not None:
@@ -178,12 +175,13 @@ def unpool(data, pool_map, sizes, name=None):
     return pool(data, pool_map_normalize, sizes)
 
 
-def upsample_transposed_convolution(data,
-                                    pool_map,
-                                    sizes,
-                                    kernel_size,
-                                    transposed_convolution_op,
-                                    name=None):
+def upsample_transposed_convolution(
+    data,
+    pool_map,
+    sizes,
+    kernel_size,
+    transposed_convolution_op,
+    name='graph_pooling_upsample_transposed_convolution'):
   #  pyformat: disable
   r"""Graph upsampling by transposed convolution.
 
@@ -244,9 +242,7 @@ def upsample_transposed_convolution(data,
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
-  with tf.compat.v1.name_scope(
-      name, 'graph_pooling_upsample_transposed_convolution',
-      [data, pool_map, sizes]):
+  with tf.name_scope(name):
     data = tf.convert_to_tensor(value=data)
     pool_map = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=pool_map)
     if sizes is not None:
@@ -264,7 +260,7 @@ def upsample_transposed_convolution(data,
       sizes_input = None
       sizes_output = None
 
-    num_features = tf.compat.v1.dimension_value(data.shape[-1])
+    num_features = tf.compat.dimension_value(data.shape[-1])
     batched = data.shape.ndims > 2
     if batched:
       x_flat, _ = utils.flatten_batch_to_2d(data, sizes_input)
@@ -301,18 +297,15 @@ def upsample_transposed_convolution(data,
     up_row = tf.reshape(tf.cast(up_scatter_indices, tf.int64), (-1,))
     up_column = tf.range(tf.shape(input=up_row, out_type=tf.dtypes.int64)[0])
     scatter_indices = tf.concat(
-        (tf.expand_dims(up_row, -1),
-         tf.expand_dims(up_column, -1)), axis=1)
+        (tf.expand_dims(up_row, -1), tf.expand_dims(up_column, -1)), axis=1)
 
     scatter_values = tf.ones_like(up_row, dtype=x_upsample.dtype)
     scatter_shape = tf.reduce_max(input_tensor=scatter_indices, axis=0) + 1
 
-    scatter = tf.SparseTensor(scatter_indices,
-                              scatter_values,
-                              scatter_shape)
+    scatter = tf.SparseTensor(scatter_indices, scatter_values, scatter_shape)
     scatter = tf.sparse.reorder(scatter)
     row_sum = tf.sparse.reduce_sum(tf.abs(scatter), keepdims=True, axis=-1)
-    row_sum = tf.compat.v1.where(tf.equal(row_sum, 0.), row_sum, 1.0 / row_sum)
+    row_sum = tf.where(tf.equal(row_sum, 0.), row_sum, 1.0 / row_sum)
     scatter = row_sum * scatter
     x_upsample = tf.sparse.sparse_dense_matmul(scatter, x_upsample[0, 0, :, :])
 
@@ -320,12 +313,14 @@ def upsample_transposed_convolution(data,
       if sizes_output is not None:
         x_upsample = utils.unflatten_2d_to_batch(x_upsample, sizes_output)
       else:
-        output_shape = tf.concat((tf.shape(input=pool_map)[:-2],
-                                  tf.shape(input=pool_map)[-1:],
-                                  (num_features,)), axis=0)
+        output_shape = tf.concat(
+            (tf.shape(input=pool_map)[:-2], tf.shape(input=pool_map)[-1:],
+             (num_features,)),
+            axis=0)
         x_upsample = tf.reshape(x_upsample, output_shape)
 
     return x_upsample
+
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()

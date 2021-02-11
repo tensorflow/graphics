@@ -34,9 +34,9 @@ def _batch_sparse_eye(batch_shape, num_vertices, dtype):
   """Generate a batch of identity matrices."""
   eye = np.eye(num_vertices, dtype=dtype)
   num_batch_dims = len(batch_shape)
-  expand_shape = np.concatenate((np.ones(
-      num_batch_dims, dtype=np.int32), (num_vertices, num_vertices)),
-                                axis=0)
+  expand_shape = np.concatenate(
+      (np.ones(num_batch_dims, dtype=np.int32), (num_vertices, num_vertices)),
+      axis=0)
   eye = np.reshape(eye, expand_shape)
   tile_shape = np.concatenate((batch_shape, (1, 1)), axis=0)
   return _dense_to_sparse(np.tile(eye, tile_shape))
@@ -100,9 +100,8 @@ class GraphPoolingTestPoolTests(test_case.TestCase):
     data = np.random.uniform(size=data_shape).astype(data_type)
     pool_map = _batch_sparse_eye(batch_shape, num_vertices, data_type)
 
-    pooled_max = gp.pool(data, pool_map, sizes=None, algorithm='max', name=None)
-    pooled_weighted = gp.pool(
-        data, pool_map, sizes=None, algorithm='weighted', name=None)
+    pooled_max = gp.pool(data, pool_map, sizes=None, algorithm='max')
+    pooled_weighted = gp.pool(data, pool_map, sizes=None, algorithm='weighted')
 
     self.assertAllClose(pooled_max, data)
     self.assertAllClose(pooled_weighted, data)
@@ -135,9 +134,8 @@ class GraphPoolingTestPoolTests(test_case.TestCase):
     max_true = data[(1, 3), :]
     max_weighted = (data[(0, 2), :] + max_true) * 0.5
 
-    pooled_max = gp.pool(data, pool_map, sizes=None, algorithm='max', name=None)
-    pooled_weighted = gp.pool(
-        data, pool_map, sizes=None, algorithm='weighted', name=None)
+    pooled_max = gp.pool(data, pool_map, sizes=None, algorithm='max')
+    pooled_weighted = gp.pool(data, pool_map, sizes=None, algorithm='weighted')
 
     self.assertAllClose(pooled_max, max_true)
     self.assertAllClose(pooled_weighted, max_weighted)
@@ -262,8 +260,7 @@ class GraphPoolingTestUnpoolTests(test_case.TestCase):
     data = np.random.uniform(size=(output_vertices,
                                    num_features)).astype(np.float32)
 
-    unpooled = gp.unpool(
-        data, _dense_to_sparse(pool_map), sizes=None, name=None)
+    unpooled = gp.unpool(data, _dense_to_sparse(pool_map), sizes=None)
 
     with self.subTest(name='direct_unpool'):
       true = np.zeros(shape=(num_vertices, num_features)).astype(np.float32)
@@ -362,6 +359,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
       pool_map[i, np.arange(kernel_size * i, kernel_size *
                             (i + 1))] = (1.0 / kernel_size)
     pool_map = _dense_to_sparse(pool_map)
+
     # Transposed convolution op with a zero kernel.
     transposed_convolution_op = tf.keras.layers.Conv2DTranspose(
         filters=num_features,
@@ -369,7 +367,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
         strides=(1, kernel_size),
         padding='valid',
         use_bias=False,
-        kernel_initializer=tf.compat.v1.keras.initializers.zeros())
+        kernel_initializer='zeros')
 
     upsampled = gp.upsample_transposed_convolution(
         data,
@@ -403,7 +401,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
     selection = np.zeros(
         shape=(1, kernel_size, num_features, num_features), dtype=np.float32)
     selection[0, kernel_index, feature1_index, feature2_index] = 1.
-    initializer = tf.compat.v1.constant_initializer(value=selection)
+    initializer = tf.constant_initializer(value=selection)
     transposed_convolution_op = tf.keras.layers.Conv2DTranspose(
         filters=num_features,
         kernel_size=(1, kernel_size),
@@ -441,7 +439,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
                  dtype=np.float32))
 
     kernel = np.ones(shape=(1, 2, 2, 2), dtype=np.float32)
-    initializer = tf.compat.v1.constant_initializer(value=kernel)
+    initializer = tf.constant_initializer(value=kernel)
     transposed_convolution_op = tf.keras.layers.Conv2DTranspose(
         filters=2,
         kernel_size=(1, 2),
@@ -489,8 +487,6 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
         sizes=None,
         kernel_size=kernel_size,
         transposed_convolution_op=transposed_convolution_op)
-    # Initializes variables of the transpose conv layer.
-    self.evaluate(tf.compat.v1.global_variables_initializer())
 
     def gp_upsample_transposed_convolution(data):
       return gp.upsample_transposed_convolution(
@@ -499,6 +495,9 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
           sizes=None,
           kernel_size=kernel_size,
           transposed_convolution_op=transposed_convolution_op)
+
+    # Initializes variables of the transpose conv layer.
+    self.evaluate(tf.compat.v1.global_variables_initializer())
 
     self.assert_jacobian_is_correct_fn(gp_upsample_transposed_convolution,
                                        [data_init])
@@ -531,8 +530,6 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
         sizes=sizes,
         kernel_size=kernel_size,
         transposed_convolution_op=transposed_convolution_op)
-    # Initializes variables of the transpose conv layer.
-    self.evaluate(tf.compat.v1.global_variables_initializer())
 
     def gp_upsample_transposed_convolution(data):
       return gp.upsample_transposed_convolution(
@@ -541,6 +538,9 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
           sizes=sizes,
           kernel_size=kernel_size,
           transposed_convolution_op=transposed_convolution_op)
+
+    # Initializes variables of the transpose conv layer.
+    self.evaluate(tf.compat.v1.global_variables_initializer())
 
     self.assert_jacobian_is_correct_fn(gp_upsample_transposed_convolution,
                                        [data_init])
