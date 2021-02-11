@@ -41,8 +41,10 @@ def _generate_vertices_and_view_matrices():
                                          camera_up)
   perspective_matrix = perspective.right_handed(field_of_view, aspect_ratio,
                                                 near_plane, far_plane)
+  # Shape [2, 4, 4]
   view_projection_matrix = tf.linalg.matmul(perspective_matrix, world_to_camera)
   depth = 1.0
+  # Shape [2, 3, 3]
   vertices = (((-10.0 * _TRIANGLE_SIZE, 10.0 * _TRIANGLE_SIZE,
                 depth), (10.0 * _TRIANGLE_SIZE, 10.0 * _TRIANGLE_SIZE, depth),
                (0.0, -10.0 * _TRIANGLE_SIZE, depth)),
@@ -60,28 +62,29 @@ def _proxy_rasterize(vertices, triangles, view_projection_matrices):
 class RasterizationBackendTest(test_case.TestCase):
 
   @parameterized.parameters(
-      ("must have exactly 3 dimensions in axis -1", (2, 6, 32, 2), (17, 3),
-       (2, 6, 4, 4)),
-      ("must have exactly 3 dimensions in axis -1", (2, 6, 32, 3), (17, 2),
-       (2, 6, 4, 4)),
-      ("must have a rank of 2", (2, 6, 32, 3), (3, 17, 2), (2, 6, 4, 4)),
-      ("must have exactly 4 dimensions in axis -1", (2, 6, 32, 3), (17, 3),
-       (2, 6, 4, 3)),
-      ("must have exactly 4 dimensions in axis -2", (2, 6, 32, 3), (17, 3),
-       (2, 6, 3, 4)),
-      ("Not all batch dimensions are broadcast-compatible", (3, 6, 32, 3),
-       (17, 3), (5, 6, 4, 4)),
+      ("must have exactly 3 dimensions in axis -1", (2, 32, 2), (17, 3),
+       (2, 4, 4)),
+      ("must have exactly 3 dimensions in axis -1", (2, 32, 3), (17, 2),
+       (2, 4, 4)),
+      ("must have a rank of 2", (2, 32, 3), (3, 17, 2), (2, 4, 4)),
+      ("must have exactly 4 dimensions in axis -1", (2, 32, 3), (17, 3),
+       (2, 4, 3)),
+      ("must have exactly 4 dimensions in axis -2", (2, 32, 3), (17, 3),
+       (2, 3, 4)),
+      ("Not all batch dimensions are broadcast-compatible", (3, 32, 3), (17, 3),
+       (5, 4, 4)),
+      ("vertices must have a rank of 3, but it has rank 2", (32, 3), (17, 3),
+       (4, 4)),
   )
   def test_rasterize_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised."""
     self.assert_exception_is_raised(_proxy_rasterize, error_msg, shapes)
 
   @parameterized.parameters(
-      (((32, 3), (17, 3), (4, 4)), (tf.float32, tf.int32, tf.float32)),
+      (((1, 32, 3), (17, 3), (1, 4, 4)), (tf.float32, tf.int32, tf.float32)),
       (((None, 32, 3), (17, 3), (None, 4, 4)),
        (tf.float32, tf.int32, tf.float32)),
-      (((None, 9, 32, 3), (17, 3), (None, 9, 4, 4)),
-       (tf.float32, tf.int32, tf.float32)),
+      (((2, 32, 3), (17, 3), (2, 4, 4)), (tf.float32, tf.int32, tf.float32)),
   )
   def test_rasterize_exception_not_raised(self, shapes, dtypes):
     self.assert_exception_is_not_raised(
@@ -90,8 +93,12 @@ class RasterizationBackendTest(test_case.TestCase):
   def test_rasterize_batch_vertices_only(self):
     triangles = np.array(((0, 1, 2),), np.int32)
     vertices, view_projection_matrix = _generate_vertices_and_view_matrices()
+    # Use just first view projection matrix.
+    view_projection_matrix = [
+        view_projection_matrix[0], view_projection_matrix[0]
+    ]
     predicted_fb = rasterization_backend.rasterize(
-        vertices, triangles, view_projection_matrix[0],
+        vertices, triangles, view_projection_matrix,
         (_IMAGE_WIDTH, _IMAGE_HEIGHT))
     mask = predicted_fb.foreground_mask
     self.assertAllEqual(mask[0, ...], tf.ones_like(mask[0, ...]))
@@ -103,9 +110,9 @@ class RasterizationBackendTest(test_case.TestCase):
   def test_rasterize_batch_view_only(self):
     triangles = np.array(((0, 1, 2),), np.int32)
     vertices, view_projection_matrix = _generate_vertices_and_view_matrices()
-
+    vertices = np.array([vertices[0], vertices[0]], dtype=np.float32)
     predicted_fb = rasterization_backend.rasterize(
-        vertices[0], triangles, view_projection_matrix,
+        vertices, triangles, view_projection_matrix,
         (_IMAGE_WIDTH, _IMAGE_HEIGHT))
     self.assertAllEqual(predicted_fb.foreground_mask[0, ...],
                         tf.ones_like(predicted_fb.foreground_mask[0, ...]))
@@ -128,11 +135,13 @@ class RasterizationBackendTest(test_case.TestCase):
         near_plane, far_plane)
     view_projection_matrix = tf.linalg.matmul(perspective_matrix,
                                               model_to_eye_matrix)
+    view_projection_matrix = tf.expand_dims(view_projection_matrix, axis=0)
 
     depth = 1.0
-    vertices = ((-2.0 * _TRIANGLE_SIZE, 0.0, depth), (0.0, _TRIANGLE_SIZE,
-                                                      depth), (0.0, 0.0, depth),
-                (0.0, -_TRIANGLE_SIZE, depth))
+    vertices = np.array([[(-2.0 * _TRIANGLE_SIZE, 0.0, depth),
+                          (0.0, _TRIANGLE_SIZE, depth), (0.0, 0.0, depth),
+                          (0.0, -_TRIANGLE_SIZE, depth)]],
+                        dtype=np.float32)
     triangles = np.array(((1, 2, 0), (0, 2, 3)), np.int32)
 
     predicted_fb = rasterization_backend.rasterize(
@@ -140,14 +149,15 @@ class RasterizationBackendTest(test_case.TestCase):
         (_IMAGE_WIDTH, _IMAGE_HEIGHT))
 
     with self.subTest(name="triangle_index"):
-      groundtruth_triangle_index = np.zeros((_IMAGE_HEIGHT, _IMAGE_WIDTH, 1),
+      groundtruth_triangle_index = np.zeros((1, _IMAGE_HEIGHT, _IMAGE_WIDTH, 1),
                                             dtype=np.int32)
       groundtruth_triangle_index[..., :_IMAGE_WIDTH // 2, 0] = 0
-      groundtruth_triangle_index[:_IMAGE_HEIGHT // 2, _IMAGE_WIDTH // 2:, 0] = 1
+      groundtruth_triangle_index[..., :_IMAGE_HEIGHT // 2, _IMAGE_WIDTH // 2:,
+                                 0] = 1
       self.assertAllEqual(groundtruth_triangle_index, predicted_fb.triangle_id)
 
     with self.subTest(name="mask"):
-      groundtruth_mask = np.ones((_IMAGE_HEIGHT, _IMAGE_WIDTH, 1),
+      groundtruth_mask = np.ones((1, _IMAGE_HEIGHT, _IMAGE_WIDTH, 1),
                                  dtype=np.int32)
       groundtruth_mask[..., :_IMAGE_WIDTH // 2, 0] = 0
       self.assertAllEqual(groundtruth_mask, predicted_fb.foreground_mask)
@@ -159,23 +169,23 @@ class RasterizationBackendTest(test_case.TestCase):
         np.array((_IMAGE_WIDTH, _IMAGE_HEIGHT)).astype(np.float32),
         np.array((0.0, 0.0)).astype(np.float32))
     with self.subTest(name="barycentric_coordinates_triangle_0"):
-      geometry_0 = tf.gather(vertices, triangles[0, :])
+      geometry_0 = tf.gather(vertices, triangles[0, :], axis=1)
       pixels_0 = tf.transpose(
           grid.generate((3.5, 2.5), (6.5, 4.5), (4, 3)), perm=(1, 0, 2))
       barycentrics_gt_0 = perspective_correct_interpolation(
           geometry_0, pixels_0)
       self.assertAllClose(
           barycentrics_gt_0,
-          predicted_fb.barycentrics.value[2:, 3:, :],
+          predicted_fb.barycentrics.value[0, 2:, 3:, :],
           atol=1e-3)
 
     with self.subTest(name="barycentric_coordinates_triangle_1"):
-      geometry_1 = tf.gather(vertices, triangles[1, :])
+      geometry_1 = tf.gather(vertices, triangles[1, :], axis=1)
       pixels_1 = tf.transpose(
           grid.generate((3.5, 0.5), (6.5, 1.5), (4, 2)), perm=(1, 0, 2))
       barycentrics_gt_1 = perspective_correct_interpolation(
           geometry_1, pixels_1)
       self.assertAllClose(
           barycentrics_gt_1,
-          predicted_fb.barycentrics.value[0:2, 3:, :],
+          predicted_fb.barycentrics.value[0, 0:2, 3:, :],
           atol=1e-3)

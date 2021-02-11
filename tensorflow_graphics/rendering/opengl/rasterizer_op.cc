@@ -323,7 +323,8 @@ tensorflow::Status RasterizeOp::ValidateVariables(
     } else if (*batch_shape != value_batch_shape) {
       return tensorflow::errors::InvalidArgument(
           "Variable with name='", name,
-          "' has an invalid batch shape=", value_batch_shape);
+          "' has an invalid batch shape=", value_batch_shape, " expected ",
+          *batch_shape);
     }
   }
   return tensorflow::Status::OK();

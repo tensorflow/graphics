@@ -27,24 +27,6 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def _perspective_correct_barycentrics(vertices_per_pixel, model_to_eye_matrix,
-                                      perspective_matrix, image_size_float):
-  """Creates the pixels grid and computes barycentrics."""
-  # Construct the pixel grid with half-integer pixel centers.
-  width = image_size_float[1]
-  height = image_size_float[0]
-  px = tf.linspace(0.5, width - 0.5, num=int(width))
-  py = tf.linspace(0.5, height - 0.5, num=int(height))
-  xv, yv = tf.meshgrid(px, py)
-  pixel_position = tf.stack((xv, yv), axis=-1)
-
-  return glm.perspective_correct_barycentrics(vertices_per_pixel,
-                                              pixel_position,
-                                              model_to_eye_matrix,
-                                              perspective_matrix,
-                                              (width, height))
-
-
 def _perspective_correct_attributes(attribute, barycentrics, triangles,
                                     triangle_index, len_batch_shape):
   attribute = tf.gather(attribute, triangles, axis=-2)
@@ -56,6 +38,16 @@ def _perspective_correct_attributes(attribute, barycentrics, triangles,
 
 def _dim_value(dim):
   return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+
+
+def _merge_batch_dims(tensor, last_axis):
+  """Merges all dimensions into one starting from 0 till `last_axis` exluding."""
+  return tf.reshape(tensor, [-1] + tensor.shape.as_list()[last_axis:])
+
+
+def _restore_batch_dims(tensor, batch_shape):
+  """Unpack first dimension into batch_shape, preserving the rest of the dimensions."""
+  return tf.reshape(tensor, batch_shape + tensor.shape.as_list()[1:])
 
 
 def rasterize(vertices,
@@ -125,17 +117,22 @@ def rasterize(vertices,
         tensor_name="perspective_matrix",
         has_dim_equals=(((-2, 4), (-1, 4))))
 
-    image_size_float = (float(image_size[0]), float(image_size[1]))
     image_size_backend = (int(image_size[1]), int(image_size[0]))
+    input_batch_shape = vertices.shape[:-2]
 
-    view_projection_matrix = tf.linalg.matmul(perspective_matrix,
-                                              model_to_eye_matrix)
+    perspective_matrix = _merge_batch_dims(perspective_matrix, last_axis=-2)
+    model_to_eye_matrix = _merge_batch_dims(model_to_eye_matrix, last_axis=-2)
+
+    vertices = _merge_batch_dims(vertices, last_axis=-2)
     rasterized = rasterization_backend.rasterize(vertices, triangles,
-                                                 view_projection_matrix,
+                                                 model_to_eye_matrix,
+                                                 perspective_matrix,
                                                  image_size_backend, backend)
     outputs = {
-        "mask": rasterized.foreground_mask,
-        "triangle_indices": rasterized.triangle_id
+        "mask":
+            _restore_batch_dims(rasterized.foreground_mask, input_batch_shape),
+        "triangle_indices":
+            _restore_batch_dims(rasterized.triangle_id, input_batch_shape)
     }
 
     # Extract batch shape in order to make sure it is preserved after `gather`
@@ -143,20 +140,19 @@ def rasterize(vertices,
     batch_shape = rasterized.triangle_id.shape[:-3]
     batch_shape = [_dim_value(dim) for dim in batch_shape]
 
-    vertices_per_pixel = tf.gather(
-        vertices, rasterized.vertex_ids, batch_dims=len(batch_shape))
-    barycentrics = _perspective_correct_barycentrics(vertices_per_pixel,
-                                                     model_to_eye_matrix,
-                                                     perspective_matrix,
-                                                     image_size_float)
     mask_float = tf.cast(rasterized.foreground_mask, vertices.dtype)
-    outputs["barycentrics"] = mask_float * barycentrics
+    outputs["barycentrics"] = _restore_batch_dims(
+        mask_float * rasterized.barycentrics.value, input_batch_shape)
 
     for key, attribute in attributes.items():
       attribute = tf.convert_to_tensor(value=attribute)
-      outputs[key] = mask_float * _perspective_correct_attributes(
-          attribute, barycentrics, triangles, rasterized.triangle_id[..., 0],
-          len(batch_shape))
+      attribute = _merge_batch_dims(attribute, last_axis=-2)
+      masked_attribute = mask_float * _perspective_correct_attributes(
+          attribute, rasterized.barycentrics.value, triangles,
+          rasterized.triangle_id[..., 0], len(batch_shape))
+      masked_attribute = _restore_batch_dims(masked_attribute,
+                                             input_batch_shape)
+      outputs[key] = masked_attribute
 
     return outputs
 

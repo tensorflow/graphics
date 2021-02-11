@@ -30,7 +30,8 @@ _BACKENDS = {
 
 def rasterize(vertices,
               triangles,
-              view_projection_matrices,
+              model_to_eye_matrix,
+              perspective_matrix,
               image_size,
               backend=RasterizationBackends.OPENGL):
   """Rasterizes the scene.
@@ -38,17 +39,16 @@ def rasterize(vertices,
     This rasterizer estimates which triangle is associated with each pixel using
     OpenGL.
 
-  Note:
-    In the following, A1 to An are optional batch dimensions which must be
-    broadcast compatible for inputs `vertices` and `view_projection_matrices`.
-
   Args:
-    vertices: A tensor of shape `[A1, ..., An, V, 3]` containing batches of `V`
+    vertices: A tensor of shape `[batch, num_vertices, 3]` containing batches of
       vertices, each defined by a 3D point.
-    triangles: A tensor of shape `[T, 3]` containing `T` triangles, each
+    triangles: A tensor of shape `[num_triangles, 3]` containing triangles, each
       associated with 3 vertices from `scene_vertices`
-    view_projection_matrices: A tensor of shape `[A1, ..., An, 4, 4]` containing
-      batches of view projection matrices
+    model_to_eye_matrix: A tensor of shape `[batch_size, 4, 4]` containing
+      batches of matrices used to transform vertices from model to eye
+      coordinates.
+    perspective_matrix: A tensor of shape `[batch_size, 4, 4]` containing
+      batches of matrices used to project vertices from eye to clip coordinates.
     image_size: An tuple of integers (width, height) containing the dimensions
       in pixels of the rasterized image.
     backend: An enum containing the backend method to use for rasterization.
@@ -67,8 +67,8 @@ def rasterize(vertices,
     The barycentric coordinates can be used to determine pixel validity instead.
     See framebuffer.py for a description of the Framebuffer fields.
   """
-  return _BACKENDS[backend].rasterize(vertices, triangles,
-                                      view_projection_matrices, image_size)
+  return _BACKENDS[backend].rasterize(vertices, triangles, model_to_eye_matrix,
+                                      perspective_matrix, image_size)
 
 
 # API contains all public functions and classes.

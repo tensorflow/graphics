@@ -16,6 +16,7 @@
 import tensorflow as tf
 
 from tensorflow_graphics.rendering import framebuffer as fb
+from tensorflow_graphics.rendering.opengl import math
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
@@ -98,9 +99,45 @@ void main() {
 """
 
 
+def _tile_to_image_size(tensor, image_shape):
+  """Inserts `image_shape` dimensions after `tensor` batch dimension."""
+  non_batch_dims = len(tensor.shape) - 1
+  for _ in image_shape:
+    tensor = tf.expand_dims(tensor, axis=1)
+  tensor = tf.tile(tensor, [1] + image_shape + [1] * non_batch_dims)
+  return tensor
+
+
+def _perspective_correct_barycentrics(vertices_per_pixel, model_to_eye_matrix,
+                                      perspective_matrix, height, width):
+  """Creates the pixels grid and computes barycentrics."""
+  # Construct the pixel grid with half-integer pixel centers.
+  width = float(width)
+  height = float(height)
+  px = tf.linspace(0.5, width - 0.5, num=int(width))
+  py = tf.linspace(0.5, height - 0.5, num=int(height))
+  xv, yv = tf.meshgrid(px, py)
+  pixel_position = tf.stack((xv, yv), axis=-1)
+
+  # Since `model_to_eye_matrix` is defined per batch, while vertices in
+  # `vertices_per_pixel` are defined per batch per pixel, we have to make them
+  # broadcast-compatible. In other words we want to tile matrices per vertex
+  # per pixel.
+  image_shape = vertices_per_pixel.shape[1:-1]
+  model_to_eye_matrix = _tile_to_image_size(model_to_eye_matrix, image_shape)
+  perspective_matrix = _tile_to_image_size(perspective_matrix, image_shape)
+
+  return math.perspective_correct_barycentrics(vertices_per_pixel,
+                                               pixel_position,
+                                               model_to_eye_matrix,
+                                               perspective_matrix,
+                                               (width, height))
+
+
 def rasterize(vertices,
               triangles,
-              view_projection_matrices,
+              model_to_eye_matrix,
+              perspective_matrix,
               image_size,
               name=None):
   """Rasterizes the scene.
@@ -113,12 +150,15 @@ def rasterize(vertices,
     broadcast compatible for inputs `vertices` and `view_projection_matrices`.
 
   Args:
-    vertices: A tensor of shape `[A1, ..., An, V, 3]` containing batches of `V`
-      vertices, each defined by a 3D point.
-    triangles: A tensor of shape `[T, 3]` containing `T` triangles, each
-      associated with 3 vertices from `scene_vertices`
-    view_projection_matrices: A tensor of shape `[A1, ..., An, 4, 4]` containing
-      batches of view projection matrices
+    vertices: A tensor of shape `[batch_size, num_vertices, 3]` containing
+      batches vertices, each defined by a 3D point.
+    triangles: A tensor of shape `[num_triangles, 3]` each associated with 3
+      vertices from `scene_vertices`
+    model_to_eye_matrix: A tensor of shape `[batch_size, 4, 4]` containing
+      batches of matrices used to transform vertices from model to eye
+      coordinates.
+    perspective_matrix: A tensor of shape `[batch_size, 4, 4]` containing
+      batches of matrices used to project vertices from eye to clip coordinates.
     image_size: An tuple of integers (width, height) containing the dimensions
       in pixels of the rasterized image.
     name: A name for this op. Defaults to 'rasterization_backend_rasterize'.
@@ -136,17 +176,18 @@ def rasterize(vertices,
     The barycentric coordinates can be used to determine pixel validity instead.
     See framebuffer.py for a description of the Framebuffer fields.
   """
-  with tf.compat.v1.name_scope(name, "rasterization_backend_rasterize",
-                               (vertices, triangles, view_projection_matrices)):
+  with tf.compat.v1.name_scope(
+      name, "rasterization_backend_rasterize",
+      (vertices, triangles, model_to_eye_matrix, perspective_matrix)):
     vertices = tf.convert_to_tensor(value=vertices)
     triangles = tf.convert_to_tensor(value=triangles)
-    view_projection_matrices = tf.convert_to_tensor(
-        value=view_projection_matrices)
+    model_to_eye_matrix = tf.convert_to_tensor(value=model_to_eye_matrix)
+    perspective_matrix = tf.convert_to_tensor(value=perspective_matrix)
 
     shape.check_static(
         tensor=vertices,
         tensor_name="vertices",
-        has_rank_greater_than=1,
+        has_rank=3,
         has_dim_equals=((-1, 3)))
     shape.check_static(
         tensor=triangles,
@@ -154,25 +195,29 @@ def rasterize(vertices,
         has_rank=2,
         has_dim_equals=((-1, 3)))
     shape.check_static(
-        tensor=view_projection_matrices,
-        tensor_name="view_projection_matrices",
-        has_rank_greater_than=1,
+        tensor=perspective_matrix,
+        tensor_name="perspective_matrix",
+        has_rank=3,
+        has_dim_equals=((-1, 4), (-2, 4)))
+    shape.check_static(
+        tensor=model_to_eye_matrix,
+        tensor_name="model_to_eye_matrix",
+        has_rank=3,
         has_dim_equals=((-1, 4), (-2, 4)))
     shape.compare_batch_dimensions(
-        tensors=(vertices, view_projection_matrices),
-        tensor_names=("vertices", "view_projection_matrices"),
-        last_axes=(-3, -3),
+        tensors=(vertices, perspective_matrix, model_to_eye_matrix),
+        tensor_names=("vertices", "perspective_matrix", "model_to_eye_matrix"),
+        last_axes=(-3, -3, -3),
         broadcast_compatible=True)
 
-    common_batch_shape = shape.get_broadcasted_shape(
-        vertices.shape[:-2], view_projection_matrices.shape[:-2])
-    common_batch_shape = [_dim_value(dim) for dim in common_batch_shape]
-    vertices = tf.broadcast_to(vertices,
-                               common_batch_shape + vertices.shape[-2:])
-    view_projection_matrices = tf.broadcast_to(view_projection_matrices,
-                                               common_batch_shape + [4, 4])
+    view_projection_matrix = tf.linalg.matmul(perspective_matrix,
+                                              model_to_eye_matrix)
 
     geometry = tf.gather(vertices, triangles, axis=-2)
+
+    # Extract batch size in order to make sure it is preserved after `gather`
+    # operation.
+    batch_size = _dim_value(vertices.shape[0])
 
     rasterized = render_ops.rasterize(
         num_points=geometry.shape[-3],
@@ -180,8 +225,8 @@ def rasterize(vertices,
         enable_cull_face=True,
         variable_names=("view_projection_matrix", "triangular_mesh"),
         variable_kinds=("mat", "buffer"),
-        variable_values=(view_projection_matrices,
-                         tf.reshape(geometry, shape=common_batch_shape + [-1])),
+        variable_values=(view_projection_matrix,
+                         tf.reshape(geometry, shape=[batch_size, -1])),
         output_resolution=image_size,
         vertex_shader=vertex_shader,
         geometry_shader=geometry_shader,
@@ -192,28 +237,24 @@ def rasterize(vertices,
     # `None` for tensorflow graph mode, therefore we have to fix it in order to
     # have explicit shape.
     width, height = image_size
-    triangle_index = tf.reshape(triangle_index,
-                                common_batch_shape + [height, width, 1])
-    barycentric_coordinates = rasterized[..., 1:3]
-    barycentric_coordinates = tf.concat(
-        (barycentric_coordinates, 1.0 - barycentric_coordinates[..., 0:1] -
-         barycentric_coordinates[..., 1:2]),
-        axis=-1)
-    mask = tf.cast(rasterized[..., 3], tf.int32)
-    mask = tf.reshape(mask, common_batch_shape + [height, width, 1])
+    triangle_index = tf.reshape(triangle_index, [batch_size, height, width, 1])
+    vertex_ids = tf.gather(triangles, triangle_index[..., 0], batch_dims=0)
 
-    triangles_batch = tf.broadcast_to(triangles,
-                                      common_batch_shape + triangles.shape)
-    vertex_ids = tf.gather(
-        triangles_batch, triangle_index[..., 0],
-        batch_dims=len(common_batch_shape))
+    # Compute perspective-corrected barycentric coordinates.
+    vertices_per_pixel = tf.gather(vertices, vertex_ids, batch_dims=1)
+    barycentrics = _perspective_correct_barycentrics(vertices_per_pixel,
+                                                     model_to_eye_matrix,
+                                                     perspective_matrix,
+                                                     height, width)
+    mask = tf.cast(rasterized[..., 3], tf.int32)
+    mask = tf.reshape(mask, [batch_size, height, width, 1])
 
     return fb.Framebuffer(
         foreground_mask=mask,
         triangle_id=triangle_index,
         vertex_ids=vertex_ids,
         barycentrics=fb.RasterizedAttribute(
-            value=barycentric_coordinates, d_dx=None, d_dy=None))
+            value=barycentrics, d_dx=None, d_dy=None))
 
 
 # API contains all public functions and classes.
