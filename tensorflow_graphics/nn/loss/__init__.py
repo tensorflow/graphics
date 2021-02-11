@@ -17,6 +17,7 @@ from __future__ import division
 from __future__ import print_function
 
 from tensorflow_graphics.nn.loss import chamfer_distance
+from tensorflow_graphics.nn.loss import hausdorff_distance
 from tensorflow_graphics.util import export_api as _export_api
 
 # API contains submodules of tensorflow_graphics.nn.loss.
