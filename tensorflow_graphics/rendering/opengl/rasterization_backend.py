@@ -113,11 +113,11 @@ def rasterize(vertices,
     broadcast compatible for inputs `vertices` and `view_projection_matrices`.
 
   Args:
-    vertices: A tensor of shape `[A1, ..., An, V, 3]` containing batches of `V`
+    vertices: A tensor of shape `[batch, num_vertices, 3]` containing batches
       vertices, each defined by a 3D point.
-    triangles: A tensor of shape `[T, 3]` containing `T` triangles, each
-      associated with 3 vertices from `scene_vertices`
-    view_projection_matrices: A tensor of shape `[A1, ..., An, 4, 4]` containing
+    triangles: A tensor of shape `[num_triangles, 3]` each associated with 3
+      vertices from `scene_vertices`
+    view_projection_matrices: A tensor of shape `[batch, 4, 4]` containing
       batches of view projection matrices
     image_size: An tuple of integers (width, height) containing the dimensions
       in pixels of the rasterized image.
@@ -146,7 +146,7 @@ def rasterize(vertices,
     shape.check_static(
         tensor=vertices,
         tensor_name="vertices",
-        has_rank_greater_than=1,
+        has_rank=3,
         has_dim_equals=((-1, 3)))
     shape.check_static(
         tensor=triangles,
@@ -156,7 +156,7 @@ def rasterize(vertices,
     shape.check_static(
         tensor=view_projection_matrices,
         tensor_name="view_projection_matrices",
-        has_rank_greater_than=1,
+        has_rank=3,
         has_dim_equals=((-1, 4), (-2, 4)))
     shape.compare_batch_dimensions(
         tensors=(vertices, view_projection_matrices),
@@ -164,15 +164,11 @@ def rasterize(vertices,
         last_axes=(-3, -3),
         broadcast_compatible=True)
 
-    common_batch_shape = shape.get_broadcasted_shape(
-        vertices.shape[:-2], view_projection_matrices.shape[:-2])
-    common_batch_shape = [_dim_value(dim) for dim in common_batch_shape]
-    vertices = tf.broadcast_to(vertices,
-                               common_batch_shape + vertices.shape[-2:])
-    view_projection_matrices = tf.broadcast_to(view_projection_matrices,
-                                               common_batch_shape + [4, 4])
-
     geometry = tf.gather(vertices, triangles, axis=-2)
+
+    # Extract batch size in order to make sure it is preserved after `gather`
+    # operation.
+    batch_size = _dim_value(vertices.shape[0])
 
     rasterized = render_ops.rasterize(
         num_points=geometry.shape[-3],
@@ -181,7 +177,7 @@ def rasterize(vertices,
         variable_names=("view_projection_matrix", "triangular_mesh"),
         variable_kinds=("mat", "buffer"),
         variable_values=(view_projection_matrices,
-                         tf.reshape(geometry, shape=common_batch_shape + [-1])),
+                         tf.reshape(geometry, shape=[batch_size, -1])),
         output_resolution=image_size,
         vertex_shader=vertex_shader,
         geometry_shader=geometry_shader,
@@ -192,21 +188,16 @@ def rasterize(vertices,
     # `None` for tensorflow graph mode, therefore we have to fix it in order to
     # have explicit shape.
     width, height = image_size
-    triangle_index = tf.reshape(triangle_index,
-                                common_batch_shape + [height, width, 1])
+    triangle_index = tf.reshape(triangle_index, [batch_size, height, width, 1])
     barycentric_coordinates = rasterized[..., 1:3]
     barycentric_coordinates = tf.concat(
         (barycentric_coordinates, 1.0 - barycentric_coordinates[..., 0:1] -
          barycentric_coordinates[..., 1:2]),
         axis=-1)
     mask = tf.cast(rasterized[..., 3], tf.int32)
-    mask = tf.reshape(mask, common_batch_shape + [height, width, 1])
+    mask = tf.reshape(mask, [batch_size, height, width, 1])
 
-    triangles_batch = tf.broadcast_to(triangles,
-                                      common_batch_shape + triangles.shape)
-    vertex_ids = tf.gather(
-        triangles_batch, triangle_index[..., 0],
-        batch_dims=len(common_batch_shape))
+    vertex_ids = tf.gather(triangles, triangle_index[..., 0], batch_dims=0)
 
     return fb.Framebuffer(
         foreground_mask=mask,

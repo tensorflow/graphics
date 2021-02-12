@@ -38,16 +38,12 @@ def rasterize(vertices,
     This rasterizer estimates which triangle is associated with each pixel using
     OpenGL.
 
-  Note:
-    In the following, A1 to An are optional batch dimensions which must be
-    broadcast compatible for inputs `vertices` and `view_projection_matrices`.
-
   Args:
-    vertices: A tensor of shape `[A1, ..., An, V, 3]` containing batches of `V`
+    vertices: A tensor of shape `[batch, num_vertices, 3]` containing batches of
       vertices, each defined by a 3D point.
-    triangles: A tensor of shape `[T, 3]` containing `T` triangles, each
+    triangles: A tensor of shape `[num_triangles, 3]` containing triangles, each
       associated with 3 vertices from `scene_vertices`
-    view_projection_matrices: A tensor of shape `[A1, ..., An, 4, 4]` containing
+    view_projection_matrices: A tensor of shape `[batch, 4, 4]` containing
       batches of view projection matrices
     image_size: An tuple of integers (width, height) containing the dimensions
       in pixels of the rasterized image.

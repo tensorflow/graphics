@@ -21,32 +21,38 @@ from tensorflow_graphics.util import test_case
 
 class FramebufferTest(test_case.TestCase):
 
-  def test_initialize_rasterized_attribute_with_wrong_rank(self):
+  def test_initialize_rasterized_attribute_and_derivatives_with_wrong_rank(
+      self):
     with self.assertRaisesRegex(
         ValueError, "Expected value and derivatives to be of the same rank"):
       fb.RasterizedAttribute(
           tf.ones([4, 4, 1]), tf.ones([4, 3]), tf.ones([3, 4, 4, 5, 5]))
 
+  def test_initialize_rasterized_attribute_with_wrong_rank(self):
+    with self.assertRaisesRegex(ValueError,
+                                "Expected input value to be rank 4"):
+      fb.RasterizedAttribute(tf.ones([4, 4, 1]))
+
   def test_initialize_rasterized_attribute_with_wrong_shapes(self):
     with self.assertRaisesRegex(tf.errors.InvalidArgumentError,
                                 "Expected all input shapes to be the same"):
-      fb.RasterizedAttribute(tf.ones([1, 1, 4, 4, 1]), tf.ones([1, 1, 4, 3, 1]))
+      fb.RasterizedAttribute(
+          tf.ones([2, 4, 4, 1]), tf.ones([2, 4, 3, 1]), tf.ones([2, 4, 3, 5]))
 
   def test_initialize_framebuffer_with_wrong_rank(self):
     with self.assertRaisesRegex(ValueError,
                                 "Expected all inputs to have the same rank"):
       fb.Framebuffer(
-          fb.RasterizedAttribute(tf.ones([1, 1, 4, 4, 1])), tf.ones([4, 3]),
+          fb.RasterizedAttribute(tf.ones([1, 4, 4, 1])), tf.ones([4, 3]),
           tf.ones([3, 4, 4, 5, 5]), tf.ones([3, 4, 4, 5, 5]))
 
   def test_initialize_framebuffer_with_wrong_shapes(self):
     with self.assertRaisesRegex(tf.errors.InvalidArgumentError,
                                 "Expected all input shapes to be the same"):
       fb.Framebuffer(
-          fb.RasterizedAttribute(tf.ones([1, 1, 4, 4, 3])),
-          tf.ones([1, 1, 4, 4, 1]), tf.ones([1, 1, 4, 4, 3]),
-          tf.ones([1, 1, 4, 4, 1]),
-          {"an_attr": fb.RasterizedAttribute(tf.ones([1, 1, 4, 3, 4]))})
+          fb.RasterizedAttribute(tf.ones([2, 4, 4, 3])), tf.ones([2, 4, 4, 1]),
+          tf.ones([2, 4, 4, 3]), tf.ones([2, 4, 4, 1]),
+          {"an_attr": fb.RasterizedAttribute(tf.ones([2, 4, 3, 4]))})
 
 
 if __name__ == "__main__":

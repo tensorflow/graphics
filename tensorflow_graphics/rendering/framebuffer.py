@@ -45,6 +45,11 @@ class RasterizedAttribute(object):
           "Expected value and derivatives to be of the same rank, but found"
           f" ranks {shapes}")
 
+    value_rank = len(self.value.shape)
+    if value_rank != 4:
+      raise ValueError(
+          f"Expected input value to be rank 4, but is {value_rank}")
+
     same_as_value = True
     static_shapes = [self.value.shape]
     if self.d_dx is not None:
@@ -66,8 +71,7 @@ class RasterizedAttribute(object):
 class Framebuffer(object):
   """A framebuffer holding rasterized values required for deferred shading.
 
-  Tensors are expected to have shape [batch, height, width, channels] or
-  [batch, num_layers, height, width, channels].
+  Tensors are expected to have shape [batch, height, width, channels].
 
   For now, the fields are specialized for triangle rendering. Other primitives
   may be supported in the future.
