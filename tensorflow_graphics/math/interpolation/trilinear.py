@@ -23,32 +23,32 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def interpolate(grid_3d, sampling_points, name=None):
+def interpolate(grid_3d, sampling_points, name="trilinear_interpolate"):
   """Trilinear interpolation on a 3D regular grid.
 
   Args:
     grid_3d: A tensor with shape `[A1, ..., An, H, W, D, C]` where H, W, D are
       height, width, depth of the grid and C is the number of channels.
     sampling_points: A tensor with shape `[A1, ..., An, M, 3]` where M is the
-    number of sampling points. Sampling points outside the grid are projected
-    in the grid borders.
+      number of sampling points. Sampling points outside the grid are projected
+      in the grid borders.
     name:  A name for this op that defaults to "trilinear_interpolate".
 
   Returns:
     A tensor of shape `[A1, ..., An, M, C]`
   """
 
-  with tf.compat.v1.name_scope(name, "trilinear_interpolate",
-                               [grid_3d, sampling_points]):
+  with tf.name_scope(name):
     grid_3d = tf.convert_to_tensor(value=grid_3d)
     sampling_points = tf.convert_to_tensor(value=sampling_points)
 
     shape.check_static(
         tensor=grid_3d, tensor_name="grid_3d", has_rank_greater_than=3)
-    shape.check_static(tensor=sampling_points,
-                       tensor_name="sampling_points",
-                       has_dim_equals=(-1, 3),
-                       has_rank_greater_than=1)
+    shape.check_static(
+        tensor=sampling_points,
+        tensor_name="sampling_points",
+        has_dim_equals=(-1, 3),
+        has_rank_greater_than=1)
     shape.compare_batch_dimensions(
         tensors=(grid_3d, sampling_points),
         last_axes=(-5, -3),
@@ -72,12 +72,11 @@ def interpolate(grid_3d, sampling_points, name=None):
     index_z = tf.concat([z0_index, z0_index, z0_index, z0_index,
                          z1_index, z1_index, z1_index, z1_index], axis=-1)
     indices = tf.stack([index_x, index_y, index_z], axis=-1)
-    clip_value = tf.convert_to_tensor(value=[voxel_cube_shape - 1],
-                                      dtype=indices.dtype)
+    clip_value = tf.convert_to_tensor(
+        value=[voxel_cube_shape - 1], dtype=indices.dtype)
     indices = tf.clip_by_value(indices, 0, clip_value)
-    content = tf.gather_nd(params=grid_3d,
-                           indices=indices,
-                           batch_dims=tf.size(input=batch_dims))
+    content = tf.gather_nd(
+        params=grid_3d, indices=indices, batch_dims=tf.size(input=batch_dims))
     distance_to_bottom_left = sampling_points - bottom_left
     distance_to_top_right = top_right - sampling_points
     x_x0, y_y0, z_z0 = tf.unstack(distance_to_bottom_left, axis=-1)

@@ -84,7 +84,7 @@ def minimize(residuals,
              regularizer=1e-20,
              regularizer_multiplier=10.0,
              callback=None,
-             name=None):
+             name="levenberg_marquardt_minimize"):
   r"""Minimizes a set of residuals in the least-squares sense.
 
   Args:
@@ -150,7 +150,7 @@ def minimize(residuals,
   """
   if not isinstance(variables, (tuple, list)):
     variables = [variables]
-  with tf.compat.v1.name_scope(name, 'levenberg_marquardt_minimize', variables):
+  with tf.name_scope(name):
     if not isinstance(residuals, (tuple, list)):
       residuals = [residuals]
     if isinstance(residuals, tuple):
@@ -188,12 +188,11 @@ def minimize(residuals,
         # If the new estimated solution does not decrease the objective value,
         # no updates are performed, but a new regularizer is computed.
         cond = tf.less(new_objective_value, objective_value)
-        regularizer = tf.compat.v1.where(
-            cond, x=regularizer, y=regularizer * multiplier)
-        objective_value = tf.compat.v1.where(
+        regularizer = tf.where(cond, x=regularizer, y=regularizer * multiplier)
+        objective_value = tf.where(
             cond, x=new_objective_value, y=objective_value)
         variables = [
-            tf.compat.v1.where(cond, x=new_variable, y=variable)
+            tf.where(cond, x=new_variable, y=variable)
             for variable, new_variable in zip(variables, new_variables)
         ]
       # Note that catching InvalidArgumentError will only work in eager mode.

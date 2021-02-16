@@ -95,9 +95,13 @@ def interpolate(vector1,
       InterpolationType.
   """
   if method == InterpolationType.QUATERNION:
+    if name is None:
+      name = "quaternion_weights"
     weight1, weight2 = quaternion_weights(
         vector1, vector2, percent, eps=eps, name=name)
   elif method == InterpolationType.VECTOR:
+    if name is None:
+      name = "vector_weights"
     weight1, weight2 = vector_weights(
         vector1, vector2, percent, eps=eps, name=name)
   else:
@@ -105,7 +109,11 @@ def interpolate(vector1,
   return interpolate_with_weights(vector1, vector2, weight1, weight2)
 
 
-def interpolate_with_weights(vector1, vector2, weight1, weight2, name=None):
+def interpolate_with_weights(vector1,
+                             vector2,
+                             weight1,
+                             weight2,
+                             name="interpolate_with_weights"):
   """Interpolates vectors by taking their weighted sum.
 
   Interpolation for all variants of slerp is a simple weighted sum over inputs.
@@ -129,12 +137,15 @@ def interpolate_with_weights(vector1, vector2, weight1, weight2, name=None):
     A tensor of shape `[A1, ... , An, M]` containing the result of the
     interpolation.
   """
-  with tf.compat.v1.name_scope(name, "interpolate_with_weights",
-                               [vector1, vector2, weight1, weight2]):
+  with tf.name_scope(name):
     return weight1 * vector1 + weight2 * vector2
 
 
-def quaternion_weights(quaternion1, quaternion2, percent, eps=None, name=None):
+def quaternion_weights(quaternion1,
+                       quaternion2,
+                       percent,
+                       eps=None,
+                       name="quaternion_weights"):
   """Calculates slerp weights for two normalized quaternions.
 
   Given a percent and two normalized quaternions, this function returns the
@@ -168,8 +179,7 @@ def quaternion_weights(quaternion1, quaternion2, percent, eps=None, name=None):
     Two tensors of shape `[A1, ... , An, 1]` each, which are the two slerp
       weights for each quaternion.
   """
-  with tf.compat.v1.name_scope(name, "quaternion_weights",
-                               [quaternion1, quaternion2, percent]):
+  with tf.name_scope(name):
     quaternion1 = tf.convert_to_tensor(value=quaternion1)
     quaternion2 = tf.convert_to_tensor(value=quaternion2)
     percent = tf.convert_to_tensor(value=percent, dtype=quaternion1.dtype)
@@ -204,7 +214,7 @@ def quaternion_weights(quaternion1, quaternion2, percent, eps=None, name=None):
     return scale1, scale2
 
 
-def vector_weights(vector1, vector2, percent, eps=None, name=None):
+def vector_weights(vector1, vector2, percent, eps=None, name="vector_weights"):
   """Spherical linear interpolation (slerp) between two unnormalized vectors.
 
   This function applies geometric slerp to unnormalized vectors by first
@@ -233,8 +243,7 @@ def vector_weights(vector1, vector2, percent, eps=None, name=None):
     Two tensors of shape `[A1, ... , An, 1]`, representing interpolation weights
     for each input vector.
   """
-  with tf.compat.v1.name_scope(name, "vector_weights",
-                               [vector1, vector2, percent]):
+  with tf.name_scope(name):
     vector1 = tf.convert_to_tensor(value=vector1)
     vector2 = tf.convert_to_tensor(value=vector2)
     percent = tf.convert_to_tensor(value=percent, dtype=vector1.dtype)

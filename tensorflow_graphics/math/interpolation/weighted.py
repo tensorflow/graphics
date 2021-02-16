@@ -31,7 +31,7 @@ def interpolate(points,
                 indices,
                 normalize=True,
                 allow_negative_weights=False,
-                name=None):
+                name="weighted_interpolate"):
   """Weighted interpolation for M-D point sets.
 
   Given an M-D point set, this function can be used to generate a new point set
@@ -60,8 +60,7 @@ def interpolate(points,
     A tensor of shape `[A1, ..., An, M]` storing the interpolated M-D
     points. The first n dimensions will be the same as weights and indices.
   """
-  with tf.compat.v1.name_scope(name, "weighted_interpolate",
-                               [points, weights, indices]):
+  with tf.name_scope(name):
     points = tf.convert_to_tensor(value=points)
     weights = tf.convert_to_tensor(value=weights)
     indices = tf.convert_to_tensor(value=indices)
@@ -94,7 +93,9 @@ def interpolate(points,
         point_lists, tf.expand_dims(weights, axis=-1), axis=-2, keepdims=False)
 
 
-def get_barycentric_coordinates(triangle_vertices, pixels, name=None):
+def get_barycentric_coordinates(triangle_vertices,
+                                pixels,
+                                name="rasterizer_get_barycentric_coordinates"):
   """Computes the barycentric coordinates of pixels for 2D triangles.
 
   Barycentric coordinates of a point `p` are represented as coefficients
@@ -124,8 +125,7 @@ def get_barycentric_coordinates(triangle_vertices, pixels, name=None):
     valid: A boolean tensor of shape `[A1, ..., An, N], which is `True` where
       pixels are inside the triangle, and `False` otherwise.
   """
-  with tf.compat.v1.name_scope(name, "rasterizer_get_barycentric_coordinates",
-                               [triangle_vertices, pixels]):
+  with tf.name_scope(name):
     triangle_vertices = tf.convert_to_tensor(value=triangle_vertices)
     pixels = tf.convert_to_tensor(value=pixels)
 
@@ -167,6 +167,7 @@ def get_barycentric_coordinates(triangle_vertices, pixels, name=None):
         tf.logical_and(coordinate_1 >= 0.0, coordinate_2 >= 0.0),
         coordinate_3 >= 0.0)
     return barycentric_coordinates, valid
+
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
