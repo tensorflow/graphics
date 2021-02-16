@@ -20,7 +20,7 @@ attributes.
 """
 
 import tensorflow as tf
-
+from tensorflow_graphics.rendering import interpolate
 from tensorflow_graphics.rendering import rasterization_backend
 from tensorflow_graphics.rendering.opengl import math as glm
 from tensorflow_graphics.util import export_api
@@ -183,17 +183,15 @@ def rasterize(vertices,
                                                      model_to_eye_matrix,
                                                      perspective_matrix,
                                                      image_size_float)
-    mask_float = tf.cast(rasterized.foreground_mask, vertices.dtype)
-    outputs["barycentrics"] = _restore_batch_dims(mask_float * barycentrics,
-                                                  input_batch_shape)
+    outputs["barycentrics"] = _restore_batch_dims(
+        rasterized.foreground_mask * barycentrics, input_batch_shape)
 
     for key, attribute in attributes.items():
       attribute = tf.convert_to_tensor(value=attribute)
       attribute = _merge_batch_dims(attribute, last_axis=-2)
-      masked_attribute = mask_float * _perspective_correct_attributes(
-          attribute, barycentrics, triangles, rasterized.triangle_id[..., 0],
-          len(batch_shape))
-      masked_attribute = _restore_batch_dims(masked_attribute,
+      masked_attribute = interpolate.interpolate_vertex_attribute(
+          attribute, rasterized)
+      masked_attribute = _restore_batch_dims(masked_attribute.value,
                                              input_batch_shape)
       outputs[key] = masked_attribute
 

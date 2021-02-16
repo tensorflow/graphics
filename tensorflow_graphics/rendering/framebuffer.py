@@ -116,3 +116,24 @@ class Framebuffer(object):
         True,
         message="Expected all input shapes to be the same "
         "(up to channels), but found: " + ", ".join([str(s) for s in shapes]))
+
+  @property
+  def batch_size(self):
+    return tf.shape(self.triangle_id)[0]
+
+  @property
+  def height(self):
+    return tf.shape(self.triangle_id)[1]
+
+  @property
+  def width(self):
+    return tf.shape(self.triangle_id)[2]
+
+  @property
+  def pixel_count(self):
+    return self.height * self.width
+
+  @property
+  def background_mask(self):
+    return tf.constant(
+        1, dtype=self.foreground_mask.dtype) - self.foreground_mask

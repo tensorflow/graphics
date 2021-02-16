@@ -484,7 +484,6 @@ def interpolate_attributes(attribute, barycentric, name=None):
         tensor_names=("attribute", "barycentric"),
         broadcast_compatible=True)
     barycentric = asserts.assert_normalized(barycentric, order=1)
-
     return tf.reduce_sum(
         input_tensor=tf.expand_dims(barycentric, axis=-1) * attribute, axis=-2)
 
