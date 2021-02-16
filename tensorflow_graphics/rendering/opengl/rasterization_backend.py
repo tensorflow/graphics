@@ -197,6 +197,8 @@ def rasterize(vertices,
     mask = tf.cast(rasterized[..., 3], tf.int32)
     mask = tf.reshape(mask, [batch_size, height, width, 1])
 
+    barycentric_coordinates = tf.cast(mask,
+                                      tf.float32) * barycentric_coordinates
     vertex_ids = tf.gather(triangles, triangle_index[..., 0], batch_dims=0)
 
     return fb.Framebuffer(
