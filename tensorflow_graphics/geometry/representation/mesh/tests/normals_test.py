@@ -19,6 +19,7 @@ from __future__ import print_function
 
 from absl.testing import parameterized
 import numpy as np
+from six.moves import range
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.representation.mesh import normals

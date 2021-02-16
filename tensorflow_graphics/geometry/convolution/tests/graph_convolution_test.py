@@ -13,10 +13,15 @@
 # limitations under the License.
 """Tests for graph convolution ops."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import itertools
 
 from absl.testing import parameterized
 import numpy as np
+from six.moves import range
 import tensorflow as tf
 
 import tensorflow_graphics.geometry.convolution.graph_convolution as gc

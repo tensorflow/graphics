@@ -19,6 +19,7 @@ from __future__ import print_function
 
 import numpy as np
 
+from six.moves import range
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.representation import triangle
@@ -64,12 +65,12 @@ def gather_faces(vertices, indices, name="normals_gather_faces"):
 
     if hasattr(tf, "batch_gather"):
       expanded_vertices = tf.expand_dims(vertices, axis=-3)
-      broadcasted_shape = tf.concat([tf.shape(input=indices)[:-1],
-                                     tf.shape(input=vertices)[-2:]],
-                                    axis=-1)
-      broadcasted_vertices = tf.broadcast_to(
-          expanded_vertices,
-          broadcasted_shape)
+      broadcasted_shape = tf.concat(
+          [tf.shape(input=indices)[:-1],
+           tf.shape(input=vertices)[-2:]],
+          axis=-1)
+      broadcasted_vertices = tf.broadcast_to(expanded_vertices,
+                                             broadcasted_shape)
       return tf.gather(broadcasted_vertices, indices, batch_dims=-1)
     else:
       return tf.gather(

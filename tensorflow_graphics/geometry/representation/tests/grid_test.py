@@ -13,8 +13,13 @@
 # limitations under the License.
 """Tests for grid."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from absl.testing import parameterized
 import numpy as np
+from six.moves import range
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.representation import grid
@@ -61,7 +66,8 @@ class GridTest(test_case.TestCase):
 
     g = grid.generate(starts, stops, nums)
     shape = nums.tolist() + [2]
-    xv, yv = np.meshgrid(range(shape[0]), range(shape[1]), indexing="ij")
+    xv, yv = np.meshgrid(
+        list(range(shape[0])), list(range(shape[1])), indexing="ij")
     gt = np.stack((xv, yv), axis=-1).astype(np.float32)
 
     self.assertAllClose(g, gt)

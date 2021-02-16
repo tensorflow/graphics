@@ -19,6 +19,7 @@ from __future__ import print_function
 
 from absl.testing import parameterized
 import numpy as np
+from six.moves import range
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.representation.mesh import sampler
@@ -56,8 +57,8 @@ class MeshSamplerTest(test_case.TestCase):
   )
   def test_random_face_indices_shape_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised for random_face_indices."""
-    self.assert_exception_is_raised(
-        sampler.generate_random_face_indices, error_msg, shapes)
+    self.assert_exception_is_raised(sampler.generate_random_face_indices,
+                                    error_msg, shapes)
 
   def test_negative_weights_random_face_indices_exception(self):
     """Test for exception for random_face_indices with negative weights."""
@@ -76,13 +77,13 @@ class MeshSamplerTest(test_case.TestCase):
     """Test for generate_random_face_indices."""
     face_weights = np.array(face_weights, dtype=np.float32)
     expected = np.array(expected, dtype=np.intp)
-    sample_faces = sampler.generate_random_face_indices(
-        num_samples, face_weights)
+    sample_faces = sampler.generate_random_face_indices(num_samples,
+                                                        face_weights)
 
     self.assertEqual(sample_faces.shape[0], num_samples)
     self.compare_poisson_equivalence(expected, tf.math.bincount(sample_faces))
 
-# Tests for generate_random_barycentric_coordinates
+  # Tests for generate_random_barycentric_coordinates
   @parameterized.parameters(
       ((1,), (tf.int32)),
       ((None,), (tf.int64)),
@@ -165,20 +166,14 @@ class MeshSamplerTest(test_case.TestCase):
     # Equal face weights, mean of sampled attributes = 0.5.
     expected_mean = np.array([0.5], dtype=np.float32)
     sample_pts, _ = sampler.weighted_random_sample_triangle_mesh(
-        vertex_attributes,
-        faces,
-        num_samples=1000000,
-        face_weights=(0.5, 0.5))
+        vertex_attributes, faces, num_samples=1000000, face_weights=(0.5, 0.5))
     self.assertAllClose(
         expected_mean,
         tf.reduce_mean(input_tensor=sample_pts, axis=-2),
         atol=1e-3)
     # Face weights biased towards second face, mean > 0.5
     sample_pts, _ = sampler.weighted_random_sample_triangle_mesh(
-        vertex_attributes,
-        faces,
-        num_samples=1000000,
-        face_weights=(0.2, 0.8))
+        vertex_attributes, faces, num_samples=1000000, face_weights=(0.2, 0.8))
     self.assertGreater(
         tf.reduce_mean(input_tensor=sample_pts, axis=-2), expected_mean)
 
@@ -199,8 +194,8 @@ class MeshSamplerTest(test_case.TestCase):
     vertex_scale = np.random.uniform(0.5, 5., tensor_out_shape + [1] * 2)
     vertex_init = vertex_axis * vertex_scale
     index_tensor = tf.convert_to_tensor(value=index_init)
-    face_weights = np.random.uniform(
-        size=index_init.shape[:index_init.ndim - 1])
+    face_weights = np.random.uniform(size=index_init.shape[:index_init.ndim -
+                                                           1])
     weights_tensor = tf.convert_to_tensor(value=face_weights)
 
     num_samples = np.random.randint(10, 100)
@@ -261,10 +256,12 @@ class MeshSamplerTest(test_case.TestCase):
       not_v = tf.logical_not(v)
       quad00 = tf.math.count_nonzero(tf.reduce_all(input_tensor=v, axis=-1))
       quad11 = tf.math.count_nonzero(tf.reduce_all(input_tensor=not_v, axis=-1))
-      quad01 = tf.math.count_nonzero(tf.reduce_all(
-          input_tensor=tf.stack((v[:, 0], not_v[:, 1]), axis=1), axis=-1))
-      quad10 = tf.math.count_nonzero(tf.reduce_all(
-          input_tensor=tf.stack((not_v[:, 0], v[:, 1]), axis=1), axis=-1))
+      quad01 = tf.math.count_nonzero(
+          tf.reduce_all(
+              input_tensor=tf.stack((v[:, 0], not_v[:, 1]), axis=1), axis=-1))
+      quad10 = tf.math.count_nonzero(
+          tf.reduce_all(
+              input_tensor=tf.stack((not_v[:, 0], v[:, 1]), axis=1), axis=-1))
       counts = tf.stack((quad00, quad01, quad10, quad11), axis=0)
       expected = np.array(
           [num_samples / 2, num_samples / 4, num_samples / 4, 0],

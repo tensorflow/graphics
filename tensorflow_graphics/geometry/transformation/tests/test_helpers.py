@@ -13,11 +13,16 @@
 # limitations under the License.
 """Test helpers for the transformation module."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import itertools
 import math
 
 import numpy as np
 from scipy import stats
+from six.moves import range
 import tensorflow.compat.v2 as tf
 
 from tensorflow_graphics.geometry.transformation import axis_angle

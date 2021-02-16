@@ -15,9 +15,14 @@
 
 # pylint: disable=protected-access
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import itertools
 from absl.testing import parameterized
 import numpy as np
+from six.moves import range
 import tensorflow as tf
 
 import tensorflow_graphics.geometry.convolution.graph_pooling as gp
@@ -384,7 +389,8 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
     self.assertAllEqual(upsampled, tf.zeros_like(upsampled))
 
   @parameterized.parameters(
-      itertools.product((3,), (6,), (3,), range(3), range(6), range(6)),)
+      itertools.product((3,), (6,), (3,), list(range(3)), list(range(6)),
+                        list(range(6))),)
   def test_upsample_transposed_convolution_selector_kernel_random(
       self, num_vertices, num_features, kernel_size, kernel_index,
       feature1_index, feature2_index):
