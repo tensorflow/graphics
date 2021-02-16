@@ -31,7 +31,7 @@ _K0 = constants.srgb_gamma["K0"]
 _GAMMA = constants.srgb_gamma["GAMMA"]
 
 
-def from_srgb(srgb, name=None):
+def from_srgb(srgb, name="linear_rgb_from_srgb"):
   """Converts sRGB colors to linear colors.
 
   Note:
@@ -40,7 +40,7 @@ def from_srgb(srgb, name=None):
   Args:
     srgb: A tensor of shape `[A_1, ..., A_n, 3]`, where the last dimension
       represents sRGB values.
-    name: A name for this op that defaults to "srgb_to_linear".
+    name: A name for this op that defaults to "linear_rgb_from_srgb".
 
   Raises:
     ValueError: If `srgb` has rank < 1 or has its last dimension not equal to 3.
@@ -49,7 +49,7 @@ def from_srgb(srgb, name=None):
     A tensor of shape `[A_1, ..., A_n, 3]`, where the last dimension represents
     RGB values in linear color space.
   """
-  with tf.compat.v1.name_scope(name, "linear_rgb_from_srgb", [srgb]):
+  with tf.name_scope(name):
     srgb = tf.convert_to_tensor(value=srgb)
 
     shape.check_static(
@@ -59,8 +59,7 @@ def from_srgb(srgb, name=None):
         has_dim_equals=(-1, 3))
 
     srgb = asserts.assert_all_in_range(srgb, 0., 1.)
-    return tf.compat.v1.where(srgb <= _K0, srgb / _PHI,
-                              ((srgb + _A) / (1 + _A))**_GAMMA)
+    return tf.where(srgb <= _K0, srgb / _PHI, ((srgb + _A) / (1 + _A))**_GAMMA)
 
 
 # API contains all public functions and classes.

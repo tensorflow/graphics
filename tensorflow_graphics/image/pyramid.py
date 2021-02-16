@@ -138,7 +138,7 @@ def _upsample(image, kernel, output_shape=None):
       padding="SAME")
 
 
-def downsample(image, num_levels, name=None):
+def downsample(image, num_levels, name="pyramid_downsample"):
   """Generates the different levels of the pyramid (downsampling).
 
   Args:
@@ -156,7 +156,7 @@ def downsample(image, num_levels, name=None):
   Raises:
     ValueError: If the shape of `image` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "pyramid_downsample", [image]):
+  with tf.name_scope(name):
     image = tf.convert_to_tensor(value=image)
 
     shape.check_static(tensor=image, tensor_name="image", has_rank=4)
@@ -164,7 +164,7 @@ def downsample(image, num_levels, name=None):
     return _build_pyramid(image, _downsample, num_levels)
 
 
-def merge(levels, name=None):
+def merge(levels, name="pyramid_merge"):
   """Merges the different levels of the pyramid back to an image.
 
   Args:
@@ -181,7 +181,7 @@ def merge(levels, name=None):
   Raises:
     ValueError: If the shape of the elements of `levels` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "pyramid_merge", levels):
+  with tf.name_scope(name):
     levels = [tf.convert_to_tensor(value=level) for level in levels]
 
     for index, level in enumerate(levels):
@@ -195,7 +195,7 @@ def merge(levels, name=None):
     return image
 
 
-def split(image, num_levels, name=None):
+def split(image, num_levels, name="pyramid_split"):
   """Generates the different levels of the pyramid.
 
   Args:
@@ -212,7 +212,7 @@ def split(image, num_levels, name=None):
   Raises:
     ValueError: If the shape of `image` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "pyramid_split", [image]):
+  with tf.name_scope(name):
     image = tf.convert_to_tensor(value=image)
 
     shape.check_static(tensor=image, tensor_name="image", has_rank=4)
@@ -227,7 +227,7 @@ def split(image, num_levels, name=None):
     return levels
 
 
-def upsample(image, num_levels, name=None):
+def upsample(image, num_levels, name="pyramid_upsample"):
   """Generates the different levels of the pyramid (upsampling).
 
   Args:
@@ -245,7 +245,7 @@ def upsample(image, num_levels, name=None):
   Raises:
     ValueError: If the shape of `image` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "pyramid_upsample", [image]):
+  with tf.name_scope(name):
     image = tf.convert_to_tensor(value=image)
 
     shape.check_static(tensor=image, tensor_name="image", has_rank=4)

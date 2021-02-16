@@ -46,7 +46,7 @@ def sample(image: type_alias.TensorLike,
            resampling_type: ResamplingType = ResamplingType.BILINEAR,
            border_type: BorderType = BorderType.ZERO,
            pixel_type: PixelType = PixelType.HALF_INTEGER,
-           name: Optional[str] = None) -> tf.Tensor:
+           name: Optional[str] = "sample") -> tf.Tensor:
   """Samples an image at user defined coordinates.
 
   Note:
@@ -77,9 +77,9 @@ def sample(image: type_alias.TensorLike,
     ValueError: If `image` has rank != 4. If `warp` has rank < 2 or its last
     dimension is not 2. If `image` and `warp` batch dimension does not match.
   """
-  with tf.name_scope(name or "sample"):
-    image = tf.convert_to_tensor(image, name="image")
-    warp = tf.convert_to_tensor(warp, name="warp")
+  with tf.name_scope(name):
+    image = tf.convert_to_tensor(value=image, name="image")
+    warp = tf.convert_to_tensor(value=warp, name="warp")
 
     shape.check_static(image, tensor_name="image", has_rank=4)
     shape.check_static(
@@ -97,7 +97,7 @@ def sample(image: type_alias.TensorLike,
       warp = tf.math.round(warp)
 
     if border_type == BorderType.DUPLICATE:
-      image_size = tf.cast(tf.shape(image)[1:3], dtype=warp.dtype)
+      image_size = tf.cast(tf.shape(input=image)[1:3], dtype=warp.dtype)
       height, width = tf.unstack(image_size, axis=-1)
       warp_x, warp_y = tf.unstack(warp, axis=-1)
       warp_x = tf.clip_by_value(warp_x, 0.0, width - 1.0)
@@ -114,7 +114,7 @@ def perspective_transform(
     resampling_type: ResamplingType = ResamplingType.BILINEAR,
     border_type: BorderType = BorderType.ZERO,
     pixel_type: PixelType = PixelType.HALF_INTEGER,
-    name: Optional[str] = None,
+    name: Optional[str] = "perspective_transform",
 ) -> tf.Tensor:
   """Applies a projective transformation to an image.
 
@@ -153,13 +153,13 @@ def perspective_transform(
     its last two dimensions are not 3. If `image` and `transform_matrix` batch
     dimension does not match.
   """
-  with tf.name_scope(name or "perspective_transform"):
-    image = tf.convert_to_tensor(image, name="image")
+  with tf.name_scope(name):
+    image = tf.convert_to_tensor(value=image, name="image")
     transform_matrix = tf.convert_to_tensor(
-        transform_matrix, name="transform_matrix")
+        value=transform_matrix, name="transform_matrix")
     output_shape = tf.shape(
-        image)[-3:-1] if output_shape is None else tf.convert_to_tensor(
-            output_shape, name="output_shape")
+        input=image)[-3:-1] if output_shape is None else tf.convert_to_tensor(
+            value=output_shape, name="output_shape")
 
     shape.check_static(image, tensor_name="image", has_rank=4)
     shape.check_static(
@@ -179,7 +179,7 @@ def perspective_transform(
         starts=(zero, zero),
         stops=(tf.cast(width, dtype) - 1.0, tf.cast(height, dtype) - 1.0),
         nums=(width, height))
-    warp = tf.transpose(warp, perm=[1, 0, 2])
+    warp = tf.transpose(a=warp, perm=[1, 0, 2])
 
     if pixel_type == PixelType.HALF_INTEGER:
       warp += 0.5

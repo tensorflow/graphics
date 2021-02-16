@@ -62,7 +62,7 @@ class TransformerTest(test_case.TestCase, parameterized.TestCase):
         ((1.0 / scale, 0.0, 0.0), (0.0, 1.0 / scale, 0.0), (0.0, 0.0, 1.0)),
         dtype=dtype)
 
-    image_shape = tf.shape(image)
+    image_shape = tf.shape(input=image)
     image_resized_shape = image_shape * scale
     image = image[tf.newaxis, ..., tf.newaxis]
     transformation = transformation[tf.newaxis, ...]
@@ -98,7 +98,7 @@ class TransformerTest(test_case.TestCase, parameterized.TestCase):
         ((1.0 / scale, 0.0, 0.0), (0.0, 1.0 / scale, 0.0), (0.0, 0.0, 1.0)),
         dtype=dtype)
 
-    image_shape = tf.shape(image)
+    image_shape = tf.shape(input=image)
     image_resized_shape = image_shape * scale
     image = image[tf.newaxis, ..., tf.newaxis]
     transformation = transformation[tf.newaxis, ...]

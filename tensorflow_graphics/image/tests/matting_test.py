@@ -23,7 +23,7 @@ from tensorflow_graphics.util import shape
 from tensorflow_graphics.util import test_case
 
 
-def _laplacian_matrix(image, size=3, eps=1e-5, name=None):
+def _laplacian_matrix(image, size=3, eps=1e-5, name="matting_laplacian_matrix"):
   """Generates the closed form matting Laplacian matrices.
 
   Generates the closed form matting Laplacian as proposed by Levin et
@@ -43,7 +43,7 @@ def _laplacian_matrix(image, size=3, eps=1e-5, name=None):
   Raises:
     ValueError: If `image` is not of rank 4.
   """
-  with tf.compat.v1.name_scope(name, "matting_laplacian_matrix", [image]):
+  with tf.name_scope(name):
     image = tf.convert_to_tensor(value=image)
 
     shape.check_static(image, has_rank=4)
