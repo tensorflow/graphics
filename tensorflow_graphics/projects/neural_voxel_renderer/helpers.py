@@ -19,7 +19,7 @@ from tensorflow_graphics.geometry.representation import grid
 from tensorflow_graphics.geometry.transformation import rotation_matrix_3d
 from tensorflow_graphics.math.interpolation import trilinear
 from tensorflow_graphics.rendering.camera import perspective
-from tensorflow_graphics.rendering.voxels import emission_absorption
+from tensorflow_graphics.rendering.volumetric import emission_absorption
 
 
 X_AXIS = np.array((1., 0., 0.), dtype=np.float32)
