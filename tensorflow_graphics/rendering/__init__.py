@@ -22,7 +22,7 @@ if _import_tfg_docs():
   from tensorflow_graphics.rendering import camera
   from tensorflow_graphics.rendering import opengl
   from tensorflow_graphics.rendering import reflectance
-  from tensorflow_graphics.rendering import voxels
+  from tensorflow_graphics.rendering import volumetric
   from tensorflow_graphics.util import export_api as _export_api
 
   # API contains submodules of tensorflow_graphics.rendering.

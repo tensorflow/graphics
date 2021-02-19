@@ -18,8 +18,8 @@ from absl.testing import parameterized
 import numpy as np
 import tensorflow as tf
 
-from tensorflow_graphics.rendering.voxels import absorption
-from tensorflow_graphics.rendering.voxels.tests import test_helpers
+from tensorflow_graphics.rendering.volumetric import absorption
+from tensorflow_graphics.rendering.volumetric.tests import test_helpers
 from tensorflow_graphics.util import test_case
 
 

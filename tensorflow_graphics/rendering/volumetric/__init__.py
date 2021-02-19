@@ -16,9 +16,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from tensorflow_graphics.rendering.voxels import absorption
-from tensorflow_graphics.rendering.voxels import emission_absorption
-from tensorflow_graphics.rendering.voxels import visual_hull
+from tensorflow_graphics.rendering.volumetric import absorption
+from tensorflow_graphics.rendering.volumetric import emission_absorption
+from tensorflow_graphics.rendering.volumetric import visual_hull
 from tensorflow_graphics.util import export_api as _export_api
 
 # API contains submodules of tensorflow_graphics.rendering.voxels.
