@@ -67,13 +67,14 @@ def compute_radiance(rgba_values, distances, name=None):
         tensor_names=("ray_values", "dists"),
         axes=-2)
 
-    rgb, sigma_a = tf.split(rgba_values, [3, 1], axis=-1)
-    alpha = 1. - tf.exp(-sigma_a * distances)
+    rgb, density = tf.split(rgba_values, [3, 1], axis=-1)
+    alpha = 1. - tf.exp(-density * distances)
     alpha = tf.squeeze(alpha, -1)
-    weights = alpha * tf.math.cumprod(1. - alpha + 1e-10, -1, exclusive=True)
-    rgb_map = tf.reduce_sum(tf.expand_dims(weights, -1) * rgb, -2)
-    acc_map = tf.reduce_sum(weights, -1)
-    return rgb_map, tf.expand_dims(acc_map, axis=-1), weights
+    ray_sample_weights = alpha * tf.math.cumprod(1. - alpha + 1e-10, -1,
+                                                 exclusive=True)
+    ray_rgb = tf.reduce_sum(tf.expand_dims(ray_sample_weights, -1) * rgb, -2)
+    ray_alpha = tf.expand_dims(tf.reduce_sum(ray_sample_weights, -1), axis=-1)
+    return ray_rgb, ray_alpha, ray_sample_weights
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
