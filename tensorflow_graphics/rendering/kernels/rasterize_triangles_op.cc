@@ -15,7 +15,7 @@ limitations under the License.
 #include <algorithm>
 #include <vector>
 
-#include "py/tensorflow_graphics/rendering/kernels/rasterize_triangles_impl.h"
+#include "rasterize_triangles_impl.h"
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 
@@ -119,8 +119,8 @@ class RasterizeTrianglesOp : public OpKernel {
         PartialTensorShape({-1, 3}).IsCompatibleWith(triangles_tensor.shape()),
         InvalidArgument(
             "RasterizeTriangles expects triangles to be a matrix."));
-    auto triangles_flat = triangles_tensor.flat<int32>();
-    const int32* triangles = triangles_flat.data();
+    auto triangles_flat = triangles_tensor.flat<int32_t>();
+    const int32_t* triangles = triangles_flat.data();
     const int triangle_count = triangles_flat.size() / 3;
 
     Tensor* barycentric_tensor = nullptr;
@@ -145,12 +145,12 @@ class RasterizeTrianglesOp : public OpKernel {
     // Clear barycentric and triangle ids to 0, z-buffer to 1 (the farthest
     // NDC z value).
     barycentric_tensor->flat<float>().setZero();
-    triangle_ids_tensor->flat<int32>().setZero();
+    triangle_ids_tensor->flat<int32_t>().setZero();
     z_buffer_tensor->flat<float>().setConstant(1);
 
     RasterizeTrianglesImpl(vertices, triangles, triangle_count, image_width_,
                            image_height_, num_layers_, face_culling_mode_,
-                           triangle_ids_tensor->flat<int32>().data(),
+                           triangle_ids_tensor->flat<int32_t>().data(),
                            z_buffer_tensor->flat<float>().data(),
                            barycentric_tensor->flat<float>().data());
   }

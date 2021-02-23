@@ -15,7 +15,7 @@ limitations under the License.
 #ifndef THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_KERNELS_RASTERIZE_TRIANGLES_IMPL_H_
 #define THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_KERNELS_RASTERIZE_TRIANGLES_IMPL_H_
 
-#include "absl/base/integral_types.h"
+#include <cstdint>
 
 // Determines the mode for face culling. Analogous to OpenGL's glCullFace
 // parameters.
@@ -50,11 +50,11 @@ enum class FaceCullingMode { kNone = 0, kBack, kFront };
 //     triplet of barycentric coordinates at each pixel in the same vertex
 //     ordering as triangles. If no triangle is present, all coordinates are 0.
 //     May be nullptr if barycentric coordinates are not desired.
-void RasterizeTrianglesImpl(const float* vertices, const int32* triangles,
-                            int32 triangle_count, int32 image_width,
-                            int32 image_height, int32 num_layers,
+void RasterizeTrianglesImpl(const float* vertices, const int32_t* triangles,
+                            int32_t triangle_count, int32_t image_width,
+                            int32_t image_height, int32_t num_layers,
                             FaceCullingMode face_culling_mode,
-                            int32* triangle_ids, float* z_buffer,
+                            int32_t* triangle_ids, float* z_buffer,
                             float* barycentric_coordinates);
 
 #endif  // THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_KERNELS_RASTERIZE_TRIANGLES_IMPL_H_

@@ -14,18 +14,15 @@
 """Rasterization backends selector for TF Graphics."""
 
 import enum
+import importlib
 
-from tensorflow_graphics.rendering.opengl import rasterization_backend as gl_backend
+from tensorflow_graphics.rendering.kernels import rasterization_backend
 from tensorflow_graphics.util import export_api
 
 
 class RasterizationBackends(enum.Enum):
   OPENGL = 0
-
-
-_BACKENDS = {
-    RasterizationBackends.OPENGL: gl_backend,
-}
+  CPU = 1
 
 
 def rasterize(vertices,
@@ -42,13 +39,16 @@ def rasterize(vertices,
     vertices: A tensor of shape `[batch, num_vertices, 3]` containing batches of
       vertices, each defined by a 3D point.
     triangles: A tensor of shape `[num_triangles, 3]` containing triangles, each
-      associated with 3 vertices from `scene_vertices`
+      associated with 3 vertices from `vertices`.
     view_projection_matrices: A tensor of shape `[batch, 4, 4]` containing
-      batches of view projection matrices
-    image_size: An tuple of integers (width, height) containing the dimensions
+      batches of view projection matrices.
+    image_size: A tuple of integers (width, height) containing the dimensions
       in pixels of the rasterized image.
     backend: An enum containing the backend method to use for rasterization.
       Supported options are defined in the RasterizationBackends enum.
+
+  Raises:
+    KeyError: if backend is not part of supported rasterization backends.
 
   Returns:
     A Framebuffer containing the rasterized values: barycentrics, triangle_id,
@@ -63,8 +63,16 @@ def rasterize(vertices,
     The barycentric coordinates can be used to determine pixel validity instead.
     See framebuffer.py for a description of the Framebuffer fields.
   """
-  return _BACKENDS[backend].rasterize(vertices, triangles,
-                                      view_projection_matrices, image_size)
+  if backend == RasterizationBackends.CPU:
+    backend_module = importlib.import_module(
+        "tensorflow_graphics.rendering.kernels.rasterization_backend")
+  elif backend == RasterizationBackends.OPENGL:
+    backend_module = rasterization_backend
+  else:
+    raise KeyError("Backend is not supported: %s." % backend)
+
+  return backend_module.rasterize(vertices, triangles, view_projection_matrices,
+                                  image_size)
 
 
 # API contains all public functions and classes.

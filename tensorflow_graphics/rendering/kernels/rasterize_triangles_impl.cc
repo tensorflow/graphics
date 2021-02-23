@@ -12,14 +12,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#include "py/tensorflow_graphics/rendering/kernels/rasterize_triangles_impl.h"
+#include "rasterize_triangles_impl.h"
 
 #include <algorithm>
 #include <cmath>
 
 namespace {
 
-using fixed_t = int64;
+using fixed_t = int64_t;
 
 // Converts to fixed point with 16 fractional bits and 48 integer bits.
 // TODO(fcole): fixed-point depth may be too shallow.
@@ -32,6 +32,14 @@ using fixed_t = int64;
 // seems a bit dicey but so far all the tests I've tried pass.
 constexpr int kFractionalBits = 16;
 
+// Clamps value to the range [low, high]. Requires low <= high.
+template <typename T>
+static const T& Clamp(const T& value, const T& low, const T& high) {
+  if (high < value) return high;
+  if (value < low) return low;
+  return value;
+}
+
 constexpr fixed_t ShiftPointLeft(fixed_t x) { return x << kFractionalBits; }
 
 constexpr fixed_t ToFixedPoint(float f) {
@@ -43,7 +51,7 @@ constexpr fixed_t ToFixedPoint(float f) {
 inline int ClampedIntegerMin(float a, float b, int low, int high) {
   const float value = std::floor(std::min(a, b));
   return static_cast<int>(
-      std::clamp(value, static_cast<float>(low), static_cast<float>(high)));
+      Clamp(value, static_cast<float>(low), static_cast<float>(high)));
 }
 
 // Takes the maximum of a and b, rounds up, and converts to an integer in the
@@ -51,7 +59,7 @@ inline int ClampedIntegerMin(float a, float b, int low, int high) {
 inline int ClampedIntegerMax(float a, float b, int low, int high) {
   const float value = std::ceil(std::max(a, b));
   return static_cast<int>(
-      std::clamp(value, static_cast<float>(low), static_cast<float>(high)));
+      Clamp(value, static_cast<float>(low), static_cast<float>(high)));
 }
 
 // Return true if the near plane is between the eye and the clip-space point
@@ -199,11 +207,11 @@ bool PixelIsInsideTriangle(const fixed_t edge_values[3]) {
 
 }  // namespace
 
-void RasterizeTrianglesImpl(const float* vertices, const int32* triangles,
-                            int32 triangle_count, int32 image_width,
-                            int32 image_height, int32 num_layers,
+void RasterizeTrianglesImpl(const float* vertices, const int32_t* triangles,
+                            int32_t triangle_count, int32_t image_width,
+                            int32_t image_height, int32_t num_layers,
                             FaceCullingMode face_culling_mode,
-                            int32* triangle_ids, float* z_buffer,
+                            int32_t* triangle_ids, float* z_buffer,
                             float* barycentric_coordinates) {
   const float half_image_width = 0.5f * image_width;
   const float half_image_height = 0.5f * image_height;
@@ -211,10 +219,10 @@ void RasterizeTrianglesImpl(const float* vertices, const int32* triangles,
   fixed_t b_over_w[3];
   int left, right, bottom, top;
 
-  for (int32 triangle_id = 0; triangle_id < triangle_count; ++triangle_id) {
-    const int32 v0_x_id = 4 * triangles[3 * triangle_id];
-    const int32 v1_x_id = 4 * triangles[3 * triangle_id + 1];
-    const int32 v2_x_id = 4 * triangles[3 * triangle_id + 2];
+  for (int32_t triangle_id = 0; triangle_id < triangle_count; ++triangle_id) {
+    const int32_t v0_x_id = 4 * triangles[3 * triangle_id];
+    const int32_t v1_x_id = 4 * triangles[3 * triangle_id + 1];
+    const int32_t v2_x_id = 4 * triangles[3 * triangle_id + 2];
 
     const float v0x = vertices[v0_x_id];
     const float v0y = vertices[v0_x_id + 1];
@@ -272,7 +280,7 @@ void RasterizeTrianglesImpl(const float* vertices, const int32* triangles,
 
         // Insert into appropriate depth layer with insertion sort.
         float z_next = z;
-        int32 id_next = triangle_id;
+        int32_t id_next = triangle_id;
         float b0_next = b0;
         float b1_next = b1;
         float b2_next = b2;
