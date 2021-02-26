@@ -1,0 +1,34 @@
+syntax = "proto2";
+
+package giotto_occluded_primitives;
+
+message CenterNetSample {
+  optional string name = 1;
+  repeated bytes image_data = 2;
+  repeated int32 image_size = 3;
+  repeated float center2d = 4;
+  repeated float center3d = 5;
+  repeated float box_dims2d = 6;
+  repeated float box_dims3d = 7;
+  optional float rotation = 8;
+  repeated float translation = 9;
+  repeated float rt = 10;
+  repeated float k = 11;
+}
+
+message MultipleObjects {
+  optional string name = 1;
+  optional string scene_filename = 2;
+  repeated bytes image_data = 3;
+  repeated int32 image_size = 4;
+  repeated float center2d = 5;
+  repeated float center3d = 6;
+  repeated float box_dims2d = 7;
+  repeated float box_dims3d = 8;
+  repeated float rotations_3d = 9;
+  repeated float rt = 10;
+  repeated float k = 11;
+  repeated int32 classes = 12;
+  repeated string mesh_names = 13;
+  repeated int32 shapes = 14;
+}
