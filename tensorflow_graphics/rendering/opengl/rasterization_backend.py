@@ -102,6 +102,8 @@ def rasterize(vertices,
               triangles,
               view_projection_matrices,
               image_size,
+              enable_cull_face,
+              num_layers,
               name=None):
   """Rasterizes the scene.
 
@@ -121,6 +123,10 @@ def rasterize(vertices,
       batches of view projection matrices
     image_size: An tuple of integers (width, height) containing the dimensions
       in pixels of the rasterized image.
+    enable_cull_face: A boolean, which will enable BACK face culling when True
+      and no face culling when False. Default is True.
+    num_layers: Number of depth layers to render. Not supported by current
+      backend yet, but exists for interface compatibility.
     name: A name for this op. Defaults to 'rasterization_backend_rasterize'.
 
   Returns:
@@ -138,6 +144,10 @@ def rasterize(vertices,
   """
   with tf.compat.v1.name_scope(name, "rasterization_backend_rasterize",
                                (vertices, triangles, view_projection_matrices)):
+
+    if num_layers != 1:
+      raise ValueError("OpenGL rasterizer only supports single layer.")
+
     vertices = tf.convert_to_tensor(value=vertices)
     triangles = tf.convert_to_tensor(value=triangles)
     view_projection_matrices = tf.convert_to_tensor(
@@ -173,7 +183,7 @@ def rasterize(vertices,
     rasterized = render_ops.rasterize(
         num_points=geometry.shape[-3],
         alpha_clear=0.0,
-        enable_cull_face=True,
+        enable_cull_face=enable_cull_face,
         variable_names=("view_projection_matrix", "triangular_mesh"),
         variable_kinds=("mat", "buffer"),
         variable_values=(view_projection_matrices,

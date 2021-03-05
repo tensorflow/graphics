@@ -26,6 +26,8 @@ class RasterizationBackendTestBase(test_case.TestCase):
   def setUp(self):
     super().setUp()
     self._backend = rasterization_backend.RasterizationBackends.OPENGL
+    self._num_layers = 1
+    self._enable_cull_face = True
 
   def _create_placeholders(self, shapes, dtypes):
     if tf.executing_eagerly():
@@ -41,13 +43,20 @@ class RasterizationBackendTestBase(test_case.TestCase):
   @parameterized.parameters((
       ((2, 7, 3), (5, 3), (2, 4, 4)),
       (tf.float32, tf.int32, tf.float32),
+      (True,),
+  ), (
+      ((2, 7, 3), (5, 3), (2, 4, 4)),
+      (tf.float32, tf.int32, tf.float32),
+      (False,),
   ))
-  def test_rasterizer_rasterize_exception_not_raised(self, shapes, dtypes):
+  def test_rasterizer_rasterize_exception_not_raised(self, shapes, dtypes,
+                                                     enable_cull_face):
     """Tests that supported backends do not raise exceptions."""
     placeholders = self._create_placeholders(shapes, dtypes)
     try:
       rasterization_backend.rasterize(placeholders[0], placeholders[1],
                                       placeholders[2], (600, 800),
+                                      enable_cull_face, self._num_layers,
                                       self._backend)
     except Exception as e:  # pylint: disable=broad-except
       self.fail('Exception raised: %s' % str(e))
@@ -55,14 +64,19 @@ class RasterizationBackendTestBase(test_case.TestCase):
   @parameterized.parameters((
       ((1, 7, 3), (5, 3), (1, 4, 4)),
       (tf.float32, tf.int32, tf.float32),
+      (True,),
+  ), (
+      ((1, 7, 3), (5, 3), (1, 4, 4)),
+      (tf.float32, tf.int32, tf.float32),
+      (False,),
   ))
-  def test_rasterizer_return_correct_batch_shapes(self, shapes, dtypes):
+  def test_rasterizer_return_correct_batch_shapes(self, shapes, dtypes,
+                                                  enable_cull_face):
     """Tests that supported backends return correct shape."""
     placeholders = self._create_placeholders(shapes, dtypes)
-    frame_buffer = rasterization_backend.rasterize(placeholders[0],
-                                                   placeholders[1],
-                                                   placeholders[2], (600, 800),
-                                                   self._backend)
+    frame_buffer = rasterization_backend.rasterize(
+        placeholders[0], placeholders[1], placeholders[2], (600, 800),
+        enable_cull_face, self._num_layers, self._backend)
     batch_size = shapes[0][0]
     self.assertEqual([batch_size],
                      frame_buffer.triangle_id.get_shape().as_list()[:-3])
@@ -80,7 +94,9 @@ class RasterizationBackendTestBase(test_case.TestCase):
     placeholders = self._create_placeholders(shapes, dtypes)
     with self.assertRaisesRegexp(KeyError, 'Backend is not supported'):
       rasterization_backend.rasterize(placeholders[0], placeholders[1],
-                                      placeholders[2], (600, 800), backend)
+                                      placeholders[2], (600, 800),
+                                      self._enable_cull_face, self._num_layers,
+                                      backend)
 
   def test_rasterizer_all_vertices_visible(self):
     """Renders simple triangle and asserts that it is fully visible."""
@@ -88,9 +104,9 @@ class RasterizationBackendTestBase(test_case.TestCase):
                                     dtype=tf.float32)
     triangles = tf.convert_to_tensor([[0, 1, 2]], dtype=tf.int32)
     view_projection_matrix = tf.expand_dims(tf.eye(4), axis=0)
-    frame_buffer = rasterization_backend.rasterize(vertices, triangles,
-                                                   view_projection_matrix,
-                                                   (100, 100), self._backend)
+    frame_buffer = rasterization_backend.rasterize(
+        vertices, triangles, view_projection_matrix, (100, 100),
+        self._enable_cull_face, self._num_layers, self._backend)
     self.assertAllEqual(frame_buffer.triangle_id.shape[:-1],
                         frame_buffer.vertex_ids.shape[:-1])
     # Assert that triangle is visible.

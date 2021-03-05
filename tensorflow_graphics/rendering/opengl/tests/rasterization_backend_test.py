@@ -25,6 +25,8 @@ from tensorflow_graphics.util import test_case
 _IMAGE_HEIGHT = 5
 _IMAGE_WIDTH = 7
 _TRIANGLE_SIZE = 2.0
+_ENABLE_CULL_FACE = True
+_NUM_LAYERS = 1
 
 
 def _generate_vertices_and_view_matrices():
@@ -56,7 +58,8 @@ def _generate_vertices_and_view_matrices():
 def _proxy_rasterize(vertices, triangles, view_projection_matrices):
   return rasterization_backend.rasterize(vertices, triangles,
                                          view_projection_matrices,
-                                         (_IMAGE_WIDTH, _IMAGE_HEIGHT))
+                                         (_IMAGE_WIDTH, _IMAGE_HEIGHT),
+                                         _ENABLE_CULL_FACE, _NUM_LAYERS)
 
 
 class RasterizationBackendTest(test_case.TestCase):
@@ -97,9 +100,7 @@ class RasterizationBackendTest(test_case.TestCase):
     view_projection_matrix = [
         view_projection_matrix[0], view_projection_matrix[0]
     ]
-    predicted_fb = rasterization_backend.rasterize(
-        vertices, triangles, view_projection_matrix,
-        (_IMAGE_WIDTH, _IMAGE_HEIGHT))
+    predicted_fb = _proxy_rasterize(vertices, triangles, view_projection_matrix)
     mask = predicted_fb.foreground_mask
     self.assertAllEqual(mask[0, ...], tf.ones_like(mask[0, ...]))
 
@@ -111,9 +112,7 @@ class RasterizationBackendTest(test_case.TestCase):
     triangles = np.array(((0, 1, 2),), np.int32)
     vertices, view_projection_matrix = _generate_vertices_and_view_matrices()
     vertices = np.array([vertices[0], vertices[0]], dtype=np.float32)
-    predicted_fb = rasterization_backend.rasterize(
-        vertices, triangles, view_projection_matrix,
-        (_IMAGE_WIDTH, _IMAGE_HEIGHT))
+    predicted_fb = _proxy_rasterize(vertices, triangles, view_projection_matrix)
     self.assertAllEqual(predicted_fb.foreground_mask[0, ...],
                         tf.ones_like(predicted_fb.foreground_mask[0, ...]))
     self.assertAllEqual(predicted_fb.foreground_mask[1, ...],
@@ -144,9 +143,7 @@ class RasterizationBackendTest(test_case.TestCase):
                         dtype=np.float32)
     triangles = np.array(((1, 2, 0), (0, 2, 3)), np.int32)
 
-    predicted_fb = rasterization_backend.rasterize(
-        vertices, triangles, view_projection_matrix,
-        (_IMAGE_WIDTH, _IMAGE_HEIGHT))
+    predicted_fb = _proxy_rasterize(vertices, triangles, view_projection_matrix)
 
     with self.subTest(name="triangle_index"):
       groundtruth_triangle_index = np.zeros((1, _IMAGE_HEIGHT, _IMAGE_WIDTH, 1),

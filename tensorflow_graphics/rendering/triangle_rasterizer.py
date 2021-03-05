@@ -162,9 +162,12 @@ def rasterize(vertices,
                                               model_to_eye_matrix)
 
     vertices = _merge_batch_dims(vertices, last_axis=-2)
-    rasterized = rasterization_backend.rasterize(vertices, triangles,
-                                                 view_projection_matrix,
-                                                 image_size_backend, backend)
+    rasterized = rasterization_backend.rasterize(
+        vertices,
+        triangles,
+        view_projection_matrix,
+        image_size_backend,
+        backend=backend)
     outputs = {
         "mask":
             _restore_batch_dims(rasterized.foreground_mask, input_batch_shape),

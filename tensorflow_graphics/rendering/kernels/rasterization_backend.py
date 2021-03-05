@@ -66,8 +66,8 @@ def rasterize(vertices: tf.Tensor,
               triangles: tf.Tensor,
               view_projection_matrices: tf.Tensor,
               image_size: Tuple[int, int],
-              num_layers=1,
-              face_culling_mode=FaceCullingMode.NONE,
+              enable_cull_face: bool,
+              num_layers: int,
               name=None):
   """Rasterizes the scene.
 
@@ -83,9 +83,10 @@ def rasterize(vertices: tf.Tensor,
       batches of view projection matrices.
     image_size: An tuple of integers (width, height) containing the dimensions
       in pixels of the rasterized image.
-    num_layers: Number of depth layers to render. Analytic barycentric gradients
-      are only available if num_layers is 1.
-    face_culling_mode: one of FaceCullingMode. Defaults to NONE.
+    enable_cull_face: A boolean, which will enable BACK face culling when True
+      and no face culling when False.
+    num_layers: Number of depth layers to render. Output tensors shape depends
+      on whether num_layers=1 or not.
     name: A name for this op. Defaults to 'rasterization_backend_cpu_rasterize'.
 
   Returns:
@@ -139,6 +140,7 @@ def rasterize(vertices: tf.Tensor,
     per_image_triangle_ids = []
     per_image_masks = []
     image_width, image_height = image_size
+    face_culling_mode = FaceCullingMode.BACK if enable_cull_face else FaceCullingMode.NONE
     for batch_index in range(batch_size):
       clip_vertices_slice = vertices[batch_index, ...]
 

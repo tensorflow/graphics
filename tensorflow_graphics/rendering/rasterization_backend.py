@@ -29,6 +29,8 @@ def rasterize(vertices,
               triangles,
               view_projection_matrices,
               image_size,
+              enable_cull_face=True,
+              num_layers=1,
               backend=RasterizationBackends.OPENGL):
   """Rasterizes the scene.
 
@@ -44,6 +46,11 @@ def rasterize(vertices,
       batches of view projection matrices.
     image_size: A tuple of integers (width, height) containing the dimensions
       in pixels of the rasterized image.
+    enable_cull_face: A boolean, which will enable BACK face culling when True
+      and no face culling when False. Default is True.
+    num_layers: Number of depth layers to render. Output tensors shape depends
+      on whether num_layers=1 or not. Supported by CPU rasterizer only and does
+      nothing for OpenGL backend.
     backend: An enum containing the backend method to use for rasterization.
       Supported options are defined in the RasterizationBackends enum.
 
@@ -72,7 +79,7 @@ def rasterize(vertices,
     raise KeyError("Backend is not supported: %s." % backend)
 
   return backend_module.rasterize(vertices, triangles, view_projection_matrices,
-                                  image_size)
+                                  image_size, enable_cull_face, num_layers)
 
 
 # API contains all public functions and classes.
