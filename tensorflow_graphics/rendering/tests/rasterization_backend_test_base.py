@@ -43,11 +43,11 @@ class RasterizationBackendTestBase(test_case.TestCase):
   @parameterized.parameters((
       ((2, 7, 3), (5, 3), (2, 4, 4)),
       (tf.float32, tf.int32, tf.float32),
-      (True,),
+      True,
   ), (
       ((2, 7, 3), (5, 3), (2, 4, 4)),
       (tf.float32, tf.int32, tf.float32),
-      (False,),
+      False,
   ))
   def test_rasterizer_rasterize_exception_not_raised(self, shapes, dtypes,
                                                      enable_cull_face):
@@ -64,11 +64,11 @@ class RasterizationBackendTestBase(test_case.TestCase):
   @parameterized.parameters((
       ((1, 7, 3), (5, 3), (1, 4, 4)),
       (tf.float32, tf.int32, tf.float32),
-      (True,),
+      True,
   ), (
       ((1, 7, 3), (5, 3), (1, 4, 4)),
       (tf.float32, tf.int32, tf.float32),
-      (False,),
+      False,
   ))
   def test_rasterizer_return_correct_batch_shapes(self, shapes, dtypes,
                                                   enable_cull_face):
