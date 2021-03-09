@@ -41,7 +41,7 @@ jobs:
     - name: Build pip package and install
       run: |
         python setup.py sdist bdist_wheel --nightly
-        pip install dist/*.whl
+        pip install dist/*.whl['all']
     - name: Test install
       run: |
         cd $(mktemp -d) && python -c 'import tensorflow_graphics as tfg'

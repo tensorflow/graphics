@@ -18,7 +18,11 @@
 from tensorflow_graphics.util.doc import _import_tfg_docs
 if _import_tfg_docs():
   from tensorflow_graphics.io import triangle_mesh
-  from tensorflow_graphics.io import exr
+  try:
+    from tensorflow_graphics.io import exr
+  except ImportError:
+    warnings.warn("Could not import the optional module exr. Please make"
+                   "sure OpenEXR is installed if you intend to use exr.")
   from tensorflow_graphics.util import export_api as _export_api
 
   # API contains submodules of tensorflow_graphics.rendering.reflectance.
