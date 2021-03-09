@@ -19,6 +19,7 @@ from typing import Tuple
 import tensorflow as tf
 
 from tensorflow_graphics.rendering import framebuffer as fb
+from tensorflow_graphics.rendering import utils
 from tensorflow_graphics.util import shape
 
 # pylint: disable=g-import-not-at-top
@@ -36,30 +37,6 @@ class FaceCullingMode(enum.IntEnum):
   NONE = 0
   BACK = 1
   FRONT = 2
-
-
-def _transform_homogeneous(matrices, vertices):
-  """Applies 4x4 homogenous matrix transformations to xyz vertices.
-
-  The vertices are input and output as as row-major, but are interpreted as
-  column vectors multiplied on the right-hand side of the matrices. More
-  explicitly, this function computes (MV^T)^T where M represents transformation
-  matrices and V stands for vertices.
-  Since input vertices are xyz they are extended to xyzw with w=1.
-
-  Args:
-    matrices: A tensor of shape `[batch, 4, 4]` containing batches of view
-      projection matrices.
-    vertices: A tensor of shape `[batch, num_vertices, 3]` containing batches of
-      vertices, each defined by a 3D point.
-
-  Returns:
-    A [batch, N, 4] Tensor of xyzw vertices.
-  """
-  homogeneous_coord = tf.ones_like(vertices[..., 0:1])
-  vertices = tf.concat([vertices, homogeneous_coord], -1)
-
-  return tf.matmul(vertices, matrices, transpose_b=True)
 
 
 def rasterize(vertices: tf.Tensor,
@@ -133,7 +110,7 @@ def rasterize(vertices: tf.Tensor,
     if not num_layers > 0:
       raise ValueError("num_layers must be > 0.")
 
-    vertices = _transform_homogeneous(view_projection_matrices, vertices)
+    vertices = utils.transform_homogeneous(view_projection_matrices, vertices)
     batch_size = tf.compat.dimension_value(vertices.shape[0])
 
     per_image_barycentrics = []
