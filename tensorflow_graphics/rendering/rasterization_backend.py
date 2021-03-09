@@ -16,7 +16,6 @@
 import enum
 import importlib
 
-from tensorflow_graphics.rendering.kernels import rasterization_backend
 from tensorflow_graphics.util import export_api
 
 
@@ -74,7 +73,8 @@ def rasterize(vertices,
     backend_module = importlib.import_module(
         "tensorflow_graphics.rendering.kernels.rasterization_backend")
   elif backend == RasterizationBackends.OPENGL:
-    backend_module = rasterization_backend
+    backend_module = importlib.import_module(
+        "tensorflow_graphics.rendering.opengl.rasterization_backend")
   else:
     raise KeyError("Backend is not supported: %s." % backend)
 
