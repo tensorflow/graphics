@@ -43,7 +43,7 @@ def check_valid_point_cloud_input(points, sizes, batch_ids):
       raise AssertionError('Invalid sizes! Sizes of points and batch_ids are' +
                            ' not equal.')
 
-
+'''
 def check_valid_point_hierarchy_input(point_cloud, cell_sizes, pool_mode):
   """ Checks that inputs to the constructor of class 'PontHierarchy' are valid.
 
@@ -112,3 +112,4 @@ def cast_to_num_dims(values, num_dims, dtype=tf.float32):
   if values.shape == [] or values.shape[0] == 1:
     values = tf.repeat(values, num_dims)
   return values
+'''
