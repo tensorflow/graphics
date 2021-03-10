@@ -22,6 +22,8 @@ from __future__ import print_function
 import Imath
 import numpy as np
 import OpenEXR
+from six.moves import range
+from six.moves import zip
 
 
 _np_to_exr = {
@@ -29,7 +31,7 @@ _np_to_exr = {
     np.float32: Imath.PixelType.FLOAT,
     np.uint32: Imath.PixelType.UINT,
 }
-_exr_to_np = dict(zip(_np_to_exr.values(), _np_to_exr.keys()))
+_exr_to_np = dict(list(zip(list(_np_to_exr.values()), list(_np_to_exr.keys()))))
 
 
 def channels_to_ndarray(exr, channel_names):

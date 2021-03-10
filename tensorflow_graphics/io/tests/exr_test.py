@@ -15,6 +15,10 @@
 
 # pylint: disable=c-extension-no-member
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import collections
 import tempfile
 
@@ -23,6 +27,7 @@ import Imath
 import numpy as np
 import OpenEXR
 
+from six.moves import range
 from tensorflow_graphics.io import exr
 from tensorflow_graphics.util import test_case
 
