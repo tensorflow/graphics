@@ -13,3 +13,5 @@ termcolor >= 1.1.0
 trimesh >= 2.37.22
 # Required by trimesh.
 networkx
+# required for pytests of project/point_convolutions
+sklearn
