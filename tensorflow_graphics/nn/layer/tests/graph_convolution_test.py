@@ -13,8 +13,14 @@
 # limitations under the License.
 """Tests for the graph convolution layers."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from absl.testing import parameterized
 import numpy as np
+from six.moves import range
+from six.moves import zip
 import tensorflow as tf
 
 import tensorflow_graphics.nn.layer.graph_convolution as gc_layer
@@ -170,7 +176,7 @@ class GraphConvolutionTestFeatureSteeredConvolutionLayerTests(
       for _ in range(num_training_iterations):
         grads = tape.gradient(loss, trainable_variables)
         tf.compat.v1.train.GradientDescentOptimizer(1e-4).apply_gradients(
-            zip(grads, trainable_variables))
+            list(zip(grads, trainable_variables)))
     else:
       output = gc_layer.feature_steered_convolution_layer(
           data=data,
@@ -288,7 +294,8 @@ class GraphConvolutionTestDynamicGraphConvolutionKerasLayerTests(
       for _ in range(num_training_iterations):
         grads = tape.gradient(loss, trainable_variables)
         tf.compat.v1.train.GradientDescentOptimizer(1e-4).apply_gradients(
-            zip(grads, trainable_variables))
+            list(zip(grads, trainable_variables)))
+
 
 if __name__ == "__main__":
   test_case.main()

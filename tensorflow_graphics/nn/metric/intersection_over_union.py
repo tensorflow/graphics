@@ -17,6 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from six.moves import range
 import tensorflow as tf
 
 from tensorflow_graphics.util import asserts
@@ -66,12 +67,12 @@ def evaluate(ground_truth_labels,
     predicted_labels = asserts.assert_binary(predicted_labels)
 
     sum_ground_truth = tf.math.reduce_sum(
-        input_tensor=ground_truth_labels, axis=range(-grid_size, 0))
+        input_tensor=ground_truth_labels, axis=list(range(-grid_size, 0)))
     sum_predictions = tf.math.reduce_sum(
-        input_tensor=predicted_labels, axis=range(-grid_size, 0))
+        input_tensor=predicted_labels, axis=list(range(-grid_size, 0)))
     intersection = tf.math.reduce_sum(
         input_tensor=ground_truth_labels * predicted_labels,
-        axis=range(-grid_size, 0))
+        axis=list(range(-grid_size, 0)))
     union = sum_ground_truth + sum_predictions - intersection
 
     return tf.where(
