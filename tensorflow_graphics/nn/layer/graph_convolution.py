@@ -30,7 +30,7 @@ def feature_steered_convolution_layer(
     translation_invariant=True,
     num_weight_matrices=8,
     num_output_channels=None,
-    initializer=tf.compat.v1.truncated_normal_initializer(stddev=0.1),
+    initializer=tf.keras.initializers.TruncatedNormal(stddev=0.1),
     name='graph_convolution_feature_steered_convolution',
     var_name=None):
   # pyformat: disable
@@ -91,7 +91,7 @@ def feature_steered_convolution_layer(
     # feature_steered_convolution().
     data = tf.convert_to_tensor(value=data)
 
-    in_channels = tf.compat.v1.dimension_value(data.shape[-1])
+    in_channels = tf.compat.dimension_value(data.shape[-1])
     if num_output_channels is None:
       out_channels = in_channels
     else:
@@ -159,7 +159,7 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
         in the output. If `None` then `num_output_channels` will be the same as
         the input dimensionality.
       initializer: An initializer for the trainable variables. If `None`,
-        defaults to `tf.compat.v1.truncated_normal_initializer(stddev=0.1)`.
+        defaults to `tf.keras.initializers.TruncatedNormal(stddev=0.1)`.
       name: A name for this layer.
       **kwargs: Additional keyword arguments passed to the base layer.
     """
@@ -169,7 +169,7 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
     self._num_output_channels = num_output_channels
     self._translation_invariant = translation_invariant
     if initializer is None:
-      self._initializer = tf.compat.v1.truncated_normal_initializer(stddev=0.1)
+      self._initializer = tf.keras.initializers.TruncatedNormal(stddev=0.1)
     else:
       self._initializer = initializer
 

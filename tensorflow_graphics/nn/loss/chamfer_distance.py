@@ -23,7 +23,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def evaluate(point_set_a, point_set_b, name=None):
+def evaluate(point_set_a, point_set_b, name="chamfer_distance_evaluate"):
   """Computes the Chamfer distance for the given two point sets.
 
   Note:
@@ -55,8 +55,7 @@ def evaluate(point_set_a, point_set_b, name=None):
   Raises:
     ValueError: if the shape of `point_set_a`, `point_set_b` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "chamfer_distance_evaluate",
-                               [point_set_a, point_set_b]):
+  with tf.name_scope(name):
     point_set_a = tf.convert_to_tensor(value=point_set_a)
     point_set_b = tf.convert_to_tensor(value=point_set_b)
 

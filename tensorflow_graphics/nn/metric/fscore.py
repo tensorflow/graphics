@@ -30,7 +30,7 @@ def evaluate(ground_truth,
              prediction,
              precision_function=precision_module.evaluate,
              recall_function=recall_module.evaluate,
-             name=None):
+             name="fscore_evaluate"):
   """Computes the fscore metric for the given ground truth and predicted labels.
 
   The fscore is calculated as 2 * (precision * recall) / (precision + recall)
@@ -63,8 +63,7 @@ def evaluate(ground_truth,
     ValueError: if the shape of `ground_truth`, `prediction` is
     not supported.
   """
-  with tf.compat.v1.name_scope(name, "fscore_evaluate",
-                               [ground_truth, prediction]):
+  with tf.name_scope(name):
     ground_truth = tf.convert_to_tensor(value=ground_truth)
     prediction = tf.convert_to_tensor(value=prediction)
 

@@ -23,7 +23,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def evaluate(point_set_a, point_set_b, name=None):
+def evaluate(point_set_a, point_set_b, name="hausdorff_distance_evaluate"):
   """Computes the Hausdorff distance from point_set_a to point_set_b.
 
   Note:
@@ -52,8 +52,7 @@ def evaluate(point_set_a, point_set_b, name=None):
   Raises:
     ValueError: if the shape of `point_set_a`, `point_set_b` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "hausdorff_distance_evaluate",
-                               [point_set_a, point_set_b]):
+  with tf.name_scope(name):
     point_set_a = tf.convert_to_tensor(value=point_set_a)
     point_set_b = tf.convert_to_tensor(value=point_set_b)
 
@@ -77,8 +76,10 @@ def evaluate(point_set_a, point_set_b, name=None):
     # Calculate the square distances between each two points: |ai - bj|^2.
     square_distances = tf.einsum("...i,...i->...", difference, difference)
 
-    minimum_square_distance_a_to_b = tf.reduce_min(square_distances, axis=-1)
-    return tf.sqrt(tf.reduce_max(minimum_square_distance_a_to_b, axis=-1))
+    minimum_square_distance_a_to_b = tf.reduce_min(
+        input_tensor=square_distances, axis=-1)
+    return tf.sqrt(
+        tf.reduce_max(input_tensor=minimum_square_distance_a_to_b, axis=-1))
 
 
 # API contains all public functions and classes.

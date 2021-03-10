@@ -24,7 +24,10 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def evaluate(ground_truth_labels, predicted_labels, grid_size=1, name=None):
+def evaluate(ground_truth_labels,
+             predicted_labels,
+             grid_size=1,
+             name="intersection_over_union_evaluate"):
   """Computes the Intersection-Over-Union metric for the given ground truth and predicted labels.
 
   Note:
@@ -49,8 +52,7 @@ def evaluate(ground_truth_labels, predicted_labels, grid_size=1, name=None):
     ValueError: if the shape of `ground_truth_labels`, `predicted_labels` is
     not supported.
   """
-  with tf.compat.v1.name_scope(name, "intersection_over_union_evaluate",
-                               [ground_truth_labels, predicted_labels]):
+  with tf.name_scope(name):
     ground_truth_labels = tf.convert_to_tensor(value=ground_truth_labels)
     predicted_labels = tf.convert_to_tensor(value=predicted_labels)
 
@@ -72,7 +74,7 @@ def evaluate(ground_truth_labels, predicted_labels, grid_size=1, name=None):
         axis=range(-grid_size, 0))
     union = sum_ground_truth + sum_predictions - intersection
 
-    return tf.compat.v1.where(
+    return tf.where(
         tf.math.equal(union, 0), tf.ones_like(union), intersection / union)
 
 

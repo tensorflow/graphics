@@ -33,7 +33,7 @@ def evaluate(ground_truth,
              classes=None,
              reduce_average=True,
              prediction_to_category_function=_cast_to_int,
-             name=None):
+             name="recall_evaluate"):
   """Computes the recall metric for the given ground truth and predictions.
 
   Note:
@@ -63,8 +63,7 @@ def evaluate(ground_truth,
   Raises:
     ValueError: if the shape of `ground_truth`, `prediction` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "recall_evaluate",
-                               [ground_truth, prediction]):
+  with tf.name_scope(name):
     ground_truth = tf.cast(
         x=tf.convert_to_tensor(value=ground_truth), dtype=tf.int32)
     prediction = tf.convert_to_tensor(value=prediction)
