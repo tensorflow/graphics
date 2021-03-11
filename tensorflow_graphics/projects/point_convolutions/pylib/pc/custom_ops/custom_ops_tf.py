@@ -114,7 +114,7 @@ def build_grid_ds_tf(sorted_keys, num_cells, batch_size, name=None):
                   axis=3)
 tf.no_gradient('BuildGridDsTF')
 
-'''
+
 def find_neighbors_tf(grid,
                       point_cloud_centers,
                       radii,
@@ -257,7 +257,7 @@ def find_neighbors_no_grid(point_cloud,
       num_center_points)
   return neigh_ranges, neighbors
 tf.no_gradient('FindNeighborsNoGrid')
-
+'''
 
 def sampling_tf(neighborhood, sample_mode, name=None):
   """ Method to sample the points of a point cloud.
