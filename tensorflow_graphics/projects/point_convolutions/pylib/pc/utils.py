@@ -71,7 +71,7 @@ def check_valid_point_hierarchy_input(point_cloud, cell_sizes, pool_mode):
           f'dimension. Must be 1 or {point_cloud.dimension_} but is' +\
           f'{curr_cell_sizes.shape[0]}.')
 
-'''
+
 def _flatten_features(features, point_cloud: PointCloud):
   """ Converts features of shape `[A1, ..., An, C]` to shape `[N, C]`.
 
