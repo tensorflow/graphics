@@ -15,8 +15,8 @@
 
 from .PointCloud import _AABB as AABB
 from .PointCloud import PointCloud
-'''
 from .Grid import Grid
+'''
 from .Neighborhood import Neighborhood
 from .Neighborhood import KDEMode
 from .sampling import poisson_disk_sampling, cell_average_sampling
@@ -24,5 +24,5 @@ from .sampling import sample
 from .PointHierarchy import PointHierarchy
 
 from pylib.pc import layers
-from pylib.pc import custom_ops
 '''
+from pylib.pc import custom_ops
