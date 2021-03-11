@@ -102,7 +102,6 @@ class Neighborhood:
 
     self._transposed = None
 
-  '''
   def compute_pdf(self,
                   bandwidth=0.2,
                   mode=KDEMode.constant,
@@ -158,7 +157,6 @@ class Neighborhood:
     if self._pdf is None:
       self.compute_pdf(**kwargs)
     return self._pdf
-  '''
 
   def get_grid(self):
     """ Returns the grid used for neighborhood computation.

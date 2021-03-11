@@ -324,66 +324,9 @@ def sampling_tf(neighborhood, sample_mode, name=None):
 
 tf.no_gradient('samplingTF')
 
+'''
 
 _pi = tf.constant(np.pi)
-
-
-def compute_pdf_inside_neighborhoods_tf(neighborhood,
-                                        bandwidth,
-                                        mode,
-                                        name=None):
-  """ Method to compute the density distribution inside the neighborhoods of a
-  point cloud in euclidean space using kernel density estimation (KDE).
-
-  Args:
-    neighborhood: A `Neighborhood` instance.
-    bandwidth: An `int` `Tensor` of shape `[D]`, the bandwidth of the KDE.
-    mode: A `KDEMode` value.
-
-  Returns:
-    A `float` `Tensor` of shape `[N]`, the estimated density per center point.
-
-  """
-  bandwidth = tf.convert_to_tensor(value=bandwidth)
-  points = neighborhood._grid._sorted_points
-  neighbors = neighborhood._neighbors
-  nbh_ranges = neighborhood._samples_neigh_ranges
-
-  # compute difference vectors inside neighborhoods
-  num_adjacencies = tf.shape(neighbors)[0]
-  nbh_start_ind = tf.concat(([0], nbh_ranges[0:-1]), axis=0)
-  nbh_sizes = nbh_ranges - nbh_start_ind
-  max_num_neighbors = tf.reduce_max(nbh_sizes)
-  nbh_sizes_per_nb = tf.repeat(nbh_sizes, nbh_sizes)
-
-  nb_indices_1 = tf.repeat(neighbors[:, 0], nbh_sizes_per_nb)
-
-  mask = tf.sequence_mask(nbh_sizes_per_nb, max_num_neighbors)
-  mask_indices = tf.cast(tf.compat.v1.where(mask), tf.int32)
-  indices_tensor = tf.repeat(tf.reshape(tf.range(0, max_num_neighbors),
-                                        [1, max_num_neighbors]),
-                             num_adjacencies, axis=0)
-  nbh_start_per_nb = tf.repeat(nbh_start_ind, nbh_sizes)
-  indices_tensor = indices_tensor + \
-      tf.reshape(nbh_start_per_nb, [num_adjacencies, 1])
-  indices_2 = tf.gather_nd(params=indices_tensor, indices=mask_indices)
-  nb_indices_2 = tf.gather(neighbors[:, 0], indices_2)
-
-  nb_diff = tf.gather(points, nb_indices_1) - tf.gather(points, nb_indices_2)
-  # kernel density estimation using the distances
-  rel_bandwidth = tf.reshape(bandwidth * neighborhood._radii, [1, -1])
-  kernel_input = nb_diff / rel_bandwidth
-  # gaussian kernel
-  nb_kernel_value = tf.exp(-tf.pow(kernel_input, 2) / 2) / tf.sqrt(2 * _pi)
-  nb_kernel_value = tf.reduce_prod(nb_kernel_value, axis=1)
-  nb_id_per_nb_pair = tf.repeat(tf.range(0, num_adjacencies),
-                                nbh_sizes_per_nb)
-  # sum over influence inside neighborhood
-  pdf = tf.math.unsorted_segment_sum(nb_kernel_value,
-                                     nb_id_per_nb_pair,
-                                     num_adjacencies) /\
-      tf.reduce_prod(bandwidth)
-  return pdf
 
 
 def compute_pdf_tf(neighborhood, bandwidth, mode, name=None):
@@ -420,6 +363,7 @@ def compute_pdf_tf(neighborhood, bandwidth, mode, name=None):
       tf.reduce_prod(bandwidth)
   return pdf
 
+'''
 
 def basis_proj_tf(neigh_basis, features, neighborhood, name=None):
   """ Method to aggregate the features*basis for different neighborhoods.
