@@ -45,7 +45,7 @@ def _create_random_point_cloud_segmented(batch_size,
         (batch_ids, np.arange(0, batch_size), np.arange(0, batch_size)))
   return points, batch_ids
 
-'''
+
 def _create_random_point_cloud_padded(max_num_points,
                                       batch_shape,
                                       dimension=3,
@@ -59,7 +59,7 @@ def _create_random_point_cloud_padded(max_num_points,
     sizes = np.random.randint(1, max_num_points, batch_shape)
   return points, sizes
 
-
+'''
 def _create_uniform_distributed_point_cloud_2D(num_points_sqrt,
                                                scale=1,
                                                flat=False):
