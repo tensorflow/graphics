@@ -187,7 +187,7 @@ def find_neighbors_tf(grid,
       tf.maximum(adj_cell_ids_2D, tf.zeros_like(adj_cell_ids_2D)),
       grid._num_cells[:2])
     # get min and max point ids of the adjacent cells
-    adj_ids = tf.gather_nd(data_structure[cur_batch_id], [adj_cell_ids_2D])
+    adj_ids = tf.compat.v1.gather_nd(data_structure[cur_batch_id], [adj_cell_ids_2D])
     adj_ids_start = tf.reduce_min(adj_ids[0, :, 0])
     adj_ids_end = tf.reduce_max(adj_ids[0, :, 1])
     # choose points below certain distance and in same batch
