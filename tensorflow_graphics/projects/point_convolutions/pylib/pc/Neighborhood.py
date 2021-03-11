@@ -38,7 +38,7 @@ import tensorflow as tf
 
 from pylib.pc import PointCloud
 from pylib.pc import Grid
-from pylib.pc.custom_ops import find_neighbors # , compute_pdf
+from pylib.pc.custom_ops import find_neighbors, compute_pdf
 from pylib.pc.utils import cast_to_num_dims
 
 
