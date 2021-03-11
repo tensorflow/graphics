@@ -43,7 +43,7 @@ def compute_keys_tf(point_cloud: PointCloud, num_cells, cell_size, name=None):
   cell_ind = tf.cast(cell_ind, tf.int32)
   cell_ind = tf.minimum(
       tf.maximum(cell_ind, tf.zeros_like(cell_ind)),
-      num_cells)
+      num_cells - 1)
   cell_multiplier = tf.math.cumprod(num_cells, reverse=True)
   cell_multiplier = tf.concat((cell_multiplier, [1]), axis=0)
   keys = point_cloud._batch_ids * cell_multiplier[0] + \
