@@ -56,7 +56,7 @@ class SamplingTest(test_case.TestCase):
       dists = np.sort(dists, axis=1)
       min_dist = min(min_dist, np.amin(dists[:, 1]))
 
-    self.assertLess(min_dist, cell_size + 1e-3)
+    self.assertLess(min_dist, cell_size + dimension * 1e-3)
 
   @parameterized.parameters(
     (6, 1),
@@ -74,8 +74,11 @@ class SamplingTest(test_case.TestCase):
     sample_point_cloud, _ = sample(neighborhood, 'poisson')
 
     sampled_points = sample_point_cloud._points.numpy()
-    expected_num_pts = num_points_sqrt ** 2 // 2
-    self.assertTrue(len(sampled_points) == expected_num_pts)
+    expected_max_num_pts = num_points_sqrt ** 2 // 2
+    expected_min_num_pts = np.ceil(num_points_sqrt ** 2 / 3)
+    self.assertTrue(
+        len(sampled_points) <= expected_max_num_pts and \
+        len(sampled_points) >= expected_min_num_pts)
 
   @parameterized.parameters(
     (100, 2, 0.1, 3),

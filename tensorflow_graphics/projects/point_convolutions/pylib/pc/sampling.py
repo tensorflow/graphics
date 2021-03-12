@@ -15,7 +15,7 @@
 
 import tensorflow as tf
 
-from pylib.pc.custom_ops import sampling
+from pylib.pc.custom_ops.custom_ops_tf import sampling_tf as sampling
 
 from pylib.pc import PointCloud, Neighborhood, Grid
 from pylib.pc.utils import cast_to_num_dims
