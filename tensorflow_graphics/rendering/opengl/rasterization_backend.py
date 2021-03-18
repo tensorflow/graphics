@@ -218,5 +218,17 @@ def rasterize(vertices,
             value=barycentric_coordinates, d_dx=None, d_dy=None))
 
 
+@tf.RegisterGradient("Rasterize")
+def _rasterize_grad(op,
+                    vertices,
+                    triangles=None,
+                    view_projection_matrices=None,
+                    image_size=None,
+                    name=None):
+  # The Rasterize kernel does not have gradients.
+  del op, vertices, triangles, view_projection_matrices, image_size, name
+  return None, None, None
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()

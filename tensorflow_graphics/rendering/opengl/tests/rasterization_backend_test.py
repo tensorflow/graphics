@@ -54,6 +54,16 @@ def _proxy_rasterize(vertices, triangles, view_projection_matrices):
                                          _ENABLE_CULL_FACE, _NUM_LAYERS)
 
 
+def _proxy_gradient_rasterize(vertices, triangles, view_projection_matrices):
+  with tf.GradientTape() as tape:
+    tape.watch((vertices, triangles, view_projection_matrices))
+    rasterization = rasterization_backend.rasterize(
+        vertices, triangles, view_projection_matrices,
+        (_IMAGE_WIDTH, _IMAGE_HEIGHT), _ENABLE_CULL_FACE, _NUM_LAYERS)
+    return tape.gradient(rasterization,
+                         [vertices, triangles, view_projection_matrices])
+
+
 class RasterizationBackendTest(test_case.TestCase):
 
   @parameterized.parameters(
@@ -84,6 +94,13 @@ class RasterizationBackendTest(test_case.TestCase):
   def test_rasterize_exception_not_raised(self, shapes, dtypes):
     self.assert_exception_is_not_raised(
         _proxy_rasterize, shapes=shapes, dtypes=dtypes)
+
+  @parameterized.parameters(
+      (((1, 32, 3), (17, 3), (1, 4, 4)), (tf.float32, tf.int32, tf.float32)),
+  )
+  def test_rasterize_gradient_op_exception_not_raised(self, shapes, dtypes):
+    self.assert_exception_is_not_raised(
+        _proxy_gradient_rasterize, shapes=shapes, dtypes=dtypes)
 
   def test_rasterize_batch_vertices_only(self):
     triangles = np.array(((0, 1, 2),), np.int32)
