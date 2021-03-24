@@ -14,9 +14,11 @@
 """Util functions for rasterization tests."""
 
 import numpy as np
+import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import look_at
 from tensorflow_graphics.rendering.camera import perspective
+from tensorflow_graphics.util import shape
 
 
 def make_perspective_matrix(image_width=None, image_height=None):
@@ -47,3 +49,55 @@ def make_look_at_matrix(
   """Shortcut util function to creat model-to-eye matrix for tests."""
   camera_up = (0.0, 1.0, 0.0)
   return look_at.right_handed(camera_origin, look_at_point, camera_up)
+
+
+def compare_images(test_case,
+                   baseline_image,
+                   image,
+                   max_outlier_fraction=0.005,
+                   pixel_error_threshold=0.04):
+  """Compares two image arrays.
+
+  The comparison is soft: the images are considered identical if fewer than
+  max_outlier_fraction of the pixels differ by more than pixel_error_threshold
+  of the full color value.
+
+  Differences in JPEG encoding can produce pixels with pretty large variation,
+  so by default we use 0.04 (4%) for pixel_error_threshold and 0.005 (0.5%) for
+  max_outlier_fraction.
+
+  Args:
+    test_case: test_case.TestCase instance this util function is used in.
+    baseline_image: tensor of shape [batch, height, width, channels] containing
+      the baseline image.
+    image: tensor of shape [batch, height, width, channels] containing the
+      result image.
+    max_outlier_fraction: fraction of pixels that may vary by more than the
+      error threshold. 0.005 means 0.5% of pixels. Number of outliers are
+      computed and compared per image.
+    pixel_error_threshold: pixel values are considered to differ if their
+      difference exceeds this amount. Range is 0.0 - 1.0.
+
+  Returns:
+    Tuple of a boolean and string error message. Boolean indicates
+    whether images are close to each other or not. Error message contains
+    details of two images mismatch.
+  """
+  tf.assert_equal(baseline_image.shape, image.shape)
+  if baseline_image.dtype != image.dtype:
+    return False, ("Image types %s and %s do not match" %
+                   (baseline_image.dtype, image.dtype))
+  shape.check_static(
+      tensor=baseline_image, tensor_name="baseline_image", has_rank=4)
+  # Flatten height, width and channels dimensions since we're interested in
+  # error per image.
+  image_height, image_width = image.shape[1:3]
+  baseline_image = tf.reshape(baseline_image, [baseline_image.shape[0]] + [-1])
+  image = tf.reshape(image, [image.shape[0]] + [-1])
+  abs_diff = tf.abs(baseline_image - image)
+  outliers = tf.math.greater(abs_diff, pixel_error_threshold)
+  num_outliers = tf.math.reduce_sum(tf.cast(outliers, tf.int32))
+  perc_outliers = num_outliers / (image_height * image_width)
+  error_msg = "{:.2%} pixels are not equal to baseline image pixels.".format(
+      test_case.evaluate(perc_outliers) * 100.0)
+  return test_case.evaluate(perc_outliers < max_outlier_fraction), error_msg
