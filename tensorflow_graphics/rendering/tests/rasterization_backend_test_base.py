@@ -17,11 +17,15 @@ from absl.testing import parameterized
 import tensorflow as tf
 
 from tensorflow_graphics.rendering import rasterization_backend
+from tensorflow_graphics.rendering.tests import rasterization_test_utils
 from tensorflow_graphics.util import test_case
 
 
 class RasterizationBackendTestBase(test_case.TestCase):
   """Base class for CPU/GPU rasterization backend tests."""
+
+  IMAGE_WIDTH = 640
+  IMAGE_HEIGHT = 480
 
   def setUp(self):
     super().setUp()
@@ -75,8 +79,9 @@ class RasterizationBackendTestBase(test_case.TestCase):
     """Tests that supported backends return correct shape."""
     placeholders = self._create_placeholders(shapes, dtypes)
     frame_buffer = rasterization_backend.rasterize(
-        placeholders[0], placeholders[1], placeholders[2], (600, 800),
-        enable_cull_face, self._num_layers, self._backend)
+        placeholders[0], placeholders[1], placeholders[2],
+        (self.IMAGE_WIDTH, self.IMAGE_HEIGHT), enable_cull_face,
+        self._num_layers, self._backend)
     batch_size = shapes[0][0]
     self.assertEqual([batch_size],
                      frame_buffer.triangle_id.get_shape().as_list()[:-3])
@@ -94,7 +99,8 @@ class RasterizationBackendTestBase(test_case.TestCase):
     placeholders = self._create_placeholders(shapes, dtypes)
     with self.assertRaisesRegexp(KeyError, 'Backend is not supported'):
       rasterization_backend.rasterize(placeholders[0], placeholders[1],
-                                      placeholders[2], (600, 800),
+                                      placeholders[2],
+                                      (self.IMAGE_WIDTH, self.IMAGE_HEIGHT),
                                       self._enable_cull_face, self._num_layers,
                                       backend)
 
@@ -105,8 +111,9 @@ class RasterizationBackendTestBase(test_case.TestCase):
     triangles = tf.convert_to_tensor([[0, 1, 2]], dtype=tf.int32)
     view_projection_matrix = tf.expand_dims(tf.eye(4), axis=0)
     frame_buffer = rasterization_backend.rasterize(
-        vertices, triangles, view_projection_matrix, (100, 100),
-        self._enable_cull_face, self._num_layers, self._backend)
+        vertices, triangles, view_projection_matrix,
+        (self.IMAGE_WIDTH, self.IMAGE_HEIGHT), self._enable_cull_face,
+        self._num_layers, self._backend)
     self.assertAllEqual(frame_buffer.triangle_id.shape[:-1],
                         frame_buffer.vertex_ids.shape[:-1])
     # Assert that triangle is visible.
@@ -115,3 +122,28 @@ class RasterizationBackendTestBase(test_case.TestCase):
     # Assert that all three vertices are visible.
     self.assertAllLess(frame_buffer.triangle_id, 3)
     self.assertAllGreaterEqual(frame_buffer.triangle_id, 0)
+
+  def test_render_simple_triangle(self):
+    """Directly renders a rasterized triangle's barycentric coordinates."""
+    w_vector = tf.constant([1.0, 1.0, 1.0], dtype=tf.float32)
+    clip_init = tf.constant(
+        [[[-0.5, -0.5, 0.8], [0.0, 0.5, 0.3], [0.5, -0.5, 0.3]]],
+        dtype=tf.float32)
+    clip_coordinates = clip_init * tf.reshape(w_vector, [1, 3, 1])
+    triangles = tf.constant([[0, 1, 2]], dtype=tf.int32)
+
+    face_culling_enabled = False
+    framebuffer = rasterization_backend.rasterize(
+        clip_coordinates, triangles, tf.eye(4, batch_shape=[1]),
+        (self.IMAGE_WIDTH, self.IMAGE_HEIGHT), face_culling_enabled,
+        self._num_layers, self._backend)
+    ones_image = tf.ones([1, self.IMAGE_HEIGHT, self.IMAGE_WIDTH, 1])
+    rendered_coordinates = tf.concat(
+        [framebuffer.barycentrics.value, ones_image], axis=-1)
+
+    baseline_image = rasterization_test_utils.load_baseline_image(
+        'Simple_Triangle.png', rendered_coordinates.shape)
+
+    images_near, error_message = rasterization_test_utils.compare_images(
+        self, baseline_image, rendered_coordinates)
+    self.assertTrue(images_near, msg=error_message)

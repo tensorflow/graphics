@@ -13,8 +13,6 @@
 # limitations under the License.
 """Tests for tensorflow_graphics.rendering.tests.interpolate."""
 
-import os
-
 import tensorflow as tf
 
 from tensorflow_graphics.rendering import interpolate
@@ -67,12 +65,8 @@ class RasterizeTest(test_case.TestCase):
     rendered = interpolate.interpolate_vertex_attribute(vertex_rgba,
                                                         rasterized).value
 
-    image_path = tf.compat.v1.resource_loader.get_path_to_datafile(
-        os.path.join('test_data', 'Unlit_Cube_0_0.png'))
-    file = tf.io.read_file(image_path)
-    baseline_image = tf.cast(tf.image.decode_image(file), tf.float32) / 255.0
-    baseline_image = tf.expand_dims(baseline_image, axis=0)
-    baseline_image = tf.reshape(baseline_image, rendered.shape)
+    baseline_image = rasterization_test_utils.load_baseline_image(
+        'Unlit_Cube_0_0.png', rendered.shape)
 
     images_near, error_message = rasterization_test_utils.compare_images(
         self, baseline_image, rendered)

@@ -13,6 +13,8 @@
 # limitations under the License.
 """Util functions for rasterization tests."""
 
+import os
+
 import numpy as np
 import tensorflow as tf
 
@@ -101,3 +103,24 @@ def compare_images(test_case,
   error_msg = "{:.2%} pixels are not equal to baseline image pixels.".format(
       test_case.evaluate(perc_outliers) * 100.0)
   return test_case.evaluate(perc_outliers < max_outlier_fraction), error_msg
+
+
+def load_baseline_image(filename, image_shape=None):
+  """Loads baseline image and makes sure it is of the right shape.
+
+  Args:
+    filename: file name of the image to load.
+    image_shape: expected shape of the image.
+
+  Returns:
+    tf.Tensor with baseline image
+  """
+  image_path = tf.compat.v1.resource_loader.get_path_to_datafile(
+      os.path.join("test_data", filename))
+  file = tf.io.read_file(image_path)
+  baseline_image = tf.cast(tf.image.decode_image(file), tf.float32) / 255.0
+  baseline_image = tf.expand_dims(baseline_image, axis=0)
+  if image_shape is not None:
+    # Graph-mode requires image shape to be known in advance.
+    baseline_image = tf.ensure_shape(baseline_image, image_shape)
+  return baseline_image
