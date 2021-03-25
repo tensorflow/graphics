@@ -15,7 +15,6 @@
 
 import math
 
-from absl.testing import flagsaver
 from absl.testing import parameterized
 import numpy as np
 import tensorflow as tf
@@ -469,123 +468,6 @@ class MathTest(test_case.TestCase):
     #   self.assert_jacobian_is_correct_fn(
     #       lambda *args: glm.model_to_screen(*args)[1], args)
 
-  def test_perspective_correct_interpolation_preset(self):
-    """Tests that perspective_correct_interpolation generates expected results."""
-    camera_origin = np.array((0.0, 0.0, 0.0))
-    camera_up = np.array((0.0, 1.0, 0.0))
-    look_at_point = np.array((0.0, 0.0, 1.0))
-    fov = np.array((90.0 * np.math.pi / 180.0,))
-    bottom_left = np.array((0.0, 0.0))
-    image_size = np.array((501.0, 501.0))
-    near_plane = np.array((0.01,))
-    far_plane = np.array((10.0,))
-    batch_size = np.random.randint(1, 5)
-    triangle_x_y = np.random.uniform(-10.0, 10.0, (batch_size, 3, 2))
-    triangle_z = np.random.uniform(2.0, 10.0, (batch_size, 3, 1))
-    triangles = np.concatenate((triangle_x_y, triangle_z), axis=-1)
-    # Builds barycentric weights.
-    barycentric_weights = np.random.uniform(size=(batch_size, 3))
-    barycentric_weights = barycentric_weights / np.sum(
-        barycentric_weights, axis=-1, keepdims=True)
-    # Barycentric interpolation of vertex positions.
-    convex_combination = np.einsum("ba, bac -> bc", barycentric_weights,
-                                   triangles)
-    # Build matrices.
-    model_to_eye_matrix = look_at.right_handed(camera_origin, look_at_point,
-                                               camera_up)
-    perspective_matrix = perspective.right_handed(
-        fov, (image_size[0:1] / image_size[1:2]), near_plane, far_plane)
-
-    # Computes where those points project in screen coordinates.
-    pixel_position, _ = glm.model_to_screen(convex_combination,
-                                            model_to_eye_matrix,
-                                            perspective_matrix, image_size,
-                                            bottom_left)
-
-    # Builds attributes.
-    num_pixels = pixel_position.shape[0]
-    attribute_size = np.random.randint(10)
-    attributes = np.random.uniform(size=(num_pixels, 3, attribute_size))
-
-    prediction = glm.perspective_correct_interpolation(triangles, attributes,
-                                                       pixel_position[..., 0:2],
-                                                       model_to_eye_matrix,
-                                                       perspective_matrix,
-                                                       image_size, bottom_left)
-
-    groundtruth = np.einsum("ba, bac -> bc", barycentric_weights, attributes)
-    self.assertAllClose(prediction, groundtruth)
-
-  def test_perspective_correct_interpolation_jacobian_preset(self):
-    """Tests the Jacobian of perspective_correct_interpolation."""
-    vertices_init = np.tile(
-        ((-0.2857143, 0.2857143, 5.0), (0.2857143, 0.2857143, 0.5),
-         (0.0, -0.2857143, 1.0)), (2, 1, 1))
-    attributes_init = np.tile(
-        (((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))), (2, 1, 1))
-    pixel_position_init = np.array(((125.5, 375.5), (250.5, 250.5)))
-    camera_position_init = np.tile((0.0, 0.0, 0.0), (2, 3, 1))
-    look_at_init = np.tile((0.0, 0.0, 1.0), (2, 3, 1))
-    up_vector_init = np.tile((0.0, 1.0, 0.0), (2, 3, 1))
-    vertical_field_of_view_init = np.tile((1.0471975511965976,), (2, 3, 1))
-    screen_dimensions_init = np.tile((501.0, 501.0), (2, 3, 1))
-    near_init = np.tile((0.01,), (2, 3, 1))
-    far_init = np.tile((10.0,), (2, 3, 1))
-    lower_left_corner_init = np.tile((0.0, 0.0), (2, 3, 1))
-
-    # Build matrices.
-    model_to_eye_matrix_init = look_at.right_handed(camera_position_init,
-                                                    look_at_init,
-                                                    up_vector_init)
-    perspective_matrix_init = perspective.right_handed(
-        vertical_field_of_view_init,
-        screen_dimensions_init[..., 0:1] / screen_dimensions_init[..., 1:2],
-        near_init, far_init)
-
-    self.assert_jacobian_is_correct_fn(glm.perspective_correct_interpolation, [
-        vertices_init, attributes_init, pixel_position_init,
-        model_to_eye_matrix_init, perspective_matrix_init,
-        screen_dimensions_init, lower_left_corner_init
-    ])
-
-  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_perspective_correct_interpolation_jacobian_random(self):
-    """Tests the Jacobian of perspective_correct_interpolation."""
-    tensor_size = np.random.randint(1, 3)
-    tensor_shape = np.random.randint(1, 5, size=(tensor_size)).tolist()
-    vertices_init = np.random.uniform(size=tensor_shape + [3, 3])
-    num_attributes = np.random.randint(1, 10)
-    attributes_init = np.random.uniform(size=tensor_shape + [3, num_attributes])
-    pixel_position_init = np.random.uniform(size=tensor_shape + [2])
-    camera_position_init = np.random.uniform(size=tensor_shape + [3, 3])
-    look_at_init = np.random.uniform(size=tensor_shape + [3, 3])
-    up_vector_init = np.random.uniform(size=tensor_shape + [3, 3])
-    vertical_field_of_view_init = np.random.uniform(
-        0.1, 1.0, size=tensor_shape + [3, 1])
-    screen_dimensions_init = np.random.uniform(
-        1.0, 10.0, size=tensor_shape + [3, 2])
-    near_init = np.random.uniform(1.0, 10.0, size=tensor_shape + [3, 1])
-    far_init = near_init + np.random.uniform(
-        0.1, 1.0, size=tensor_shape + [3, 1])
-    lower_left_corner_init = np.random.uniform(size=tensor_shape + [3, 2])
-
-    # Build matrices.
-    model_to_eye_matrix_init = look_at.right_handed(camera_position_init,
-                                                    look_at_init,
-                                                    up_vector_init)
-    perspective_matrix_init = perspective.right_handed(
-        vertical_field_of_view_init,
-        screen_dimensions_init[..., 0:1] / screen_dimensions_init[..., 1:2],
-        near_init, far_init)
-
-    self.assert_jacobian_is_correct_fn(
-        glm.perspective_correct_interpolation, [
-            vertices_init, attributes_init, pixel_position_init,
-            model_to_eye_matrix_init, perspective_matrix_init,
-            screen_dimensions_init, lower_left_corner_init
-        ],
-        atol=1e-4)
-
   @parameterized.parameters(
       ((3, 3), (2,), (4, 4), (4, 4), (2,)),
       ((3, 3), (7, 2), (4, 4), (4, 4), (2,)),
@@ -686,53 +568,6 @@ class MathTest(test_case.TestCase):
             lower_left_corner_init
         ],
         atol=1e-4)
-
-  @parameterized.parameters(
-      ((3, 7), (3,)),
-      ((2, 3, 7), (2, 3)),
-      ((None, 3, 7), (None, 3)),
-  )
-  def test_interpolate_attributes_exception_not_raised(self, *shapes):
-    """Tests that the shape exceptions are not raised."""
-    self.assert_exception_is_not_raised(glm.interpolate_attributes, shapes)
-
-  @parameterized.parameters(
-      ("must have exactly 3 dimensions in axis -2", (2, 7), (3,)),
-      ("must have exactly 3 dimensions in axis -1", (3, 7), (2,)),
-      ("Not all batch dimensions are broadcast-compatible", (5, 3, 7), (4, 3)),
-  )
-  def test_interpolate_attributes_exception_raised(self, error_msg, *shapes):
-    """Tests that the shape exceptions are properly raised."""
-    self.assert_exception_is_raised(glm.interpolate_attributes, error_msg,
-                                    shapes)
-
-  def test_interpolate_attributes_random(self):
-    """Checks the output of interpolate_attributes."""
-    attributes = np.random.uniform(-1.0, 1.0, size=(3,))
-    barycentric = np.random.uniform(0.0, 1.0, size=(3,))
-    barycentric = barycentric / np.linalg.norm(
-        barycentric, axis=-1, ord=1, keepdims=True)
-
-    groundtruth = np.sum(attributes * barycentric, keepdims=True)
-    attributes = np.reshape(attributes, (3, 1))
-    prediction = glm.interpolate_attributes(attributes, barycentric)
-    self.assertAllClose(groundtruth, prediction)
-
-  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
-  def test_interpolate_attributes_jacobian_random(self):
-    """Tests the jacobian of interpolate_attributes."""
-    batch_size = np.random.randint(1, 5)
-    attributes = np.random.uniform(-1.0, 1.0, size=(batch_size, 3, 1))
-    barycentric = np.random.uniform(
-        0.0, 1.0, size=(
-            batch_size,
-            3,
-        ))
-    barycentric = barycentric / np.linalg.norm(
-        barycentric, axis=-1, ord=1, keepdims=True)
-
-    self.assert_jacobian_is_correct_fn(glm.interpolate_attributes,
-                                       [attributes, barycentric])
 
 
 if __name__ == "__main__":

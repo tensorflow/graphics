@@ -62,15 +62,6 @@ def _perspective_correct_barycentrics(vertices_per_pixel, model_to_eye_matrix,
                                               (width, height))
 
 
-def _perspective_correct_attributes(attribute, barycentrics, triangles,
-                                    triangle_index, len_batch_shape):
-  attribute = tf.gather(attribute, triangles, axis=-2)
-  attribute_per_pixel = tf.gather(
-      attribute, triangle_index, axis=-3, batch_dims=len_batch_shape)
-
-  return glm.interpolate_attributes(attribute_per_pixel, barycentrics)
-
-
 def _dim_value(dim):
   return 1 if dim is None else tf.compat.v1.dimension_value(dim)
 
