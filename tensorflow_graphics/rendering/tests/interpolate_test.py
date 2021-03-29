@@ -13,6 +13,7 @@
 # limitations under the License.
 """Tests for tensorflow_graphics.rendering.tests.interpolate."""
 
+from absl.testing import parameterized
 import tensorflow as tf
 
 from tensorflow_graphics.rendering import interpolate
@@ -49,7 +50,8 @@ class RasterizeTest(test_case.TestCase):
     # Add batch dimension.
     self.projection = tf.expand_dims(projection, axis=0)
 
-  def test_renders_colored_cube(self):
+  @parameterized.parameters(True, False)
+  def test_renders_colored_cube(self, enable_cull_face):
     """Renders a simple colored cube."""
     num_layers = 1
     rasterized = rasterization_backend.rasterize(
@@ -57,7 +59,7 @@ class RasterizeTest(test_case.TestCase):
         self.cube_triangles,
         self.projection, (self.image_width, self.image_height),
         num_layers=num_layers,
-        enable_cull_face=False,
+        enable_cull_face=enable_cull_face,
         backend=rasterization_backend.RasterizationBackends.CPU)
 
     vertex_rgb = (self.cube_vertex_positions * 0.5 + 0.5)
@@ -65,8 +67,9 @@ class RasterizeTest(test_case.TestCase):
     rendered = interpolate.interpolate_vertex_attribute(vertex_rgba,
                                                         rasterized).value
 
+    face_culling_num = 1 if enable_cull_face else 0
     baseline_image = rasterization_test_utils.load_baseline_image(
-        'Unlit_Cube_0_0.png', rendered.shape)
+        'Unlit_Cube_0_%d.png' % face_culling_num, rendered.shape)
 
     images_near, error_message = rasterization_test_utils.compare_images(
         self, baseline_image, rendered)
