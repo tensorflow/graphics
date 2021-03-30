@@ -518,5 +518,59 @@ class PerspectiveTest(test_case.TestCase):
     self.assert_exception_is_raised(perspective.random_rays, error_msg, shapes,
                                     height=height, width=width, n_rays=n_rays)
 
+  @parameterized.parameters(
+      (128, 128, 64, 64, (2,), (2,)),
+      (128, 256, 64, 64, (2,), (2,)),
+      (128, 128, 64, 72, (2,), (2,)),
+      (128, 256, 64, 72, (2,), (2,)),
+      (128, 128, 64, 64, (2, 2), (2, 2)),
+      (128, 128, 64, 64, (5, 3, 2), (5, 3, 2)),
+      (128, 128, 64, 64, (3, 2), (1, 2)),
+      (128, 128, 128, 128, (3, 2), (1, 2)),
+  )
+  def test_random_patches_exception_exception_not_raised(self,
+                                                         height,
+                                                         width,
+                                                         patch_height,
+                                                         patch_width,
+                                                         *shapes):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(perspective.random_patches, shapes,
+                                        height=height, width=width,
+                                        patch_height=patch_height,
+                                        patch_width=patch_width)
+
+  @parameterized.parameters(
+      ("must have exactly 2 dimensions in axis -1",
+       128, 128, 64, 64, (None,), (2,)),
+      ("must have exactly 2 dimensions in axis -1",
+       128, 128, 64, 64, (2,), (None,)),
+      ("Not all batch dimensions are broadcast-compatible.",
+       128, 128, 64, 64, (3, 2), (2, 2)),
+  )
+  def test_random_patches_exception_exception_raised(self, error_msg,
+                                                     height, width,
+                                                     patch_height, patch_width,
+                                                     *shapes):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_raised(perspective.random_patches,
+                                    error_msg,
+                                    shapes,
+                                    height=height,
+                                    width=width,
+                                    patch_height=patch_height,
+                                    patch_width=patch_width)
+
+  @parameterized.parameters(
+      (((1., 1.), (1., 1.), 1, 1, 1, 1), (((-1., -1., 1.),), ((0., 0.),))),
+  )
+  def test_random_patches_preset(self, test_inputs, test_outputs):
+    """Tests that the ray function gives the correct result."""
+    self.assert_output_is_correct(perspective.random_patches,
+                                  test_inputs,
+                                  test_outputs,
+                                  tile=False)
+
+
 if __name__ == "__main__":
   test_case.main()
