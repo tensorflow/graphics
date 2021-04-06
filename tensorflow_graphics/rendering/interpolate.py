@@ -67,8 +67,13 @@ def interpolate_vertex_attribute(
   weighted_vertex_attribute = tf.multiply(corner_attribute,
                                           reshaped_barycentrics)
   summed_attribute = tf.reduce_sum(weighted_vertex_attribute, axis=2)
-  out_shape = (framebuffer.batch_size, framebuffer.height, framebuffer.width,
-               num_channels)
+  if framebuffer.is_multi_layer:
+    out_shape = (framebuffer.batch_size, framebuffer.num_layers,
+                 framebuffer.height, framebuffer.width, num_channels)
+  else:
+    out_shape = (framebuffer.batch_size, framebuffer.height, framebuffer.width,
+                 num_channels)
+
   attribute_image = tf.reshape(summed_attribute, out_shape)
   if background_value is None:
     background_value = tf.zeros((num_channels), dtype=attribute.dtype)

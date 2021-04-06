@@ -27,9 +27,6 @@ class RasterizeTest(test_case.TestCase):
   def setUp(self):
     super(RasterizeTest, self).setUp()
 
-    self.test_data_directory = (
-        'google3/research/vision/viscam/diffren/mesh/test_data/')
-
     self.cube_vertex_positions = tf.constant(
         [[[-1, -1, 1], [-1, -1, -1], [-1, 1, -1], [-1, 1, 1], [1, -1, 1],
           [1, -1, -1], [1, 1, -1], [1, 1, 1]]],
@@ -74,6 +71,30 @@ class RasterizeTest(test_case.TestCase):
     images_near, error_message = rasterization_test_utils.compare_images(
         self, baseline_image, rendered)
     self.assertTrue(images_near, msg=error_message)
+
+  @parameterized.parameters([2, 3])
+  def test_renders_colored_cube_multilayer(self, num_layers):
+    """Renders a simple colored cube with multiple layers."""
+    rasterized = rasterization_backend.rasterize(
+        self.cube_vertex_positions,
+        self.cube_triangles,
+        self.projection, (self.image_width, self.image_height),
+        num_layers=num_layers,
+        enable_cull_face=False,
+        backend=rasterization_backend.RasterizationBackends.CPU)
+
+    vertex_rgb = (self.cube_vertex_positions * 0.5 + 0.5)
+    vertex_rgba = tf.concat([vertex_rgb, tf.ones([1, 8, 1])], axis=-1)
+    rendered = interpolate.interpolate_vertex_attribute(vertex_rgba,
+                                                        rasterized).value
+
+    image_shape = [1] + rendered.shape[2:]
+    for layer_index in range(num_layers):
+      baseline_image = rasterization_test_utils.load_baseline_image(
+          'Unlit_Cube_{}_{}.png'.format(0, layer_index), image_shape)
+      images_near, error_message = rasterization_test_utils.compare_images(
+          self, baseline_image, rendered[:, layer_index, ...])
+      self.assertTrue(images_near, msg=error_message)
 
 
 if __name__ == '__main__':
