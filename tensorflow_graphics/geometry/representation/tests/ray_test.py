@@ -56,6 +56,58 @@ class RayTest(test_case.TestCase):
     self.weights = tf.identity(tf.convert_to_tensor(value=self.weights_values))
 
   @parameterized.parameters(
+      ("Not all batch dimensions are identical.", 512, (4, 3), (5, 3)),
+      ("must have exactly 3 dimensions in axis", 512, (4, 2), (4, 2)),
+      ("Not all batch dimensions are identical.", 512, (2, 4, 3), (1, 3)),
+  )
+  def test_stratified_sampling_exception_raised(self, error_msg, n_samples,
+                                                *shapes):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_raised(ray.sample_stratified_1d, error_msg, shapes,
+                                    near=1.0, far=4.0, n_samples=n_samples)
+
+  @parameterized.parameters(
+      (512, (4, 3), (4, 3)),
+      (128, (5, 4, 3), (5, 4, 3)),
+      (512, (6, 5, 4, 3), (6, 5, 4, 3)),
+  )
+  def test_stratified_sampling_exception_is_not_raised(self, n_samples,
+                                                       *shapes):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_not_raised(ray.sample_stratified_1d, shapes,
+                                        near=1.0, far=4.0, n_samples=n_samples)
+
+  @parameterized.parameters(
+      ("Not all batch dimensions are identical.", 512,
+       (4, 3), (5, 3), (5, 3), (5, 3)),
+      ("must have exactly 3 dimensions in axis", 512,
+       (4, 2), (4, 2), (4, 11), (4, 11)),
+      ("Not all batch dimensions are identical.", 512,
+       (2, 4, 3), (1, 3), (5, 3), (5, 3)),
+      ("must have the same number of dimensions", 512,
+       (5, 3), (5, 3), (5, 11), (5, 12)),
+  )
+  def test_inverse_transform_stratified_exception_raised(self,
+                                                         error_msg,
+                                                         n_samples,
+                                                         *shapes):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_raised(ray.sample_inverse_transform_stratified_1d,
+                                    error_msg, shapes, n_samples=n_samples)
+
+  @parameterized.parameters(
+      (512, (4, 3), (4, 3), (4, 13), (4, 13)),
+      (128, (5, 4, 3), (5, 4, 3), (5, 4, 13), (5, 4, 13)),
+  )
+  def test_inverse_transform_stratified_exception_is_not_raised(self,
+                                                                n_samples,
+                                                                *shapes):
+    """Tests that the shape exceptions are properly raised."""
+    self.assert_exception_is_not_raised(
+        ray.sample_inverse_transform_stratified_1d,
+        shapes, n_samples=n_samples)
+
+  @parameterized.parameters(
       ("Not all batch dimensions are identical.", (4, 3), (5, 3), (4,)),
       ("must have exactly 3 dimensions in axis", (4, 2), (4, 2), (4,)),
       ("must have a rank greater than 1", (3,), (3,), (None,)),
