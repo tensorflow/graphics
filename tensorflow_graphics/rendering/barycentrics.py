@@ -60,10 +60,15 @@ def differentiable_barycentrics(framebuffer: fb.Framebuffer,
       has_rank_less_than=4)
   if rank(triangles) == 2:
     triangles = tf.expand_dims(triangles, axis=0)
+  else:
+    shape.compare_batch_dimensions(
+        tensors=(clip_space_vertices, triangles),
+        last_axes=(-3, -3),
+        broadcast_compatible=False)
 
   shape.compare_batch_dimensions(
-      tensors=(clip_space_vertices, triangles, framebuffer.triangle_id),
-      last_axes=(-3, -3, -4),
+      tensors=(clip_space_vertices, framebuffer.triangle_id),
+      last_axes=(-3, -4),
       broadcast_compatible=False)
 
   # Compute image pixel coordinates.
