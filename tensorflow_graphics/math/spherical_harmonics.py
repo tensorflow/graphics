@@ -120,7 +120,15 @@ def generate_l_m_zonal(
 
 
 def _evaluate_legendre_polynomial_pmm_eval(m, x):
-  pmm = tf.pow(1.0 - tf.pow(x, 2.0), tf.cast(m, dtype=x.dtype) / 2.0)
+  """Order 0 case of Legendre polynomial evaluation."""
+
+  # For x={-1.0, 1.0}, we end up exponentiating a base of 0.0 to m/2.
+  # For m={0, 1}, the gradient of this term is undefined, and results in NaNs.
+  # We therefore protect against this by clamping the base to epsilon.
+  eps = asserts.select_eps_for_addition(x.dtype)
+  pmm = tf.pow(
+      tf.maximum(1.0 - tf.pow(x, 2.0), eps),
+      tf.cast(m, dtype=x.dtype) / 2.0)
   ones = tf.ones_like(m)
   pmm *= tf.cast(
       tf.pow(-ones, m) * math_helpers.double_factorial(2 * m - 1),

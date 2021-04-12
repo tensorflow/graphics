@@ -21,15 +21,12 @@ import numpy as np
 import tensorflow as tf
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
-from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
-from tensorflow_graphics.util.type_alias import Float
 from tensorflow_graphics.util.type_alias import TensorLike
 
 
 def cartesian_to_spherical_coordinates(
     point_cartesian: TensorLike,
-    eps: Float = None,
     name: str = "cartesian_to_spherical_coordinates") -> tf.Tensor:
   """Function to transform Cartesian coordinates to spherical coordinates.
 
@@ -43,8 +40,6 @@ def cartesian_to_spherical_coordinates(
   Args:
     point_cartesian: A tensor of shape `[A1, ..., An, 3]`. In the last
       dimension, the data follows the `x`, `y`, `z` order.
-    eps: A small `float`, to be added to the denominator. If left as `None`, its
-      value is automatically selected using `point_cartesian.dtype`.
     name: A name for this op. Defaults to "cartesian_to_spherical_coordinates".
 
   Returns:
@@ -61,9 +56,16 @@ def cartesian_to_spherical_coordinates(
         has_dim_equals=(-1, 3))
 
     x, y, z = tf.unstack(point_cartesian, axis=-1)
-    radius = tf.norm(tensor=point_cartesian, axis=-1)
-    theta = tf.acos(
-        tf.clip_by_value(safe_ops.safe_unsigned_div(z, radius, eps), -1., 1.))
+    division_eps = asserts.select_eps_for_division(point_cartesian.dtype)
+
+    x = tf.where(tf.equal(x, 0.0), x + division_eps, x)
+    y = tf.where(tf.equal(y, 0.0), y + division_eps, y)
+
+    radius = tf.maximum(tf.norm(tensor=point_cartesian, axis=-1), division_eps)
+    theta = z / radius
+    addition_eps = asserts.select_eps_for_addition(point_cartesian.dtype)
+    theta = tf.clip_by_value(theta, -1.0 + addition_eps, 1.0 - addition_eps)
+    theta = tf.acos(theta)
     phi = tf.atan2(y, x)
     return tf.stack((radius, theta, phi), axis=-1)
 
