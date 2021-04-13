@@ -99,7 +99,7 @@ def differentiable_barycentrics(framebuffer: fb.Framebuffer,
   # In order to make sure we return differentiable barycentrics of the same
   # shape - reshape the tensor using original shape.
   barycentric_coords = tf.reshape(
-      barycentric_coords, shape=framebuffer.barycentrics.value.shape)
+      barycentric_coords, shape=tf.shape(framebuffer.barycentrics.value))
   # Mask out barycentrics for background pixels.
   barycentric_coords = barycentric_coords * framebuffer.foreground_mask
 
