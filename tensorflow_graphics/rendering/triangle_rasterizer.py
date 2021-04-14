@@ -20,55 +20,13 @@ attributes.
 """
 
 import tensorflow as tf
+
+from tensorflow_graphics.rendering import barycentrics as barycentrics_module
 from tensorflow_graphics.rendering import interpolate
 from tensorflow_graphics.rendering import rasterization_backend
-from tensorflow_graphics.rendering.opengl import math as glm
+from tensorflow_graphics.rendering import utils
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
-
-
-def _tile_to_image_size(tensor, image_shape):
-  """Inserts `image_shape` dimensions after `tensor` batch dimension."""
-  non_batch_dims = len(tensor.shape) - 1
-  for _ in image_shape:
-    tensor = tf.expand_dims(tensor, axis=1)
-  tensor = tf.tile(tensor, [1] + image_shape + [1] * non_batch_dims)
-  return tensor
-
-
-def _perspective_correct_barycentrics(vertices_per_pixel, model_to_eye_matrix,
-                                      perspective_matrix, image_size_float):
-  """Creates the pixels grid and computes barycentrics."""
-  # Construct the pixel grid with half-integer pixel centers.
-  width = image_size_float[1]
-  height = image_size_float[0]
-  px = tf.linspace(0.5, width - 0.5, num=int(width))
-  py = tf.linspace(0.5, height - 0.5, num=int(height))
-  xv, yv = tf.meshgrid(px, py)
-  pixel_position = tf.stack((xv, yv), axis=-1)
-
-  # Since `model_to_eye_matrix` is defined per batch, while vertices in
-  # `vertices_per_pixel` are defined per batch per pixel, we have to make them
-  # broadcast-compatible. In other words we want to tile matrices per vertex
-  # per pixel.
-  image_shape = vertices_per_pixel.shape[1:-1]
-  model_to_eye_matrix = _tile_to_image_size(model_to_eye_matrix, image_shape)
-  perspective_matrix = _tile_to_image_size(perspective_matrix, image_shape)
-
-  return glm.perspective_correct_barycentrics(vertices_per_pixel,
-                                              pixel_position,
-                                              model_to_eye_matrix,
-                                              perspective_matrix,
-                                              (width, height))
-
-
-def _perspective_correct_attributes(attribute, barycentrics, triangles,
-                                    triangle_index, len_batch_shape):
-  attribute = tf.gather(attribute, triangles, axis=-2)
-  attribute_per_pixel = tf.gather(
-      attribute, triangle_index, axis=-3, batch_dims=len_batch_shape)
-
-  return glm.interpolate_attributes(attribute_per_pixel, barycentrics)
 
 
 def _dim_value(dim):
@@ -152,7 +110,6 @@ def rasterize(vertices,
         tensor_name="perspective_matrix",
         has_dim_equals=(((-2, 4), (-1, 4))))
 
-    image_size_float = (float(image_size[0]), float(image_size[1]))
     image_size_backend = (int(image_size[1]), int(image_size[0]))
     input_batch_shape = vertices.shape[:-2]
 
@@ -180,12 +137,10 @@ def rasterize(vertices,
     batch_shape = rasterized.triangle_id.shape[:-3]
     batch_shape = [_dim_value(dim) for dim in batch_shape]
 
-    vertices_per_pixel = tf.gather(
-        vertices, rasterized.vertex_ids, batch_dims=len(batch_shape))
-    barycentrics = _perspective_correct_barycentrics(vertices_per_pixel,
-                                                     model_to_eye_matrix,
-                                                     perspective_matrix,
-                                                     image_size_float)
+    clip_space_vertices = utils.transform_homogeneous(view_projection_matrix,
+                                                      vertices)
+    barycentrics = barycentrics_module.differentiable_barycentrics(
+        rasterized, clip_space_vertices, triangles).barycentrics.value
     outputs["barycentrics"] = _restore_batch_dims(
         rasterized.foreground_mask * barycentrics, input_batch_shape)
 
