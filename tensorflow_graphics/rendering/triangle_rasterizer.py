@@ -46,8 +46,7 @@ def _restore_batch_dims(tensor, batch_shape):
 def rasterize(vertices,
               triangles,
               attributes,
-              model_to_eye_matrix,
-              perspective_matrix,
+              view_projection_matrix,
               image_size,
               backend=rasterization_backend.RasterizationBackends.OPENGL,
               name=None):
@@ -64,11 +63,9 @@ def rasterize(vertices,
     attributes: A dictionary of tensors, each of shape `[A1, ..., An, V, K_a]`
       containing batches of `V` vertices, each associated with K-dimensional
       attributes. K_a may vary by attribute.
-    model_to_eye_matrix: A tensor of shape `[A1, ..., An, 4, 4]` containing
-      batches of matrices used to transform vertices from model to eye
+    view_projection_matrix: A tensor of shape `[A1, ..., An, 4, 4]` containing
+      batches of matrices used to transform vertices from model to clip
       coordinates.
-    perspective_matrix: A tensor of shape `[A1, ..., An, 4, 4]` containing
-      batches of matrices used to project vertices from eye to clip coordinates.
     image_size: A tuple (height, width) containing the dimensions in pixels of
       the rasterized image.
     backend: A rasterization_backend.RasterizationBackends enum containing the
@@ -83,13 +80,12 @@ def rasterize(vertices,
     the dictionary contains perspective correct interpolated attributes of shape
     `[A1, ..., An, height, width, K]` per entry in the `attributes` dictionary.
   """
-  with tf.compat.v1.name_scope(name, "triangle_rasterizer_rasterize",
-                               (vertices, triangles, attributes,
-                                model_to_eye_matrix, perspective_matrix)):
+  with tf.compat.v1.name_scope(
+      name, "triangle_rasterizer_rasterize",
+      (vertices, triangles, attributes, view_projection_matrix)):
     vertices = tf.convert_to_tensor(value=vertices)
     triangles = tf.convert_to_tensor(value=triangles)
-    model_to_eye_matrix = tf.convert_to_tensor(value=model_to_eye_matrix)
-    perspective_matrix = tf.convert_to_tensor(value=perspective_matrix)
+    view_projection_matrix = tf.convert_to_tensor(value=view_projection_matrix)
 
     shape.check_static(
         tensor=vertices,
@@ -102,21 +98,15 @@ def rasterize(vertices,
         has_rank=2,
         has_dim_equals=((-1, 3)))
     shape.check_static(
-        tensor=model_to_eye_matrix,
-        tensor_name="model_to_eye_matrix",
-        has_dim_equals=(((-2, 4), (-1, 4))))
-    shape.check_static(
-        tensor=perspective_matrix,
-        tensor_name="perspective_matrix",
+        tensor=view_projection_matrix,
+        tensor_name="view_projection_matrix",
         has_dim_equals=(((-2, 4), (-1, 4))))
 
     image_size_backend = (int(image_size[1]), int(image_size[0]))
     input_batch_shape = vertices.shape[:-2]
 
-    perspective_matrix = _merge_batch_dims(perspective_matrix, last_axis=-2)
-    model_to_eye_matrix = _merge_batch_dims(model_to_eye_matrix, last_axis=-2)
-    view_projection_matrix = tf.linalg.matmul(perspective_matrix,
-                                              model_to_eye_matrix)
+    view_projection_matrix = _merge_batch_dims(
+        view_projection_matrix, last_axis=-2)
 
     vertices = _merge_batch_dims(vertices, last_axis=-2)
     rasterized = rasterization_backend.rasterize(
