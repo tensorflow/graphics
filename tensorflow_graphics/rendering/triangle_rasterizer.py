@@ -129,8 +129,9 @@ def rasterize(vertices,
 
     clip_space_vertices = utils.transform_homogeneous(view_projection_matrix,
                                                       vertices)
-    barycentrics = barycentrics_module.differentiable_barycentrics(
-        rasterized, clip_space_vertices, triangles).barycentrics.value
+    rasterized = barycentrics_module.differentiable_barycentrics(
+        rasterized, clip_space_vertices, triangles)
+    barycentrics = rasterized.barycentrics.value
     outputs["barycentrics"] = _restore_batch_dims(
         rasterized.foreground_mask * barycentrics, input_batch_shape)
 
