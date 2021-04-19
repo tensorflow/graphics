@@ -130,7 +130,7 @@ def _fix_axis_dim_pairs(pairs, name):
 
 def _get_dim(tensor, axis):
   """Returns dimensionality of a tensor for a given axis."""
-  return tf.compat.v1.dimension_value(tensor.shape[axis])
+  return tf.compat.dimension_value(tensor.shape[axis])
 
 
 def check_static(tensor,

@@ -345,7 +345,7 @@ class AssertsTest(test_case.TestCase):
     eps = asserts.select_eps_for_addition(dtype)
 
     with self.assertRaises(tf.errors.InvalidArgumentError):
-      self.evaluate(tf.compat.v1.assert_equal(a, a + eps))
+      self.evaluate(tf.debugging.assert_equal(a, a + eps))
 
   @parameterized.parameters((np.NaN,), (np.inf,))
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
@@ -396,7 +396,7 @@ class AssertsTest(test_case.TestCase):
     vector[np.random.randint(num_elements)] = 2
     vector = vector.reshape(tensor_shape)
     vector = tf.convert_to_tensor(value=vector, dtype=dtype)
-    vector = vector - tf.compat.v1.div(vector, 4) * 3
+    vector = vector - tf.math.floordiv(vector, 4) * 3
 
     with self.subTest(name="has_negative_number"):
       with self.assertRaises(tf.errors.InvalidArgumentError):

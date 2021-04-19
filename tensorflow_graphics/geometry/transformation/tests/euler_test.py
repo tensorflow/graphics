@@ -289,5 +289,6 @@ class EulerTest(test_case.TestCase):
 
     self.assertAllClose(prediction, groundtruth, rtol=1e-3)
 
+
 if __name__ == "__main__":
   test_case.main()
