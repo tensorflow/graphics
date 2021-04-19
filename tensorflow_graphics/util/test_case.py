@@ -91,7 +91,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
     """
     with self.cached_session():
       grad = tf.compat.v1.test.compute_gradient(x, x.shape.as_list(), y,
-                                                x.shape.as_list(), x_init,
+                                                y.shape.as_list(), x_init,
                                                 delta)
       if isinstance(grad, tuple):
         grad = [grad]
@@ -213,7 +213,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
         return
     placeholders = self._create_placeholders_from_shapes(
         shapes=shapes, dtypes=dtypes, sparse_tensors=sparse_tensors)
-    with self.assertRaisesRegexp(ValueError, error_msg):
+    with self.assertRaisesRegex(ValueError, error_msg):
       func(*placeholders, **kwargs)
 
   def assert_jacobian_is_correct(self, x, x_init, y, atol=1e-6, delta=1e-6):
