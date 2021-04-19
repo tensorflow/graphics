@@ -27,6 +27,7 @@ import warnings
 from absl import flags
 from absl.testing import parameterized
 import numpy as np
+from six.moves import zip
 import tensorflow as tf
 
 from tensorflow_graphics.util import tfg_flags
@@ -376,7 +377,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
               np.array(test, dtype=np.float32) for test in test_inputs
           ]
         # Evaluate function using TensorFlow.
-        feed_dict = dict(zip(in_tensors, test_inputs))
+        feed_dict = dict(list(zip(in_tensors, test_inputs)))
         test_outputs = sess.run(out_tensors, feed_dict)
         # Set tensors for the TFLite model.
         input_details = interpreter.get_input_details()
