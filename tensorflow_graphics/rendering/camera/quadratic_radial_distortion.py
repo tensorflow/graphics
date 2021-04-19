@@ -39,7 +39,9 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def distortion_factor(squared_radius, distortion_coefficient, name=None):
+def distortion_factor(squared_radius,
+                      distortion_coefficient,
+                      name="quadratic_radial_distortion_distortion_factor"):
   """Calculates a quadratic distortion factor given squared radii.
 
   Given a vector describing a location in camera space in homogeneous
@@ -72,9 +74,7 @@ def distortion_factor(squared_radius, distortion_coefficient, name=None):
       monotonically increasing. Wherever `overflow_mask` is True,
       `distortion_factor`'s value is meaningless.
   """
-  with tf.compat.v1.name_scope(name,
-                               "quadratic_radial_distortion_distortion_factor",
-                               [squared_radius, distortion_coefficient]):
+  with tf.name_scope(name,):
     squared_radius = tf.convert_to_tensor(value=squared_radius)
     distortion_coefficient = tf.convert_to_tensor(value=distortion_coefficient)
 
@@ -106,7 +106,7 @@ def distortion_factor(squared_radius, distortion_coefficient, name=None):
 def undistortion_factor(distorted_squared_radius,
                         distortion_coefficient,
                         num_iterations=5,
-                        name=None):
+                        name="quadratic_radial_distortion_undistortion_factor"):
   """Calculates the inverse quadratic distortion function given squared radii.
 
   Given a vector describing a location in camera space in homogeneous
@@ -147,9 +147,7 @@ def undistortion_factor(distorted_squared_radius,
       `undistortion_factor`'s value is meaningless.
 
   """
-  with tf.compat.v1.name_scope(
-      name, "quadratic_radial_distortion_undistortion_factor",
-      [distorted_squared_radius, distortion_coefficient]):
+  with tf.name_scope(name):
     distorted_squared_radius = tf.convert_to_tensor(
         value=distorted_squared_radius)
     distortion_coefficient = tf.convert_to_tensor(value=distortion_coefficient)
