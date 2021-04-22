@@ -16,6 +16,7 @@
 from __future__ import print_function
 
 import argparse
+import functools
 import os
 import tempfile
 import time
@@ -59,8 +60,11 @@ class ArgumentParser(argparse.ArgumentParser):
     if isinstance(default, bool):
       mytype = str2bool
 
-    self.add_argument(
-        name, metavar=metavar, default=default, help=helpstring, type=mytype)
+    self.add_argument(name,
+                      metavar=metavar,
+                      default=default,
+                      help=helpstring,
+                      type=mytype)
 
   def parse_args(self, args=None, namespace=None):
     """WARNING: programmatically changes the logdir flags."""
@@ -109,8 +113,8 @@ def summary_command(parser, flags, log_to_file=True, log_to_summary=True):
       exec_string += " \\\n"
   exec_string += "\n"
   if log_to_file:
-    with tf.io.gfile.GFile(
-        os.path.join(flags.logdir, "command.txt"), mode="w") as fid:
+    with tf.io.gfile.GFile(os.path.join(flags.logdir, "command.txt"),
+                           mode="w") as fid:
       fid.write(exec_string)
   if log_to_summary and flags.tensorboard:
     tf.summary.text("command", exec_string, step=0)

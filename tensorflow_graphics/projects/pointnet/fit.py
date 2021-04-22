@@ -1,5 +1,3 @@
-# Copyright 2020 The TensorFlow Authors
-#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,12 +9,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Training loop for PointNet v1 on modelnet40."""
+"""keras Model.fit loop for PointNet v1 on modelnet40."""
 import tensorflow as tf
-from tqdm import tqdm
 
 from tensorflow_graphics.datasets import modelnet40
-from tensorflow_graphics.nn.layer import pointnet
 from tensorflow_graphics.nn.layer.pointnet import VanillaClassifier
 from tensorflow_graphics.projects.pointnet import augment
 from tensorflow_graphics.projects.pointnet import helpers
@@ -32,11 +28,10 @@ parser.add("--num_points", 2048, help="subsampled (max 2048)")
 parser.add("--learning_rate", 1e-3, help="initial Adam learning rate")
 parser.add("--lr_decay", True, help="enable learning rate decay")
 parser.add("--bn_decay", .5, help="batch norm decay momentum")
-parser.add("--tb_every", 100, help="tensorboard frequency (iterations)")
-parser.add("--ev_every", 308, help="evaluation frequency (iterations)")
+parser.add("--ev_every", 1, help="evaluation frequency (epochs)")
 parser.add("--augment_jitter", True, help="use jitter augmentation")
 parser.add("--augment_rotate", True, help="use rotate augmentation")
-parser.add("--tqdm", True, help="enable the progress bar")
+parser.add("--verbose", True, help="enable the progress bar")
 FLAGS = parser.parse_args()
 
 # ------------------------------------------------------------------------------
@@ -53,64 +48,18 @@ else:
   learning_rate = FLAGS.learning_rate
 optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
-model = pointnet.VanillaClassifier(num_classes=40, momentum=FLAGS.bn_decay)
-
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
+points = tf.keras.Input((FLAGS.num_points, 3), dtype=tf.float32)
+logits = VanillaClassifier(num_classes=40, momentum=FLAGS.bn_decay)(points)
+model = tf.keras.Model(points, logits)
 
-@tf.function
-def wrapped_tf_function(points, label):
-  """Performs one step of minimization of the loss."""
-  # --- training
-  with tf.GradientTape() as tape:
-    logits = model(points, training=True)
-    loss = model.loss(label, logits)
-  variables = model.trainable_variables
-  gradients = tape.gradient(loss, variables)
-  optimizer.apply_gradients(zip(gradients, variables))
-  return loss
-
-
-def train(example):
-  """Performs one step of minimization of the loss and populates the summary."""
-  points, label = example
-  step = optimizer.iterations.numpy()
-
-  # --- optimize
-  loss = wrapped_tf_function(points, label)
-  if step % FLAGS.tb_every == 0:
-    tf.summary.scalar(name="loss", data=loss, step=step)
-
-  # --- report rate in summaries
-  if FLAGS.lr_decay and step % FLAGS.tb_every == 0:
-    tf.summary.scalar(name="learning_rate",
-                      data=optimizer.learning_rate(step),
-                      step=step)
-
-
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------
-
-
-def evaluate():
-  """Identify the best accuracy reached during training."""
-  step = optimizer.iterations.numpy()
-  if "best_accuracy" not in evaluate.__dict__:
-    evaluate.best_accuracy = 0
-  if step % FLAGS.ev_every != 0:
-    return evaluate.best_accuracy
-  aggregator = tf.keras.metrics.SparseCategoricalAccuracy()
-  for points, label in ds_test:
-    logits = model(points, training=False)
-    aggregator.update_state(label, logits)
-  accuracy = aggregator.result()
-  evaluate.best_accuracy = max(accuracy, evaluate.best_accuracy)
-  tf.summary.scalar(name="accuracy_test", data=accuracy, step=step)
-  return evaluate.best_accuracy
-
+model.compile(
+    optimizer=optimizer,
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
@@ -133,7 +82,6 @@ def augment_train(points, label):
 
 
 num_examples = info.splits["train"].num_examples
-ds_train = ds_train.repeat(FLAGS.num_epochs)
 ds_train = ds_train.shuffle(num_examples, reshuffle_each_iteration=True)
 ds_train = ds_train.map(augment_train,
                         num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -154,15 +102,20 @@ ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-try:
-  helpers.setup_tensorboard(FLAGS)
-  helpers.summary_command(parser, FLAGS)
-  total = tf.data.experimental.cardinality(ds_train).numpy()
-  pbar = tqdm(ds_train, leave=False, total=total, disable=not FLAGS.tqdm)
-  for train_example in pbar:
-    train(train_example)
-    best_accuracy = evaluate()
-    pbar.set_postfix_str("best accuracy: {:.3f}".format(best_accuracy))
+callbacks = [
+    tf.keras.callbacks.TensorBoard(FLAGS.logdir, profile_batch='2,12'),
+]
 
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+try:
+  model.fit(ds_train,
+            epochs=FLAGS.num_epochs,
+            validation_freq=FLAGS.ev_every,
+            validation_data=ds_test,
+            callbacks=callbacks,
+            verbose=FLAGS.verbose)
 except KeyboardInterrupt:
   helpers.handle_keyboard_interrupt(FLAGS)
