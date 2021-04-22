@@ -1,0 +1,10 @@
+inherit_from: configs/img/onet_pretrained.yaml
+data:
+  dataset: images
+  path: demo
+training:
+  out_dir:  demo
+generation:
+  generation_dir: generation
+  refinement_step: 30
+  simplify_nfaces: 5000
