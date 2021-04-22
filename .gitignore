@@ -3,3 +3,6 @@ bazel-out
 bazel-testlogs
 bazel-graphics
 bazel-bin
+bazel-*
+artifacts
+.bazelrc
