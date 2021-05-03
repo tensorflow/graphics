@@ -42,7 +42,7 @@ def check_valid_point_cloud_input(points, sizes, batch_ids):
     if points.shape[0] != batch_ids.shape[0]:
       raise AssertionError('Invalid sizes! Sizes of points and batch_ids are' +
                            ' not equal.')
-'''
+
 def _flatten_features(features, point_cloud: PointCloud):
   """ Converts features of shape `[A1, ..., An, C]` to shape `[N, C]`.
 
@@ -63,7 +63,7 @@ def _flatten_features(features, point_cloud: PointCloud):
     tf.assert_equal(tf.shape(features)[0], tf.shape(point_cloud._points)[0])
   tf.assert_equal(tf.rank(features), 2)
   return features
-'''
+
 
 def cast_to_num_dims(values, num_dims, dtype=tf.float32):
   """ Converts an input to the specified `dtype` and repeats it `num_dims`
