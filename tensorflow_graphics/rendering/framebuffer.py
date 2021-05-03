@@ -46,9 +46,9 @@ class RasterizedAttribute(object):
           f" ranks {shapes}")
 
     value_rank = len(self.value.shape)
-    if value_rank != 4:
+    if value_rank not in (4, 5):
       raise ValueError(
-          f"Expected input value to be rank 4, but is {value_rank}")
+          f"Expected input value to be rank 4 or 5, but is {value_rank}")
 
     same_as_value = True
     static_shapes = [self.value.shape]
@@ -65,6 +65,25 @@ class RasterizedAttribute(object):
         True,
         message="Expected all input shapes to be the same but found: " +
         ", ".join([str(s) for s in static_shapes]))
+
+  @property
+  def is_multi_layer(self):
+    return len(self.value.shape) == 5
+
+  def layer(self, index):
+    """Slices at the given layer index, returning a single-layer attribute."""
+    if not self.is_multi_layer:
+      if index > 0:
+        raise ValueError(
+            f"Invalid layer index {index} for single-layer RasterizedAttribute."
+        )
+      return self
+
+    safe_layer = lambda x: x[:, index, ...] if x is not None else None
+    return RasterizedAttribute(
+        value=self.value[:, index, ...],
+        d_dx=safe_layer(self.d_dx),
+        d_dy=safe_layer(self.d_dy))
 
 
 @dataclasses.dataclass
@@ -122,18 +141,46 @@ class Framebuffer(object):
     return tf.shape(self.triangle_id)[0]
 
   @property
+  def is_multi_layer(self):
+    return len(self.triangle_id.shape) == 5
+
+  @property
+  def num_layers(self):
+    if self.is_multi_layer:  # pylint: disable=using-constant-test
+      return tf.shape(self.triangle_id)[1]
+    else:
+      return 1
+
+  @property
   def height(self):
-    return tf.shape(self.triangle_id)[1]
+    axis = 2 if self.is_multi_layer else 1  # pylint: disable=using-constant-test
+    return tf.shape(self.triangle_id)[axis]
 
   @property
   def width(self):
-    return tf.shape(self.triangle_id)[2]
+    axis = 3 if self.is_multi_layer else 2  # pylint: disable=using-constant-test
+    return tf.shape(self.triangle_id)[axis]
 
   @property
   def pixel_count(self):
-    return self.height * self.width
+    return self.num_layers * self.height * self.width
 
   @property
   def background_mask(self):
     return tf.constant(
         1, dtype=self.foreground_mask.dtype) - self.foreground_mask
+
+  def layer(self, index):
+    """Slices at the given layer index, returning a single-layer Framebuffer."""
+    if not self.is_multi_layer:
+      if index > 0:
+        raise ValueError(
+            f"Invalid layer index {index} for single-layer Framebuffer.")
+      return self
+
+    return Framebuffer(
+        triangle_id=self.triangle_id[:, index, ...],
+        vertex_ids=self.vertex_ids[:, index, ...],
+        foreground_mask=self.foreground_mask[:, index, ...],
+        attributes={k: v.layer(index) for k, v in self.attributes.items()},
+        barycentrics=self.barycentrics.layer(index))

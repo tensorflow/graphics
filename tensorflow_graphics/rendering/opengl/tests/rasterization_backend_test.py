@@ -14,12 +14,10 @@
 from absl.testing import parameterized
 import numpy as np
 import tensorflow as tf
-
 from tensorflow_graphics.geometry.representation import grid
-from tensorflow_graphics.geometry.transformation import look_at
-from tensorflow_graphics.rendering.camera import perspective
 from tensorflow_graphics.rendering.opengl import math as glm
 from tensorflow_graphics.rendering.opengl import rasterization_backend
+from tensorflow_graphics.rendering.tests import rasterization_test_utils
 from tensorflow_graphics.util import test_case
 
 _IMAGE_HEIGHT = 5
@@ -30,19 +28,13 @@ _NUM_LAYERS = 1
 
 
 def _generate_vertices_and_view_matrices():
-  camera_origin = ((0.0, 0.0, 0.0), (0.0, 0.0, 0.0))
-  camera_up = ((0.0, 1.0, 0.0), (0.0, 1.0, 0.0))
-  look_at_point = ((0.0, 0.0, 1.0), (0.0, 0.0, -1.0))
-  field_of_view = ((60 * np.math.pi / 180,), (60 * np.math.pi / 180,))
-  near_plane = ((0.01,), (0.01,))
-  far_plane = ((400.0,), (400.0,))
-  aspect_ratio = ((float(_IMAGE_WIDTH) / float(_IMAGE_HEIGHT),),
-                  (float(_IMAGE_WIDTH) / float(_IMAGE_HEIGHT),))
-  # Construct the view projection matrix.
-  world_to_camera = look_at.right_handed(camera_origin, look_at_point,
-                                         camera_up)
-  perspective_matrix = perspective.right_handed(field_of_view, aspect_ratio,
-                                                near_plane, far_plane)
+  model_to_eye_matrix_0 = rasterization_test_utils.make_look_at_matrix(
+      look_at_point=(0.0, 0.0, 1.0))
+  model_to_eye_matrix_1 = rasterization_test_utils.make_look_at_matrix(
+      look_at_point=(0.0, 0.0, -1.0))
+  world_to_camera = tf.stack((model_to_eye_matrix_0, model_to_eye_matrix_1))
+  perspective_matrix = rasterization_test_utils.make_perspective_matrix(
+      _IMAGE_WIDTH, _IMAGE_HEIGHT)
   # Shape [2, 4, 4]
   view_projection_matrix = tf.linalg.matmul(perspective_matrix, world_to_camera)
   depth = 1.0
@@ -119,19 +111,10 @@ class RasterizationBackendTest(test_case.TestCase):
                         tf.zeros_like(predicted_fb.foreground_mask[1, ...]))
 
   def test_rasterize_preset(self):
-    camera_origin = (0.0, 0.0, 0.0)
-    camera_up = (0.0, 1.0, 0.0)
-    look_at_point = (0.0, 0.0, 1.0)
-    field_of_view = (60 * np.math.pi / 180,)
-    near_plane = (0.01,)
-    far_plane = (400.0,)
-
-    # Construct the view projection matrix.
-    model_to_eye_matrix = look_at.right_handed(camera_origin, look_at_point,
-                                               camera_up)
-    perspective_matrix = perspective.right_handed(
-        field_of_view, (float(_IMAGE_WIDTH) / float(_IMAGE_HEIGHT),),
-        near_plane, far_plane)
+    model_to_eye_matrix = rasterization_test_utils.make_look_at_matrix(
+        look_at_point=(0.0, 0.0, 1.0))
+    perspective_matrix = rasterization_test_utils.make_perspective_matrix(
+        _IMAGE_WIDTH, _IMAGE_HEIGHT)
     view_projection_matrix = tf.linalg.matmul(perspective_matrix,
                                               model_to_eye_matrix)
     view_projection_matrix = tf.expand_dims(view_projection_matrix, axis=0)

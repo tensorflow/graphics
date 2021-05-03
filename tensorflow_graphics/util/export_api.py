@@ -19,6 +19,8 @@ from __future__ import print_function
 
 import inspect
 
+import six
+
 
 def get_functions_and_classes():
   """Extracts a list of public functions and classes for the API generation.
@@ -45,8 +47,8 @@ def get_modules():
   module = inspect.getmodule(caller[0])
   return [
       obj_name for obj_name, obj in inspect.getmembers(module)
-      if inspect.ismodule(obj) and obj.__name__.rsplit(".", 1)[0] ==
-      module.__name__ and not obj_name.startswith("_")
+      if inspect.ismodule(obj) and six.ensure_str(obj.__name__).rsplit(".", 1)
+      [0] == module.__name__ and not obj_name.startswith("_")
   ]
 
 

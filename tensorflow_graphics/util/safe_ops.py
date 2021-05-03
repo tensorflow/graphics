@@ -31,16 +31,16 @@ import tensorflow as tf
 from tensorflow_graphics.util import asserts
 
 
-def nonzero_sign(x, name=None):
+def nonzero_sign(x, name='nonzero_sign'):
   """Returns the sign of x with sign(0) defined as 1 instead of 0."""
-  with tf.compat.v1.name_scope(name, 'nonzero_sign', [x]):
+  with tf.name_scope(name):
     x = tf.convert_to_tensor(value=x)
 
     one = tf.ones_like(x)
-    return tf.compat.v1.where(tf.greater_equal(x, 0.0), one, -one)
+    return tf.where(tf.greater_equal(x, 0.0), one, -one)
 
 
-def safe_cospx_div_cosx(theta, factor, eps=None, name=None):
+def safe_cospx_div_cosx(theta, factor, eps=None, name='safe_cospx_div_cosx'):
   """Calculates cos(factor * theta)/cos(theta) safely.
 
   The term `cos(factor * theta)/cos(theta)` has periodic edge cases with
@@ -67,8 +67,7 @@ def safe_cospx_div_cosx(theta, factor, eps=None, name=None):
   Returns:
     A tensor of shape `[A1, ..., An]` containing the resulting values.
   """
-  with tf.compat.v1.name_scope(name, 'safe_cospx_div_cosx',
-                               [theta, factor, eps]):
+  with tf.name_scope(name):
     theta = tf.convert_to_tensor(value=theta)
     factor = tf.convert_to_tensor(value=factor, dtype=theta.dtype)
     if eps is None:
@@ -90,7 +89,7 @@ def safe_shrink(vector,
                 maxval=None,
                 open_bounds=False,
                 eps=None,
-                name=None):
+                name='safe_shrink'):
   """Shrinks vector by (1.0 - eps) based on its dtype.
 
   This function shrinks the input vector by a very small amount to ensure that
@@ -129,7 +128,7 @@ def safe_shrink(vector,
   Returns:
     A tensor of shape `[A1, ..., An]` containing the shrinked values.
   """
-  with tf.compat.v1.name_scope(name, 'safe_shrink', [vector, minval, maxval]):
+  with tf.name_scope(name):
     vector = tf.convert_to_tensor(value=vector)
     if eps is None:
       eps = asserts.select_eps_for_addition(vector.dtype)
@@ -142,7 +141,7 @@ def safe_shrink(vector,
     return vector
 
 
-def safe_signed_div(a, b, eps=None, name=None):
+def safe_signed_div(a, b, eps=None, name='safe_signed_div'):
   """Calculates a/b safely.
 
   If the tf-graphics debug flag is set to `True`, this function adds assertions
@@ -168,7 +167,7 @@ def safe_signed_div(a, b, eps=None, name=None):
   Returns:
      A tensor of shape `[A1, ..., An]` containing the results of division.
   """
-  with tf.compat.v1.name_scope(name, 'safe_signed_div', [a, b, eps]):
+  with tf.name_scope(name):
     a = tf.convert_to_tensor(value=a)
     b = tf.convert_to_tensor(value=b)
     if eps is None:
@@ -178,7 +177,7 @@ def safe_signed_div(a, b, eps=None, name=None):
     return asserts.assert_no_infs_or_nans(a / (b + nonzero_sign(b) * eps))
 
 
-def safe_sinpx_div_sinx(theta, factor, eps=None, name=None):
+def safe_sinpx_div_sinx(theta, factor, eps=None, name='safe_sinpx_div_sinx'):
   """Calculates sin(factor * theta)/sin(theta) safely.
 
   The term `sin(factor * theta)/sin(theta)` appears when calculating spherical
@@ -205,7 +204,7 @@ def safe_sinpx_div_sinx(theta, factor, eps=None, name=None):
   Returns:
     A tensor of shape `[A1, ..., An]` containing the resulting values.
   """
-  with tf.compat.v1.name_scope(name, 'safe_sinpx_div_sinx', [theta, factor]):
+  with tf.name_scope(name):
     theta = tf.convert_to_tensor(value=theta)
     factor = tf.convert_to_tensor(value=factor, dtype=theta.dtype)
     if eps is None:
@@ -222,7 +221,7 @@ def safe_sinpx_div_sinx(theta, factor, eps=None, name=None):
     return asserts.assert_no_infs_or_nans(div)
 
 
-def safe_unsigned_div(a, b, eps=None, name=None):
+def safe_unsigned_div(a, b, eps=None, name='safe_unsigned_div'):
   """Calculates a/b with b >= 0 safely.
 
   If the tfg debug flag TFG_ADD_ASSERTS_TO_GRAPH defined in tfg_flags.py
@@ -234,7 +233,7 @@ def safe_unsigned_div(a, b, eps=None, name=None):
     b: A `float` or a tensor of shape `[A1, ..., An]`, which is the denominator.
     eps: A small `float`, to be added to the denominator. If left as `None`, its
       value is automatically selected using `b.dtype`.
-    name: A name for this op. Defaults to 'safe_signed_div'.
+    name: A name for this op. Defaults to 'safe_unsigned_div'.
 
   Raises:
      InvalidArgumentError: If tf-graphics debug flag is set and the division
@@ -243,7 +242,7 @@ def safe_unsigned_div(a, b, eps=None, name=None):
   Returns:
      A tensor of shape `[A1, ..., An]` containing the results of division.
   """
-  with tf.compat.v1.name_scope(name, 'safe_unsigned_div', [a, b, eps]):
+  with tf.name_scope(name):
     a = tf.convert_to_tensor(value=a)
     b = tf.convert_to_tensor(value=b)
     if eps is None:

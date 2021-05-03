@@ -27,6 +27,7 @@ import warnings
 from absl import flags
 from absl.testing import parameterized
 import numpy as np
+from six.moves import zip
 import tensorflow as tf
 
 from tensorflow_graphics.util import tfg_flags
@@ -74,25 +75,24 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
         return None
     return shapes
 
-  def _compute_gradient_error(self, x, y, x_init_value, delta=1e-6):
+  def _compute_gradient_error(self, x, y, x_init, delta=1e-6):
     """Computes the gradient error.
 
     Args:
       x: a tensor or list of tensors.
       y: a tensor.
-      x_init_value: a numpy array of the same shape as "x" representing the
-        initial value of x.
+      x_init: a numpy array of the same shape as "x" representing the initial
+        value of x.
       delta: (optional) the amount of perturbation.
 
     Returns:
       A tuple (max_error, row, column), with max_error the maxium error between
       the two Jacobians, and row/column the position of said maximum error.
     """
-    x_shape = x.shape.as_list()
-    y_shape = y.shape.as_list()
     with self.cached_session():
-      grad = tf.compat.v1.test.compute_gradient(x, x_shape, y, y_shape,
-                                                x_init_value, delta)
+      grad = tf.compat.v1.test.compute_gradient(x, x.shape.as_list(), y,
+                                                y.shape.as_list(), x_init,
+                                                delta)
       if isinstance(grad, tuple):
         grad = [grad]
       error = 0
@@ -213,7 +213,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
         return
     placeholders = self._create_placeholders_from_shapes(
         shapes=shapes, dtypes=dtypes, sparse_tensors=sparse_tensors)
-    with self.assertRaisesRegexp(ValueError, error_msg):
+    with self.assertRaisesRegex(ValueError, error_msg):
       func(*placeholders, **kwargs)
 
   def assert_jacobian_is_correct(self, x, x_init, y, atol=1e-6, delta=1e-6):
@@ -267,17 +267,15 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
         gradients of y.
       y: A tensor.
     """
-    warnings.warn((
-        "assert_jacobian_is_finite is deprecated and might get "
-        "removed in a future version please use assert_jacobian_is_finite_fn"),
-                  DeprecationWarning)
+    warnings.warn(
+        ("assert_jacobian_is_finite is deprecated and might get "
+         "removed in a future version please use assert_jacobian_is_finite_fn"),
+        DeprecationWarning)
     if tf.executing_eagerly():
       self.skipTest(reason="Graph mode only test")
-    x_shape = x.shape.as_list()
-    y_shape = y.shape.as_list()
     with tf.compat.v1.Session():
-      gradient = tf.compat.v1.test.compute_gradient(
-          x, x_shape, y, y_shape, x_init_value=x_init)
+      gradient = tf.compat.v1.test.compute_gradient(x, x.shape.as_list(), y,
+                                                    y.shape.as_list(), x_init)
       theoretical_gradient = gradient[0][0]
       self.assertFalse(
           np.isnan(theoretical_gradient).any() or
@@ -295,10 +293,10 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
       x: A list of arguments for the function
     """
     if tf.executing_eagerly():
-      theoretical_gradient, _ = tf.compat.v2.test.compute_gradient(f, x)
+      theoretical_gradient, _ = tf.test.compute_gradient(f, x)
     else:
       with self.cached_session():
-        theoretical_gradient, _ = tf.compat.v2.test.compute_gradient(f, x)
+        theoretical_gradient, _ = tf.test.compute_gradient(f, x)
     self.assertNotIn(
         True, [
             np.isnan(element).any() or np.isinf(element).any()
@@ -379,7 +377,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
               np.array(test, dtype=np.float32) for test in test_inputs
           ]
         # Evaluate function using TensorFlow.
-        feed_dict = dict(zip(in_tensors, test_inputs))
+        feed_dict = dict(list(zip(in_tensors, test_inputs)))
         test_outputs = sess.run(out_tensors, feed_dict)
         # Set tensors for the TFLite model.
         input_details = interpreter.get_input_details()

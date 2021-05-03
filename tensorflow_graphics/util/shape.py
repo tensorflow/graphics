@@ -21,6 +21,8 @@ import itertools
 
 import numpy as np
 import six
+from six.moves import range
+from six.moves import zip
 import tensorflow as tf
 
 
@@ -130,7 +132,7 @@ def _fix_axis_dim_pairs(pairs, name):
 
 def _get_dim(tensor, axis):
   """Returns dimensionality of a tensor for a given axis."""
-  return tf.compat.v1.dimension_value(tensor.shape[axis])
+  return tf.compat.dimension_value(tensor.shape[axis])
 
 
 def check_static(tensor,
@@ -245,7 +247,8 @@ def _fix_axes(tensors, axes, allow_negative):
       ((allow_negative or
         (not allow_negative and axis >= 0)) and axis < tensor.shape.ndims)
       for tensor, axis in zip(tensors, axes)):
-    rank_axis_pairs = zip([tensor.shape.ndims for tensor in tensors], axes)
+    rank_axis_pairs = list(
+        zip([tensor.shape.ndims for tensor in tensors], axes))
     raise ValueError(
         'Some axes are out of bounds. Given rank-axes pairs: {}'.format(
             [pair for pair in rank_axis_pairs]))

@@ -45,7 +45,7 @@ def brdf(direction_incoming_light,
          shininess,
          albedo,
          brdf_normalization=True,
-         name=None):
+         name="phong_brdf"):
   """Evaluates the specular brdf of the Phong model.
 
   Note:
@@ -84,10 +84,7 @@ def brdf(direction_incoming_light,
     InvalidArgumentError: if not all of shininess values are non-negative, or if
     at least one element of `albedo` is outside of [0,1].
   """
-  with tf.compat.v1.name_scope(name, "phong_brdf", [
-      direction_incoming_light, direction_outgoing_light, surface_normal,
-      shininess, albedo
-  ]):
+  with tf.name_scope(name):
     direction_incoming_light = tf.convert_to_tensor(
         value=direction_incoming_light)
     direction_outgoing_light = tf.convert_to_tensor(
@@ -145,12 +142,11 @@ def brdf(direction_incoming_light,
     if brdf_normalization:
       phong_model *= _brdf_normalization_factor(shininess)
     common_shape = shape.get_broadcasted_shape(min_dot.shape, phong_model.shape)
-    d_val = lambda dim: 1 if dim is None else tf.compat.v1.dimension_value(dim)
+    d_val = lambda dim: 1 if dim is None else tf.compat.dimension_value(dim)
     common_shape = [d_val(dim) for dim in common_shape]
     condition = tf.broadcast_to(tf.greater_equal(min_dot, 0.0), common_shape)
     phong_model = tf.broadcast_to(phong_model, common_shape)
-    return tf.compat.v1.where(condition, phong_model,
-                              tf.zeros_like(phong_model))
+    return tf.where(condition, phong_model, tf.zeros_like(phong_model))
 
 
 # API contains all public functions and classes.

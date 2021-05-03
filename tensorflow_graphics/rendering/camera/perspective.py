@@ -48,13 +48,16 @@ import math
 from typing import Tuple
 import tensorflow as tf
 
+from tensorflow_graphics.geometry.representation import grid
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
 
 
-def parameters_from_right_handed(projection_matrix, name=None):
+def parameters_from_right_handed(projection_matrix,
+                                 name="perspective_parameters_from_right_handed"
+                                ):
   """Recovers the parameters used to contruct a right handed projection matrix.
 
   Note:
@@ -64,7 +67,7 @@ def parameters_from_right_handed(projection_matrix, name=None):
     projection_matrix: A tensor of shape `[A1, ..., An, 4, 4]`, containing
       matrices of right handed perspective-view frustum.
     name: A name for this op. Defaults to
-      'perspective_parameters_from_right_handed'.
+      "perspective_parameters_from_right_handed".
 
   Raises:
     InvalidArgumentError: if `projection_matrix` is not of the expected shape.
@@ -77,8 +80,7 @@ def parameters_from_right_handed(projection_matrix, name=None):
     represent the near and far clipping planes used to construct
     `projection_matrix`.
   """
-  with tf.compat.v1.name_scope(name, "perspective_parameters_from_right_handed",
-                               [projection_matrix]):
+  with tf.name_scope(name):
     projection_matrix = tf.convert_to_tensor(value=projection_matrix)
 
     shape.check_static(
@@ -102,7 +104,11 @@ def parameters_from_right_handed(projection_matrix, name=None):
     return vertical_field_of_view, aspect_ratio, near, far
 
 
-def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
+def right_handed(vertical_field_of_view,
+                 aspect_ratio,
+                 near,
+                 far,
+                 name="perspective_right_handed"):
   """Generates the matrix for a right handed perspective projection.
 
   Note:
@@ -122,7 +128,7 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
     far:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
       captures the distance between the viewer and the far clipping plane. Note
       that values for `far` must be greater than those of `near`.
-    name: A name for this op. Defaults to 'perspective_right_handed'.
+    name: A name for this op. Defaults to "perspective_right_handed".
 
   Raises:
     InvalidArgumentError: if any input contains data not in the specified range
@@ -133,9 +139,7 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
     A tensor of shape `[A1, ..., An, 4, 4]`, containing matrices of right
     handed perspective-view frustum.
   """
-  with tf.compat.v1.name_scope(
-      name, "perspective_right_handed",
-      [vertical_field_of_view, aspect_ratio, near, far]):
+  with tf.name_scope(name):
     vertical_field_of_view = tf.convert_to_tensor(value=vertical_field_of_view)
     aspect_ratio = tf.convert_to_tensor(value=aspect_ratio)
     near = tf.convert_to_tensor(value=near)
@@ -177,7 +181,7 @@ def right_handed(vertical_field_of_view, aspect_ratio, near, far, name=None):
     return tf.reshape(matrix, shape=output_shape)
 
 
-def intrinsics_from_matrix(matrix, name=None):
+def intrinsics_from_matrix(matrix, name="perspective_intrinsics_from_matrix"):
   r"""Extracts intrinsic parameters from a calibration matrix.
 
   Extracts the focal length \\((f_x, f_y)\\), the principal point
@@ -211,9 +215,7 @@ def intrinsics_from_matrix(matrix, name=None):
   Raises:
     ValueError: If the shape of `matrix` is not supported.
   """
-  with tf.compat.v1.name_scope(name,
-                               "perspective_intrinsics_from_matrix",
-                               [matrix]):
+  with tf.name_scope(name):
     matrix = tf.convert_to_tensor(value=matrix)
 
     shape.check_static(
@@ -232,7 +234,10 @@ def intrinsics_from_matrix(matrix, name=None):
     return focal, principal_point, skew
 
 
-def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
+def matrix_from_intrinsics(focal,
+                           principal_point,
+                           skew=(0.0,),
+                           name="perspective_matrix_from_intrinsics"):
   r"""Builds calibration matrix from intrinsic parameters.
 
   Builds the camera calibration matrix as
@@ -270,20 +275,20 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
     ValueError: If the shape of `focal`, or `principal_point` is not
     supported.
   """
-  with tf.compat.v1.name_scope(name, "perspective_matrix_from_intrinsics",
-                               [focal, principal_point]):
+  with tf.name_scope(name):
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
     skew = tf.convert_to_tensor(value=skew)
-    common_batch_shape = shape.get_broadcasted_shape(
-        focal.shape[:-1], skew.shape[:-1])
+    common_batch_shape = shape.get_broadcasted_shape(focal.shape[:-1],
+                                                     skew.shape[:-1])
+
     def dim_value(dim):
-      return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+      return 1 if dim is None else tf.compat.dimension_value(dim)
+
     common_batch_shape = [dim_value(dim) for dim in common_batch_shape]
     skew = tf.broadcast_to(skew, common_batch_shape + [1])
-    shape.check_static(tensor=focal,
-                       tensor_name="focal",
-                       has_dim_equals=(-1, 2))
+    shape.check_static(
+        tensor=focal, tensor_name="focal", has_dim_equals=(-1, 2))
     shape.check_static(
         tensor=principal_point,
         tensor_name="principal_point",
@@ -313,7 +318,7 @@ def matrix_from_intrinsics(focal, principal_point, skew=(0.0,), name=None):
     return tf.reshape(matrix, shape=output_shape)
 
 
-def project(point_3d, focal, principal_point, name=None):
+def project(point_3d, focal, principal_point, name="perspective_project"):
   r"""Projects a 3d point onto the 2d camera plane.
 
   Projects a 3d point \\((x, y, z)\\) to a 2d point \\((x', y')\\) onto the
@@ -349,8 +354,7 @@ def project(point_3d, focal, principal_point, name=None):
     ValueError: If the shape of `point_3d`, `focal`, or `principal_point` is not
     supported.
   """
-  with tf.compat.v1.name_scope(name, "perspective_project",
-                               [point_3d, focal, principal_point]):
+  with tf.name_scope(name):
     point_3d = tf.convert_to_tensor(value=point_3d)
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
@@ -375,7 +379,7 @@ def project(point_3d, focal, principal_point, name=None):
   return point_2d
 
 
-def ray(point_2d, focal, principal_point, name=None):
+def ray(point_2d, focal, principal_point, name="perspective_ray"):
   r"""Computes the 3d ray for a 2d point (the z component of the ray is 1).
 
   Computes the 3d ray \\((r_x, r_y, 1)\\) from the camera center to a 2d point
@@ -411,8 +415,7 @@ def ray(point_2d, focal, principal_point, name=None):
     ValueError: If the shape of `point_2d`, `focal`, or `principal_point` is not
     supported.
   """
-  with tf.compat.v1.name_scope(name, "perspective_ray",
-                               [point_2d, focal, principal_point]):
+  with tf.name_scope(name):
     point_2d = tf.convert_to_tensor(value=point_2d)
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
@@ -439,9 +442,13 @@ def ray(point_2d, focal, principal_point, name=None):
         tensor=point_2d, paddings=padding, mode="CONSTANT", constant_values=1.0)
 
 
-def random_rays(focal: tf.Tensor, principal_point: tf.Tensor,
-                height: int, width: int, n_rays: int, margin: int = 0,
-                name: str = None) -> Tuple[tf.Tensor, tf.Tensor]:
+def random_rays(focal: tf.Tensor,
+                principal_point: tf.Tensor,
+                height: int,
+                width: int,
+                n_rays: int,
+                margin: int = 0,
+                name: str = "random_rays") -> Tuple[tf.Tensor, tf.Tensor]:
   """Sample rays at random pixel location from a perspective camera.
 
   Args:
@@ -453,20 +460,21 @@ def random_rays(focal: tf.Tensor, principal_point: tf.Tensor,
     width: The width of the image plane in pixels.
     n_rays: The number M of rays to sample.
     margin: The margin around the borders of the image.
-    name: A name for this op that defaults to "perspective_ray".
+    name: A name for this op that defaults to "random_rays".
+
   Returns:
     A tensor of shape `[A1, ..., An, M, 3]` with the ray directions and
-    a tensor of shape `[A1, ..., An, M, 2]` with the pixel locations
+    a tensor of shape `[A1, ..., An, M, 2]` with the pixel x, y locations.
   """
-  with tf.compat.v1.name_scope(name, "sample_rays_from_random_pixels",
-                               [focal, principal_point]):
+  with tf.name_scope(name):
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
 
     shape.check_static(
         tensor=focal, tensor_name="focal", has_dim_equals=(-1, 2))
     shape.check_static(
-        tensor=principal_point, tensor_name="principal_point",
+        tensor=principal_point,
+        tensor_name="principal_point",
         has_dim_equals=(-1, 2))
     shape.compare_batch_dimensions(
         tensors=(focal, principal_point),
@@ -475,22 +483,106 @@ def random_rays(focal: tf.Tensor, principal_point: tf.Tensor,
         broadcast_compatible=True)
 
     batch_dims = tf.shape(focal)[:-1]
-    random_x = tf.random.uniform(tf.concat([batch_dims, [n_rays]], axis=0),
-                                 minval=margin,
-                                 maxval=width - margin,
-                                 dtype=tf.int32)
-    random_y = tf.random.uniform(tf.concat([batch_dims, [n_rays]], axis=0),
-                                 minval=margin,
-                                 maxval=height - margin,
-                                 dtype=tf.int32)
-    pixels = tf.cast(tf.stack((random_y, random_x), axis=-1), tf.float32)
-    rays = ray(pixels,
-               tf.expand_dims(focal, -2),
+    target_shape = tf.concat([batch_dims, [n_rays]], axis=0)
+    random_x = tf.random.uniform(
+        target_shape, minval=margin, maxval=width - margin, dtype=tf.int32)
+    random_y = tf.random.uniform(
+        target_shape, minval=margin, maxval=height - margin, dtype=tf.int32)
+    pixels = tf.cast(tf.stack((random_x, random_y), axis=-1), tf.float32)
+    rays = ray(pixels, tf.expand_dims(focal, -2),
+               tf.expand_dims(principal_point, -2))
+    return rays, tf.cast(pixels, tf.int32)
+
+
+def random_patches(focal: tf.Tensor,
+                   principal_point: tf.Tensor,
+                   height: int,
+                   width: int,
+                   patch_height: int,
+                   patch_width: int,
+                   scale: float = 1.0,
+                   indexing: str = "ij",
+                   name: str = None) -> Tuple[tf.Tensor, tf.Tensor]:
+  """Sample patches at different scales and from an image.
+
+  Args:
+    focal: A tensor of shape `[A1, ..., An, 2]`
+    principal_point: A tensor of shape `[A1, ..., An, 2]`
+    height: The height of the image plane in pixels.
+    width: The width of the image plane in pixels.
+    patch_height: The height M of the patch in pixels.
+    patch_width: The width N of the patch in pixels.
+    scale: The scale of the patch.
+    indexing: Indexing of the patch ('ij' or 'xy')
+    name: A name for this op that defaults to "random_patches".
+
+  Returns:
+    A tensor of shape `[A1, ..., An, M*N, 3]` where the last dimension is the
+      ray directions in 3D passing from the M*N pixels of the patch and
+    a tensor of shape `[A1, ..., An, M*N, 2]` with the pixel x, y locations.
+  """
+  with tf.compat.v1.name_scope(name, "random_patches",
+                               [focal, principal_point]):
+    focal = tf.convert_to_tensor(value=focal)
+    principal_point = tf.convert_to_tensor(value=principal_point)
+
+    shape.check_static(
+        tensor=focal, tensor_name="focal", has_dim_equals=(-1, 2))
+    shape.check_static(
+        tensor=principal_point,
+        tensor_name="principal_point",
+        has_dim_equals=(-1, 2))
+    shape.compare_batch_dimensions(
+        tensors=(focal, principal_point),
+        tensor_names=("focal", "principal_point"),
+        last_axes=-2,
+        broadcast_compatible=True)
+
+    if indexing not in ["xy", "ij"]:
+      raise ValueError("'axis' needs to be 'xy' or 'ij'")
+
+    batch_shape = tf.shape(focal)[:-1]
+    patch = grid.generate([0, 0], [patch_width - 1, patch_height - 1],
+                          [patch_width, patch_height])
+    if indexing == "xy":
+      patch = tf.reverse(patch, axis=[-1])
+    patch = tf.cast(patch, tf.float32)
+    patch = patch * scale
+
+    interm_shape = tf.concat(
+        [tf.ones_like(batch_shape), tf.shape(patch)], axis=0)
+    patch = tf.reshape(patch, interm_shape)
+
+    random_y = tf.random.uniform(
+        batch_shape,
+        minval=0,
+        maxval=height - int(patch_height * scale) + 1,
+        dtype=tf.int32)
+    random_x = tf.random.uniform(
+        batch_shape,
+        minval=0,
+        maxval=width - int(patch_width * scale) + 1,
+        dtype=tf.int32)
+
+    patch_origins = tf.cast(tf.stack([random_x, random_y], axis=-1), tf.float32)
+    patch_origins = tf.expand_dims(tf.expand_dims(patch_origins, -2), -2)
+
+    pixels = tf.cast(patch + patch_origins, tf.float32)
+
+    final_shape = tf.concat([batch_shape, [patch_height * patch_width, 2]],
+                            axis=0)
+    pixels = tf.reshape(pixels, final_shape)
+
+    rays = ray(pixels, tf.expand_dims(focal, -2),
                tf.expand_dims(principal_point, -2))
     return rays, pixels
 
 
-def unproject(point_2d, depth, focal, principal_point, name=None):
+def unproject(point_2d,
+              depth,
+              focal,
+              principal_point,
+              name="perspective_unproject"):
   r"""Unprojects a 2d point in 3d.
 
   Unprojects a 2d point \\((x', y')\\) to a 3d point \\((x, y, z)\\) knowing the
@@ -527,8 +619,7 @@ def unproject(point_2d, depth, focal, principal_point, name=None):
     ValueError: If the shape of `point_2d`, `depth`, `focal`, or
     `principal_point` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "perspective_unproject",
-                               [point_2d, depth, focal, principal_point]):
+  with tf.name_scope(name):
     point_2d = tf.convert_to_tensor(value=point_2d)
     depth = tf.convert_to_tensor(value=depth)
     focal = tf.convert_to_tensor(value=focal)

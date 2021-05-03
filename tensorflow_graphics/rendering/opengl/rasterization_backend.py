@@ -210,6 +210,10 @@ def rasterize(vertices,
     barycentric_coordinates = mask * barycentric_coordinates
     vertex_ids = tf.gather(triangles, triangle_index[..., 0], batch_dims=0)
 
+    # Stop gradient for tensors coming out of custom op in order to avoid
+    # confusing Tensorflow that they are differentiable.
+    barycentric_coordinates = tf.stop_gradient(barycentric_coordinates)
+    mask = tf.stop_gradient(mask)
     return fb.Framebuffer(
         foreground_mask=mask,
         triangle_id=triangle_index,
