@@ -170,8 +170,8 @@ def square_to_spherical_coordinates(point_2d,
       "math_square_to_spherical_coordinates".
 
   Returns:
-    A tensor of shape `[A1, ..., An, 2]` with [..., 0] having values in
-    [0.0, pi] and [..., 1] with values in [0.0, 2pi].
+    A tensor of shape `[A1, ..., An, 3]` with [..., 1] having values in
+    [0.0, pi] and [..., 2] with values in [0.0, 2pi].
 
   Raises:
     ValueError: if the shape of `point_2d`  is not supported.
