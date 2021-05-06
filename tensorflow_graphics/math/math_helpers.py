@@ -60,9 +60,14 @@ def cartesian_to_spherical_coordinates(point_cartesian,
         has_dim_equals=(-1, 3))
 
     x, y, z = tf.unstack(point_cartesian, axis=-1)
-    radius = tf.norm(tensor=point_cartesian, axis=-1)
-    theta = tf.acos(
-        tf.clip_by_value(safe_ops.safe_unsigned_div(z, radius, eps), -1., 1.))
+    epsilon = 1e-7
+    x = tf.where(tf.equal(x, 0.0), x + epsilon, x)
+    y = tf.where(tf.equal(y, 0.0), y + epsilon, y)
+
+    radius = tf.maximum(tf.norm(tensor=point_cartesian, axis=-1), 1e-10)
+    theta = safe_ops.safe_unsigned_div(z, radius, eps)
+    theta = tf.clip_by_value(theta, -1.0 + epsilon, 1.0 - epsilon)
+    theta = tf.acos(theta)
     phi = tf.atan2(y, x)
     return tf.stack((radius, theta, phi), axis=-1)
 

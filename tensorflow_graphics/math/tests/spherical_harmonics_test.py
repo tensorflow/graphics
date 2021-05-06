@@ -176,6 +176,36 @@ class SphericalHarmonicsTest(test_case.TestCase):
     self.assert_jacobian_is_correct_fn(
         evaluate_legendre_polynomial_fn, [x_init], atol=1e-3)
 
+  def test_evaluate_legendre_polynomial_endpoints_are_finite(self):
+    l = tf.constant([0, 1, 1, 1, 2, 2, 2, 2, 2])
+    m = tf.constant([0, 0, 0, 0, 0, 0, 0, 0, 0])
+    # Endpoints plus a few points on the inside of the function
+    x = tf.Variable([1.0, 0.5, 0.0, -0.5, -1.0])
+    l_stacked = tf.transpose(tf.stack([l] * x.shape[0]))
+    m_stacked = tf.transpose(tf.stack([m] * x.shape[0]))
+
+    y = spherical_harmonics.evaluate_legendre_polynomial(
+        l_stacked, m_stacked, x)
+
+    self.assertAllEqual(tf.reduce_all(tf.math.is_finite(y)),
+                        tf.constant(True))
+
+  def test_evaluate_legendre_polynomial_endpoint_jacobians_are_finite(self):
+    l = tf.constant([0, 1, 1, 1, 2, 2, 2, 2, 2])
+    m = tf.constant([0, 0, 0, 0, 0, 0, 0, 0, 0])
+    # Endpoints plus a few points on the inside of the function
+    x = tf.Variable([1.0, 0.5, 0.0, -0.5, -1.0])
+    l_stacked = tf.transpose(tf.stack([l] * x.shape[0]))
+    m_stacked = tf.transpose(tf.stack([m] * x.shape[0]))
+
+    with tf.GradientTape() as t:
+      y = spherical_harmonics.evaluate_legendre_polynomial(
+          l_stacked, m_stacked, x)
+      x_grad = t.gradient(y, x)
+
+    self.assertAllEqual(tf.math.is_finite(x_grad),
+                        tf.constant([True, True, True, True, True]))
+
   @parameterized.parameters(
       ((4,), (4,)),
       ((None, 9), (None, 9)),
@@ -494,6 +524,7 @@ class SphericalHarmonicsTest(test_case.TestCase):
         l, m, theta + theta_zero, phi + phi_zero)
     pred = tf.reduce_sum(input_tensor=pred, axis=-1)
 
+    # self.assertAllClose(gt, pred, rtol=1e-2, atol=1e-3)
     self.assertAllClose(gt, pred)
 
   def test_tile_zonal_coefficients_jacobian_random(self):

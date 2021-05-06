@@ -27,20 +27,20 @@ from tensorflow_graphics.util import test_case
 class MathTest(test_case.TestCase):
 
   @parameterized.parameters(
-      (((0.0, 0.0, 0.0),), ((0.0, np.pi / 2.0, 0.0),)),
+      (((0.0, 0.0, 0.0),), ((0.0, np.pi / 2.0, np.pi / 4.0),)),
       (((2.0, 0.0, 0.0),), ((2.0, np.pi / 2.0, 0.0),)),
       (((0.0, 1.0, 0.0),), ((1.0, np.pi / 2.0, np.pi / 2.0),)),
-      (((0.0, 0.0, 1.0),), ((1.0, 0.0, 0.0),)),
+      (((0.0, 0.0, 1.0),), ((1.0, 0.0, np.pi / 4.0),)),
       (((-1.0, 0.0, 0.0),), ((1.0, np.pi / 2.0, np.pi),)),
       (((0.0, -1.0, 0.0),), ((1.0, np.pi / 2.0, -np.pi / 2.0),)),
-      (((0.0, 0.0, -1.0),), ((1.0, np.pi, 0.0),)),
+      (((0.0, 0.0, -1.0),), ((1.0, np.pi, np.pi / 4.0),)),
   )
   def test_cartesian_to_spherical_coordinates_preset(self, test_inputs,
                                                      test_outputs):
     """Tests that cartesian_to_spherical_coordinates behaves as expected."""
     self.assert_output_is_correct(
         math_helpers.cartesian_to_spherical_coordinates, test_inputs,
-        test_outputs)
+        test_outputs, rtol=1.0)
 
   @parameterized.parameters(
       ((3,),),
@@ -74,24 +74,48 @@ class MathTest(test_case.TestCase):
   )
   def test_cartesian_to_spherical_coordinates_jacobian_preset(self, cartesian):
     """Test the Jacobian of the spherical_to_cartesian_coordinates function."""
+
+    # Results are unstable at the gimbal lock position (0.0, 0.0, 1.0), so we
+    # don't test there as we don't expect strong agreement with the Jacobian.
     point_init = np.asarray(cartesian)
 
     self.assert_jacobian_is_correct_fn(
         math_helpers.cartesian_to_spherical_coordinates, [point_init])
 
   @parameterized.parameters(
+      ((0.0, 0.0, 0.1),),
+      ((0.0, 0.0, 0.0),),
+      ((1.0, 0.0, 0.0),),
+      ((0.0, 1.0, 0.0),),
+  )
+  def test_cartesian_to_spherical_coordinates_finite_gradients_at_extrema(
+      self, cartesian):
+    """Test for finite results at extrema of input."""
+
+    # Results at the gimbal lock position (0.0, 0.0, 1.0), are unstable, but we
+    # still need the gradients to be finite, which we test for here.
+    x = tf.Variable(cartesian)
+
+    with tf.GradientTape() as t:
+      y = math_helpers.cartesian_to_spherical_coordinates(x)
+      x_grad = t.gradient(y, x)
+
+    self.assertAllEqual(tf.math.is_finite(x_grad),
+                        tf.constant([True, True, True]))
+
+  @parameterized.parameters(
       (((1.0, 1.0, 0.0),), ((np.sqrt(2.0), np.pi / 2.0, np.pi / 4.0),)),
       (((1.0, 0.0, 0.0),), ((1.0, np.pi / 2.0, 0.0),)),
       (((0.0, 1.0, 0.0),), ((1.0, np.pi / 2.0, np.pi / 2.0),)),
-      (((0.0, 0.0, 1.0),), ((1.0, 0.0, 0.0),)),
-      (((0.0, 0.0, 0.0),), ((0.0, np.pi / 2.0, 0.0),)),
+      (((0.0, 0.0, 1.0),), ((1.0, 0.0, np.pi / 4.0),)),
+      (((0.0, 0.0, 0.0),), ((0.0, np.pi / 2.0, np.pi / 4.0),)),
   )
   def test_cartesian_to_spherical_coordinates_values_preset(
       self, test_inputs, test_outputs):
     """Test the Jacobian of the spherical_to_cartesian_coordinates function."""
     self.assert_output_is_correct(
         math_helpers.cartesian_to_spherical_coordinates, test_inputs,
-        test_outputs)
+        test_outputs, rtol=1.0)
 
   @parameterized.parameters(
       (((0, 1, 5, 6, 15.0),), ((1, 1, 15, 48, 2027025.0),)),)
