@@ -237,8 +237,8 @@ def inverse_transform_sampling_1d(bins: TensorLike,
         tensors=(bins, pdf),
         tensor_names=("bins", "pdf"),
         axes=-1)
-
-    pdf = _normalize_pdf(pdf)
+    # Do not consider the last bin, as the cdf contains has +1 dimension.
+    pdf = _normalize_pdf(pdf[..., :-1])
     cdf = _get_cdf(pdf)
     batch_shape = tf.shape(pdf)[:-1]
     # TODO(krematas): Use dynamic values
@@ -303,8 +303,8 @@ def inverse_transform_stratified_1d(bin_start: TensorLike,
         tensors=(bin_start, pdf, bin_width),
         tensor_names=("bins", "pdf", "bin_width"),
         axes=-1)
-
-    pdf = _normalize_pdf(pdf)
+    # Do not consider the last bin, as the cdf contains has +1 dimension.
+    pdf = _normalize_pdf(pdf[..., :-1])
     cdf = _get_cdf(pdf)
     batch_shape = tf.shape(pdf)[:-1]
     batch_dims = batch_shape.get_shape().as_list()[0]
