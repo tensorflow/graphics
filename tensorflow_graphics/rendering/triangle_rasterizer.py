@@ -48,6 +48,7 @@ def rasterize(vertices,
               attributes,
               view_projection_matrix,
               image_size,
+              enable_cull_face=True,
               backend=rasterization_backend.RasterizationBackends.OPENGL,
               name=None):
   """Rasterizes the scene.
@@ -68,6 +69,8 @@ def rasterize(vertices,
       coordinates.
     image_size: A tuple (height, width) containing the dimensions in pixels of
       the rasterized image.
+    enable_cull_face: Enables BACK face culling when True, and no culling when
+      False.
     backend: A rasterization_backend.RasterizationBackends enum containing the
       backend method to use for rasterization.
     name: A name for this op. Defaults to 'triangle_rasterizer_rasterize'.
@@ -114,6 +117,7 @@ def rasterize(vertices,
         triangles,
         view_projection_matrix,
         image_size_backend,
+        enable_cull_face=enable_cull_face,
         backend=backend)
     outputs = {
         "mask":
