@@ -48,7 +48,7 @@ def _format_output(features, point_cloud, return_sorted, return_padded):
     features = tf.gather(features, point_cloud._sorted_indices_batch)
   return features
 
-'''
+
 
 def random_rotation(points, name=None):
   """ Method to rotate 3D points randomly.
@@ -235,6 +235,3 @@ def cube_kernel_points(cbrt_num_points, name):
   x, y, z = np.meshgrid(x, x, x)
   points = np.stack((x.flatten(), y.flatten(), z.flatten()), axis=1)
   return tf.Variable(points, dtype=tf.float32)
-
-'''
-
