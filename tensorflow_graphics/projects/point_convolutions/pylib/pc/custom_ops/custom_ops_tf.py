@@ -362,7 +362,7 @@ def compute_pdf_tf(neighborhood, bandwidth, mode, name=None):
       tf.reduce_prod(bandwidth)
   return pdf
 
-'''
+
 
 def basis_proj_tf(neigh_basis, features, neighborhood, name=None):
   """ Method to aggregate the features*basis for different neighborhoods.
@@ -388,4 +388,3 @@ def basis_proj_tf(neigh_basis, features, neighborhood, name=None):
   weighted_latent_per_center = tf.math.unsorted_segment_sum(
       weighted_features_per_nb, neighborhood._neighbors[:, 1], num_nbh)
   return weighted_latent_per_center
-'''
