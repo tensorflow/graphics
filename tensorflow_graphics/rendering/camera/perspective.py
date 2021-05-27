@@ -45,7 +45,7 @@ from __future__ import division
 from __future__ import print_function
 
 import math
-from typing import Tuple
+from typing import Optional, Tuple
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.representation import grid
@@ -502,7 +502,7 @@ def random_patches(focal: tf.Tensor,
                    patch_width: int,
                    scale: float = 1.0,
                    indexing: str = "ij",
-                   name: str = None) -> Tuple[tf.Tensor, tf.Tensor]:
+                   name: Optional[str] = None) -> Tuple[tf.Tensor, tf.Tensor]:
   """Sample patches at different scales and from an image.
 
   Args:
