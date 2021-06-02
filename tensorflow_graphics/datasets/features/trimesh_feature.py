@@ -92,10 +92,10 @@ class TriangleMesh(features.FeaturesDict):
       vertices_list = [
           np.array(mesh.vertices) for mesh in obj.geometry.values()
       ]
-      faces_list = np.array([
-          np.array(mesh.faces, dtype=np.uint64)
-          for mesh in obj.geometry.values()
-      ])
+      faces_list = np.empty((len(obj.geometry.values())),
+                            dtype=np.dtype(object))
+      for idx, mesh in enumerate(obj.geometry.values()):
+        faces_list[idx] = np.array(mesh.faces, dtype=np.uint64)
       faces_offset = np.cumsum(
           [vertices.shape[0] for vertices in vertices_list], dtype=np.uint64)
       faces_list[1:] += faces_offset[:-1]
