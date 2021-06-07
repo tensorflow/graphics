@@ -501,7 +501,6 @@ def random_patches(focal: tf.Tensor,
                    patch_height: int,
                    patch_width: int,
                    scale: float = 1.0,
-                   indexing: str = "ij",
                    name: Optional[str] = None) -> Tuple[tf.Tensor, tf.Tensor]:
   """Sample patches at different scales and from an image.
 
@@ -513,7 +512,6 @@ def random_patches(focal: tf.Tensor,
     patch_height: The height M of the patch in pixels.
     patch_width: The width N of the patch in pixels.
     scale: The scale of the patch.
-    indexing: Indexing of the patch ('ij' or 'xy')
     name: A name for this op that defaults to "random_patches".
 
   Returns:
@@ -538,21 +536,14 @@ def random_patches(focal: tf.Tensor,
         last_axes=-2,
         broadcast_compatible=True)
 
-    if indexing not in ["xy", "ij"]:
-      raise ValueError("'axis' needs to be 'xy' or 'ij'")
-
     batch_shape = tf.shape(focal)[:-1]
-    patch = grid.generate([0, 0], [patch_width - 1, patch_height - 1],
-                          [patch_width, patch_height])
-    if indexing == "xy":
-      patch = tf.reverse(patch, axis=[-1])
-    patch = tf.cast(patch, tf.float32)
-    patch = patch * scale
-
+    patch_ij = grid.generate([0, 0], [patch_height - 1, patch_width - 1],
+                             [patch_height, patch_width])  # storing is in 'ij'
+    patch_ij = tf.cast(patch_ij, tf.float32)
+    patch_ij = patch_ij * scale
     interm_shape = tf.concat(
-        [tf.ones_like(batch_shape), tf.shape(patch)], axis=0)
-    patch = tf.reshape(patch, interm_shape)
-
+        [tf.ones_like(batch_shape), tf.shape(patch_ij)], axis=0)
+    patch_ij = tf.reshape(patch_ij, interm_shape)
     random_y = tf.random.uniform(
         batch_shape,
         minval=0,
@@ -563,19 +554,17 @@ def random_patches(focal: tf.Tensor,
         minval=0,
         maxval=width - int(patch_width * scale) + 1,
         dtype=tf.int32)
-
-    patch_origins = tf.cast(tf.stack([random_x, random_y], axis=-1), tf.float32)
+    patch_origins = tf.cast(tf.stack([random_y, random_x], axis=-1), tf.float32)
     patch_origins = tf.expand_dims(tf.expand_dims(patch_origins, -2), -2)
-
-    pixels = tf.cast(patch + patch_origins, tf.float32)
-
+    pixels_ij = tf.cast(patch_ij + patch_origins, tf.float32)
     final_shape = tf.concat([batch_shape, [patch_height * patch_width, 2]],
                             axis=0)
-    pixels = tf.reshape(pixels, final_shape)
-
-    rays = ray(pixels, tf.expand_dims(focal, -2),
+    pixels_ij = tf.reshape(pixels_ij, final_shape)
+    patch_xy = tf.reverse(pixels_ij, axis=[-1])
+    rays = ray(patch_xy,
+               tf.expand_dims(focal, -2),
                tf.expand_dims(principal_point, -2))
-    return rays, pixels
+    return rays, patch_xy
 
 
 def unproject(point_2d,
