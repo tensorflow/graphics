@@ -13,7 +13,12 @@
 # limitations under the License.
 """Tests for tensorflow_graphics.rendering.tests.interpolate."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from absl.testing import parameterized
+from six.moves import range
 import tensorflow as tf
 
 from tensorflow_graphics.rendering import interpolate

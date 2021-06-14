@@ -28,8 +28,13 @@ https://en.wikipedia.org/wiki/Texture_mapping for more information on
 texturing). You can find how the uv-coordinates map to textures exactly in the
 documentation of the ops.
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from typing import Optional, Sequence, Text
 
+from six.moves import range
 import tensorflow as tf
 from tensorflow_graphics.rendering.texture import texture_map
 from tensorflow_graphics.util import export_api

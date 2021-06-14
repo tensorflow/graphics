@@ -13,9 +13,14 @@
 # limitations under the License.
 """Tests for the opengl rasterizer op."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from absl.testing import parameterized
 import numpy as np
 import six
+from six.moves import range
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import look_at
@@ -189,8 +194,8 @@ class RasterizerOPTest(test_case.TestCase):
 
   @parameterized.parameters(
       ("The variable names, kinds, and values must have the same size.",
-       ["var1"], ["buffer", "buffer"], [[1.0], [1.0]],
-       tf.errors.InvalidArgumentError, ValueError),
+       ["var1"], ["buffer", "buffer"
+                 ], [[1.0], [1.0]], tf.errors.InvalidArgumentError, ValueError),
       ("The variable names, kinds, and values must have the same size.",
        ["var1", "var2"], ["buffer"], [[1.0], [1.0]],
        tf.errors.InvalidArgumentError, ValueError),
