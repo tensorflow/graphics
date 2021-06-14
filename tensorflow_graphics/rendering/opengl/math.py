@@ -27,7 +27,7 @@ def model_to_eye(point_model_space,
                  camera_position,
                  look_at_point,
                  up_vector,
-                 name=None):
+                 name="model_to_eye"):
   """Transforms points from model to eye coordinates.
 
   Note:
@@ -43,7 +43,7 @@ def model_to_eye(point_model_space,
       storing the position where the camera is looking at.
     up_vector: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
       defines the up vector of the camera.
-    name: A name for this op. Defaults to 'model_to_eye'.
+    name: A name for this op. Defaults to "model_to_eye".
 
   Raises:
     ValueError: if the all the inputs are not of the same shape, or if any input
@@ -53,9 +53,7 @@ def model_to_eye(point_model_space,
     A tensor of shape `[A1, ..., An, 3]`, containing `point_model_space` in eye
     coordinates.
   """
-  with tf.compat.v1.name_scope(
-      name, "model_to_eye",
-      [point_model_space, camera_position, look_at_point, up_vector]):
+  with tf.name_scope(name):
     point_model_space = tf.convert_to_tensor(value=point_model_space)
     camera_position = tf.convert_to_tensor(value=camera_position)
     look_at_point = tf.convert_to_tensor(value=look_at_point)
@@ -88,7 +86,7 @@ def eye_to_clip(point_eye_space,
                 aspect_ratio,
                 near,
                 far,
-                name=None):
+                name="eye_to_clip"):
   """Transforms points from eye to clip space.
 
   Note:
@@ -110,7 +108,7 @@ def eye_to_clip(point_eye_space,
     far: A tensor of shape `[A1, ..., An, 1]`, where the last dimension captures
       the distance between the viewer and the far clipping plane. Note that
       values for `far` must be non-negative.
-    name: A name for this op. Defaults to 'eye_to_clip'.
+    name: A name for this op. Defaults to "eye_to_clip".
 
   Raises:
     ValueError: If any input is of an unsupported shape.
@@ -119,9 +117,7 @@ def eye_to_clip(point_eye_space,
     A tensor of shape `[A1, ..., An, 4]`, containing `point_eye_space` in
     homogeneous clip coordinates.
   """
-  with tf.compat.v1.name_scope(
-      name, "eye_to_clip",
-      [point_eye_space, vertical_field_of_view, aspect_ratio, near, far]):
+  with tf.name_scope(name):
     point_eye_space = tf.convert_to_tensor(value=point_eye_space)
     vertical_field_of_view = tf.convert_to_tensor(value=vertical_field_of_view)
     aspect_ratio = tf.convert_to_tensor(value=aspect_ratio)
@@ -160,7 +156,7 @@ def eye_to_clip(point_eye_space,
     return tf.squeeze(tf.matmul(perspective_matrix, point_eye_space), axis=-1)
 
 
-def clip_to_ndc(point_clip_space, name=None):
+def clip_to_ndc(point_clip_space, name="clip_to_ndc"):
   """Transforms points from clip to normalized device coordinates (ndc).
 
   Note:
@@ -169,7 +165,7 @@ def clip_to_ndc(point_clip_space, name=None):
   Args:
     point_clip_space: A tensor of shape `[A1, ..., An, 4]`, where the last
       dimension represents points in clip space.
-    name: A name for this op. Defaults to 'clip_to_ndc'.
+    name: A name for this op. Defaults to "clip_to_ndc".
 
   Raises:
     ValueError: If `point_clip_space` is not of size 4 in its last dimension.
@@ -178,7 +174,7 @@ def clip_to_ndc(point_clip_space, name=None):
     A tensor of shape `[A1, ..., An, 3]`, containing `point_clip_space` in
     normalized device coordinates.
   """
-  with tf.compat.v1.name_scope(name, "clip_to_ndc", [point_clip_space]):
+  with tf.name_scope(name):
     point_clip_space = tf.convert_to_tensor(value=point_clip_space)
 
     shape.check_static(
@@ -195,7 +191,7 @@ def ndc_to_screen(point_ndc_space,
                   screen_dimensions,
                   near,
                   far,
-                  name=None):
+                  name="ndc_to_screen"):
   """Transforms points from normalized device coordinates to screen coordinates.
 
   Note:
@@ -217,7 +213,7 @@ def ndc_to_screen(point_ndc_space,
     far:  A tensor of shape `[A1, ..., An, 1]`, where the last dimension
       captures the distance between the viewer and the far clipping plane. Note
       that values for `far` must be greater than those of `near`.
-    name: A name for this op. Defaults to 'ndc_to_screen'.
+    name: A name for this op. Defaults to "ndc_to_screen".
 
   Raises:
     InvalidArgumentError: if any input contains data not in the specified range
@@ -228,9 +224,7 @@ def ndc_to_screen(point_ndc_space,
     A tensor of shape `[A1, ..., An, 3]`, containing `point_ndc_space` in
     screen coordinates.
   """
-  with tf.compat.v1.name_scope(
-      name, "ndc_to_screen",
-      [point_ndc_space, lower_left_corner, screen_dimensions, near, far]):
+  with tf.name_scope(name):
     point_ndc_space = tf.convert_to_tensor(value=point_ndc_space)
     lower_left_corner = tf.convert_to_tensor(value=lower_left_corner)
     screen_dimensions = tf.convert_to_tensor(value=screen_dimensions)
@@ -281,7 +275,7 @@ def model_to_screen(point_model_space,
                     perspective_matrix,
                     screen_dimensions,
                     lower_left_corner=(0.0, 0.0),
-                    name=None):
+                    name="model_to_screen"):
   """Transforms points from model to screen coordinates.
 
   Note:
@@ -307,7 +301,7 @@ def model_to_screen(point_model_space,
     lower_left_corner: A tensor of shape `[A1, ..., An, 2]`, where the last
       dimension captures the position (in pixels) of the lower left corner of
       the screen.
-    name: A name for this op. Defaults to 'model_to_screen'.
+    name: A name for this op. Defaults to "model_to_screen".
 
   Raises:
     InvalidArgumentError: if any input contains data not in the specified range
@@ -320,10 +314,7 @@ def model_to_screen(point_model_space,
     `point_model_space` in screen coordinates, and the second represents the 'w'
     component of `point_model_space` in clip space.
   """
-  with tf.compat.v1.name_scope(name, "model_to_screen", [
-      point_model_space, model_to_eye_matrix, perspective_matrix,
-      screen_dimensions, lower_left_corner
-  ]):
+  with tf.name_scope(name):
     point_model_space = tf.convert_to_tensor(value=point_model_space)
     model_to_eye_matrix = tf.convert_to_tensor(value=model_to_eye_matrix)
     perspective_matrix = tf.convert_to_tensor(value=perspective_matrix)
@@ -374,7 +365,7 @@ def perspective_correct_barycentrics(triangle_vertices_model_space,
                                      perspective_matrix,
                                      screen_dimensions,
                                      lower_left_corner=(0.0, 0.0),
-                                     name=None):
+                                     name="perspective_correct_barycentrics"):
   """Computes perspective correct barycentrics.
 
   Note:
@@ -399,7 +390,7 @@ def perspective_correct_barycentrics(triangle_vertices_model_space,
     lower_left_corner: A tensor of shape `[A1, ..., An, 2]`, where the last
       dimension captures the position (in pixels) of the lower left corner of
       the screen.
-    name: A name for this op. Defaults to 'perspective_correct_barycentrics'.
+    name: A name for this op. Defaults to "perspective_correct_barycentrics".
 
   Raises:
     InvalidArgumentError: if any input contains data not in the specified range
@@ -410,10 +401,7 @@ def perspective_correct_barycentrics(triangle_vertices_model_space,
     A tensor of shape `[A1, ..., An, 3]`, containing perspective correct
     barycentric coordinates.
   """
-  with tf.compat.v1.name_scope(name, "perspective_correct_barycentrics", [
-      triangle_vertices_model_space, pixel_position, model_to_eye_matrix,
-      perspective_matrix, screen_dimensions, lower_left_corner
-  ]):
+  with tf.name_scope(name):
     pixel_position = tf.convert_to_tensor(value=pixel_position)
     triangle_vertices_model_space = tf.convert_to_tensor(
         value=triangle_vertices_model_space)
@@ -453,7 +441,9 @@ def perspective_correct_barycentrics(triangle_vertices_model_space,
     return tf.linalg.normalize(coeffs, ord=1, axis=-1)[0]
 
 
-def interpolate_attributes(attribute, barycentric, name=None):
+def interpolate_attributes(attribute,
+                           barycentric,
+                           name="interpolate_attributes"):
   """Interpolates attributes using barycentric weights.
 
   Note:
@@ -464,13 +454,12 @@ def interpolate_attributes(attribute, barycentric, name=None):
       stores a per-vertex `B`-dimensional attribute.
     barycentric: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
       contains barycentric coordinates.
-    name: A name for this op. Defaults to 'interpolate_attributes'.
+    name: A name for this op. Defaults to "interpolate_attributes".
 
   Returns:
     A tensor of shape `[A1, ..., An, B]`, containing interpolated attributes.
   """
-  with tf.compat.v1.name_scope(name, "interpolate_attributes",
-                               (attribute, barycentric)):
+  with tf.name_scope(name):
     attribute = tf.convert_to_tensor(value=attribute)
     barycentric = tf.convert_to_tensor(value=barycentric)
 
@@ -495,7 +484,7 @@ def perspective_correct_interpolation(triangle_vertices_model_space,
                                       perspective_matrix,
                                       screen_dimensions,
                                       lower_left_corner=(0.0, 0.0),
-                                      name=None):
+                                      name="perspective_correct_interpolation"):
   """Returns perspective corrected interpolation of attributes over triangles.
 
   Note:
@@ -522,7 +511,7 @@ def perspective_correct_interpolation(triangle_vertices_model_space,
     lower_left_corner: A tensor of shape `[A1, ..., An, 2]`, where the last
       dimension captures the position (in pixels) of the lower left corner of
       the screen.
-    name: A name for this op. Defaults to 'perspective_correct_interpolation'.
+    name: A name for this op. Defaults to "perspective_correct_interpolation".
 
   Raises:
     tf.errors.InvalidArgumentError: if any input contains data not in the
@@ -532,15 +521,12 @@ def perspective_correct_interpolation(triangle_vertices_model_space,
   Returns:
     A tensor of shape `[A1, ..., An, B]`, containing interpolated attributes.
   """
-  with tf.compat.v1.name_scope(name, "perspective_correct_interpolation", [
-      triangle_vertices_model_space, attribute, pixel_position,
-      model_to_eye_matrix, perspective_matrix, screen_dimensions,
-      lower_left_corner
-  ]):
+  with tf.name_scope(name):
     barycentric = perspective_correct_barycentrics(
         triangle_vertices_model_space, pixel_position, model_to_eye_matrix,
         perspective_matrix, screen_dimensions, lower_left_corner)
     return interpolate_attributes(attribute, barycentric)
+
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()

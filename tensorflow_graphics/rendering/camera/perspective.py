@@ -45,7 +45,7 @@ from __future__ import division
 from __future__ import print_function
 
 import math
-from typing import Optional, Tuple
+from typing import Tuple
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.representation import grid
@@ -501,7 +501,7 @@ def random_patches(focal: tf.Tensor,
                    patch_height: int,
                    patch_width: int,
                    scale: float = 1.0,
-                   name: Optional[str] = None) -> Tuple[tf.Tensor, tf.Tensor]:
+                   name: str = "random_patches") -> Tuple[tf.Tensor, tf.Tensor]:
   """Sample patches at different scales and from an image.
 
   Args:
@@ -519,8 +519,7 @@ def random_patches(focal: tf.Tensor,
       ray directions in 3D passing from the M*N pixels of the patch and
     a tensor of shape `[A1, ..., An, M*N, 2]` with the pixel x, y locations.
   """
-  with tf.compat.v1.name_scope(name, "random_patches",
-                               [focal, principal_point]):
+  with tf.name_scope(name):
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
 
@@ -541,8 +540,9 @@ def random_patches(focal: tf.Tensor,
                              [patch_height, patch_width])  # storing is in 'ij'
     patch_ij = tf.cast(patch_ij, tf.float32)
     patch_ij = patch_ij * scale
-    interm_shape = tf.concat(
-        [tf.ones_like(batch_shape), tf.shape(patch_ij)], axis=0)
+    interm_shape = tf.concat([tf.ones_like(batch_shape),
+                              tf.shape(patch_ij)],
+                             axis=0)
     patch_ij = tf.reshape(patch_ij, interm_shape)
     random_y = tf.random.uniform(
         batch_shape,
@@ -561,8 +561,7 @@ def random_patches(focal: tf.Tensor,
                             axis=0)
     pixels_ij = tf.reshape(pixels_ij, final_shape)
     patch_xy = tf.reverse(pixels_ij, axis=[-1])
-    rays = ray(patch_xy,
-               tf.expand_dims(focal, -2),
+    rays = ray(patch_xy, tf.expand_dims(focal, -2),
                tf.expand_dims(principal_point, -2))
     return rays, patch_xy
 

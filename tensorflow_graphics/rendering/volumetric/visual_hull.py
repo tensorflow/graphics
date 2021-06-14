@@ -23,7 +23,7 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def render(voxels, axis=2, name=None):
+def render(voxels, axis=2, name="visual_hull_render"):
   """Renders the visual hull of a voxel grid, as described in ["Escaping Plato's Cave: 3D Shape From Adversarial Rendering" (Henzler 2019)](https://github.com/henzler/platonicgan).
 
   Note:
@@ -43,7 +43,7 @@ def render(voxels, axis=2, name=None):
   Raises:
     ValueError: If the shape of the input tensors are not supported.
   """
-  with tf.compat.v1.name_scope(name, "visual_hull_render", [voxels]):
+  with tf.name_scope(name):
     voxels = tf.convert_to_tensor(value=voxels)
 
     shape.check_static(

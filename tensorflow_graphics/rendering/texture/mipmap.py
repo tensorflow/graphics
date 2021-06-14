@@ -95,35 +95,34 @@ def map_texture(uv_map: tfg_type.TensorLike,
       raise ValueError('Either texture_image or mipmap_images should be '
                        'provided.')
     # Shape checks
-    shape.check_static(tensor=uv_map,
-                       tensor_name='uv_map',
-                       has_rank_greater_than=3,
-                       has_dim_equals=(-1, 2))
+    shape.check_static(
+        tensor=uv_map,
+        tensor_name='uv_map',
+        has_rank_greater_than=3,
+        has_dim_equals=(-1, 2))
 
     if mipmap_images is not None:
       num_mipmap_levels = len(mipmap_images)
       for idx, mipmap_image in enumerate(mipmap_images):
-        shape.check_static(tensor=mipmap_image,
-                           tensor_name=f'mipmap_image{idx}',
-                           has_rank=3)
+        shape.check_static(
+            tensor=mipmap_image, tensor_name=f'mipmap_image{idx}', has_rank=3)
 
     if texture_image is not None:
-      shape.check_static(tensor=texture_image,
-                         tensor_name='texture_image',
-                         has_rank=3)
+      shape.check_static(
+          tensor=texture_image, tensor_name='texture_image', has_rank=3)
 
     # Initializations
     uv_map = tf.convert_to_tensor(value=uv_map, dtype=tf.float32)
 
     if mipmap_images is not None:
       for mipmap_image in mipmap_images:
-        mipmap_image = tf.convert_to_tensor(mipmap_image)
+        mipmap_image = tf.convert_to_tensor(value=mipmap_image)
 
       texture_shape = mipmap_images[0].get_shape().as_list()
       texture_height, texture_width = texture_shape[-3:-1]
     elif texture_image is not None:
-      texture_image = tf.convert_to_tensor(value=texture_image,
-                                           dtype=tf.float32)
+      texture_image = tf.convert_to_tensor(
+          value=texture_image, dtype=tf.float32)
       texture_shape = texture_image.get_shape().as_list()
       texture_height, texture_width = texture_shape[-3:-1]
 
@@ -140,9 +139,8 @@ def map_texture(uv_map: tfg_type.TensorLike,
         current_height = tf.floor(previous_size[0] / 2)
         current_width = tf.floor(previous_size[1] / 2)
         mipmap_images.append(
-            tf.image.resize(
-                mipmap_images[idx],
-                [current_height, current_width]))
+            tf.image.resize(mipmap_images[idx],
+                            [current_height, current_width]))
 
     # Computing the per-pixel mipmapping level and level indices
     uv_shape = uv_map.get_shape().as_list()
@@ -151,15 +149,15 @@ def map_texture(uv_map: tfg_type.TensorLike,
     uv_map = tf.reshape(uv_map, (-1, uv_height, uv_width, 2))
 
     ddx, ddy = tf.image.image_gradients(uv_map)
-    max_derivative = tf.math.maximum(tf.reduce_max(tf.math.abs(ddx), axis=-1),
-                                     tf.reduce_max(tf.math.abs(ddy), axis=-1))
+    max_derivative = tf.math.maximum(
+        tf.reduce_max(input_tensor=tf.math.abs(ddx), axis=-1),
+        tf.reduce_max(input_tensor=tf.math.abs(ddy), axis=-1))
     max_derivative = max_derivative * [texture_height, texture_width]
     max_derivative = tf.math.maximum(max_derivative, 1.0)
 
     mipmap_level = tf.experimental.numpy.log2(max_derivative)
     mipmap_indices = tf.stack(
-        (tf.math.floor(mipmap_level), tf.math.ceil(mipmap_level)),
-        axis=-1)
+        (tf.math.floor(mipmap_level), tf.math.ceil(mipmap_level)), axis=-1)
     mipmap_level = mipmap_level - mipmap_indices[..., 0]
     mipmap_indices = tf.clip_by_value(mipmap_indices, 0, num_mipmap_levels - 1)
     mipmap_indices = tf.cast(mipmap_indices, dtype=tf.int32)
@@ -169,20 +167,14 @@ def map_texture(uv_map: tfg_type.TensorLike,
     for mipmap_image in mipmap_images:
       mapped_texture_stack.append(
           texture_map.map_texture(
-              uv_map=uv_map,
-              texture_image=mipmap_image,
-              tiling=tiling))
+              uv_map=uv_map, texture_image=mipmap_image, tiling=tiling))
     mapped_texture_stack = tf.stack(mapped_texture_stack, axis=-2)
 
     # Gather the lower and higher mipmapped textures
-    mapped_texture_lower = tf.gather(mapped_texture_stack,
-                                     mipmap_indices[..., 0],
-                                     batch_dims=3,
-                                     axis=3)
-    mapped_texture_higher = tf.gather(mapped_texture_stack,
-                                      mipmap_indices[..., 1],
-                                      batch_dims=3,
-                                      axis=3)
+    mapped_texture_lower = tf.gather(
+        mapped_texture_stack, mipmap_indices[..., 0], batch_dims=3, axis=3)
+    mapped_texture_higher = tf.gather(
+        mapped_texture_stack, mipmap_indices[..., 1], batch_dims=3, axis=3)
 
     # Interpolate with the mipmap_level
     # Note: If the original mipmap index is above

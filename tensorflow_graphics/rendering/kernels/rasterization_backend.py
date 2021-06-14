@@ -45,7 +45,7 @@ def rasterize(vertices: tf.Tensor,
               image_size: Tuple[int, int],
               enable_cull_face: bool,
               num_layers: int,
-              name=None):
+              name="rasterization_backend_cpu_rasterize"):
   """Rasterizes the scene.
 
     This rasterizer estimates which triangle is associated with each pixel using
@@ -64,7 +64,7 @@ def rasterize(vertices: tf.Tensor,
       and no face culling when False.
     num_layers: Number of depth layers to render. Output tensors shape depends
       on whether num_layers=1 or not.
-    name: A name for this op. Defaults to 'rasterization_backend_cpu_rasterize'.
+    name: A name for this op. Defaults to "rasterization_backend_cpu_rasterize".
 
   Returns:
     A Framebuffer containing the rasterized values: barycentrics, triangle_id,
@@ -79,10 +79,9 @@ def rasterize(vertices: tf.Tensor,
     The barycentric coordinates can be used to determine pixel validity instead.
     See framebuffer.py for a description of the Framebuffer fields.
   """
-  with tf.compat.v1.name_scope(name, "rasterization_backend_cpu_rasterize",
-                               (vertices, triangles, view_projection_matrices)):
-    vertices = tf.convert_to_tensor(vertices)
-    triangles = tf.convert_to_tensor(triangles)
+  with tf.name_scope(name):
+    vertices = tf.convert_to_tensor(value=vertices)
+    triangles = tf.convert_to_tensor(value=triangles)
     view_projection_matrices = tf.convert_to_tensor(
         value=view_projection_matrices)
 

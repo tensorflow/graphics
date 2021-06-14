@@ -30,7 +30,7 @@ except ImportError:
 
 
 def _dim_value(dim):
-  return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+  return 1 if dim is None else tf.compat.dimension_value(dim)
 
 
 # Empty vertex shader; all the work happens in the geometry shader.
@@ -104,7 +104,7 @@ def rasterize(vertices,
               image_size,
               enable_cull_face,
               num_layers,
-              name=None):
+              name="rasterization_backend_rasterize"):
   """Rasterizes the scene.
 
     This rasterizer estimates which triangle is associated with each pixel using
@@ -127,7 +127,7 @@ def rasterize(vertices,
       and no face culling when False. Default is True.
     num_layers: Number of depth layers to render. Not supported by current
       backend yet, but exists for interface compatibility.
-    name: A name for this op. Defaults to 'rasterization_backend_rasterize'.
+    name: A name for this op. Defaults to "rasterization_backend_rasterize".
 
   Returns:
     A Framebuffer containing the rasterized values: barycentrics, triangle_id,
@@ -142,9 +142,7 @@ def rasterize(vertices,
     The barycentric coordinates can be used to determine pixel validity instead.
     See framebuffer.py for a description of the Framebuffer fields.
   """
-  with tf.compat.v1.name_scope(name, "rasterization_backend_rasterize",
-                               (vertices, triangles, view_projection_matrices)):
-
+  with tf.name_scope(name):
     if num_layers != 1:
       raise ValueError("OpenGL rasterizer only supports single layer.")
 

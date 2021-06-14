@@ -56,9 +56,9 @@ def map_texture(uv_map: tfg_type.TensorLike,
   Args:
     uv_map: A tensor of shape `[A1, ..., An, H, W, 2]` containing the uv
       coordinates with range [0, 1], height H and width W.
-    texture_image: A tensor of shape `[H', W', C]` containing the
-      texture to be mapped with height H', width W', and number of channels C of
-      the texture image.
+    texture_image: A tensor of shape `[H', W', C]` containing the texture to be
+      mapped with height H', width W', and number of channels C of the texture
+      image.
     tiling: If enabled, the texture is tiled so that any uv value outside the
       range [0, 1] will be mapped to the tiled texture. E.g. if uv-coordinate is
       (0, 1.5), it is mapped to (0, 0.5). When tiling, the aspect ratio of the
@@ -77,14 +77,14 @@ def map_texture(uv_map: tfg_type.TensorLike,
     uv_map = tf.convert_to_tensor(value=uv_map, dtype=tf.float32)
     texture_image = tf.convert_to_tensor(value=texture_image, dtype=tf.float32)
 
-    shape.check_static(tensor=uv_map,
-                       tensor_name='uv_map',
-                       has_rank_greater_than=3,
-                       has_dim_equals=(-1, 2))
+    shape.check_static(
+        tensor=uv_map,
+        tensor_name='uv_map',
+        has_rank_greater_than=3,
+        has_dim_equals=(-1, 2))
 
-    shape.check_static(tensor=texture_image,
-                       tensor_name='texture_image',
-                       has_rank=3)
+    shape.check_static(
+        tensor=texture_image, tensor_name='texture_image', has_rank=3)
 
     if interpolation_method == 'bilinear':
       resampling_type = transformer.ResamplingType.BILINEAR
@@ -94,7 +94,7 @@ def map_texture(uv_map: tfg_type.TensorLike,
       raise ValueError('The interpolation_method is not recognized. It should '
                        'either be bilinear or nearest.')
 
-    texture_image_shape = tf.shape(texture_image)
+    texture_image_shape = tf.shape(input=texture_image)
     texture_height = tf.cast(texture_image_shape[-3], tf.float32)
     texture_width = tf.cast(texture_image_shape[-2], tf.float32)
     texture_num_channels = texture_image_shape[-1]
@@ -110,13 +110,11 @@ def map_texture(uv_map: tfg_type.TensorLike,
       # Pad texture with the first/last row/column for interpolating with
       # periodic boundary conditions.
       padded_texture = tf.concat(
-          (tf.expand_dims(texture_image[:, -1, :], axis=1),
-           texture_image,
+          (tf.expand_dims(texture_image[:, -1, :], axis=1), texture_image,
            tf.expand_dims(texture_image[:, 0, :], axis=1)),
           axis=1)
       padded_texture = tf.concat(
-          (tf.expand_dims(padded_texture[-1, :, :], axis=0),
-           padded_texture,
+          (tf.expand_dims(padded_texture[-1, :, :], axis=0), padded_texture,
            tf.expand_dims(padded_texture[0, :, :], axis=0)),
           axis=0)
       texture_image = padded_texture
@@ -135,10 +133,11 @@ def map_texture(uv_map: tfg_type.TensorLike,
         resampling_type=resampling_type)
 
     # pylint: disable=bad-whitespace
-    interpolated_shape = tf.concat(
-        (tf.shape(uv_map)[:-1],
-         tf.convert_to_tensor([texture_num_channels, ])),
-        axis=0)
+    interpolated_shape = tf.concat((tf.shape(input=uv_map)[:-1],
+                                    tf.convert_to_tensor(value=[
+                                        texture_num_channels,
+                                    ])),
+                                   axis=0)
     # pylint: enable=bad-whitespace
 
     return tf.reshape(interpolated, interpolated_shape)

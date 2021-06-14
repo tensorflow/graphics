@@ -23,7 +23,11 @@ from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 
 
-def render(voxels, absorption_factor=0.1, cell_size=1.0, axis=2, name=None):
+def render(voxels,
+           absorption_factor=0.1,
+           cell_size=1.0,
+           axis=2,
+           name="emission_absorption_render"):
   """Renders a voxel grid using the emission-absorption model, as described in ["Escaping Plato's Cave: 3D Shape From Adversarial Rendering" (Henzler 2019)](https://github.com/henzler/platonicgan).
 
   Note:
@@ -45,7 +49,7 @@ def render(voxels, absorption_factor=0.1, cell_size=1.0, axis=2, name=None):
   Raises:
     ValueError: If the shape of the input tensors are not supported.
   """
-  with tf.compat.v1.name_scope(name, "emission_absorption_render", [voxels]):
+  with tf.name_scope(name):
     voxels = tf.convert_to_tensor(value=voxels)
 
     shape.check_static(
