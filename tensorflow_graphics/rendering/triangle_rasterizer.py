@@ -61,9 +61,9 @@ def rasterize(vertices,
       vertices, each defined by a 3D point.
     triangles: A tensor of shape `[T, 3]` containing `T` triangles, each
       associated with 3 vertices from `vertices`.
-    attributes: A dictionary of tensors, each of shape `[A1, ..., An, V, K_a]`
+    attributes: A dictionary of tensors, each of shape `[A1, ..., An, V, K]`
       containing batches of `V` vertices, each associated with K-dimensional
-      attributes. K_a may vary by attribute.
+      attributes. K may vary by attribute.
     view_projection_matrix: A tensor of shape `[A1, ..., An, 4, 4]` containing
       batches of matrices used to transform vertices from model to clip
       coordinates.

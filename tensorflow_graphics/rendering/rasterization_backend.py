@@ -46,7 +46,7 @@ def rasterize(vertices,
     image_size: A tuple of integers (width, height) containing the dimensions
       in pixels of the rasterized image.
     enable_cull_face: A boolean, which will enable BACK face culling when True
-      and no face culling when False. Default is True.
+      and no face culling when False.
     num_layers: Number of depth layers to render. Output tensors shape depends
       on whether num_layers=1 or not. Supported by CPU rasterizer only and does
       nothing for OpenGL backend.
@@ -59,7 +59,7 @@ def rasterize(vertices,
   Returns:
     A Framebuffer containing the rasterized values: barycentrics, triangle_id,
     foreground_mask, vertex_ids. Returned Tensors have shape
-    [batch, num_layers, height, width, channels]
+    [batch, num_layers, height, width, channels].
     Note: triangle_id contains the triangle id value for each pixel in the
     output image. For pixels within the mesh, this is the integer value in the
     range [0, num_vertices] from triangles. For vertices outside the mesh this
