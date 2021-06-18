@@ -15,7 +15,7 @@
 
 from absl.testing import flagsaver
 from absl.testing import parameterized
-import tensorflow.compat.v2 as tf
+import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import dual_quaternion
 from tensorflow_graphics.geometry.transformation.tests import test_helpers
@@ -29,30 +29,25 @@ class DualQuaternionTest(test_case.TestCase):
       ((None, 8),),
   )
   def test_conjugate_exception_not_raised(self, *shape):
-    """Tests that the shape exceptions of conjugate are not raised."""
     self.assert_exception_is_not_raised(dual_quaternion.conjugate, shape)
 
   @parameterized.parameters(
       ("must have exactly 8 dimensions", (3,)),)
   def test_conjugate_exception_raised(self, error_msg, *shape):
-    """Tests that the shape exceptions are raised."""
     self.assert_exception_is_raised(dual_quaternion.conjugate, error_msg, shape)
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_conjugate_jacobian_preset(self):
-    """Tests the Jacobian of the conjugate function."""
     x_init = test_helpers.generate_preset_test_dual_quaternions()
     self.assert_jacobian_is_correct_fn(dual_quaternion.conjugate, [x_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_conjugate_jacobian_random(self):
-    """Tests the Jacobian of the conjugate function."""
     x_init = test_helpers.generate_random_test_dual_quaternions()
     self.assert_jacobian_is_correct_fn(dual_quaternion.conjugate, [x_init])
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_conjugate_preset(self):
-    """Tests if the conjugate function is providing correct results."""
     x_init = test_helpers.generate_preset_test_dual_quaternions()
     x = tf.convert_to_tensor(value=x_init)
     y = tf.convert_to_tensor(value=x_init)
@@ -68,3 +63,37 @@ class DualQuaternionTest(test_case.TestCase):
 
     self.assertAllEqual(x_real, y_real)
     self.assertAllEqual(x_dual, y_dual)
+
+  @parameterized.parameters(
+      ((8,), (8,)),
+      ((None, 8), (None, 8)),
+  )
+  def test_multiply_exception_not_raised(self, *shapes):
+    self.assert_exception_is_not_raised(dual_quaternion.multiply, shapes)
+
+  @parameterized.parameters(
+      ("must have exactly 8 dimensions", (5,), (6,)),
+      ("must have exactly 8 dimensions", (7,), (8,)),
+  )
+  def test_multiply_exception_raised(self, error_msg, *shape):
+    self.assert_exception_is_raised(dual_quaternion.multiply, error_msg, shape)
+
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_multiply_jacobian_preset(self):
+    x_1_init = test_helpers.generate_preset_test_dual_quaternions()
+    x_2_init = test_helpers.generate_preset_test_dual_quaternions()
+
+    self.assert_jacobian_is_correct_fn(dual_quaternion.multiply,
+                                       [x_1_init, x_2_init])
+
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_multiply_jacobian_random(self):
+    x_1_init = test_helpers.generate_random_test_dual_quaternions()
+    x_2_init = test_helpers.generate_random_test_dual_quaternions()
+
+    self.assert_jacobian_is_correct_fn(dual_quaternion.multiply,
+                                       [x_1_init, x_2_init])
+
+
+if __name__ == "__main__":
+  test_case.main()

@@ -78,5 +78,51 @@ def conjugate(dual_quaternion: type_alias.TensorLike,
                      axis=-1)
 
 
+def multiply(dual_quaternion1: type_alias.TensorLike,
+             dual_quaternion2: type_alias.TensorLike,
+             name: str = "dual_quaternion_multiply"):
+  """Multiplies two dual quaternions.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    dual_quaternion1:  A TensorLike of shape `[A1, ..., An, 8]`, where the last
+      dimension represents a dual quaternion.
+    dual_quaternion2:  A TensorLike of shape `[A1, ..., An, 8]`, where the last
+      dimension represents a dual quaternion.
+    name: A name for this op that defaults to "dual_quaternion_multiply".
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 8]` representing dual quaternions.
+  """
+  with tf.name_scope(name):
+    dual_quaternion1 = tf.convert_to_tensor(value=dual_quaternion1)
+    dual_quaternion2 = tf.convert_to_tensor(value=dual_quaternion2)
+
+    shape.check_static(
+        tensor=dual_quaternion1,
+        tensor_name="dual_quaternion1",
+        has_dim_equals=(-1, 8))
+    shape.check_static(
+        tensor=dual_quaternion2,
+        tensor_name="dual_quaternion2",
+        has_dim_equals=(-1, 8))
+
+    dual_quaternion1_real, dual_quaternion1_dual = tf.split(
+        dual_quaternion1, (4, 4), axis=-1)
+    dual_quaternion2_real, dual_quaternion2_dual = tf.split(
+        dual_quaternion2, (4, 4), axis=-1)
+
+    dual_quaternion_output_real = quaternion.multiply(dual_quaternion1_real,
+                                                      dual_quaternion2_real)
+    dual_quaternion_output_dual = (
+        quaternion.multiply(dual_quaternion1_real, dual_quaternion2_dual) +
+        quaternion.multiply(dual_quaternion1_dual, dual_quaternion2_real))
+
+    return tf.concat((dual_quaternion_output_real, dual_quaternion_output_dual),
+                     axis=-1)
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
