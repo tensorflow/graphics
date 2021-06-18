@@ -30,7 +30,7 @@ from tensorflow_graphics.util import shape
 
 
 def _dim_value(dim):
-  return 1 if dim is None else tf.compat.v1.dimension_value(dim)
+  return 1 if dim is None else tf.compat.dimension_value(dim)
 
 
 def _merge_batch_dims(tensor, last_axis):
@@ -50,7 +50,7 @@ def rasterize(vertices,
               image_size,
               enable_cull_face=True,
               backend=rasterization_backend.RasterizationBackends.OPENGL,
-              name=None):
+              name="triangle_rasterizer_rasterize"):
   """Rasterizes the scene.
 
   Note:
@@ -73,7 +73,7 @@ def rasterize(vertices,
       False.
     backend: A rasterization_backend.RasterizationBackends enum containing the
       backend method to use for rasterization.
-    name: A name for this op. Defaults to 'triangle_rasterizer_rasterize'.
+    name: A name for this op. Defaults to "triangle_rasterizer_rasterize".
 
   Returns:
     A dictionary. The key "mask" is of shape `[A1, ..., An, height, width, 1]`
@@ -83,9 +83,7 @@ def rasterize(vertices,
     the dictionary contains perspective correct interpolated attributes of shape
     `[A1, ..., An, height, width, K]` per entry in the `attributes` dictionary.
   """
-  with tf.compat.v1.name_scope(
-      name, "triangle_rasterizer_rasterize",
-      (vertices, triangles, attributes, view_projection_matrix)):
+  with tf.name_scope(name):
     vertices = tf.convert_to_tensor(value=vertices)
     triangles = tf.convert_to_tensor(value=triangles)
     view_projection_matrix = tf.convert_to_tensor(value=view_projection_matrix)

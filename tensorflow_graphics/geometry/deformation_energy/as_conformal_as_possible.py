@@ -33,7 +33,7 @@ def energy(vertices_rest_pose,
            edge_weight=None,
            conformal_energy=True,
            aggregate_loss=True,
-           name=None):
+           name="as_conformal_as_possible_energy"):
   """Estimates an As Conformal As Possible (ACAP) fitting energy.
 
   For a given mesh in rest pose, this function evaluates a variant of the ACAP
@@ -92,10 +92,7 @@ def energy(vertices_rest_pose,
     ValueError: if the shape of `vertices_rest_pose`, `vertices_deformed_pose`,
     `quaternions`, `edges`, `vertex_weight`, or `edge_weight` is not supported.
   """
-  with tf.compat.v1.name_scope(name, "as_conformal_as_possible_energy", [
-      vertices_rest_pose, vertices_deformed_pose, quaternions, edges,
-      conformal_energy, vertex_weight, edge_weight
-  ]):
+  with tf.name_scope(name):
     vertices_rest_pose = tf.convert_to_tensor(value=vertices_rest_pose)
     vertices_deformed_pose = tf.convert_to_tensor(value=vertices_deformed_pose)
     quaternions = tf.convert_to_tensor(value=quaternions)
@@ -126,12 +123,12 @@ def energy(vertices_rest_pose,
         broadcast_compatible=False)
     shape.check_static(
         tensor=edges, tensor_name="edges", has_rank=2, has_dim_equals=(-1, 2))
-    tensors_with_vertices = [vertices_rest_pose,
-                             vertices_deformed_pose,
-                             quaternions]
-    names_with_vertices = ["vertices_rest_pose",
-                           "vertices_deformed_pose",
-                           "quaternions"]
+    tensors_with_vertices = [
+        vertices_rest_pose, vertices_deformed_pose, quaternions
+    ]
+    names_with_vertices = [
+        "vertices_rest_pose", "vertices_deformed_pose", "quaternions"
+    ]
     axes_with_vertices = [-2, -2, -2]
     if vertex_weight is not None:
       shape.check_static(
@@ -196,6 +193,7 @@ def energy(vertices_rest_pose,
           input_tensor=energy_ji_squared, axis=-1)
       return (average_energy_ij + average_energy_ji) / 2.0
     return tf.concat((energy_ij_squared, energy_ji_squared), axis=-1)
+
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
