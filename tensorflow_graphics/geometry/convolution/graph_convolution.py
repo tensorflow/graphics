@@ -17,24 +17,26 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Any, Callable, Dict
 from six.moves import zip
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.convolution import utils
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
 def feature_steered_convolution(
-    data,
-    neighbors,
-    sizes,
-    var_u,
-    var_v,
-    var_c,
-    var_w,
-    var_b,
-    name="graph_convolution_feature_steered_convolution"):
+    data: type_alias.TensorLike,
+    neighbors: tf.sparse.SparseTensor,
+    sizes: type_alias.TensorLike,
+    var_u: type_alias.TensorLike,
+    var_v: type_alias.TensorLike,
+    var_c: type_alias.TensorLike,
+    var_w: type_alias.TensorLike,
+    var_b: type_alias.TensorLike,
+    name="graph_convolution_feature_steered_convolution") -> tf.Tensor:
   #  pyformat: disable
   """Implements the Feature Steered graph convolution.
 
@@ -160,13 +162,14 @@ def feature_steered_convolution(
 
 
 def edge_convolution_template(
-    data,
-    neighbors,
-    sizes,
-    edge_function,
-    reduction,
-    edge_function_kwargs,
-    name="graph_convolution_edge_convolution_template"):
+    data: type_alias.TensorLike,
+    neighbors: tf.sparse.SparseTensor,
+    sizes: type_alias.TensorLike,
+    edge_function: Callable[[type_alias.TensorLike, type_alias.TensorLike],
+                            type_alias.TensorLike],
+    reduction: str,
+    edge_function_kwargs: Dict[str, Any],
+    name: str = "graph_convolution_edge_convolution_template") -> tf.Tensor:
   #  pyformat: disable
   r"""A template for edge convolutions.
 
