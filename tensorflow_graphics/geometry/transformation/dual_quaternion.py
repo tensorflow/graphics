@@ -33,10 +33,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow.compat.v2 as tf
+import tensorflow as tf
 from tensorflow_graphics.geometry.transformation import quaternion
-from tensorflow_graphics.util import asserts
+from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import export_api
+from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
 from tensorflow_graphics.util import type_alias
 
@@ -71,8 +72,6 @@ def conjugate(dual_quaternion: type_alias.TensorLike,
     quaternion_real, quaternion_dual = tf.split(
         dual_quaternion, (4, 4), axis=-1)
 
-    quaternion_real = asserts.assert_normalized(quaternion_real)
-
     return tf.concat((quaternion.conjugate(quaternion_real),
                       quaternion.conjugate(quaternion_dual)),
                      axis=-1)
@@ -80,7 +79,7 @@ def conjugate(dual_quaternion: type_alias.TensorLike,
 
 def multiply(dual_quaternion1: type_alias.TensorLike,
              dual_quaternion2: type_alias.TensorLike,
-             name: str = "dual_quaternion_multiply"):
+             name: str = "dual_quaternion_multiply") -> tf.Tensor:
   """Multiplies two dual quaternions.
 
   Note:
@@ -122,6 +121,55 @@ def multiply(dual_quaternion1: type_alias.TensorLike,
 
     return tf.concat((dual_quaternion_output_real, dual_quaternion_output_dual),
                      axis=-1)
+
+
+def inverse(dual_quaternion: type_alias.TensorLike,
+            name: str = "dual_quaternion_inverse") -> tf.Tensor:
+  """Computes the inverse of a dual quaternion.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    dual_quaternion:  A TensorLike of shape `[A1, ..., An, 8]`, where the last
+      dimension represents a dual quaternion.
+    name: A name for this op that defaults to "dual_quaternion_inverse".
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 8]`, where the last dimension represents
+    a dual quaternion.
+
+  Raises:
+    ValueError: If the shape of `dual quaternion` is not supported.
+  """
+  with tf.name_scope(name):
+    dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
+
+    shape.check_static(
+        tensor=dual_quaternion,
+        tensor_name="dual_quaternion",
+        has_dim_equals=(-1, 8))
+
+    quaternion_real, quaternion_dual = tf.split(
+        dual_quaternion, (4, 4), axis=-1)
+
+    quaternion_real_norm_squared = tf.norm(
+        tensor=quaternion_real, axis=-1, keepdims=True) ** 2
+    quaternion_real_conj = quaternion.conjugate(quaternion_real)
+
+    quaternion_output_real = safe_ops.safe_signed_div(
+        quaternion_real_conj,
+        quaternion_real_norm_squared)
+
+    normalized_dual = safe_ops.safe_signed_div(
+        quaternion.conjugate(quaternion_dual), quaternion_real_norm_squared)
+    normalized_dot_product = safe_ops.safe_signed_div(
+        vector.dot(quaternion_real, quaternion_dual, keepdims=True),
+        quaternion_real_norm_squared**2)
+    quaternion_output_dual = (
+        normalized_dual - 2 * quaternion_real_conj * normalized_dot_product)
+
+    return tf.concat((quaternion_output_real, quaternion_output_dual), axis=-1)
 
 
 # API contains all public functions and classes.

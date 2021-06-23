@@ -152,7 +152,6 @@ def conjugate(quaternion, name="quaternion_conjugate"):
 
     shape.check_static(
         tensor=quaternion, tensor_name="quaternion", has_dim_equals=(-1, 4))
-    quaternion = asserts.assert_normalized(quaternion)
 
     xyz, w = tf.split(quaternion, (3, 1), axis=-1)
     return tf.concat((-xyz, w), axis=-1)
