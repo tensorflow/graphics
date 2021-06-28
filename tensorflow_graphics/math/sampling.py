@@ -26,8 +26,8 @@ from tensorflow_graphics.util.type_alias import TensorLike
 def regular_1d(near: TensorLike,
                far: TensorLike,
                num_samples: int,
-               name="linear_1d") -> tf.Tensor:
-  """Regular 1-dimensional sampling.
+               name="regular_1d") -> tf.Tensor:
+  """Sample evenly spaced numbers on an interval.
 
   Args:
     near: A tensor of shape `[A1, ... An]` containing the starting points of
@@ -35,7 +35,7 @@ def regular_1d(near: TensorLike,
     far: A tensor of shape `[A1, ... An]` containing the ending points of
       the sampling interval.
     num_samples: The number M of points to be sampled.
-    name:  A name for this op that defaults to "linear_1d".
+    name:  A name for this op that defaults to "regular_1d".
 
   Returns:
     A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
@@ -53,11 +53,11 @@ def regular_1d(near: TensorLike,
     return tf.linspace(near, far, num_samples, axis=-1)
 
 
-def regular_1d_disparity(near: TensorLike,
-                         far: TensorLike,
-                         num_samples: int,
-                         name="linear_disparity_1d") -> tf.Tensor:
-  """Regular inverse-depth 1-dimensional sampling (more points closer to start).
+def regular_inverse_1d(near: TensorLike,
+                       far: TensorLike,
+                       num_samples: int,
+                       name="regular_inverse_1d") -> tf.Tensor:
+  """Sample inverse evenly spaced numbers on an interval.
 
   Args:
     near: A tensor of shape `[A1, ... An]` containing the starting points of
@@ -65,7 +65,7 @@ def regular_1d_disparity(near: TensorLike,
     far: A tensor of shape `[A1, ... An]` containing the ending points of
       the sampling interval.
     num_samples: The number M of points to be sampled.
-    name:  A name for this op that defaults to "linear_disparity".
+    name:  A name for this op that defaults to "regular_inverse_1d".
 
   Returns:
     A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
@@ -87,7 +87,7 @@ def uniform_1d(near: TensorLike,
                far: TensorLike,
                num_samples: int,
                name="uniform_1d") -> tf.Tensor:
-  """Uniform 1D sampling with the samples being sorted.
+  """Sample uniformly numbers on an interval, with the numbers being sorted.
 
   Args:
     near: A tensor of shape `[A1, ... An]` containing the starting points of
@@ -120,8 +120,8 @@ def uniform_1d(near: TensorLike,
 def stratified_1d(near: TensorLike,
                   far: TensorLike,
                   num_samples: int,
-                  name="stratified") -> tf.Tensor:
-  """Stratified sampling on a ray.
+                  name="stratified_1d") -> tf.Tensor:
+  """Stratified sampling based on evenly-spaced bin size of an interval.
 
   Args:
     near: A tensor of shape `[A1, ... An]` containing the starting points of
@@ -129,7 +129,7 @@ def stratified_1d(near: TensorLike,
     far: A tensor of shape `[A1, ... An]` containing the ending points of
       the sampling interval.
     num_samples: The number M of points to be sampled.
-    name:  A name for this op that defaults to "stratified".
+    name:  A name for this op that defaults to "stratified_1d".
 
 
   Returns:
@@ -153,6 +153,107 @@ def stratified_1d(near: TensorLike,
     z_values = bin_below + (bin_above - bin_below) * random_point_in_bin
     z_values = (tf.expand_dims(near, -1) * (1. - z_values)
                 + tf.expand_dims(far, -1) * z_values)
+    return z_values
+
+
+def logspace_1d(near: TensorLike,
+                far: TensorLike,
+                num_samples: int,
+                base: float = 10.0,
+                name="logspace_1d") -> tf.Tensor:
+  """Sample evenly spaced numbers from an interval on a log scale.
+
+  Args:
+    near: A tensor of shape `[A1, ... An]` containing the starting points of
+      the sampling interval.
+    far: A tensor of shape `[A1, ... An]` containing the ending points of
+      the sampling interval.
+    num_samples: The number M of points to be sampled.
+    base: The logarithmic base.
+    name:  A name for this op that defaults to "logspace_1d".
+
+  Returns:
+    A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
+  """
+  with tf.name_scope(name):
+    near = tf.convert_to_tensor(near)
+    far = tf.convert_to_tensor(far)
+    shape.compare_batch_dimensions(
+        tensors=(tf.expand_dims(near, axis=-1), tf.expand_dims(far, axis=-1)),
+        tensor_names=("near", "far"),
+        last_axes=-1,
+        broadcast_compatible=True)
+
+    linspace = tf.linspace(near, far, num_samples, axis=-1)
+    return tf.math.pow(base, linspace)
+
+
+def _log10(x):
+  return tf.math.log(x) / tf.math.log(10.0)
+
+
+def geomspace_1d(near: TensorLike,
+                 far: TensorLike,
+                 num_samples: int,
+                 name="geomspace_1d") -> tf.Tensor:
+  """Sample evenly spaced numbers on a geometric progression (log scale).
+
+  Args:
+    near: A tensor of shape `[A1, ... An]` containing the starting points of
+      the sampling interval.
+    far: A tensor of shape `[A1, ... An]` containing the ending points of
+      the sampling interval.
+    num_samples: The number M of points to be sampled.
+    name:  A name for this op that defaults to "geomspace_1d".
+
+  Returns:
+    A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
+  """
+  with tf.name_scope(name):
+    near = tf.convert_to_tensor(near)
+    far = tf.convert_to_tensor(far)
+    shape.compare_batch_dimensions(
+        tensors=(tf.expand_dims(near, axis=-1), tf.expand_dims(far, axis=-1)),
+        tensor_names=("near", "far"),
+        last_axes=-1,
+        broadcast_compatible=True)
+    return logspace_1d(_log10(near), _log10(far), num_samples)
+
+
+def stratified_geomspace_1d(near: TensorLike,
+                            far: TensorLike,
+                            num_samples: int,
+                            name="stratified_geomspace_1d") -> tf.Tensor:
+  """Stratified sampling based on evenly-spaced bins on a geometric progression.
+
+  Args:
+    near: A tensor of shape `[A1, ... An]` containing the starting points of
+      the sampling interval.
+    far: A tensor of shape `[A1, ... An]` containing the ending points of
+      the sampling interval.
+    num_samples: The number M of points to be sampled.
+    name:  A name for this op that defaults to "stratified".
+
+
+  Returns:
+    A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
+  """
+  with tf.name_scope(name):
+    near = tf.convert_to_tensor(near)
+    far = tf.convert_to_tensor(far)
+
+    shape.compare_batch_dimensions(
+        tensors=(tf.expand_dims(near, axis=-1), tf.expand_dims(far, axis=-1)),
+        tensor_names=("near", "far"),
+        last_axes=-1,
+        broadcast_compatible=True)
+
+    bin_borders = geomspace_1d(near, far, num_samples + 1)
+    bin_below = bin_borders[..., :-1]
+    bin_above = bin_borders[..., 1:]
+    target_shape = tf.concat([tf.shape(near), [num_samples]], axis=-1)
+    random_point_in_bin = tf.random.uniform(target_shape)
+    z_values = bin_below + (bin_above - bin_below) * random_point_in_bin
     return z_values
 
 
@@ -192,11 +293,11 @@ def _get_cdf(pdf: TensorLike, name="get_cdf"):
     return cdf
 
 
-def inverse_transform_sampling_1d(bins: TensorLike,
-                                  pdf: TensorLike,
-                                  num_samples: int,
-                                  name="inverse_transform_sampling_1d") \
-    -> tf.Tensor:
+def inverse_transform_sampling_1d(
+    bins: TensorLike,
+    pdf: TensorLike,
+    num_samples: int,
+    name="inverse_transform_sampling_1d") -> tf.Tensor:
   """Sampling 1D points from a distribution using the inverse transform.
 
      The target distrubution is defined by its probability density function and
@@ -237,8 +338,8 @@ def inverse_transform_sampling_1d(bins: TensorLike,
         tensors=(bins, pdf),
         tensor_names=("bins", "pdf"),
         axes=-1)
-
-    pdf = _normalize_pdf(pdf)
+    # Do not consider the last bin, as the cdf contains has +1 dimension.
+    pdf = _normalize_pdf(pdf[..., :-1])
     cdf = _get_cdf(pdf)
     batch_shape = tf.shape(pdf)[:-1]
     # TODO(krematas): Use dynamic values
@@ -303,8 +404,8 @@ def inverse_transform_stratified_1d(bin_start: TensorLike,
         tensors=(bin_start, pdf, bin_width),
         tensor_names=("bins", "pdf", "bin_width"),
         axes=-1)
-
-    pdf = _normalize_pdf(pdf)
+    # Do not consider the last bin, as the cdf contains has +1 dimension.
+    pdf = _normalize_pdf(pdf[..., :-1])
     cdf = _get_cdf(pdf)
     batch_shape = tf.shape(pdf)[:-1]
     batch_dims = batch_shape.get_shape().as_list()[0]

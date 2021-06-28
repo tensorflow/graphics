@@ -45,19 +45,19 @@ class SamplingTest(test_case.TestCase):
       (128, (2), (2)),
       (128, (2, 4), (2, 4)),
   )
-  def test_regular_1d_disparity_shape_exception_not_raised(self, num_samples,
-                                                           *shape):
+  def test_regular_inverse_1d_shape_exception_not_raised(
+      self, num_samples, *shape):
     """Tests that the shape exceptions are not raised."""
-    self.assert_exception_is_not_raised(sampling.regular_1d_disparity,
+    self.assert_exception_is_not_raised(sampling.regular_inverse_1d,
                                         shape,
                                         num_samples=num_samples)
 
   @parameterized.parameters(
       ("Not all batch dimensions are broadcast-compatible.", (3, 3), (3, 2)),
   )
-  def test_regular_1d_disparity_shape_exception_raised(self, error_msg, *shape):
+  def test_regular_inverse_1d_shape_exception_raised(self, error_msg, *shape):
     """Tests that the shape exception is raised."""
-    self.assert_exception_is_raised(sampling.regular_1d_disparity,
+    self.assert_exception_is_raised(sampling.regular_inverse_1d,
                                     error_msg,
                                     shapes=shape,
                                     num_samples=128)
@@ -100,6 +100,29 @@ class SamplingTest(test_case.TestCase):
   def test_stratified_1d_shape_exception_raised(self, error_msg, *shape):
     """Tests that the shape exception is raised."""
     self.assert_exception_is_raised(sampling.stratified_1d,
+                                    error_msg,
+                                    shapes=shape,
+                                    num_samples=128)
+
+  @parameterized.parameters(
+      (128, (), ()),
+      (128, (2), (2)),
+      (128, (2, 4), (2, 4)),
+  )
+  def test_stratified_geomspace_1d_shape_exception_not_raised(
+      self, num_samples, *shape):
+    """Tests that the shape exceptions are not raised."""
+    self.assert_exception_is_not_raised(sampling.stratified_geomspace_1d,
+                                        shape,
+                                        num_samples=num_samples)
+
+  @parameterized.parameters(
+      ("Not all batch dimensions are broadcast-compatible.", (3, 3), (3, 2)),
+  )
+  def test_stratified_geomspace_1d_shape_exception_raised(
+      self, error_msg, *shape):
+    """Tests that the shape exception is raised."""
+    self.assert_exception_is_raised(sampling.stratified_geomspace_1d,
                                     error_msg,
                                     shapes=shape,
                                     num_samples=128)
