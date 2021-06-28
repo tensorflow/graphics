@@ -17,23 +17,26 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Optional
+
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import quaternion
 from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def energy(vertices_rest_pose,
-           vertices_deformed_pose,
-           quaternions,
-           edges,
-           vertex_weight=None,
-           edge_weight=None,
-           conformal_energy=True,
-           aggregate_loss=True,
-           name="as_conformal_as_possible_energy"):
+def energy(vertices_rest_pose: type_alias.TensorLike,
+           vertices_deformed_pose: type_alias.TensorLike,
+           quaternions: type_alias.TensorLike,
+           edges: type_alias.TensorLike,
+           vertex_weight: Optional[type_alias.TensorLike] = None,
+           edge_weight: Optional[type_alias.TensorLike] = None,
+           conformal_energy: bool = True,
+           aggregate_loss: bool = True,
+           name: str = "as_conformal_as_possible_energy"):
   """Estimates an As Conformal As Possible (ACAP) fitting energy.
 
   For a given mesh in rest pose, this function evaluates a variant of the ACAP
