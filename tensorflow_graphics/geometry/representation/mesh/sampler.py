@@ -36,6 +36,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Optional, Tuple
+
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.representation import triangle
@@ -43,9 +45,13 @@ from tensorflow_graphics.geometry.representation.mesh import normals
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def triangle_area(vertex0, vertex1, vertex2, name="triangle_area"):
+def triangle_area(vertex0: type_alias.TensorLike,
+                  vertex1: type_alias.TensorLike,
+                  vertex2: type_alias.TensorLike,
+                  name: str = "triangle_area") -> type_alias.TensorLike:
   """Computes triangle areas.
 
   Note:
@@ -81,12 +87,13 @@ def triangle_area(vertex0, vertex1, vertex2, name="triangle_area"):
     return areas
 
 
-def _random_categorical_sample(num_samples,
-                               weights,
-                               seed=None,
-                               stateless=False,
-                               name="random_categorical_sample",
-                               sample_dtype=tf.int32):
+def _random_categorical_sample(
+    num_samples: int,
+    weights: type_alias.TensorLike,
+    seed: Optional[type_alias.TensorLike] = None,
+    stateless: bool = False,
+    name: str = "random_categorical_sample",
+    sample_dtype: tf.DType = tf.int32) -> type_alias.TensorLike:
   """Samples from a categorical distribution with arbitrary batch dimensions.
 
   Note:
@@ -134,11 +141,12 @@ def _random_categorical_sample(num_samples,
     return samples
 
 
-def generate_random_face_indices(num_samples,
-                                 face_weights,
-                                 seed=None,
-                                 stateless=False,
-                                 name="generate_random_face_indices"):
+def generate_random_face_indices(
+    num_samples: int,
+    face_weights: type_alias.TensorLike,
+    seed: Optional[type_alias.TensorLike] = None,
+    stateless: bool = False,
+    name: str = "generate_random_face_indices") -> type_alias.TensorLike:
   """Generate a sample of face ids given per face probability.
 
   Note:
@@ -183,11 +191,12 @@ def generate_random_face_indices(num_samples,
 
 
 def generate_random_barycentric_coordinates(
-    sample_shape,
-    dtype=tf.dtypes.float32,
-    seed=None,
-    stateless=False,
-    name="generate_random_barycentric_coordinates"):
+    sample_shape: type_alias.TensorLike,
+    dtype: tf.DType = tf.dtypes.float32,
+    seed: Optional[type_alias.TensorLike] = None,
+    stateless: bool = False,
+    name: str = "generate_random_barycentric_coordinates"
+) -> type_alias.TensorLike:
   """Generate uniformly sampled random barycentric coordinates.
 
   Note:
@@ -237,13 +246,14 @@ def generate_random_barycentric_coordinates(
 
 
 def weighted_random_sample_triangle_mesh(
-    vertex_attributes,
-    faces,
-    num_samples,
-    face_weights,
-    seed=None,
-    stateless=False,
-    name="weighted_random_sample_triangle_mesh"):
+    vertex_attributes: type_alias.TensorLike,
+    faces: type_alias.TensorLike,
+    num_samples: int,
+    face_weights: type_alias.TensorLike,
+    seed: Optional[type_alias.TensorLike] = None,
+    stateless: bool = False,
+    name: str = "weighted_random_sample_triangle_mesh"
+) -> Tuple[type_alias.TensorLike, type_alias.TensorLike]:
   """Performs a face probability weighted random sampling of a tri mesh.
 
   Note:
@@ -324,13 +334,14 @@ def weighted_random_sample_triangle_mesh(
 
 
 def area_weighted_random_sample_triangle_mesh(
-    vertex_attributes,
-    faces,
-    num_samples,
-    vertex_positions=None,
-    seed=None,
-    stateless=False,
-    name="area_weighted_random_sample_triangle_mesh"):
+    vertex_attributes: type_alias.TensorLike,
+    faces: type_alias.TensorLike,
+    num_samples: int,
+    vertex_positions: Optional[type_alias.TensorLike] = None,
+    seed: Optional[type_alias.TensorLike] = None,
+    stateless: bool = False,
+    name: str = "area_weighted_random_sample_triangle_mesh"
+) -> Tuple[type_alias.TensorLike, type_alias.TensorLike]:
   """Performs a face area weighted random sampling of a tri mesh.
 
   Note:
@@ -398,6 +409,7 @@ def area_weighted_random_sample_triangle_mesh(
         face_weights=triangle_areas,
         seed=seed,
         stateless=stateless)
+
 
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()

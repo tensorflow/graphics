@@ -19,8 +19,12 @@ from __future__ import print_function
 
 import numpy as np
 
+from tensorflow_graphics.util import type_alias
 
-def extract_unique_edges_from_triangular_mesh(faces, directed_edges=False):
+
+def extract_unique_edges_from_triangular_mesh(faces: type_alias.TensorLike,
+                                              directed_edges: bool = False
+                                              ) -> type_alias.TensorLike:
   """Extracts all the unique edges using the faces of a mesh.
 
   Args:
@@ -70,7 +74,9 @@ def extract_unique_edges_from_triangular_mesh(faces, directed_edges=False):
   return unique_edges
 
 
-def get_degree_based_edge_weights(edges, dtype=np.float32):
+def get_degree_based_edge_weights(
+    edges: type_alias.TensorLike,
+    dtype: type_alias.TensorLike = np.float32) -> type_alias.TensorLike:
   r"""Computes vertex degree based weights for edges of a mesh.
 
   The degree (valence) of a vertex is number of edges incident on the vertex.

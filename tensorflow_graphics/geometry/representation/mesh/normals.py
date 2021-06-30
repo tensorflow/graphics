@@ -26,9 +26,13 @@ from tensorflow_graphics.geometry.representation import triangle
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def gather_faces(vertices, indices, name="normals_gather_faces"):
+def gather_faces(vertices: type_alias.TensorLike,
+                 indices: type_alias.TensorLike,
+                 name: str = "normals_gather_faces"
+                 ) -> type_alias.TensorLike:
   """Gather corresponding vertices for each face.
 
   Note:
@@ -77,10 +81,10 @@ def gather_faces(vertices, indices, name="normals_gather_faces"):
           vertices, indices, axis=-2, batch_dims=indices.shape.ndims - 2)
 
 
-def face_normals(faces,
-                 clockwise=True,
-                 normalize=True,
-                 name="normals_face_normals"):
+def face_normals(faces: type_alias.TensorLike,
+                 clockwise: bool = True,
+                 normalize: bool = True,
+                 name: str = "normals_face_normals") -> type_alias.TensorLike:
   """Computes face normals for meshes.
 
   This function supports planar convex polygon faces. Note that for
@@ -120,10 +124,11 @@ def face_normals(faces,
     return triangle.normal(*vertices, clockwise=clockwise, normalize=normalize)
 
 
-def vertex_normals(vertices,
-                   indices,
-                   clockwise=True,
-                   name="normals_vertex_normals"):
+def vertex_normals(
+    vertices: type_alias.TensorLike,
+    indices: type_alias.TensorLike,
+    clockwise: bool = True,
+    name: str = "normals_vertex_normals") -> type_alias.TensorLike:
   """Computes vertex normals from a mesh.
 
   This function computes vertex normals as the weighted sum of the adjacent
