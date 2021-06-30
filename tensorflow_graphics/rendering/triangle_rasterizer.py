@@ -19,6 +19,12 @@ provide gradients through visibility, but it does through visible geometry and
 attributes.
 """
 
+import enum
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+
 import tensorflow as tf
 
 from tensorflow_graphics.rendering import barycentrics as barycentrics_module
@@ -27,30 +33,35 @@ from tensorflow_graphics.rendering import rasterization_backend
 from tensorflow_graphics.rendering import utils
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def _dim_value(dim):
+def _dim_value(dim: Optional[int] = None) -> int:
   return 1 if dim is None else tf.compat.dimension_value(dim)
 
 
-def _merge_batch_dims(tensor, last_axis):
+def _merge_batch_dims(tensor: type_alias.TensorLike,
+                      last_axis: int) -> type_alias.TensorLike:
   """Merges all dimensions into one starting from 0 till `last_axis` exluding."""
   return tf.reshape(tensor, [-1] + tensor.shape.as_list()[last_axis:])
 
 
-def _restore_batch_dims(tensor, batch_shape):
+def _restore_batch_dims(tensor: type_alias.TensorLike,
+                        batch_shape: List[int]) -> type_alias.TensorLike:
   """Unpack first dimension into batch_shape, preserving the rest of the dimensions."""
   return tf.reshape(tensor, batch_shape + tensor.shape.as_list()[1:])
 
 
-def rasterize(vertices,
-              triangles,
-              attributes,
-              view_projection_matrix,
-              image_size,
-              enable_cull_face=True,
-              backend=rasterization_backend.RasterizationBackends.OPENGL,
-              name="triangle_rasterizer_rasterize"):
+def rasterize(
+    vertices: type_alias.TensorLike,
+    triangles: type_alias.TensorLike,
+    attributes: Dict[str, type_alias.TensorLike],
+    view_projection_matrix: type_alias.TensorLike,
+    image_size: Tuple[int, int],
+    enable_cull_face: bool = True,
+    backend: enum.Enum = rasterization_backend.RasterizationBackends.OPENGL,
+    name: str = "triangle_rasterizer_rasterize"
+) -> Dict[str, type_alias.TensorLike]:
   """Rasterizes the scene.
 
   Note:
