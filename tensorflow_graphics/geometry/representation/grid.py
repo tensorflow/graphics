@@ -48,7 +48,7 @@ def _grid(starts, stops, nums):
   return tf.stack(tf.meshgrid(*layout, indexing="ij"), axis=-1)
 
 
-def generate(starts, stops, nums, name="grid_generate"):
+def generate(starts, stops, nums, name = "grid_generate"):
   r"""Generates a M-D uniform axis-aligned grid.
 
   Warning:
