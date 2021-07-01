@@ -172,5 +172,44 @@ def inverse(dual_quaternion: type_alias.TensorLike,
     return tf.concat((quaternion_output_real, quaternion_output_dual), axis=-1)
 
 
+def norm(dual_quaternion: type_alias.TensorLike,
+         name: str = "dual_quaternion_inverse") -> tf.Tensor:
+  """Computes the norm, which is in general a dual number.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    dual_quaternion:  A TensorLike of shape `[A1, ..., An, 8]`, where the last
+      dimension represents a dual quaternion.
+    name: A name for this op that defaults to "dual_quaternion_inverse".
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 2]`, where the last dimension represents
+    a dual number.
+
+  Raises:
+    ValueError: If the shape of `dual quaternion` is not supported.
+  """
+  with tf.name_scope(name):
+    dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
+
+    shape.check_static(
+        tensor=dual_quaternion,
+        tensor_name="dual_quaternion",
+        has_dim_equals=(-1, 8))
+
+    quaternion_real, quaternion_dual = tf.split(
+        dual_quaternion, (4, 4), axis=-1)
+
+    quaternion_real_norm = tf.norm(
+        tensor=quaternion_real, axis=-1, keepdims=True)
+    normalized_dot_product = safe_ops.safe_signed_div(
+        vector.dot(quaternion_real, quaternion_dual, keepdims=True),
+        quaternion_real_norm)
+
+    return tf.concat((quaternion_real_norm, normalized_dot_product), axis=-1)
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()

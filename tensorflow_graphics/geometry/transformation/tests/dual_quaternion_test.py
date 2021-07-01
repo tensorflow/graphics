@@ -139,6 +139,56 @@ class DualQuaternionTest(test_case.TestCase):
     self.assertAllClose(
         final_dual_quaternion, identity_dual_quaternion, rtol=1e-3)
 
+  @parameterized.parameters(
+      ((8,),),
+      ((None, 8),),
+  )
+  def test_norm_exception_not_raised(self, *shape):
+    self.assert_exception_is_not_raised(dual_quaternion.norm, shape)
+
+  @parameterized.parameters(
+      ("must have exactly 8 dimensions", (3,)),)
+  def test_norm_exception_raised(self, error_msg, *shape):
+    self.assert_exception_is_raised(dual_quaternion.norm, error_msg, shape)
+
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_norm_jacobian_preset(self):
+    x_init = test_helpers.generate_preset_test_dual_quaternions()
+    self.assert_jacobian_is_correct_fn(dual_quaternion.norm, [x_init])
+
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_norm_jacobian_random(self):
+    x_init = test_helpers.generate_random_test_dual_quaternions()
+    self.assert_jacobian_is_correct_fn(dual_quaternion.norm, [x_init])
+
+  def test_norm_correct_random(self):
+    rand_dual_quaternion = test_helpers.generate_random_test_dual_quaternions()
+    norms = dual_quaternion.norm(rand_dual_quaternion)
+    tensor_shape = rand_dual_quaternion.shape[:-1]
+    norms_gt = np.array((1.0, 0.0), dtype=np.float32)
+    norms_gt = np.tile(norms_gt, tensor_shape + (1,))
+
+    self.assertAllClose(norms, norms_gt, rtol=1e-3)
+
+  def test_norm_correct_preset(self):
+    pre_dual_quaternion = test_helpers.generate_preset_test_dual_quaternions()
+    norms = dual_quaternion.norm(pre_dual_quaternion)
+    tensor_shape = pre_dual_quaternion.shape[:-1]
+    norms_gt = np.array((1.0, 0.0), dtype=np.float32)
+    norms_gt = np.tile(norms_gt, tensor_shape + (1,))
+
+    self.assertAllClose(norms, norms_gt, rtol=1e-3)
+
+  def test_norm_correct_preset_non_unit(self):
+    pre_dual_quaternion = test_helpers.generate_preset_test_dual_quaternions()
+    pre_dual_quaternion = tf.concat(
+        (pre_dual_quaternion[..., :4], pre_dual_quaternion[..., :4],), -1)
+    norms = dual_quaternion.norm(pre_dual_quaternion)
+    tensor_shape = pre_dual_quaternion.shape[:-1]
+    norms_gt = np.array((1.0, 1.0), dtype=np.float32)
+    norms_gt = np.tile(norms_gt, tensor_shape + (1,))
+
+    self.assertAllClose(norms, norms_gt, rtol=1e-3)
 
 if __name__ == "__main__":
   test_case.main()
