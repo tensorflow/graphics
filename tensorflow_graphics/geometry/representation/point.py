@@ -23,13 +23,15 @@ from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def distance_to_ray(point,
-                    origin,
-                    direction,
-                    keepdims=True,
-                    name="point_distance_to_ray"):
+def distance_to_ray(point: type_alias.TensorLike,
+                    origin: type_alias.TensorLike,
+                    direction: type_alias.TensorLike,
+                    keepdims: bool = True,
+                    name: str = "point_distance_to_ray"
+                    ) -> tf.Tensor:
   """Computes the distance from a M-d point to a M-d ray.
 
   Note:
@@ -72,7 +74,11 @@ def distance_to_ray(point,
     return tf.norm(tensor=vec, axis=-1, keepdims=keepdims)
 
 
-def project_to_ray(point, origin, direction, name="point_project_to_ray"):
+def project_to_ray(point: type_alias.TensorLike,
+                   origin: type_alias.TensorLike,
+                   direction: type_alias.TensorLike,
+                   name: str = "point_project_to_ray"
+                   ) -> tf.Tensor:
   """Computes the projection of a M-d point on a M-d ray.
 
   Note:

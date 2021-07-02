@@ -23,9 +23,15 @@ from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def normal(v0, v1, v2, clockwise=False, normalize=True, name="triangle_normal"):
+def normal(v0: type_alias.TensorLike,
+           v1: type_alias.TensorLike,
+           v2: type_alias.TensorLike,
+           clockwise: bool = False,
+           normalize: bool = True,
+           name: str = "triangle_normal") -> tf.Tensor:
   """Computes face normals (triangles).
 
   Note:
@@ -71,7 +77,10 @@ def normal(v0, v1, v2, clockwise=False, normalize=True, name="triangle_normal"):
     return normal_vector
 
 
-def area(v0, v1, v2, name="triangle_area"):
+def area(v0: type_alias.TensorLike,
+         v1: type_alias.TensorLike,
+         v2: type_alias.TensorLike,
+         name: str = "triangle_area") -> tf.Tensor:
   """Computes triangle areas.
 
     Note: Computed triangle area = 0.5 * | e1 x e2 | where e1 and e2 are edges
