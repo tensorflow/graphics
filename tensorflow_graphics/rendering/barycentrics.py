@@ -19,11 +19,12 @@ import tensorflow as tf
 
 from tensorflow_graphics.rendering import framebuffer as fb
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def differentiable_barycentrics(framebuffer: fb.Framebuffer,
-                                clip_space_vertices: tf.Tensor,
-                                triangles: tf.Tensor) -> fb.Framebuffer:
+def differentiable_barycentrics(
+    framebuffer: fb.Framebuffer, clip_space_vertices: type_alias.TensorLike,
+    triangles: type_alias.TensorLike) -> fb.Framebuffer:
   """Computes differentiable barycentric coordinates from a Framebuffer.
 
   The barycentric coordinates will be differentiable w.r.t. the input vertices.
@@ -47,7 +48,8 @@ def differentiable_barycentrics(framebuffer: fb.Framebuffer,
 
   clip_space_vertices = tf.convert_to_tensor(clip_space_vertices)
   shape.check_static(
-      tensor=clip_space_vertices, tensor_name="clip_space_vertices",
+      tensor=clip_space_vertices,
+      tensor_name="clip_space_vertices",
       has_rank_greater_than=1,
       has_rank_less_than=4)
   if rank(clip_space_vertices) == 2:
@@ -55,7 +57,8 @@ def differentiable_barycentrics(framebuffer: fb.Framebuffer,
 
   triangles = tf.convert_to_tensor(triangles)
   shape.check_static(
-      tensor=triangles, tensor_name="triangles",
+      tensor=triangles,
+      tensor_name="triangles",
       has_rank_greater_than=1,
       has_rank_less_than=4)
   if rank(triangles) == 2:
@@ -75,7 +78,9 @@ def differentiable_barycentrics(framebuffer: fb.Framebuffer,
   px, py = normalized_pixel_coordinates(framebuffer.width, framebuffer.height)
 
   def compute_barycentrics_fn(
-      slices: Tuple[tf.Tensor, tf.Tensor, tf.Tensor]) -> tf.Tensor:
+      slices: Tuple[type_alias.TensorLike, type_alias.TensorLike,
+                    type_alias.TensorLike]
+  ) -> tf.Tensor:
     clip_vertices_slice, triangle_slice, triangle_id_slice = slices
     triangle_id_slice = triangle_id_slice[..., 0]
     if rank(triangle_id_slice) == 2:  # There is no layer dimension.
@@ -111,7 +116,8 @@ def differentiable_barycentrics(framebuffer: fb.Framebuffer,
       barycentrics=fb.RasterizedAttribute(barycentric_coords, None, None))
 
 
-def normalized_pixel_coordinates(image_width, image_height):
+def normalized_pixel_coordinates(
+    image_width: int, image_height: int) -> Tuple[tf.Tensor, tf.Tensor]:
   """Computes the normalized pixel coordinates for the specified image size.
 
   The x-coordinates will range from -1 to 1 left to right.
@@ -137,7 +143,8 @@ def normalized_pixel_coordinates(image_width, image_height):
   return x_coords, y_coords
 
 
-def compute_triangle_matrices(clip_space_vertices, triangles):
+def compute_triangle_matrices(clip_space_vertices: type_alias.TensorLike,
+                              triangles: type_alias.TensorLike) -> tf.Tensor:
   """Computes per-triangle matrices used in barycentric coordinate calculation.
 
   The result corresponds to the inverse matrix from equation (4) in the paper
@@ -183,7 +190,10 @@ def compute_triangle_matrices(clip_space_vertices, triangles):
   return matrices
 
 
-def compute_barycentric_coordinates(triangle_ids, triangle_matrices, px, py):
+def compute_barycentric_coordinates(triangle_ids: type_alias.TensorLike,
+                                    triangle_matrices: type_alias.TensorLike,
+                                    px: type_alias.TensorLike,
+                                    py: type_alias.TensorLike) -> tf.Tensor:
   """Computes per-pixel barycentric coordinates.
 
   Args:

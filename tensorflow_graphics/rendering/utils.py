@@ -15,8 +15,11 @@
 
 import tensorflow as tf
 
+from tensorflow_graphics.util import type_alias
 
-def transform_homogeneous(matrices, vertices):
+
+def transform_homogeneous(matrices: type_alias.TensorLike,
+                          vertices: type_alias.TensorLike) -> tf.Tensor:
   """Applies 4x4 homogenous matrix transformations to xyz vertices.
 
   The vertices are input and output as as row-major, but are interpreted as
