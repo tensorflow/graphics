@@ -211,5 +211,43 @@ def norm(dual_quaternion: type_alias.TensorLike,
     return tf.concat((quaternion_real_norm, normalized_dot_product), axis=-1)
 
 
+def is_normalized(dual_quaternion: type_alias.TensorLike,
+                  atol: tf.float32 = 1e-3,
+                  name: str = "dual_quaternion_is_normalized") -> bool:
+  """Determines if a dual quaternion is normalized or not.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    dual_quaternion:  A `[A1, ..., An, 8]`-tensor, where the last dimension
+      represents a dual quaternion.
+    atol: The absolute tolerance parameter.
+    name: A name for this op that defaults to "dual_quaternion_is_normalized".
+
+  Returns:
+    A `[A1, ..., An, 1]`-tensor of type `bool`, where False indicates that the
+    dual quaternion is not normalized.
+
+  Raises:
+    ValueError: If the shape of `dual_quaternion` is not supported.
+  """
+  with tf.name_scope(name):
+    dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
+
+    shape.check_static(
+        tensor=dual_quaternion,
+        tensor_name="dual_quaternion",
+        has_dim_equals=(-1, 8))
+
+    norms = norm(dual_quaternion)
+
+    return tf.expand_dims(
+        tf.math.logical_and(
+            tf.abs(norms[..., 0] - 1.) < atol,
+            tf.abs(norms[..., 1] - 0.) < atol),
+        axis=-1)
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()

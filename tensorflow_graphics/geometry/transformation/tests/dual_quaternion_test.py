@@ -190,5 +190,38 @@ class DualQuaternionTest(test_case.TestCase):
 
     self.assertAllClose(norms, norms_gt, rtol=1e-3)
 
+  @parameterized.parameters(
+      ((8,),),
+      ((None, 8),),
+  )
+  def test_is_normalized_exception_not_raised(self, *shape):
+    self.assert_exception_is_not_raised(dual_quaternion.is_normalized, shape)
+
+  @parameterized.parameters(
+      ("must have exactly 8 dimensions", (1, 5)),)
+  def test_is_normalized_exception_raised(self, error_msg, *shape):
+    self.assert_exception_is_raised(dual_quaternion.is_normalized,
+                                    error_msg,
+                                    shape)
+
+  def test_is_normalized_random(self):
+    rnd_dual_quaternion = test_helpers.generate_random_test_dual_quaternions()
+    tensor_shape = rnd_dual_quaternion.shape[:-1]
+
+    unnormalized_rnd_dual_quaternion = rnd_dual_quaternion * 1.01
+    rnd_dual_quaternion = tf.convert_to_tensor(rnd_dual_quaternion)
+    unnormalized_rnd_dual_quaternion = tf.convert_to_tensor(
+        unnormalized_rnd_dual_quaternion)
+    dual_quaternions = tf.concat(
+        (rnd_dual_quaternion, unnormalized_rnd_dual_quaternion), axis=0)
+    mask = tf.concat(
+        (tf.ones(shape=tensor_shape + (1,), dtype=bool),
+         tf.zeros(shape=tensor_shape + (1,), dtype=bool)),
+        axis=0)
+    is_normalized = dual_quaternion.is_normalized(dual_quaternions)
+
+    self.assertAllEqual(mask, is_normalized)
+
+
 if __name__ == "__main__":
   test_case.main()
