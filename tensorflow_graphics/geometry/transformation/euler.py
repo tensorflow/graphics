@@ -37,9 +37,13 @@ from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def from_axis_angle(axis, angle, name="euler_from_axis_angle"):
+def from_axis_angle(axis: type_alias.TensorLike,
+                    angle: type_alias.TensorLike,
+                    name: str = "euler_from_axis_angle"
+                    ) -> tf.Tensor:
   """Converts axis-angle to Euler angles.
 
   Note:
@@ -60,7 +64,8 @@ def from_axis_angle(axis, angle, name="euler_from_axis_angle"):
     return from_quaternion(quaternion.from_axis_angle(axis, angle))
 
 
-def from_quaternion(quaternions, name="euler_from_quaternion"):
+def from_quaternion(quaternions: type_alias.TensorLike,
+                    name: str = "euler_from_quaternion") -> tf.Tensor:
   """Converts quaternions to Euler angles.
 
   Args:
@@ -132,7 +137,8 @@ def from_quaternion(quaternions, name="euler_from_quaternion"):
     return tf.where(gimbal_mask, gimbal_solution, general_solution)
 
 
-def from_rotation_matrix(rotation_matrix, name="euler_from_rotation_matrix"):
+def from_rotation_matrix(rotation_matrix: type_alias.TensorLike,
+                         name: str = "euler_from_rotation_matrix") -> tf.Tensor:
   """Converts rotation matrices to Euler angles.
 
   The rotation matrices are assumed to have been constructed by rotation around
@@ -207,7 +213,8 @@ def from_rotation_matrix(rotation_matrix, name="euler_from_rotation_matrix"):
     return tf.where(gimbal_mask, gimbal_solution, general_solution)
 
 
-def inverse(euler_angle, name="euler_inverse"):
+def inverse(euler_angle: type_alias.TensorLike,
+            name: str = "euler_inverse") -> tf.Tensor:
   """Computes the angles that would inverse a transformation by euler_angle.
 
   Note:

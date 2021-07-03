@@ -35,6 +35,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Tuple
+
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import quaternion as quaternion_lib
@@ -44,9 +46,12 @@ from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def from_euler(angles, name="axis_angle_from_euler"):
+def from_euler(angles: type_alias.TensorLike,
+               name: str = "axis_angle_from_euler"
+               ) -> Tuple[tf.Tensor, tf.Tensor]:
   r"""Converts Euler angles to an axis-angle representation.
 
   Note:
@@ -74,7 +79,9 @@ def from_euler(angles, name="axis_angle_from_euler"):
 
 
 def from_euler_with_small_angles_approximation(
-    angles, name="axis_angle_from_euler_with_small_angles_approximation"):
+    angles: type_alias.TensorLike,
+    name: str = "axis_angle_from_euler_with_small_angles_approximation"
+) -> Tuple[tf.Tensor, tf.Tensor]:
   r"""Converts small Euler angles to an axis-angle representation.
 
   Under the small angle assumption, $$\sin(x)$$ and $$\cos(x)$$ can be
@@ -108,7 +115,9 @@ def from_euler_with_small_angles_approximation(
     return from_quaternion(quaternion)
 
 
-def from_quaternion(quaternion, name="axis_angle_from_quaternion"):
+def from_quaternion(quaternion: type_alias.TensorLike,
+                    name: str = "axis_angle_from_quaternion"
+                    ) -> Tuple[tf.Tensor, tf.Tensor]:
   """Converts a quaternion to an axis-angle representation.
 
   Note:
@@ -143,8 +152,9 @@ def from_quaternion(quaternion, name="axis_angle_from_quaternion"):
     return axis, angle
 
 
-def from_rotation_matrix(rotation_matrix,
-                         name="axis_angle_from_rotation_matrix"):
+def from_rotation_matrix(rotation_matrix: type_alias.TensorLike,
+                         name: str = "axis_angle_from_rotation_matrix"
+                         ) -> Tuple[tf.Tensor, tf.Tensor]:
   """Converts a rotation matrix to an axis-angle representation.
 
   Note:
@@ -185,7 +195,9 @@ def from_rotation_matrix(rotation_matrix,
     return from_quaternion(quaternion)
 
 
-def inverse(axis, angle, name="axis_angle_inverse"):
+def inverse(axis: type_alias.TensorLike,
+            angle: type_alias.TensorLike,
+            name: str = "axis_angle_inverse") -> Tuple[tf.Tensor, tf.Tensor]:
   """Computes the axis-angle that is the inverse of the input axis-angle.
 
   Note:
@@ -223,7 +235,10 @@ def inverse(axis, angle, name="axis_angle_inverse"):
     return axis, -angle
 
 
-def is_normalized(axis, angle, atol=1e-3, name="axis_angle_is_normalized"):
+def is_normalized(axis: type_alias.TensorLike,
+                  angle: type_alias.TensorLike,
+                  atol: float = 1e-3,
+                  name: str = "axis_angle_is_normalized") -> tf.Tensor:
   """Determines if the axis-angle is normalized or not.
 
   Note:
@@ -258,7 +273,10 @@ def is_normalized(axis, angle, atol=1e-3, name="axis_angle_is_normalized"):
     return tf.abs(norms - 1.) < atol
 
 
-def rotate(point, axis, angle, name="axis_angle_rotate"):
+def rotate(point: type_alias.TensorLike,
+           axis: type_alias.TensorLike,
+           angle: type_alias.TensorLike,
+           name: str = "axis_angle_rotate") -> tf.Tensor:
   r"""Rotates a 3d point using an axis-angle by applying the Rodrigues' formula.
 
   Rotates a vector $$\mathbf{v} \in {\mathbb{R}^3}$$ into a vector
