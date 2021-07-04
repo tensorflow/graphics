@@ -30,6 +30,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import List
+
 from six.moves import range
 import tensorflow as tf
 
@@ -39,9 +41,12 @@ from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def _build_quaternion_from_sines_and_cosines(sin_half_angles, cos_half_angles):
+def _build_quaternion_from_sines_and_cosines(
+    sin_half_angles: type_alias.TensorLike,
+    cos_half_angles: type_alias.TensorLike) -> tf.Tensor:
   """Builds a quaternion from sines and cosines of half Euler angles.
 
   Note:
@@ -66,9 +71,10 @@ def _build_quaternion_from_sines_and_cosines(sin_half_angles, cos_half_angles):
   return tf.stack((x, y, z, w), axis=-1)
 
 
-def between_two_vectors_3d(vector1,
-                           vector2,
-                           name="quaternion_between_two_vectors_3d"):
+def between_two_vectors_3d(vector1: type_alias.TensorLike,
+                           vector2: type_alias.TensorLike,
+                           name: str = "quaternion_between_two_vectors_3d"
+                           ) -> tf.Tensor:
   """Computes quaternion over the shortest arc between two vectors.
 
   Result quaternion describes shortest geodesic rotation from
@@ -129,7 +135,8 @@ def between_two_vectors_3d(vector1,
     return tf.nn.l2_normalize(rot, axis=-1)
 
 
-def conjugate(quaternion, name="quaternion_conjugate"):
+def conjugate(quaternion: type_alias.TensorLike,
+              name: str = "quaternion_conjugate") -> tf.Tensor:
   """Computes the conjugate of a quaternion.
 
   Note:
@@ -157,7 +164,10 @@ def conjugate(quaternion, name="quaternion_conjugate"):
     return tf.concat((-xyz, w), axis=-1)
 
 
-def from_axis_angle(axis, angle, name="quaternion_from_axis_angle"):
+def from_axis_angle(axis: type_alias.TensorLike,
+                    angle: type_alias.TensorLike,
+                    name: str = "quaternion_from_axis_angle"
+                    ) -> tf.Tensor:
   """Converts an axis-angle representation to a quaternion.
 
   Note:
@@ -194,7 +204,9 @@ def from_axis_angle(axis, angle, name="quaternion_from_axis_angle"):
     return tf.concat((xyz, w), axis=-1)
 
 
-def from_euler(angles, name="quaternion_from_euler"):
+def from_euler(angles: type_alias.TensorLike,
+               name: str = "quaternion_from_euler"
+               ) -> tf.Tensor:
   """Converts an Euler angle representation to a quaternion.
 
   Note:
@@ -230,8 +242,9 @@ def from_euler(angles, name="quaternion_from_euler"):
                                                     cos_half_angles)
 
 
-def from_euler_with_small_angles_approximation(angles,
-                                               name="quaternion_from_euler"):
+def from_euler_with_small_angles_approximation(
+    angles: type_alias.TensorLike,
+    name: str = "quaternion_from_euler") -> tf.Tensor:
   r"""Converts small Euler angles to quaternions.
 
   Under the small angle assumption, $$\sin(x)$$ and $$\cos(x)$$ can be
@@ -274,8 +287,9 @@ def from_euler_with_small_angles_approximation(angles,
     return tf.nn.l2_normalize(quaternion, axis=-1)
 
 
-def from_rotation_matrix(rotation_matrix,
-                         name="quaternion_from_rotation_matrix"):
+def from_rotation_matrix(rotation_matrix: type_alias.TensorLike,
+                         name: str = "quaternion_from_rotation_matrix"
+                         ) -> tf.Tensor:
   """Converts a rotation matrix representation to a quaternion.
 
   Warning:
@@ -361,7 +375,9 @@ def from_rotation_matrix(rotation_matrix,
     return quat
 
 
-def inverse(quaternion, name="quaternion_inverse"):
+def inverse(quaternion: type_alias.TensorLike,
+            name: str = "quaternion_inverse"
+            ) -> tf.Tensor:
   """Computes the inverse of a quaternion.
 
   Note:
@@ -391,7 +407,10 @@ def inverse(quaternion, name="quaternion_inverse"):
     return safe_ops.safe_unsigned_div(conjugate(quaternion), squared_norm)
 
 
-def is_normalized(quaternion, atol=1e-3, name="quaternion_is_normalized"):
+def is_normalized(quaternion: type_alias.TensorLike,
+                  atol: type_alias.Float = 1e-3,
+                  name: str = "quaternion_is_normalized"
+                  ) -> tf.Tensor:
   """Determines if quaternion is normalized quaternion or not.
 
   Note:
@@ -422,7 +441,10 @@ def is_normalized(quaternion, atol=1e-3, name="quaternion_is_normalized"):
         tf.zeros_like(norms, dtype=bool))
 
 
-def normalize(quaternion, eps=1e-12, name="quaternion_normalize"):
+def normalize(quaternion: type_alias.TensorLike,
+              eps: type_alias.Float = 1e-12,
+              name: str = "quaternion_normalize"
+              ) -> tf.Tensor:
   """Normalizes a quaternion.
 
   Note:
@@ -450,7 +472,10 @@ def normalize(quaternion, eps=1e-12, name="quaternion_normalize"):
     return tf.math.l2_normalize(quaternion, axis=-1, epsilon=eps)
 
 
-def multiply(quaternion1, quaternion2, name="quaternion_multiply"):
+def multiply(quaternion1: type_alias.TensorLike,
+             quaternion2: type_alias.TensorLike,
+             name: str = "quaternion_multiply"
+             ) -> tf.Tensor:
   """Multiplies two quaternions.
 
   Note:
@@ -487,8 +512,9 @@ def multiply(quaternion1, quaternion2, name="quaternion_multiply"):
     return tf.stack((x, y, z, w), axis=-1)
 
 
-def normalized_random_uniform(quaternion_shape,
-                              name="quaternion_normalized_random_uniform"):
+def normalized_random_uniform(quaternion_shape: List[int],
+                              name: str = "quaternion_normalized_random_uniform"
+                              ) -> tf.Tensor:
   """Random normalized quaternion following a uniform distribution law on SO(3).
 
   Args:
@@ -545,7 +571,10 @@ def normalized_random_uniform_initializer():
   # pylint: enable=redefined-outer-name
 
 
-def rotate(point, quaternion, name="quaternion_rotate"):
+def rotate(point: type_alias.TensorLike,
+           quaternion: type_alias.TensorLike,
+           name: str = "quaternion_rotate"
+           ) -> tf.Tensor:
   """Rotates a point using a quaternion.
 
   Note:
@@ -586,7 +615,10 @@ def rotate(point, quaternion, name="quaternion_rotate"):
     return xyz
 
 
-def relative_angle(quaternion1, quaternion2, name="quaternion_relative_angle"):
+def relative_angle(quaternion1: type_alias.TensorLike,
+                   quaternion2: type_alias.TensorLike,
+                   name: str = "quaternion_relative_angle"
+                   ) -> tf.Tensor:
   r"""Computes the unsigned relative rotation angle between 2 unit quaternions.
 
   Given two normalized quanternions $$\mathbf{q}_1$$ and $$\mathbf{q}_2$$, the

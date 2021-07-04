@@ -22,13 +22,14 @@ import tensorflow as tf
 from tensorflow_graphics.geometry.transformation import rotation_matrix_3d
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def blend(points,
-          skinning_weights,
-          bone_rotations,
-          bone_translations,
-          name="linear_blend_skinning_blend"):
+def blend(points: type_alias.TensorLike,
+          skinning_weights: type_alias.TensorLike,
+          bone_rotations: type_alias.TensorLike,
+          bone_translations: type_alias.TensorLike,
+          name: str = "linear_blend_skinning_blend") -> tf.Tensor:
   """Transforms the points using Linear Blend Skinning.
 
   Note:

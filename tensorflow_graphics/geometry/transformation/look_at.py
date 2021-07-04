@@ -22,9 +22,12 @@ import tensorflow as tf
 from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def right_handed(camera_position, look_at, up_vector, name="right_handed"):
+def right_handed(camera_position: type_alias.TensorLike,
+                 look_at, up_vector: type_alias.TensorLike,
+                 name: str = "right_handed") -> tf.Tensor:
   """Builds a right handed look at view matrix.
 
   Note:
