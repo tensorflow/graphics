@@ -19,6 +19,8 @@ import numpy as np
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import dual_quaternion
+from tensorflow_graphics.geometry.transformation import quaternion
+from tensorflow_graphics.geometry.transformation import rotation_matrix_3d
 from tensorflow_graphics.geometry.transformation.tests import test_helpers
 from tensorflow_graphics.util import test_case
 
@@ -222,6 +224,46 @@ class DualQuaternionTest(test_case.TestCase):
 
     self.assertAllEqual(mask, is_normalized)
 
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_from_rotation_translation_jacobian_random(self):
+    (euler_angles_init, translation_init
+    ) = test_helpers.generate_random_test_euler_angles_translations()
+    rotation_init = rotation_matrix_3d.from_quaternion(
+        quaternion.from_euler(euler_angles_init))
+
+    self.assert_jacobian_is_finite_fn(dual_quaternion.from_rotation_translation,
+                                      [rotation_init, translation_init])
+
+  def test_from_rotation_matrix_normalized_random(self):
+    (euler_angles, translation
+    ) = test_helpers.generate_random_test_euler_angles_translations()
+    rotation = rotation_matrix_3d.from_quaternion(
+        quaternion.from_euler(euler_angles))
+
+    random_dual_quaternion = dual_quaternion.from_rotation_translation(
+        rotation, translation)
+
+    self.assertAllEqual(
+        dual_quaternion.is_normalized(random_dual_quaternion),
+        np.ones(shape=rotation.shape[:-2] + (1,), dtype=bool))
+
+  def test_from_rotation_matrix_random(self):
+    (euler_angles_gt, translation_gt
+    ) = test_helpers.generate_random_test_euler_angles_translations()
+    rotation_gt = rotation_matrix_3d.from_quaternion(
+        quaternion.from_euler(euler_angles_gt))
+
+    dual_quaternion_output = dual_quaternion.from_rotation_translation(
+        rotation_gt, translation_gt)
+    dual_quaternion_real = dual_quaternion_output[..., 0:4]
+    dual_quaternion_dual = dual_quaternion_output[..., 4:8]
+    rotation = rotation_matrix_3d.from_quaternion(dual_quaternion_real)
+    translation = 2.0 * quaternion.multiply(
+        dual_quaternion_dual, quaternion.inverse(dual_quaternion_real))
+    translation = translation[..., 0:3]
+
+    self.assertAllClose(rotation_gt, rotation)
+    self.assertAllClose(translation_gt, translation)
 
 if __name__ == "__main__":
   test_case.main()

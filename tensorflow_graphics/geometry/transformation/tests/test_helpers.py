@@ -93,6 +93,20 @@ def generate_preset_test_dual_quaternions():
   return preset_dual_quaternion
 
 
+def generate_random_test_euler_angles_translations(
+    dimensions=3,
+    min_angle=-3.0 * np.pi,
+    max_angle=3.0 * np.pi,
+    min_translation=3.0,
+    max_translation=3.0):
+  """Generates random test random Euler angles and translations."""
+  tensor_dimensions = np.random.randint(3)
+  tensor_tile = np.random.randint(1, 10, tensor_dimensions).tolist()
+  return (np.random.uniform(min_angle, max_angle, tensor_tile + [dimensions]),
+          np.random.uniform(min_translation, max_translation,
+                            tensor_tile + [dimensions]))
+
+
 def generate_random_test_dual_quaternions():
   """Generates random test dual quaternions."""
   angles = generate_random_test_euler_angles()

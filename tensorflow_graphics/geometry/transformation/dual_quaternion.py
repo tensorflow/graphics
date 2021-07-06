@@ -249,5 +249,60 @@ def is_normalized(dual_quaternion: type_alias.TensorLike,
         axis=-1)
 
 
+def from_rotation_translation(
+    rotation_matrix: type_alias.TensorLike,
+    translation_vector: type_alias.TensorLike,
+    name: str = "dual_quaternion_from_rotation_translation") -> tf.Tensor:
+  """Converts a rotation matrix and translation vector to a dual quaternion.
+
+  Warning:
+    This function is not smooth everywhere.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions. Rotation is
+    applied first.
+
+  Args:
+    rotation_matrix: A `[A1, ..., An, 3, 3]`-tensor, where the last two
+      dimensions represent a rotation matrix.
+    translation_vector: A `[A1, ..., An, 3]`-tensor, where the last dimension
+      represents a translation vector.
+    name: A name for this op that defaults to "dual_quaternion_from_rot_trans".
+
+  Returns:
+    A `[A1, ..., An, 8]`-tensor, where the last dimension represents a
+    normalized quaternion.
+
+  Raises:
+    ValueError: If the shape of `rotation_matrix` is not supported.
+  """
+  with tf.name_scope(name):
+    rotation_matrix = tf.convert_to_tensor(value=rotation_matrix)
+    translation_vector = tf.convert_to_tensor(value=translation_vector)
+
+    shape.check_static(
+        tensor=rotation_matrix,
+        tensor_name="rotation_matrix",
+        has_rank_greater_than=1,
+        has_dim_equals=((-1, 3), (-2, 3)))
+
+    shape.check_static(
+        tensor=translation_vector,
+        tensor_name="translation_vector",
+        has_dim_equals=(-1, 3))
+
+    scalar_shape = tf.concat((tf.shape(translation_vector)[:-1], (1,)), axis=-1)
+    dtype = translation_vector.dtype
+
+    quaternion_rotation = quaternion.from_rotation_matrix(rotation_matrix)
+    quaternion_translation = tf.concat(
+        (translation_vector, tf.zeros(scalar_shape, dtype)), axis=-1)
+
+    dual_quaternion_dual_part = 0.5 * quaternion.multiply(
+        quaternion_translation, quaternion_rotation)
+
+    return tf.concat((quaternion_rotation, dual_quaternion_dual_part), axis=-1)
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
