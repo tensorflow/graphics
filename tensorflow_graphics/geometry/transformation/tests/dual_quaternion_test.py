@@ -15,6 +15,7 @@
 
 from absl.testing import flagsaver
 from absl.testing import parameterized
+
 import numpy as np
 import tensorflow as tf
 
@@ -264,6 +265,44 @@ class DualQuaternionTest(test_case.TestCase):
 
     self.assertAllClose(rotation_gt, rotation)
     self.assertAllClose(translation_gt, translation)
+
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_to_rotation_translation_jacobian_preset(self):
+    pre_dual_quaternion = test_helpers.generate_preset_test_dual_quaternions()
+
+    def to_rotation(input_dual_quaternion):
+      rotation, _ = dual_quaternion.to_rotation_translation(
+          input_dual_quaternion)
+      return rotation
+
+    self.assert_jacobian_is_finite_fn(to_rotation, [pre_dual_quaternion])
+
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_to_rotation_translation_jacobian_random(self):
+    rnd_dual_quaternion = test_helpers.generate_random_test_dual_quaternions()
+
+    def to_translation(input_dual_quaternion):
+      _, translation = dual_quaternion.to_rotation_translation(
+          input_dual_quaternion)
+      return translation
+
+    self.assert_jacobian_is_finite_fn(to_translation, [rnd_dual_quaternion])
+
+  def test_to_rotation_matrix_random(self):
+    (euler_angles_gt, translation_gt
+    ) = test_helpers.generate_random_test_euler_angles_translations()
+    rotation_gt = rotation_matrix_3d.from_quaternion(
+        quaternion.from_euler(euler_angles_gt))
+
+    dual_quaternion_output = dual_quaternion.from_rotation_translation(
+        rotation_gt, translation_gt)
+    rotation, translation = dual_quaternion.to_rotation_translation(
+        dual_quaternion_output)
+
+    self.assertAllClose(rotation_gt,
+                        rotation_matrix_3d.from_quaternion(rotation))
+    self.assertAllClose(translation_gt, translation)
+
 
 if __name__ == "__main__":
   test_case.main()

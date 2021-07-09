@@ -33,6 +33,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Tuple
+
 import tensorflow as tf
 from tensorflow_graphics.geometry.transformation import quaternion
 from tensorflow_graphics.math import vector
@@ -271,7 +273,7 @@ def from_rotation_translation(
 
   Returns:
     A `[A1, ..., An, 8]`-tensor, where the last dimension represents a
-    normalized quaternion.
+    normalized dual quaternion.
 
   Raises:
     ValueError: If the shape of `rotation_matrix` is not supported.
@@ -302,6 +304,36 @@ def from_rotation_translation(
         quaternion_translation, quaternion_rotation)
 
     return tf.concat((quaternion_rotation, dual_quaternion_dual_part), axis=-1)
+
+
+def to_rotation_translation(
+    dual_quaternion: type_alias.TensorLike,
+    name: str = "dual_quaternion_to_rot_trans") -> Tuple[tf.Tensor, tf.Tensor]:
+  """Converts a dual quaternion into a quaternion for rotation and translation.
+
+  Args:
+    dual_quaternion: A `[A1, ..., An, 8]`-tensor, where the last dimension
+      represents a qual quaternion.
+    name: A name for this op that defaults to "dual_quaternion_to_rot_trans".
+
+  Returns:
+    A `[A1, ..., An, 7]`-tensor, where the last dimension represents a
+    normalized quaternion and a translation vector, in that order.
+  """
+  with tf.name_scope(name):
+    dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
+
+    shape.check_static(
+        tensor=dual_quaternion,
+        tensor_name="dual_quaternion",
+        has_dim_equals=(-1, 8))
+
+    rotation = dual_quaternion[..., 0:4]
+    translation = 2 * quaternion.multiply(
+        dual_quaternion[..., 4:8], quaternion.inverse(rotation))
+    translation = translation[..., 0:3]
+
+    return rotation, translation
 
 
 # API contains all public functions and classes.
