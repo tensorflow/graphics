@@ -22,9 +22,12 @@ import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def is_valid(matrix, atol=1e-3, name="rotation_matrix_common_is_valid"):
+def is_valid(matrix: type_alias.TensorLike,
+             atol: type_alias.Float = 1e-3,
+             name: str = "rotation_matrix_common_is_valid") -> tf.Tensor:
   r"""Determines if a matrix in K-dimensions is a valid rotation matrix.
 
   Determines if a matrix $$\mathbf{R}$$ is a valid rotation matrix by checking

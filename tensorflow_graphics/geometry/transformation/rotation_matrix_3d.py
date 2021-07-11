@@ -30,11 +30,14 @@ from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 from tensorflow_graphics.util import tfg_flags
+from tensorflow_graphics.util import type_alias
 
 FLAGS = flags.FLAGS
 
 
-def _build_matrix_from_sines_and_cosines(sin_angles, cos_angles):
+def _build_matrix_from_sines_and_cosines(
+    sin_angles: type_alias.TensorLike,
+    cos_angles: type_alias.TensorLike) -> tf.Tensor:
   """Builds a rotation matrix from sines and cosines of Euler angles.
 
   Note:
@@ -71,9 +74,10 @@ def _build_matrix_from_sines_and_cosines(sin_angles, cos_angles):
   return tf.reshape(matrix, shape=output_shape)
 
 
-def assert_rotation_matrix_normalized(matrix,
-                                      eps=1e-3,
-                                      name="assert_rotation_matrix_normalized"):
+def assert_rotation_matrix_normalized(
+    matrix: type_alias.TensorLike,
+    eps: type_alias.Float = 1e-3,
+    name: str = "assert_rotation_matrix_normalized") -> tf.Tensor:
   """Checks whether a matrix is a rotation matrix.
 
   Note:
@@ -113,7 +117,10 @@ def assert_rotation_matrix_normalized(matrix,
       return tf.identity(matrix)
 
 
-def from_axis_angle(axis, angle, name="rotation_matrix_3d_from_axis_angle"):
+def from_axis_angle(
+    axis: type_alias.TensorLike,
+    angle: type_alias.TensorLike,
+    name: str = "rotation_matrix_3d_from_axis_angle") -> tf.Tensor:
   """Convert an axis-angle representation to a rotation matrix.
 
   Note:
@@ -174,7 +181,8 @@ def from_axis_angle(axis, angle, name="rotation_matrix_3d_from_axis_angle"):
     return tf.reshape(matrix, shape=output_shape)
 
 
-def from_euler(angles, name="rotation_matrix_3d_from_euler"):
+def from_euler(angles: type_alias.TensorLike,
+               name: str = "rotation_matrix_3d_from_euler") -> tf.Tensor:
   r"""Convert an Euler angle representation to a rotation matrix.
 
   The resulting matrix is $$\mathbf{R} = \mathbf{R}_z\mathbf{R}_y\mathbf{R}_x$$.
@@ -208,7 +216,8 @@ def from_euler(angles, name="rotation_matrix_3d_from_euler"):
 
 
 def from_euler_with_small_angles_approximation(
-    angles, name="rotation_matrix_3d_from_euler_with_small_angles"):
+    angles: type_alias.TensorLike,
+    name: str = "rotation_matrix_3d_from_euler_with_small_angles") -> tf.Tensor:
   r"""Convert an Euler angle representation to a rotation matrix.
 
   The resulting matrix is $$\mathbf{R} = \mathbf{R}_z\mathbf{R}_y\mathbf{R}_x$$.
@@ -246,7 +255,9 @@ def from_euler_with_small_angles_approximation(
     return _build_matrix_from_sines_and_cosines(sin_angles, cos_angles)
 
 
-def from_quaternion(quaternion, name="rotation_matrix_3d_from_quaternion"):
+def from_quaternion(
+    quaternion: type_alias.TensorLike,
+    name: str = "rotation_matrix_3d_from_quaternion") -> tf.Tensor:
   """Convert a quaternion to a rotation matrix.
 
   Note:
@@ -293,7 +304,8 @@ def from_quaternion(quaternion, name="rotation_matrix_3d_from_quaternion"):
     return tf.reshape(matrix, shape=output_shape)
 
 
-def inverse(matrix, name="rotation_matrix_3d_inverse"):
+def inverse(matrix: type_alias.TensorLike,
+            name: str = "rotation_matrix_3d_inverse") -> tf.Tensor:
   """Computes the inverse of a 3D rotation matrix.
 
   Note:
@@ -326,7 +338,9 @@ def inverse(matrix, name="rotation_matrix_3d_inverse"):
     return tf.transpose(a=matrix, perm=perm)
 
 
-def is_valid(matrix, atol=1e-3, name="rotation_matrix_3d_is_valid"):
+def is_valid(matrix: type_alias.TensorLike,
+             atol: type_alias.Float = 1e-3,
+             name: str = "rotation_matrix_3d_is_valid") -> tf.Tensor:
   """Determines if a matrix is a valid rotation matrix.
 
   Note:
@@ -354,7 +368,9 @@ def is_valid(matrix, atol=1e-3, name="rotation_matrix_3d_is_valid"):
     return rotation_matrix_common.is_valid(matrix, atol)
 
 
-def rotate(point, matrix, name="rotation_matrix_3d_rotate"):
+def rotate(point: type_alias.TensorLike,
+           matrix: type_alias.TensorLike,
+           name: str = "rotation_matrix_3d_rotate") -> tf.Tensor:
   """Rotate a point using a rotation matrix 3d.
 
   Note:

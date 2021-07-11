@@ -33,15 +33,19 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Optional
+
 from six.moves import range
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import rotation_matrix_common
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def from_euler(angle, name="rotation_matrix_2d_from_euler_angle"):
+def from_euler(angle: type_alias.TensorLike,
+               name: str = "rotation_matrix_2d_from_euler_angle") -> tf.Tensor:
   r"""Converts an angle to a 2d rotation matrix.
 
   Converts an angle $$\theta$$ to a 2d rotation matrix following the equation
@@ -89,8 +93,9 @@ def from_euler(angle, name="rotation_matrix_2d_from_euler_angle"):
 
 
 def from_euler_with_small_angles_approximation(
-    angles,
-    name="rotation_matrix_2d_from_euler_with_small_angles_approximation"):
+    angles: type_alias.TensorLike,
+    name: str = "rotation_matrix_2d_from_euler_with_small_angles_approximation"
+) -> tf.Tensor:
   r"""Converts an angle to a 2d rotation matrix under the small angle assumption.
 
   Under the small angle assumption, $$\sin(x)$$ and $$\cos(x)$$ can be
@@ -142,7 +147,8 @@ def from_euler_with_small_angles_approximation(
     return tf.reshape(matrix, shape=output_shape)
 
 
-def inverse(matrix, name="rotation_matrix_2d_inverse"):
+def inverse(matrix: type_alias.TensorLike,
+            name: str = "rotation_matrix_2d_inverse") -> tf.Tensor:
   """Computes the inverse of a 2D rotation matrix.
 
   Note:
@@ -174,7 +180,9 @@ def inverse(matrix, name="rotation_matrix_2d_inverse"):
     return tf.transpose(a=matrix, perm=perm)
 
 
-def is_valid(matrix, atol=1e-3, name="rotation_matrix_2d_is_valid"):
+def is_valid(matrix: type_alias.TensorLike,
+             atol: type_alias.Float = 1e-3,
+             name: str = "rotation_matrix_2d_is_valid") -> tf.Tensor:
   r"""Determines if a matrix is a valid rotation matrix.
 
   Determines if a matrix $$\mathbf{R}$$ is a valid rotation matrix by checking
@@ -205,7 +213,9 @@ def is_valid(matrix, atol=1e-3, name="rotation_matrix_2d_is_valid"):
     return rotation_matrix_common.is_valid(matrix, atol)
 
 
-def rotate(point, matrix, name="rotation_matrix_2d_rotate"):
+def rotate(point: type_alias.TensorLike,
+           matrix: type_alias.TensorLike,
+           name: str = "rotation_matrix_2d_rotate") -> tf.Tensor:
   """Rotates a 2d point using a 2d rotation matrix.
 
   Note:
@@ -247,7 +257,7 @@ def rotate(point, matrix, name="rotation_matrix_2d_rotate"):
     common_batch_shape = shape.get_broadcasted_shape(point.shape[:-2],
                                                      matrix.shape[:-2])
 
-    def dim_value(dim):
+    def dim_value(dim: Optional[int] = None) -> int:
       return 1 if dim is None else tf.compat.dimension_value(dim)
 
     common_batch_shape = [dim_value(dim) for dim in common_batch_shape]
