@@ -53,6 +53,10 @@ def make_look_at_matrix(
   return look_at.right_handed(camera_origin, look_at_point, camera_up)
 
 
+def get_identity_view_projection_matrix():
+  return tf.expand_dims(tf.eye(4), axis=0)
+
+
 def compare_images(test_case,
                    baseline_image,
                    image,
@@ -91,6 +95,7 @@ def compare_images(test_case,
                    (baseline_image.dtype, image.dtype))
   shape.check_static(
       tensor=baseline_image, tensor_name="baseline_image", has_rank=4)
+  shape.check_static(tensor=image, tensor_name="image", has_rank=4)
   # Flatten height, width and channels dimensions since we're interested in
   # error per image.
   image_height, image_width = image.shape[1:3]
