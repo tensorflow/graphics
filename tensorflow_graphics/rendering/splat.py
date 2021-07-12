@@ -89,6 +89,32 @@ def splat_at_pixel_centers(
   accumulate_weights = tf.pad(
       tf.zeros(accumulation_shape + [1], dtype=rgba_layers.dtype), padding)
   padded_center_z = tf.pad(xyz_layers[..., 2:3], padding, constant_values=1.0)
+  surface_idx_uv_map = {}
+  for u in (-1, 0, 1):
+    for v in (-1, 0, 1):
+      padding = [[max(v + 1, 0), abs(min(v - 1, 0))],
+                 [max(u + 1, 0), abs(min(u - 1, 0))], [0, 0]]
+      # Find the layer index of the first surface shared by the center of the
+      # splat and the splat filter tap (i.e., sample position).
+      # The first surface must appear as the top layer either at center or at
+      # tap. The best matching Z between the top center layer and the tap
+      # layers is compared against the best match between the center layers
+      # and the top tap layer, and the pair of layers with smallest
+      # difference in Z is the estimated surface.
+      tap_z_layers = tf.pad(
+          xyz_layers[..., 2:3], [[0, 0]] + padding, constant_values=1.0)
+      dist_center_to_tap_layers = tf.abs(tap_z_layers - padded_center_z[0, ...])
+      best_center_surface_idx = tf.argmin(dist_center_to_tap_layers, axis=0)
+      best_center_surface_z = tf.reduce_min(dist_center_to_tap_layers, axis=0)
+      dist_tap_to_center_layers = tf.abs(padded_center_z - tap_z_layers[0, ...])
+      best_tap_surface_idx = tf.argmin(dist_tap_to_center_layers, axis=0)
+      best_tap_surface_z = tf.reduce_min(dist_tap_to_center_layers, axis=0)
+      # surface_idx is 0 if the first surface is the top layer for both center
+      # and tap, a negative number (of layers) if the surface is occluded at
+      # center, and a positive number if occluded at tap.
+      surface_idx = tf.where(best_tap_surface_z < best_center_surface_z,
+                             -best_tap_surface_idx, best_center_surface_idx)
+      surface_idx_uv_map[(u, v)] = surface_idx
 
   num_layers = rgba_layers.shape[0]
   for l in range(num_layers):
@@ -117,29 +143,7 @@ def splat_at_pixel_centers(
                    [max(u + 1, 0), abs(min(u - 1, 0))], [0, 0]]
         tap_rgba = tf.pad(tap_rgba, padding)
         tap_weights = tf.pad(tap_weights, padding)
-
-        # Find the layer index of the first surface shared by the center of the
-        # splat and the splat filter tap (i.e., sample position).
-        # The first surface must appear as the top layer either at center or at
-        # tap. The best matching Z between the top center layer and the tap
-        # layers is compared against the best match between the center layers
-        # and the top tap layer, and the pair of layers with smallest
-        # difference in Z is the estimated surface.
-        tap_z_layers = tf.pad(
-            xyz_layers[..., 2:3], [[0, 0]] + padding, constant_values=1.0)
-        dist_center_to_tap_layers = tf.abs(tap_z_layers -
-                                           padded_center_z[0, ...])
-        best_center_surface_idx = tf.argmin(dist_center_to_tap_layers, axis=0)
-        best_center_surface_z = tf.reduce_min(dist_center_to_tap_layers, axis=0)
-        dist_tap_to_center_layers = tf.abs(padded_center_z -
-                                           tap_z_layers[0, ...])
-        best_tap_surface_idx = tf.argmin(dist_tap_to_center_layers, axis=0)
-        best_tap_surface_z = tf.reduce_min(dist_tap_to_center_layers, axis=0)
-        # surface_idx is 0 if the first surface is the top layer for both center
-        # and tap, a negative number (of layers) if the surface is occluded at
-        # center, and a positive number if occluded at tap.
-        surface_idx = tf.where(best_tap_surface_z < best_center_surface_z,
-                               -best_tap_surface_idx, best_center_surface_idx)
+        surface_idx = surface_idx_uv_map[(u, v)]
 
         # If the current layer is in front of the surface, accumulate into fg.
         # If at the surface, accumulate into surf. If behind, accumulate into
