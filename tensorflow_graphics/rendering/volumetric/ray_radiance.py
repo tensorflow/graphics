@@ -17,13 +17,18 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Tuple
 import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def compute_radiance(rgba_values, distances, name="ray_radiance"):
+def compute_radiance(
+    rgba_values: type_alias.TensorLike,
+    distances: type_alias.TensorLike,
+    name: str = "ray_radiance") -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
   """Renders the rgba values for points along a ray, as described in ["NeRF Representing Scenes as Neural Radiance Fields for View Synthesis"](https://github.com/bmild/nerf).
 
   Note:

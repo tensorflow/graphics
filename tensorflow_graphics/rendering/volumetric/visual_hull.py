@@ -21,9 +21,12 @@ import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def render(voxels, axis=2, name="visual_hull_render"):
+def render(voxels: type_alias.TensorLike,
+           axis: int = 2,
+           name: str = "visual_hull_render") -> tf.Tensor:
   """Renders the visual hull of a voxel grid, as described in ["Escaping Plato's Cave: 3D Shape From Adversarial Rendering" (Henzler 2019)](https://github.com/henzler/platonicgan).
 
   Note:
