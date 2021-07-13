@@ -26,6 +26,7 @@ import tensorflow as tf
 from tensorflow_graphics.rendering import framebuffer as fb
 from tensorflow_graphics.rendering import utils
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 # pylint: disable=g-import-not-at-top
 try:
@@ -44,13 +45,14 @@ class FaceCullingMode(enum.IntEnum):
   FRONT = 2
 
 
-def rasterize(vertices: tf.Tensor,
-              triangles: tf.Tensor,
-              view_projection_matrices: tf.Tensor,
-              image_size: Tuple[int, int],
-              enable_cull_face: bool,
-              num_layers: int,
-              name="rasterization_backend_cpu_rasterize"):
+def rasterize(
+    vertices: type_alias.TensorLike,
+    triangles: type_alias.TensorLike,
+    view_projection_matrices: type_alias.TensorLike,
+    image_size: Tuple[int, int],
+    enable_cull_face: bool,
+    num_layers: int,
+    name: str = "rasterization_backend_cpu_rasterize") -> fb.Framebuffer:
   """Rasterizes the scene.
 
     This rasterizer estimates which triangle is associated with each pixel using

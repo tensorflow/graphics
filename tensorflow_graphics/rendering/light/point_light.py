@@ -18,22 +18,27 @@ from __future__ import division
 from __future__ import print_function
 
 import math
+from typing import Callable
 import tensorflow as tf
 
 from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def estimate_radiance(point_light_radiance,
-                      point_light_position,
-                      surface_point_position,
-                      surface_point_normal,
-                      observation_point,
-                      brdf,
-                      name="estimate_radiance",
-                      reflected_light_fall_off=False):
+def estimate_radiance(
+    point_light_radiance: type_alias.TensorLike,
+    point_light_position: type_alias.TensorLike,
+    surface_point_position: type_alias.TensorLike,
+    surface_point_normal: type_alias.TensorLike,
+    observation_point: type_alias.TensorLike,
+    brdf: Callable[
+        [type_alias.TensorLike, type_alias.TensorLike, type_alias.TensorLike],
+        type_alias.TensorLike],
+    name: str = "estimate_radiance",
+    reflected_light_fall_off: bool = False) -> tf.Tensor:
   """Estimates the spectral radiance of a point light reflected from the surface point towards the observation point.
 
   Note:
@@ -152,15 +157,15 @@ def estimate_radiance(point_light_radiance,
     outgoing_light_dot_surface_normal = vector.dot(outgoing_light_direction,
                                                    surface_point_normal)
 
-    estimated_radiance = (point_light_radiance * \
-                          brdf_value * incoming_light_dot_surface_normal) / \
-        (4. * math.pi * tf.math.square(distance_light_surface_point))
+    estimated_radiance = (
+        point_light_radiance * brdf_value * incoming_light_dot_surface_normal
+    ) / (4. * math.pi * tf.math.square(distance_light_surface_point))
 
     if reflected_light_fall_off:
       distance_surface_observation_point = tf.norm(
           tensor=surface_to_observation_point, axis=-1, keepdims=True)
-      estimated_radiance = estimated_radiance / \
-          tf.math.square(distance_surface_observation_point)
+      estimated_radiance = estimated_radiance / tf.math.square(
+          distance_surface_observation_point)
 
     # Create a condition for checking whether the light or observation point are
     # behind the surface.
