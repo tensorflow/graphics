@@ -32,20 +32,21 @@ from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def _brdf_normalization_factor(shininess):
+def _brdf_normalization_factor(shininess: type_alias.TensorLike) -> tf.Tensor:
   """Returns the normalization factor needed to ensure energy conservation."""
   return (shininess + 2.0) / (2.0 * math.pi)
 
 
-def brdf(direction_incoming_light,
-         direction_outgoing_light,
-         surface_normal,
-         shininess,
-         albedo,
-         brdf_normalization=True,
-         name="phong_brdf"):
+def brdf(direction_incoming_light: type_alias.TensorLike,
+         direction_outgoing_light: type_alias.TensorLike,
+         surface_normal: type_alias.TensorLike,
+         shininess: type_alias.TensorLike,
+         albedo: type_alias.TensorLike,
+         brdf_normalization: bool = True,
+         name: str = "phong_brdf") -> tf.Tensor:
   """Evaluates the specular brdf of the Phong model.
 
   Note:

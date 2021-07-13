@@ -25,13 +25,14 @@ from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def brdf(direction_incoming_light,
-         direction_outgoing_light,
-         surface_normal,
-         albedo,
-         name="lambertian_brdf"):
+def brdf(direction_incoming_light: type_alias.TensorLike,
+         direction_outgoing_light: type_alias.TensorLike,
+         surface_normal: type_alias.TensorLike,
+         albedo: type_alias.TensorLike,
+         name: str = "lambertian_brdf") -> tf.Tensor:
   """Evaluates the brdf of a Lambertian surface.
 
   Note:

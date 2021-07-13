@@ -32,9 +32,10 @@ from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def _brdf_normalization_factor(shininess):
+def _brdf_normalization_factor(shininess: type_alias.TensorLike) -> tf.Tensor:
   """Returns the normalization factor needed to ensure energy conservation."""
   numerator = (shininess + 2.0) * (shininess + 4.0)
   denominator = 8.0 * math.pi * (
@@ -43,13 +44,13 @@ def _brdf_normalization_factor(shininess):
   return safe_ops.safe_signed_div(numerator, denominator)
 
 
-def brdf(direction_incoming_light,
-         direction_outgoing_light,
-         surface_normal,
-         shininess,
-         albedo,
-         brdf_normalization=True,
-         name="blinn_phong_brdf"):
+def brdf(direction_incoming_light: type_alias.TensorLike,
+         direction_outgoing_light: type_alias.TensorLike,
+         surface_normal: type_alias.TensorLike,
+         shininess: type_alias.TensorLike,
+         albedo: type_alias.TensorLike,
+         brdf_normalization: bool = True,
+         name: str = "blinn_phong_brdf") -> tf.Tensor:
   """Evaluates the specular brdf of the Blinn-Phong model.
 
   Note:
