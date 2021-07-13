@@ -28,9 +28,11 @@ import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def project(point_3d, name="orthographic_project"):
+def project(point_3d: type_alias.TensorLike,
+            name: str = "orthographic_project") -> tf.Tensor:
   r"""Projects a 3d point onto the 2d camera plane.
 
   Projects a 3d point \\((x, y, z)\\) to a 2d point \\((x', y')\\) onto the
@@ -67,7 +69,8 @@ def project(point_3d, name="orthographic_project"):
     return point_xy
 
 
-def ray(point_2d, name="orthographic_ray"):
+def ray(point_2d: type_alias.TensorLike,
+        name: str = "orthographic_ray") -> tf.Tensor:
   r"""Computes the 3d ray for a 2d point (the z component of the ray is 1).
 
   Computes the 3d ray \\((r_x, r_y, 1)\\) for a 2d point \\((x', y')\\) on the
@@ -105,7 +108,9 @@ def ray(point_2d, name="orthographic_ray"):
     return tf.concat((point_2d * 0.0, ones), axis=-1)
 
 
-def unproject(point_2d, depth, name="orthographic_unproject"):
+def unproject(point_2d: type_alias.TensorLike,
+              depth: type_alias.TensorLike,
+              name: str = "orthographic_unproject") -> tf.Tensor:
   r"""Unprojects a 2d point in 3d.
 
   Unprojects a 2d point \\((x', y')\\) to a 3d point \\((x, y, z)\\) given its

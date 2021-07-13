@@ -53,11 +53,13 @@ from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def parameters_from_right_handed(projection_matrix,
-                                 name="perspective_parameters_from_right_handed"
-                                ):
+def parameters_from_right_handed(
+    projection_matrix: type_alias.TensorLike,
+    name: str = "perspective_parameters_from_right_handed"
+) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor, tf.Tensor]:
   """Recovers the parameters used to contruct a right handed projection matrix.
 
   Note:
@@ -104,11 +106,11 @@ def parameters_from_right_handed(projection_matrix,
     return vertical_field_of_view, aspect_ratio, near, far
 
 
-def right_handed(vertical_field_of_view,
-                 aspect_ratio,
-                 near,
-                 far,
-                 name="perspective_right_handed"):
+def right_handed(vertical_field_of_view: type_alias.TensorLike,
+                 aspect_ratio: type_alias.TensorLike,
+                 near: type_alias.TensorLike,
+                 far: type_alias.TensorLike,
+                 name: str = "perspective_right_handed") -> tf.Tensor:
   """Generates the matrix for a right handed perspective projection.
 
   Note:
@@ -181,7 +183,10 @@ def right_handed(vertical_field_of_view,
     return tf.reshape(matrix, shape=output_shape)
 
 
-def intrinsics_from_matrix(matrix, name="perspective_intrinsics_from_matrix"):
+def intrinsics_from_matrix(
+    matrix: type_alias.TensorLike,
+    name: str = "perspective_intrinsics_from_matrix"
+) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
   r"""Extracts intrinsic parameters from a calibration matrix.
 
   Extracts the focal length \\((f_x, f_y)\\), the principal point
@@ -234,10 +239,11 @@ def intrinsics_from_matrix(matrix, name="perspective_intrinsics_from_matrix"):
     return focal, principal_point, skew
 
 
-def matrix_from_intrinsics(focal,
-                           principal_point,
-                           skew=(0.0,),
-                           name="perspective_matrix_from_intrinsics"):
+def matrix_from_intrinsics(
+    focal: type_alias.TensorLike,
+    principal_point: type_alias.TensorLike,
+    skew: type_alias.TensorLike = (0.0,),
+    name: str = "perspective_matrix_from_intrinsics") -> tf.Tensor:
   r"""Builds calibration matrix from intrinsic parameters.
 
   Builds the camera calibration matrix as
@@ -318,7 +324,10 @@ def matrix_from_intrinsics(focal,
     return tf.reshape(matrix, shape=output_shape)
 
 
-def project(point_3d, focal, principal_point, name="perspective_project"):
+def project(point_3d: type_alias.TensorLike,
+            focal: type_alias.TensorLike,
+            principal_point: type_alias.TensorLike,
+            name: str = "perspective_project") -> tf.Tensor:
   r"""Projects a 3d point onto the 2d camera plane.
 
   Projects a 3d point \\((x, y, z)\\) to a 2d point \\((x', y')\\) onto the
@@ -379,7 +388,10 @@ def project(point_3d, focal, principal_point, name="perspective_project"):
   return point_2d
 
 
-def ray(point_2d, focal, principal_point, name="perspective_ray"):
+def ray(point_2d: type_alias.TensorLike,
+        focal: type_alias.TensorLike,
+        principal_point: type_alias.TensorLike,
+        name: str = "perspective_ray") -> tf.Tensor:
   r"""Computes the 3d ray for a 2d point (the z component of the ray is 1).
 
   Computes the 3d ray \\((r_x, r_y, 1)\\) from the camera center to a 2d point
@@ -566,11 +578,11 @@ def random_patches(focal: tf.Tensor,
     return rays, patch_xy
 
 
-def unproject(point_2d,
-              depth,
-              focal,
-              principal_point,
-              name="perspective_unproject"):
+def unproject(point_2d: type_alias.TensorLike,
+              depth: type_alias.TensorLike,
+              focal: type_alias.TensorLike,
+              principal_point: type_alias.TensorLike,
+              name: str = "perspective_unproject") -> tf.Tensor:
   r"""Unprojects a 2d point in 3d.
 
   Unprojects a 2d point \\((x', y')\\) to a 3d point \\((x, y, z)\\) knowing the

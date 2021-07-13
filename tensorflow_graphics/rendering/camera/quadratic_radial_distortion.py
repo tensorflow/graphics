@@ -32,17 +32,21 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Tuple
 from six.moves import range
 import tensorflow as tf
 
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def distortion_factor(squared_radius,
-                      distortion_coefficient,
-                      name="quadratic_radial_distortion_distortion_factor"):
+def distortion_factor(
+    squared_radius: type_alias.TensorLike,
+    distortion_coefficient: type_alias.TensorLike,
+    name: str = "quadratic_radial_distortion_distortion_factor"
+) -> Tuple[tf.Tensor, tf.Tensor]:
   """Calculates a quadratic distortion factor given squared radii.
 
   Given a vector describing a location in camera space in homogeneous
@@ -104,10 +108,12 @@ def distortion_factor(squared_radius,
     return distortion_factor_, overflow_mask
 
 
-def undistortion_factor(distorted_squared_radius,
-                        distortion_coefficient,
-                        num_iterations=5,
-                        name="quadratic_radial_distortion_undistortion_factor"):
+def undistortion_factor(
+    distorted_squared_radius: type_alias.TensorLike,
+    distortion_coefficient: type_alias.TensorLike,
+    num_iterations: int = 5,
+    name: str = "quadratic_radial_distortion_undistortion_factor"
+) -> Tuple[tf.Tensor, tf.Tensor]:
   """Calculates the inverse quadratic distortion function given squared radii.
 
   Given a vector describing a location in camera space in homogeneous
