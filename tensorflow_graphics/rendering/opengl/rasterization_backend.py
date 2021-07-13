@@ -13,11 +13,13 @@
 # limitations under the License.
 """OpenGL rasterization backend for TF Graphics."""
 
+from typing import Optional, Tuple
 import tensorflow as tf
 
 from tensorflow_graphics.rendering import framebuffer as fb
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 # pylint: disable=g-import-not-at-top
 try:
@@ -29,7 +31,7 @@ except ImportError:
 # pylint: enable=g-import-not-at-top
 
 
-def _dim_value(dim):
+def _dim_value(dim: Optional[int] = None) -> int:
   return 1 if dim is None else tf.compat.dimension_value(dim)
 
 
@@ -98,13 +100,13 @@ void main() {
 """
 
 
-def rasterize(vertices,
-              triangles,
-              view_projection_matrices,
-              image_size,
-              enable_cull_face,
-              num_layers,
-              name="rasterization_backend_rasterize"):
+def rasterize(vertices: type_alias.TensorLike,
+              triangles: type_alias.TensorLike,
+              view_projection_matrices: type_alias.TensorLike,
+              image_size: Tuple[int, int],
+              enable_cull_face: bool,
+              num_layers: int,
+              name: str = "rasterization_backend_rasterize") -> fb.Framebuffer:
   """Rasterizes the scene.
 
     This rasterizer estimates which triangle is associated with each pixel using

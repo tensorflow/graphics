@@ -13,6 +13,7 @@
 # limitations under the License.
 """This module implements math routines used by OpenGL."""
 
+from typing import Tuple
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import look_at
@@ -21,13 +22,14 @@ from tensorflow_graphics.rendering.camera import perspective
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def model_to_eye(point_model_space,
-                 camera_position,
-                 look_at_point,
-                 up_vector,
-                 name="model_to_eye"):
+def model_to_eye(point_model_space: type_alias.TensorLike,
+                 camera_position: type_alias.TensorLike,
+                 look_at_point: type_alias.TensorLike,
+                 up_vector: type_alias.TensorLike,
+                 name: str = "model_to_eye") -> tf.Tensor:
   """Transforms points from model to eye coordinates.
 
   Note:
@@ -81,12 +83,12 @@ def model_to_eye(point_model_space,
     return res[..., :-1]
 
 
-def eye_to_clip(point_eye_space,
-                vertical_field_of_view,
-                aspect_ratio,
-                near,
-                far,
-                name="eye_to_clip"):
+def eye_to_clip(point_eye_space: type_alias.TensorLike,
+                vertical_field_of_view: type_alias.TensorLike,
+                aspect_ratio: type_alias.TensorLike,
+                near: type_alias.TensorLike,
+                far: type_alias.TensorLike,
+                name: str = "eye_to_clip") -> tf.Tensor:
   """Transforms points from eye to clip space.
 
   Note:
@@ -156,7 +158,8 @@ def eye_to_clip(point_eye_space,
     return tf.squeeze(tf.matmul(perspective_matrix, point_eye_space), axis=-1)
 
 
-def clip_to_ndc(point_clip_space, name="clip_to_ndc"):
+def clip_to_ndc(point_clip_space: type_alias.TensorLike,
+                name: str = "clip_to_ndc") -> tf.Tensor:
   """Transforms points from clip to normalized device coordinates (ndc).
 
   Note:
@@ -186,12 +189,12 @@ def clip_to_ndc(point_clip_space, name="clip_to_ndc"):
     return point_clip_space[..., :3] / w
 
 
-def ndc_to_screen(point_ndc_space,
-                  lower_left_corner,
-                  screen_dimensions,
-                  near,
-                  far,
-                  name="ndc_to_screen"):
+def ndc_to_screen(point_ndc_space: type_alias.TensorLike,
+                  lower_left_corner: type_alias.TensorLike,
+                  screen_dimensions: type_alias.TensorLike,
+                  near: type_alias.TensorLike,
+                  far: type_alias.TensorLike,
+                  name: str = "ndc_to_screen") -> tf.Tensor:
   """Transforms points from normalized device coordinates to screen coordinates.
 
   Note:
@@ -270,12 +273,13 @@ def ndc_to_screen(point_ndc_space,
     return ndc_to_screen_factor * point_ndc_space + screen_center
 
 
-def model_to_screen(point_model_space,
-                    model_to_eye_matrix,
-                    perspective_matrix,
-                    screen_dimensions,
-                    lower_left_corner=(0.0, 0.0),
-                    name="model_to_screen"):
+def model_to_screen(
+    point_model_space: type_alias.TensorLike,
+    model_to_eye_matrix: type_alias.TensorLike,
+    perspective_matrix: type_alias.TensorLike,
+    screen_dimensions: type_alias.TensorLike,
+    lower_left_corner: type_alias.TensorLike = (0.0, 0.0),
+    name: str = "model_to_screen") -> Tuple[tf.Tensor, tf.Tensor]:
   """Transforms points from model to screen coordinates.
 
   Note:
@@ -359,13 +363,14 @@ def model_to_screen(point_model_space,
     return point_screen_space, point_clip_space[..., 3:4]
 
 
-def perspective_correct_barycentrics(triangle_vertices_model_space,
-                                     pixel_position,
-                                     model_to_eye_matrix,
-                                     perspective_matrix,
-                                     screen_dimensions,
-                                     lower_left_corner=(0.0, 0.0),
-                                     name="perspective_correct_barycentrics"):
+def perspective_correct_barycentrics(
+    triangle_vertices_model_space: type_alias.TensorLike,
+    pixel_position: type_alias.TensorLike,
+    model_to_eye_matrix: type_alias.TensorLike,
+    perspective_matrix: type_alias.TensorLike,
+    screen_dimensions: type_alias.TensorLike,
+    lower_left_corner: type_alias.TensorLike = (0.0, 0.0),
+    name: str = "perspective_correct_barycentrics") -> tf.Tensor:
   """Computes perspective correct barycentrics.
 
   Note:
@@ -441,9 +446,9 @@ def perspective_correct_barycentrics(triangle_vertices_model_space,
     return tf.linalg.normalize(coeffs, ord=1, axis=-1)[0]
 
 
-def interpolate_attributes(attribute,
-                           barycentric,
-                           name="interpolate_attributes"):
+def interpolate_attributes(attribute: type_alias.TensorLike,
+                           barycentric: type_alias.TensorLike,
+                           name: str = "interpolate_attributes") -> tf.Tensor:
   """Interpolates attributes using barycentric weights.
 
   Note:
@@ -477,14 +482,15 @@ def interpolate_attributes(attribute,
         input_tensor=tf.expand_dims(barycentric, axis=-1) * attribute, axis=-2)
 
 
-def perspective_correct_interpolation(triangle_vertices_model_space,
-                                      attribute,
-                                      pixel_position,
-                                      model_to_eye_matrix,
-                                      perspective_matrix,
-                                      screen_dimensions,
-                                      lower_left_corner=(0.0, 0.0),
-                                      name="perspective_correct_interpolation"):
+def perspective_correct_interpolation(
+    triangle_vertices_model_space: type_alias.TensorLike,
+    attribute: type_alias.TensorLike,
+    pixel_position: type_alias.TensorLike,
+    model_to_eye_matrix: type_alias.TensorLike,
+    perspective_matrix: type_alias.TensorLike,
+    screen_dimensions: type_alias.TensorLike,
+    lower_left_corner: type_alias.TensorLike = (0.0, 0.0),
+    name: str = "perspective_correct_interpolation") -> tf.Tensor:
   """Returns perspective corrected interpolation of attributes over triangles.
 
   Note:
