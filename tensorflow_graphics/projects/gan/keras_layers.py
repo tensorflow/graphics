@@ -405,3 +405,18 @@ class DemodulatedConvolution(tf.keras.layers.Layer):
     base_config = super().get_config()
     base_config.update(config)
     return base_config
+
+
+# Dictionary that contains all the custom layers defined in this file.
+# This can be used to register the custom layers with Keras, e.g.
+# tf.keras.utils.custom_object_scope
+CUSTOM_LAYERS = {
+    'FanInScaledDense': FanInScaledDense,
+    'FanInScaledConv2D': FanInScaledConv2D,
+    'DemodulatedConvolution': DemodulatedConvolution,
+    'PixelNormalization': PixelNormalization,
+    'LearnedConstant': LearnedConstant,
+    'Noise': Noise,
+    'TwoByTwoNearestNeighborUpSampling': TwoByTwoNearestNeighborUpSampling,
+    'Blur2D': Blur2D,
+}
