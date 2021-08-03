@@ -21,8 +21,6 @@ attributes.
 
 import enum
 from typing import Dict
-from typing import List
-from typing import Optional
 from typing import Tuple
 
 import tensorflow as tf
@@ -34,22 +32,6 @@ from tensorflow_graphics.rendering import utils
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 from tensorflow_graphics.util import type_alias
-
-
-def _dim_value(dim: Optional[int] = None) -> int:
-  return 1 if dim is None else tf.compat.dimension_value(dim)
-
-
-def _merge_batch_dims(tensor: type_alias.TensorLike,
-                      last_axis: int) -> type_alias.TensorLike:
-  """Merges all dimensions into one starting from 0 till `last_axis` exluding."""
-  return tf.reshape(tensor, [-1] + tensor.shape.as_list()[last_axis:])
-
-
-def _restore_batch_dims(tensor: type_alias.TensorLike,
-                        batch_shape: List[int]) -> type_alias.TensorLike:
-  """Unpack first dimension into batch_shape, preserving the rest of the dimensions."""
-  return tf.reshape(tensor, batch_shape + tensor.shape.as_list()[1:])
 
 
 def rasterize(
@@ -117,10 +99,10 @@ def rasterize(
     image_size_backend = (int(image_size[1]), int(image_size[0]))
     input_batch_shape = vertices.shape[:-2]
 
-    view_projection_matrix = _merge_batch_dims(
+    view_projection_matrix = utils.merge_batch_dims(
         view_projection_matrix, last_axis=-2)
 
-    vertices = _merge_batch_dims(vertices, last_axis=-2)
+    vertices = utils.merge_batch_dims(vertices, last_axis=-2)
     rasterized = rasterization_backend.rasterize(
         vertices,
         triangles,
@@ -128,33 +110,32 @@ def rasterize(
         image_size_backend,
         enable_cull_face=enable_cull_face,
         backend=backend)
+
+    rasterized = rasterized.layer(0)
+
     outputs = {
         "mask":
-            _restore_batch_dims(rasterized.foreground_mask, input_batch_shape),
+            utils.restore_batch_dims(rasterized.foreground_mask,
+                                     input_batch_shape),
         "triangle_indices":
-            _restore_batch_dims(rasterized.triangle_id, input_batch_shape)
+            utils.restore_batch_dims(rasterized.triangle_id, input_batch_shape)
     }
-
-    # Extract batch shape in order to make sure it is preserved after `gather`
-    # operation.
-    batch_shape = rasterized.triangle_id.shape[:-3]
-    batch_shape = [_dim_value(dim) for dim in batch_shape]
 
     clip_space_vertices = utils.transform_homogeneous(view_projection_matrix,
                                                       vertices)
     rasterized = barycentrics_module.differentiable_barycentrics(
         rasterized, clip_space_vertices, triangles)
     barycentrics = rasterized.barycentrics.value
-    outputs["barycentrics"] = _restore_batch_dims(
+    outputs["barycentrics"] = utils.restore_batch_dims(
         rasterized.foreground_mask * barycentrics, input_batch_shape)
 
     for key, attribute in attributes.items():
       attribute = tf.convert_to_tensor(value=attribute)
-      attribute = _merge_batch_dims(attribute, last_axis=-2)
+      attribute = utils.merge_batch_dims(attribute, last_axis=-2)
       masked_attribute = interpolate.interpolate_vertex_attribute(
           attribute, rasterized)
-      masked_attribute = _restore_batch_dims(masked_attribute.value,
-                                             input_batch_shape)
+      masked_attribute = utils.restore_batch_dims(masked_attribute.value,
+                                                  input_batch_shape)
       outputs[key] = masked_attribute
 
     return outputs

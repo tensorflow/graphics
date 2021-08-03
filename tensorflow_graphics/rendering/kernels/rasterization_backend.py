@@ -69,8 +69,7 @@ def rasterize(
       in pixels of the rasterized image.
     enable_cull_face: A boolean, which will enable BACK face culling when True
       and no face culling when False.
-    num_layers: Number of depth layers to render. Output tensors shape depends
-      on whether num_layers=1 or not.
+    num_layers: Number of depth layers to render.
     name: A name for this op. Defaults to "rasterization_backend_cpu_rasterize".
 
   Returns:
@@ -159,12 +158,6 @@ def rasterize(
 
     # Shape: [batch_size, num_layers, image_height, image_width, 3]
     barycentrics = tf.stack(per_image_barycentrics, axis=0)
-
-    if num_layers == 1:
-      triangle_id = tf.squeeze(triangle_id, axis=1)
-      vertex_ids = tf.squeeze(vertex_ids, axis=1)
-      mask = tf.squeeze(mask, axis=1)
-      barycentrics = tf.squeeze(barycentrics, axis=1)
 
     return fb.Framebuffer(
         foreground_mask=mask,

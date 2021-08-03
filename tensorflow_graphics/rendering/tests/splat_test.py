@@ -13,7 +13,9 @@
 # limitations under the License.
 """Tests for google3.research.vision.viscam.diffren.mesh.splat."""
 
+from absl.testing import parameterized
 import tensorflow as tf
+
 from tensorflow_graphics.rendering import rasterization_backend
 from tensorflow_graphics.rendering import splat
 from tensorflow_graphics.rendering import triangle_rasterizer
@@ -34,6 +36,41 @@ def rasterize_image(vertices, triangles, color, camera_matrix, image_width,
 
 class SplatTest(test_case.TestCase):
 
+  @parameterized.parameters(([1],), ([2],), ([1, 2, 3],))
+  def test_batch_dimension_preserved(self, batch_shape):
+    """Tests that the input batch dimension preserved."""
+    (vertices, triangles, attributes_dictionary, _, _, view_projection_matrix,
+     image_height, image_width
+    ) = rasterization_test_utils.create_rasterizer_inputs(batch_shape)
+
+    rgba = splat.rasterize_then_splat(vertices, triangles,
+                                      attributes_dictionary,
+                                      view_projection_matrix,
+                                      (image_height, image_width),
+                                      lambda x: x['attribute1'])
+
+    tensor_batch_shape = rgba.shape.as_list()[:len(batch_shape)]
+    self.assertEqual(
+        list(batch_shape),
+        tensor_batch_shape,
+        msg='Output has batch shape {0}, but expected is {1}'.format(
+            tensor_batch_shape, batch_shape))
+
+  def test_rasterizes_correct_shape(self):
+    """Tests that rasterize returns the expected result."""
+    batch_shape = []
+    (vertices, triangles, attributes_dictionary, _, _, view_projection_matrix,
+     image_height, image_width
+    ) = rasterization_test_utils.create_rasterizer_inputs(batch_shape)
+
+    rgba = splat.rasterize_then_splat(vertices, triangles,
+                                      attributes_dictionary,
+                                      view_projection_matrix,
+                                      (image_height, image_width),
+                                      lambda x: x['attribute1'])
+
+    self.assertAllEqual(rgba.shape, (image_height, image_width, 4))
+
   def test_two_triangle_layers(self):
     """Checks that two overlapping triangles are accumulated correctly."""
     image_width = 32
@@ -51,12 +88,10 @@ class SplatTest(test_case.TestCase):
 
     composite, _, normalized_layers = splat.rasterize_then_splat(
         vertices,
-        triangles,
-        colors,
+        triangles, {'color': colors},
         rasterization_test_utils.get_identity_view_projection_matrix(),
-        image_width,
-        image_height,
-        lambda x: x,
+        (image_height, image_width),
+        lambda x: x['color'],
         num_layers=2,
         return_extra_buffers=True)
 
@@ -103,12 +138,9 @@ class SplatTest(test_case.TestCase):
     def render_splat(verts):
       return splat.rasterize_then_splat(
           verts,
-          triangles,
-          colors,
-          camera_matrix,
-          image_width,
-          image_height,
-          lambda x: x,
+          triangles, {'color': colors},
+          camera_matrix, (image_height, image_width),
+          lambda x: x['color'],
           num_layers=1)
 
     # Perform a few iterations of gradient descent.

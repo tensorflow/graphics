@@ -198,17 +198,20 @@ def rasterize(vertices: type_alias.TensorLike,
     # `None` for tensorflow graph mode, therefore we have to fix it in order to
     # have explicit shape.
     width, height = image_size
-    triangle_index = tf.reshape(triangle_index, [batch_size, height, width, 1])
+    triangle_index = tf.reshape(triangle_index,
+                                [batch_size, num_layers, height, width, 1])
     barycentric_coordinates = rasterized[..., 1:3]
     barycentric_coordinates = tf.concat(
         (barycentric_coordinates, 1.0 - barycentric_coordinates[..., 0:1] -
          barycentric_coordinates[..., 1:2]),
         axis=-1)
+    barycentric_coordinates = tf.reshape(
+        barycentric_coordinates, [batch_size, num_layers, height, width, 3])
     mask = rasterized[..., 3]
-    mask = tf.reshape(mask, [batch_size, height, width, 1])
+    mask = tf.reshape(mask, [batch_size, num_layers, height, width, 1])
 
     barycentric_coordinates = mask * barycentric_coordinates
-    vertex_ids = tf.gather(triangles, triangle_index[..., 0], batch_dims=0)
+    vertex_ids = tf.gather(triangles, triangle_index[..., 0])
 
     # Stop gradient for tensors coming out of custom op in order to avoid
     # confusing Tensorflow that they are differentiable.

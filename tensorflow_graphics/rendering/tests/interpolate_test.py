@@ -62,7 +62,7 @@ class RasterizeTest(test_case.TestCase):
         self.projection, (self.image_width, self.image_height),
         num_layers=num_layers,
         enable_cull_face=enable_cull_face,
-        backend=rasterization_backend.RasterizationBackends.CPU)
+        backend=rasterization_backend.RasterizationBackends.CPU).layer(0)
 
     vertex_rgb = (self.cube_vertex_positions * 0.5 + 0.5)
     vertex_rgba = tf.concat([vertex_rgb, tf.ones([1, 8, 1])], axis=-1)

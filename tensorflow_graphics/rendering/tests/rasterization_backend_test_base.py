@@ -81,7 +81,7 @@ class RasterizationBackendTestBase(test_case.TestCase):
     frame_buffer = rasterization_backend.rasterize(
         placeholders[0], placeholders[1], placeholders[2],
         (self.IMAGE_WIDTH, self.IMAGE_HEIGHT), enable_cull_face,
-        self._num_layers, self._backend)
+        self._num_layers, self._backend).layer(0)
     batch_size = shapes[0][0]
     self.assertEqual([batch_size],
                      frame_buffer.triangle_id.get_shape().as_list()[:-3])
@@ -136,7 +136,7 @@ class RasterizationBackendTestBase(test_case.TestCase):
     framebuffer = rasterization_backend.rasterize(
         clip_coordinates, triangles, tf.eye(4, batch_shape=[1]),
         (self.IMAGE_WIDTH, self.IMAGE_HEIGHT), face_culling_enabled,
-        self._num_layers, self._backend)
+        self._num_layers, self._backend).layer(0)
     ones_image = tf.ones([1, self.IMAGE_HEIGHT, self.IMAGE_WIDTH, 1])
     rendered_coordinates = tf.concat(
         [framebuffer.barycentrics.value, ones_image], axis=-1)

@@ -13,9 +13,26 @@
 # limitations under the License.
 """Various util functions common for all rasterizers."""
 
+from typing import List, Optional
 import tensorflow as tf
 
 from tensorflow_graphics.util import type_alias
+
+
+def dim_value(dim: Optional[int] = None) -> int:
+  return 1 if dim is None else tf.compat.dimension_value(dim)
+
+
+def merge_batch_dims(tensor: type_alias.TensorLike,
+                     last_axis: int) -> type_alias.TensorLike:
+  """Merges all dimensions into one starting from 0 till `last_axis` exluding."""
+  return tf.reshape(tensor, [-1] + tensor.shape.as_list()[last_axis:])
+
+
+def restore_batch_dims(tensor: type_alias.TensorLike,
+                       batch_shape: List[int]) -> type_alias.TensorLike:
+  """Unpack first dimension into batch_shape, preserving the rest of the dimensions."""
+  return tf.reshape(tensor, batch_shape + tensor.shape.as_list()[1:])
 
 
 def transform_homogeneous(matrices: type_alias.TensorLike,

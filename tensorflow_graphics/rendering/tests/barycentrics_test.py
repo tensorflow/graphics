@@ -42,7 +42,7 @@ class BarycentricsTest(test_case.TestCase):
         triangles,
         view_projection_matrix, (image_width, image_height),
         num_layers=1,
-        backend=rasterization_backend_type)
+        backend=rasterization_backend_type).layer(0)
 
     ras_barycentrics = rasterized.barycentrics.value
 

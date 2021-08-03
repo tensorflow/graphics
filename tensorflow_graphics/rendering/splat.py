@@ -14,7 +14,7 @@
 """Differentiable point splatting functions for rasterize-then-splat."""
 
 import math
-from typing import Callable, Tuple
+from typing import Callable, Dict, Tuple
 
 import tensorflow as tf
 
@@ -22,6 +22,7 @@ from tensorflow_graphics.rendering import interpolate
 from tensorflow_graphics.rendering import rasterization_backend
 from tensorflow_graphics.rendering import utils
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
 def splat_at_pixel_centers(
@@ -178,15 +179,16 @@ def splat_at_pixel_centers(
   return output_rgba, accumulate_rgba, normalized_rgba
 
 
-def rasterize_then_splat(vertices: tf.Tensor,
-                         triangles: tf.Tensor,
-                         attributes: tf.Tensor,
-                         camera_matrices: tf.Tensor,
-                         image_width: int,
-                         image_height: int,
-                         shading_function: Callable[[tf.Tensor], tf.Tensor],
+def rasterize_then_splat(vertices: type_alias.TensorLike,
+                         triangles: type_alias.TensorLike,
+                         attributes: Dict[str, type_alias.TensorLike],
+                         view_projection_matrix: type_alias.TensorLike,
+                         image_size: Tuple[int, int],
+                         shading_function: Callable[[Dict[str, tf.Tensor]],
+                                                    tf.Tensor],
                          num_layers=1,
-                         return_extra_buffers=False):
+                         return_extra_buffers=False,
+                         name='rasterize_then_splat'):
   """Rasterization with differentiable occlusion using rasterize-then-splat.
 
   Rasterizes the input triangles to produce surface point samples, applies
@@ -195,90 +197,111 @@ def rasterize_then_splat(vertices: tf.Tensor,
 
   The attributes are arbitrary per-vertex quantities (colors, normals, texture
   coordinates, etc.). The rasterization step interpolates these attributes
-  across triangles to produce a per-pixel interpolated attributes buffer
-  with shape [image_height, image_width, attribute_count]. This buffer is passed
-  to the user-provided shading_function, which should turn it into a
-  [image_height, image_width, 4] buffer of RGBA colors. The result of the shader
-  is replaced with (0,0,0,0) for background pixels.
+  across triangles to produce a dictionary of per-pixel interpolated attributes
+  buffers with shapes `[H, W, K]` where `K` is the number of channels of the
+  input attribute. This dictionary is passed to the user-provided
+  `shading_function`, which performs shading and outputs a `[H, W, 4]`
+  buffer of RGBA colors. The result of the shader is replaced with (0,0,0,0) for
+  background pixels.
 
   In the common case that the attributes are RGBA vertex colors, the shading
-  function would just pass the rasterized attributes through (i.e.,
-  shading_function = lambda x: x).
+  function may just pass the rasterized attributes through (i.e.,
+  `shading_function = lambda x: x['color']` where `color` is an RGBA attribute).
 
   Args:
-    vertices: float32 tensor of xyz positions with shape [vertex_count, d], or
-      [batch_size, vertex_count, d]. If camera_matrices is specified, d may be 3
-      or 4. If camera_matrices is None, d must be 4 and the values are assumed
-      to be xyzw homogenous coordinates.
-    triangles: int32 tensor or array with shape [triangle_count, 3].
-    attributes: float32 tensor of vertex attributes with shape [batch_size,
-      vertex_count, attribute_count]
-    camera_matrices: camera matrices with size [batch_size, 4, 4].
-    image_width: int specifying desired output image width in pixels.
-    image_height: int specifying desired output image height in pixels.
-    shading_function: a function that takes a [image_height, image_width,
-      attribute_count] rasterized attribute tensor and returns a [image_height,
-      image_width, 4] RGBA tensor.
+    vertices: A tensor of shape `[A1, ..., An, V, 3]` containing batches of `V`
+      vertices, each defined by a 3D point.
+    triangles: A tensor of shape `[T, 3]` containing `T` triangles, each
+      associated with 3 vertices from `vertices`.
+    attributes: A dictionary of tensors, each of shape `[A1, ..., An, V, K]`
+      containing batches of `V` vertices, each associated with `K`-dimensional
+      attributes. `K` may vary by attribute.
+    view_projection_matrix: A tensor of shape `[A1, ..., An, 4, 4]` containing
+      batches of matrices used to transform vertices from model to clip
+      coordinates.
+    image_size: A tuple (height, width) containing the dimensions in pixels of
+      the rasterized image.
+    shading_function: a function that takes a dictionary of `[H, W, K]`
+      rasterized attribute tensors and returns a `[H, W, 4]` RGBA tensor.
     num_layers: int specifying number of depth layers to composite.
     return_extra_buffers: if True, the function will return raw accumulation
       buffers for visualization.
+    name: A name for this op. Defaults to "rasterize_then_splat".
 
   Returns:
-    a [batch_size, image_height, image_width, 4] tensor of RGBA values.
+    a `[A1, ..., An, H, W, 4]` tensor of RGBA values.
   """
-  vertices = tf.convert_to_tensor(vertices)
-  triangles = tf.convert_to_tensor(triangles)
-  camera_matrices = tf.convert_to_tensor(camera_matrices)
-  shape.check_static(
-      tensor=vertices,
-      tensor_name='vertices',
-      has_rank_greater_than=1,
-      has_dim_equals=((-1, 3)))
-  shape.check_static(
-      tensor=triangles,
-      tensor_name='triangles',
-      has_rank=2,
-      has_dim_equals=((-1, 3)))
-  shape.check_static(
-      tensor=camera_matrices,
-      tensor_name='camera_matrices',
-      has_dim_equals=(((-2, 4), (-1, 4))))
-  # We don't need derivatives of barycentric coordinates for RtS, so use
-  # rasterization_backend directly.
-  # Back face culling is necessary when rendering multiple layers so that
-  # back faces aren't counted as occluding layers.
-  rasterized = rasterization_backend.rasterize(
-      vertices,
-      triangles,
-      camera_matrices, (image_width, image_height),
-      enable_cull_face=True,
-      num_layers=num_layers,
-      backend=rasterization_backend.RasterizationBackends.CPU)
+  with tf.name_scope(name):
+    vertices = tf.convert_to_tensor(vertices)
+    triangles = tf.convert_to_tensor(triangles)
+    view_projection_matrix = tf.convert_to_tensor(view_projection_matrix)
+    shape.check_static(
+        tensor=vertices,
+        tensor_name='vertices',
+        has_rank_greater_than=1,
+        has_dim_equals=((-1, 3)))
+    shape.check_static(
+        tensor=triangles,
+        tensor_name='triangles',
+        has_rank=2,
+        has_dim_equals=((-1, 3)))
+    shape.check_static(
+        tensor=view_projection_matrix,
+        tensor_name='view_projection_matrix',
+        has_dim_equals=(((-2, 4), (-1, 4))))
 
-  interpolated = interpolate.interpolate_vertex_attribute(
-      attributes, rasterized, tf.zeros((attributes.shape[-1],),
-                                       dtype=tf.float32))
+    input_batch_shape = vertices.shape[:-2]
+    view_projection_matrix = utils.merge_batch_dims(
+        view_projection_matrix, last_axis=-2)
+    vertices = utils.merge_batch_dims(vertices, last_axis=-2)
+    image_size_backend = (int(image_size[1]), int(image_size[0]))
 
-  # Nested vectorized map over batch and layer dimensions.
-  shaded_buffer = tf.vectorized_map(
-      lambda l: tf.vectorized_map(shading_function, l), interpolated.value)
-  # Zero out shader result outside of foreground mask.
-  shaded_buffer = shaded_buffer * rasterized.foreground_mask
-  # Add layers dimension if absent.
-  if len(shaded_buffer.shape) == 4:
-    shaded_buffer = tf.expand_dims(shaded_buffer, axis=1)
+    # We don't need derivatives of barycentric coordinates for RtS, so use
+    # rasterization_backend directly.
+    # Back face culling is necessary when rendering multiple layers so that
+    # back faces aren't counted as occluding layers.
+    rasterized = rasterization_backend.rasterize(
+        vertices,
+        triangles,
+        view_projection_matrix,
+        image_size_backend,
+        enable_cull_face=True,
+        num_layers=num_layers,
+        backend=rasterization_backend.RasterizationBackends.CPU)
 
-  clip_space_vertices = utils.transform_homogeneous(camera_matrices, vertices)
-  clip_space_buffer = interpolate.interpolate_vertex_attribute(
-      clip_space_vertices, rasterized, (0, 0, 1, 1)).value
+    # TODO(fcole): check if any of these keys already exist in attributes
+    shader_dict = {
+        'mask': rasterized.foreground_mask,
+        'triangle_indices': rasterized.triangle_id,
+        'barycentrics': rasterized.barycentrics.value
+    }
+    for key, attribute in attributes.items():
+      attribute = tf.convert_to_tensor(value=attribute)
+      attribute = utils.merge_batch_dims(attribute, last_axis=-2)
+      interpolated = interpolate.interpolate_vertex_attribute(
+          attribute, rasterized)
+      shader_dict[key] = interpolated.value
 
-  ndc_xyz = clip_space_buffer[..., :3] / clip_space_buffer[..., 3:4]
-  viewport_xyz = (ndc_xyz + 1.0) * tf.constant([image_width, image_height, 1],
-                                               dtype=tf.float32,
-                                               shape=[1, 1, 1, 1, 3]) * 0.5
-  output, accum, norm_accum = tf.vectorized_map(splat_at_pixel_centers,
-                                                (viewport_xyz, shaded_buffer))
-  if return_extra_buffers:
-    return output, accum, norm_accum
+    # Nested vectorized map over batch and layer dimensions.
+    shaded_buffer = tf.vectorized_map(
+        lambda l: tf.vectorized_map(shading_function, l), shader_dict)
+    # Zero out shader result outside of foreground mask.
+    shaded_buffer = shaded_buffer * rasterized.foreground_mask
 
-  return output
+    clip_space_vertices = utils.transform_homogeneous(view_projection_matrix,
+                                                      vertices)
+    clip_space_buffer = interpolate.interpolate_vertex_attribute(
+        clip_space_vertices, rasterized, (0, 0, 1, 1)).value
+
+    ndc_xyz = clip_space_buffer[..., :3] / clip_space_buffer[..., 3:4]
+    image_height, image_width = image_size
+    viewport_xyz = (ndc_xyz + 1.0) * tf.constant([image_width, image_height, 1],
+                                                 dtype=tf.float32,
+                                                 shape=[1, 1, 1, 1, 3]) * 0.5
+    output, accum, norm_accum = tf.vectorized_map(splat_at_pixel_centers,
+                                                  (viewport_xyz, shaded_buffer))
+    if return_extra_buffers:
+      return output, accum, norm_accum
+
+    output = utils.restore_batch_dims(output, input_batch_shape)
+    return output

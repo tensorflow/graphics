@@ -51,7 +51,8 @@ def _proxy_rasterize(vertices, triangles, view_projection_matrices):
   return rasterization_backend.rasterize(vertices, triangles,
                                          view_projection_matrices,
                                          (_IMAGE_WIDTH, _IMAGE_HEIGHT),
-                                         _ENABLE_CULL_FACE, _NUM_LAYERS)
+                                         _ENABLE_CULL_FACE,
+                                         _NUM_LAYERS).layer(0)
 
 
 class RasterizationBackendTest(test_case.TestCase):
