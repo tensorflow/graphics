@@ -69,6 +69,20 @@ class ArchitecturesStyleGanTest(tf.test.TestCase, parameterized.TestCase):
 
     self.assertIsInstance(generator_clone, tf.keras.Model)
 
+  @parameterized.named_parameters(('batch_1', 1), ('batch_2', 2))
+  def test_style_based_generator_mapping_outputs_shape(self, batch_size):
+    input_data = tf.ones(shape=(batch_size, 512))
+    output_dimension = 554
+    mapping_network = architectures_style_gan.create_mapping_network(
+        latent_code_dimension=512,
+        output_dimension=output_dimension,
+        normalize_latent_code=False,
+        name='keypoint_mapping')
+
+    outputs = mapping_network(input_data)
+
+    self.assertEqual(outputs.shape[1], output_dimension)
+
 
 if __name__ == '__main__':
   tf.test.main()

@@ -26,7 +26,7 @@ subset of the architectures presented in the papers are implemented and
 particularly progressive growing is not supported.
 """
 
-from typing import Callable, Sequence, Tuple, Union
+from typing import Callable, Optional, Sequence, Tuple, Union
 
 import tensorflow as tf
 import tensorflow_addons.layers.normalizations as tfa_normalizations
@@ -73,6 +73,7 @@ def apply_style_with_adain(mapped_latent_code: tf.Tensor,
 
 
 def create_mapping_network(latent_code_dimension: int = 128,
+                           output_dimension: Optional[int] = None,
                            normalize_latent_code: bool = True,
                            relu_leakiness: float = 0.2,
                            num_layers: int = 8,
@@ -86,6 +87,8 @@ def create_mapping_network(latent_code_dimension: int = 128,
 
   Args:
     latent_code_dimension: The number of dimensions in the latent code.
+    output_dimension: The dimension of the output. By default it is latent code
+      dimension.
     normalize_latent_code: If true the latent code is normalized to unit length
       before feeding it to the network.
     relu_leakiness: The leakiness of the relu.
@@ -98,6 +101,9 @@ def create_mapping_network(latent_code_dimension: int = 128,
   Returns:
     The mapping network.
   """
+  if output_dimension is None:
+    output_dimension = latent_code_dimension
+
   input_tensor = tf.keras.Input(shape=(latent_code_dimension,))
   if normalize_latent_code:
     maybe_normalized_input_tensor = keras_layers.PixelNormalization(axis=1)(
@@ -111,7 +117,7 @@ def create_mapping_network(latent_code_dimension: int = 128,
       # The kernel_multiplier implements the reduced learning rate of the
       # mapping network.
       tensor = keras_layers.FanInScaledDense(
-          units=latent_code_dimension,
+          units=output_dimension,
           kernel_multiplier=learning_rate_multiplier,
           bias_multiplier=learning_rate_multiplier,
           kernel_initializer=tf.keras.initializers.TruncatedNormal(
