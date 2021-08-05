@@ -1,12 +1,7 @@
-# Publishes tfg-nightly
-name: Deploy tfg-nightly to pypi
+# Deploys tfg-nightly to the test pypi
+name: Deploy to test-pypi
 
-on:
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    # runs daily at 00:30 am
-    - cron:  '30 0 * * *'
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   deploy:
