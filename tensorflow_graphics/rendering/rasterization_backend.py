@@ -37,8 +37,7 @@ def rasterize(
     backend: enum.Enum = RasterizationBackends.OPENGL) -> fb.Framebuffer:
   """Rasterizes the scene.
 
-    This rasterizer estimates which triangle is associated with each pixel using
-    OpenGL.
+    This rasterizer estimates which triangle is associated with each pixel.
 
   Args:
     vertices: A tensor of shape `[batch, num_vertices, 3]` containing batches of

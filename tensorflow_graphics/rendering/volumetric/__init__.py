@@ -18,6 +18,8 @@ from __future__ import print_function
 
 from tensorflow_graphics.rendering.volumetric import absorption
 from tensorflow_graphics.rendering.volumetric import emission_absorption
+from tensorflow_graphics.rendering.volumetric import ray_density
+from tensorflow_graphics.rendering.volumetric import ray_radiance
 from tensorflow_graphics.rendering.volumetric import visual_hull
 from tensorflow_graphics.util import export_api as _export_api
 

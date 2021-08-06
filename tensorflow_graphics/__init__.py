@@ -43,7 +43,8 @@ if _import_tfg_docs():
   # submodules of tensorflow_graphics
   __all__ = util.export_api.get_modules()
 
-  # Remove modules notebooks, util and version from API.
+  # Remove modules projects, notebooks, util and version from API.
+  __all__.remove("projects")
   __all__.remove("notebooks")
   __all__.remove("util")
 # pylint: enable=g-statement-before-imports,g-import-not-at-top

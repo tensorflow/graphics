@@ -16,7 +16,8 @@
 # pylint: disable=g-import-not-at-top
 from tensorflow_graphics.util.doc import _import_tfg_docs
 if _import_tfg_docs():
-  from tensorflow_graphics.texture import texmap
+  from tensorflow_graphics.rendering.texture import texture_map
+  from tensorflow_graphics.rendering.texture import mipmap
   from tensorflow_graphics.util import export_api as _export_api
 
   # API contains submodules of tensorflow_graphics.rendering.

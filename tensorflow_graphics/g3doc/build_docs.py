@@ -11,7 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Script to generate external api_docs for tf-graphics."""
+"""Script to generate external api_docs for tf-graphics.
+
+This script will generate documentation only for python files that are included
+in the __init__.py of their local module. If your module doesn't show up in the
+documentation after running this script, make sure it appears in the appropriate
+__init__.py. The import should be placed inside a `if _import_tfg_docs():`
+clause so it is only imported at doc generation time.
+"""
 # flake8: noqa
 
 from __future__ import absolute_import
