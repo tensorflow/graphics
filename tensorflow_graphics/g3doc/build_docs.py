@@ -31,6 +31,7 @@ from absl import app
 from absl import flags
 
 from tensorflow_docs.api_generator import generate_lib
+from tensorflow_docs.api_generator import public_api
 
 os.environ["TFG_DOC_IMPORTS"] = "1"
 
@@ -60,7 +61,8 @@ def main(_):
       base_dir=os.path.dirname(tfg.__file__),
       search_hints=FLAGS.search_hints,
       code_url_prefix=FLAGS.code_url_prefix,
-      site_path=FLAGS.site_path)
+      site_path=FLAGS.site_path,
+      callbacks=[public_api.local_definitions_filter])
 
   doc_generator.build(output_dir=FLAGS.output_dir)
 
