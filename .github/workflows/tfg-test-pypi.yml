@@ -1,0 +1,49 @@
+# Deploys tfg-nightly to the test pypi
+name: Deploy to test-pypi
+
+on: workflow_dispatch
+
+jobs:
+  deploy:
+    if: github.repository == 'tensorflow/graphics'  # prevents action from running on forks
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install system dependencies
+      run: |
+        sudo xargs apt-get update
+        sudo xargs apt-get -y install < requirements.unix
+    - name: Install pip requirements
+      run: |
+        python -m pip install --upgrade pip
+        pip install -U -r requirements.txt
+        pip install -U pytest
+        pip install -U setuptools wheel
+        pip install -U twine
+    - name: Build ops
+      run: |
+        bazel build tensorflow_graphics/... --define=BASEDIR=$(pwd) --sandbox_writable_path=$(pwd)
+        bazel clean --expunge
+    - name: Run python tests
+      env:
+        MESA_GL_VERSION_OVERRIDE: 4.5
+        MESA_GLSL_VERSION_OVERRIDE: 450
+      run: |
+        pytest tensorflow_graphics
+    - name: Build pip package and install
+      run: |
+        python setup.py sdist bdist_wheel --nightly
+        pip install dist/*.whl
+    - name: Test install
+      run: |
+        cd $(mktemp -d) && python -c 'import tensorflow_graphics as tfg'
+    - name: Publish to PyPi # https://pypi.org/project/tfg-nightly
+      env:
+        TWINE_USERNAME: ${{ secrets.TEST_PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
+      run: |
+        twine upload --repository testpypi dist/*
