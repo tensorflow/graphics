@@ -28,6 +28,7 @@ from tensorflow_graphics.image.color_space import constants
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 # Conversion constants following the naming convention from the 'theory of the
 # transformation' section at https://en.wikipedia.org/wiki/SRGB.
@@ -37,7 +38,8 @@ _K0 = constants.srgb_gamma["K0"]
 _GAMMA = constants.srgb_gamma["GAMMA"]
 
 
-def from_linear_rgb(linear_rgb, name="srgb_from_linear_rgb"):
+def from_linear_rgb(linear_rgb: type_alias.TensorLike,
+                    name: str = "srgb_from_linear_rgb") -> tf.Tensor:
   """Converts linear RGB to sRGB colors.
 
   Note:
