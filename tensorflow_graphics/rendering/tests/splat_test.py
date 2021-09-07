@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Tests for google3.research.vision.viscam.diffren.mesh.splat."""
+"""Tests for rasterize than splat functionality."""
 
 from absl.testing import parameterized
 import tensorflow as tf
@@ -25,16 +25,20 @@ from tensorflow_graphics.util import test_case
 
 @tf.function
 def rasterize_image(vertices, triangles, color, camera_matrix, image_width,
-                    image_height):
+                    image_height, backend):
   rasterized = triangle_rasterizer.rasterize(
       vertices,
       triangles, {'color': color},
       camera_matrix, (image_width, image_height),
-      backend=rasterization_backend.RasterizationBackends.CPU)
+      backend=backend)
   return rasterized['color']
 
 
 class SplatTest(test_case.TestCase):
+
+  def setUp(self):
+    super().setUp()
+    self._backend = rasterization_backend.RasterizationBackends.CPU
 
   @parameterized.parameters(([1],), ([2],), ([1, 2, 3],))
   def test_batch_dimension_preserved(self, batch_shape):
@@ -43,11 +47,13 @@ class SplatTest(test_case.TestCase):
      image_height, image_width
     ) = rasterization_test_utils.create_rasterizer_inputs(batch_shape)
 
-    rgba = splat.rasterize_then_splat(vertices, triangles,
-                                      attributes_dictionary,
-                                      view_projection_matrix,
-                                      (image_height, image_width),
-                                      lambda x: x['attribute1'])
+    rgba = splat.rasterize_then_splat(
+        vertices,
+        triangles,
+        attributes_dictionary,
+        view_projection_matrix, (image_height, image_width),
+        lambda x: x['attribute1'],
+        backend=self._backend)
 
     tensor_batch_shape = rgba.shape.as_list()[:len(batch_shape)]
     self.assertEqual(
@@ -63,16 +69,21 @@ class SplatTest(test_case.TestCase):
      image_height, image_width
     ) = rasterization_test_utils.create_rasterizer_inputs(batch_shape)
 
-    rgba = splat.rasterize_then_splat(vertices, triangles,
-                                      attributes_dictionary,
-                                      view_projection_matrix,
-                                      (image_height, image_width),
-                                      lambda x: x['attribute1'])
+    rgba = splat.rasterize_then_splat(
+        vertices,
+        triangles,
+        attributes_dictionary,
+        view_projection_matrix, (image_height, image_width),
+        lambda x: x['attribute1'],
+        backend=self._backend)
 
     self.assertAllEqual(rgba.shape, (image_height, image_width, 4))
 
   def test_two_triangle_layers(self):
     """Checks that two overlapping triangles are accumulated correctly."""
+    if self._backend == rasterization_backend.RasterizationBackends.OPENGL:
+      self.skipTest(reason='OpenGL rasterizer only supports single layer.')
+
     image_width = 32
     image_height = 32
 
@@ -93,7 +104,8 @@ class SplatTest(test_case.TestCase):
         (image_height, image_width),
         lambda x: x['color'],
         num_layers=2,
-        return_extra_buffers=True)
+        return_extra_buffers=True,
+        backend=self._backend)
 
     baseline_image = rasterization_test_utils.load_baseline_image(
         'Two_Triangles_Splat_Composite.png')
@@ -141,20 +153,22 @@ class SplatTest(test_case.TestCase):
           triangles, {'color': colors},
           camera_matrix, (image_height, image_width),
           lambda x: x['color'],
-          num_layers=1)
+          num_layers=1,
+          backend=self._backend)
 
     # Perform a few iterations of gradient descent.
     num_iters = 15
     var_verts = tf.Variable(initial_vertices)
-    splat_loss_initial = 0.0
+    splat_loss_initial = tf.convert_to_tensor(0.0)
     for i in range(num_iters):
       with tf.GradientTape(persistent=True) as g:
         target_image = rasterize_image(target_vertices, triangles, colors,
-                                       camera_matrix, image_width,
-                                       image_height)[0, ...]
+                                       camera_matrix, image_width, image_height,
+                                       self._backend)[0, ...]
         rasterized_only_image = rasterize_image(var_verts, triangles, colors,
                                                 camera_matrix, image_width,
-                                                image_height)[0, ...]
+                                                image_height,
+                                                self._backend)[0, ...]
         splat_image = render_splat(var_verts)
 
         rasterized_loss = tf.reduce_mean(

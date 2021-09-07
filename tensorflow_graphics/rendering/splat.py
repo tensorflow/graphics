@@ -13,6 +13,7 @@
 # limitations under the License.
 """Differentiable point splatting functions for rasterize-then-splat."""
 
+import enum
 import math
 from typing import Callable, Dict, Tuple
 
@@ -179,16 +180,17 @@ def splat_at_pixel_centers(
   return output_rgba, accumulate_rgba, normalized_rgba
 
 
-def rasterize_then_splat(vertices: type_alias.TensorLike,
-                         triangles: type_alias.TensorLike,
-                         attributes: Dict[str, type_alias.TensorLike],
-                         view_projection_matrix: type_alias.TensorLike,
-                         image_size: Tuple[int, int],
-                         shading_function: Callable[[Dict[str, tf.Tensor]],
-                                                    tf.Tensor],
-                         num_layers=1,
-                         return_extra_buffers=False,
-                         name='rasterize_then_splat'):
+def rasterize_then_splat(
+    vertices: type_alias.TensorLike,
+    triangles: type_alias.TensorLike,
+    attributes: Dict[str, type_alias.TensorLike],
+    view_projection_matrix: type_alias.TensorLike,
+    image_size: Tuple[int, int],
+    shading_function: Callable[[Dict[str, tf.Tensor]], tf.Tensor],
+    num_layers=1,
+    return_extra_buffers=False,
+    backend: enum.Enum = rasterization_backend.RasterizationBackends.CPU,
+    name='rasterize_then_splat'):
   """Rasterization with differentiable occlusion using rasterize-then-splat.
 
   Rasterizes the input triangles to produce surface point samples, applies
@@ -226,6 +228,8 @@ def rasterize_then_splat(vertices: type_alias.TensorLike,
     num_layers: int specifying number of depth layers to composite.
     return_extra_buffers: if True, the function will return raw accumulation
       buffers for visualization.
+    backend: A rasterization_backend.RasterizationBackends enum containing the
+      backend method to use for rasterization.
     name: A name for this op. Defaults to "rasterize_then_splat".
 
   Returns:
@@ -267,7 +271,7 @@ def rasterize_then_splat(vertices: type_alias.TensorLike,
         image_size_backend,
         enable_cull_face=True,
         num_layers=num_layers,
-        backend=rasterization_backend.RasterizationBackends.CPU)
+        backend=backend)
 
     # TODO(fcole): check if any of these keys already exist in attributes
     shader_dict = {
