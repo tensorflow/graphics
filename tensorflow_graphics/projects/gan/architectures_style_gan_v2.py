@@ -85,7 +85,7 @@ def get_noise_dimensions(
   return noise_dimensions
 
 
-def _create_noise_inputs(num_upsampling_blocks: int) -> List[tf.keras.Input]:
+def _create_noise_inputs(num_upsampling_blocks: int) -> List[tf.keras.Input]:  # pytype: disable=invalid-annotation  # typed-keras
   """Creates the noise input layers."""
   noise_dimensions = get_noise_dimensions(num_upsampling_blocks)
   noise_inputs = [
