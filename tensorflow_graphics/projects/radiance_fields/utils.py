@@ -81,13 +81,13 @@ def change_coordinate_system(points3d,
 
 
 @tf.function
-def get_distances_between_points(ray_points3d, last_bin_witdh=1e10):
+def get_distances_between_points(ray_points3d, last_bin_width=1e10):
   """Estimates the distance between points in a ray.
 
   Args:
     ray_points3d: A tensor of shape `[A1, ..., An, M, 3]`,
       where M is the number of points in a ray.
-    last_bin_witdh: A scalar indicating the witdth of the last bin.
+    last_bin_width: A scalar indicating the witdth of the last bin.
 
   Returns:
     A tensor of shape `[A1, ..., An, M]` containing the distances between
@@ -102,8 +102,10 @@ def get_distances_between_points(ray_points3d, last_bin_witdh=1e10):
       tensor_name="ray_points3d",
       has_rank_greater_than=1)
   dists = tf.norm(ray_points3d[..., 1:, :] - ray_points3d[..., :-1, :], axis=-1)
-  return tf.concat([dists, tf.broadcast_to([last_bin_witdh],
-                                           dists[..., :1].shape)], axis=-1)
+  if last_bin_width > 0.0:
+    dists = tf.concat([dists, tf.broadcast_to([last_bin_width],
+                                              dists[..., :1].shape)], axis=-1)
+  return dists
 
 
 @tf.function
@@ -209,3 +211,10 @@ def l2_loss(prediction, target, weights=1.0):
   """L2 loss implementation that forces same prediction and target shapes."""
   assert prediction.shape == target.shape, "Shape dims should be the same."
   return tf.reduce_mean(weights * tf.square(target - prediction))
+
+
+def l2_loss_distrib(prediction, target, global_batch_size, weights=1.0):
+  """L2 loss implementation that forces same prediction and target shapes."""
+  assert prediction.shape == target.shape, "Shape dims should be the same."
+  return tf.reduce_sum(
+      weights*tf.square(target-prediction))*(1./global_batch_size)
