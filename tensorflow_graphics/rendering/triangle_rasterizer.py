@@ -41,6 +41,7 @@ def rasterize(
     view_projection_matrix: type_alias.TensorLike,
     image_size: Tuple[int, int],
     enable_cull_face: bool = True,
+    use_vectorized_map: bool = True,
     backend: enum.Enum = rasterization_backend.RasterizationBackends.OPENGL,
     name: str = "triangle_rasterizer_rasterize"
 ) -> Dict[str, type_alias.TensorLike]:
@@ -64,6 +65,8 @@ def rasterize(
       the rasterized image.
     enable_cull_face: Enables BACK face culling when True, and no culling when
       False.
+    use_vectorized_map: If true uses vectorized_map for barycentrics
+      computations otherwise uses map_fn.
     backend: A rasterization_backend.RasterizationBackends enum containing the
       backend method to use for rasterization.
     name: A name for this op. Defaults to "triangle_rasterizer_rasterize".
@@ -124,7 +127,7 @@ def rasterize(
     clip_space_vertices = utils.transform_homogeneous(view_projection_matrix,
                                                       vertices)
     rasterized = barycentrics_module.differentiable_barycentrics(
-        rasterized, clip_space_vertices, triangles)
+        rasterized, clip_space_vertices, triangles, use_vectorized_map)
     barycentrics = rasterized.barycentrics.value
     outputs["barycentrics"] = utils.restore_batch_dims(
         rasterized.foreground_mask * barycentrics, input_batch_shape)

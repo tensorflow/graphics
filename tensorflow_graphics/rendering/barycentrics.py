@@ -23,8 +23,10 @@ from tensorflow_graphics.util import type_alias
 
 
 def differentiable_barycentrics(
-    framebuffer: fb.Framebuffer, clip_space_vertices: type_alias.TensorLike,
-    triangles: type_alias.TensorLike) -> fb.Framebuffer:
+    framebuffer: fb.Framebuffer,
+    clip_space_vertices: type_alias.TensorLike,
+    triangles: type_alias.TensorLike,
+    use_vectorized_map: bool = True) -> fb.Framebuffer:
   """Computes differentiable barycentric coordinates from a Framebuffer.
 
   The barycentric coordinates will be differentiable w.r.t. the input vertices.
@@ -39,6 +41,7 @@ def differentiable_barycentrics(
     triangles: a 2-D int32 tensor with shape [triangle_count, 3] or a 3-D tensor
       with shape [batch, triangle_count, 3] containing per-triangle vertex
       indices in counter-clockwise order.
+    use_vectorized_map: If true uses vectorized_map otherwise uses map_fn.
 
   Returns:
     a copy of `framebuffer`, but the differentiable barycentric coordinates will
@@ -95,9 +98,17 @@ def differentiable_barycentrics(
     barycentric_coords = tf.transpose(barycentric_coords, perm=[1, 2, 3, 0])
     return barycentric_coords
 
-  per_image_barycentrics = tf.vectorized_map(
-      compute_barycentrics_fn,
-      (clip_space_vertices, triangles, framebuffer.triangle_id))
+  if use_vectorized_map:
+    per_image_barycentrics = tf.vectorized_map(
+        compute_barycentrics_fn,
+        (clip_space_vertices, triangles, framebuffer.triangle_id))
+  else:
+    num_meshes = tf.shape(clip_space_vertices)[0]
+    triangles_repeated = tf.repeat(triangles, repeats=num_meshes, axis=0)
+    per_image_barycentrics = tf.map_fn(
+        compute_barycentrics_fn,
+        (clip_space_vertices, triangles_repeated, framebuffer.triangle_id),
+        fn_output_signature=tf.TensorSpec(shape=(1, None, None, 3)))
 
   barycentric_coords = tf.stack(per_image_barycentrics, axis=0)
   # After stacking barycentrics will have layers dimension no matter what.
