@@ -20,6 +20,9 @@ pip install --upgrade tensorflow-graphics
 pip install numpy Pillow absl-py
 ```
 
+## Colab
+For a small training and testing demo, see this [colab](https://github.com/tensorflow/graphics/tree/master/tensorflow_graphics/projects/radiance_fields/TFG_tiny_nerf.ipynb)
+
 ## Data preparation
 Please download the data from the original [repository](https://github.com/bmild/nerf). In this tutorial we experimented with the synthetic data (lego, ship, boat, etc) that can be found [here](https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1) (link to the [1] authors storage).
 
