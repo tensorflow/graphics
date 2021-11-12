@@ -39,13 +39,15 @@ from __future__ import division
 from __future__ import print_function
 
 import enum
-import tensorflow as tf
+from typing import Optional, Tuple, Union
 
+import tensorflow as tf
 from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
 class InterpolationType(enum.Enum):
@@ -54,7 +56,9 @@ class InterpolationType(enum.Enum):
   QUATERNION = 1
 
 
-def _safe_dot(vector1, vector2, eps):
+def _safe_dot(vector1: type_alias.TensorLike,
+              vector2: type_alias.TensorLike,
+              eps: type_alias.Float) -> type_alias.Float:
   """Calculates dot product while ensuring it is in the range [-1, 1]."""
   dot_product = vector.dot(vector1, vector2)
   # Safely shrink to make sure machine precision does not cause the dot
@@ -63,12 +67,12 @@ def _safe_dot(vector1, vector2, eps):
       vector=dot_product, minval=-1.0, maxval=1.0, open_bounds=False, eps=eps)
 
 
-def interpolate(vector1,
-                vector2,
-                percent,
-                method=InterpolationType.QUATERNION,
-                eps=None,
-                name=None):
+def interpolate(vector1: type_alias.TensorLike,
+                vector2: type_alias.TensorLike,
+                percent: type_alias.Float,
+                method: InterpolationType = InterpolationType.QUATERNION,
+                eps: Optional[type_alias.Float] = None,
+                name: Optional[str] = None) -> tf.Tensor:
   """Applies slerp to vectors or quaternions.
 
   Args:
@@ -109,11 +113,12 @@ def interpolate(vector1,
   return interpolate_with_weights(vector1, vector2, weight1, weight2)
 
 
-def interpolate_with_weights(vector1,
-                             vector2,
-                             weight1,
-                             weight2,
-                             name="interpolate_with_weights"):
+def interpolate_with_weights(
+    vector1: type_alias.TensorLike,
+    vector2: type_alias.TensorLike,
+    weight1: Union[type_alias.Float, type_alias.TensorLike],
+    weight2: Union[type_alias.Float, type_alias.TensorLike],
+    name: str = "interpolate_with_weights") -> tf.Tensor:
   """Interpolates vectors by taking their weighted sum.
 
   Interpolation for all variants of slerp is a simple weighted sum over inputs.
@@ -141,11 +146,12 @@ def interpolate_with_weights(vector1,
     return weight1 * vector1 + weight2 * vector2
 
 
-def quaternion_weights(quaternion1,
-                       quaternion2,
-                       percent,
-                       eps=None,
-                       name="quaternion_weights"):
+def quaternion_weights(
+    quaternion1: type_alias.TensorLike,
+    quaternion2: type_alias.TensorLike,
+    percent: Union[type_alias.Float, type_alias.TensorLike],
+    eps: Optional[type_alias.Float] = None,
+    name: str = "quaternion_weights") -> Tuple[tf.Tensor, tf.Tensor]:
   """Calculates slerp weights for two normalized quaternions.
 
   Given a percent and two normalized quaternions, this function returns the
@@ -214,7 +220,11 @@ def quaternion_weights(quaternion1,
     return scale1, scale2
 
 
-def vector_weights(vector1, vector2, percent, eps=None, name="vector_weights"):
+def vector_weights(vector1: type_alias.TensorLike,
+                   vector2: type_alias.TensorLike,
+                   percent: Union[type_alias.Float, type_alias.TensorLike],
+                   eps: Optional[type_alias.Float] = None,
+                   name: str = "vector_weights") -> Tuple[tf.Tensor, tf.Tensor]:
   """Spherical linear interpolation (slerp) between two unnormalized vectors.
 
   This function applies geometric slerp to unnormalized vectors by first

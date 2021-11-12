@@ -23,11 +23,13 @@ from __future__ import division
 from __future__ import print_function
 
 import enum
-import tensorflow as tf
+from typing import Tuple, Union
 
+import tensorflow as tf
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
 class Degree(enum.IntEnum):
@@ -39,19 +41,19 @@ class Degree(enum.IntEnum):
   QUARTIC = 4
 
 
-def _constant(position):
+def _constant(position: tf.Tensor) -> tf.Tensor:
   """B-Spline basis function of degree 0 for positions in the range [0, 1]."""
   # A piecewise constant spline is discontinuous at the knots.
   return tf.expand_dims(tf.clip_by_value(1.0 + position, 1.0, 1.0), axis=-1)
 
 
-def _linear(position):
+def _linear(position: tf.Tensor) -> tf.Tensor:
   """B-Spline basis functions of degree 1 for positions in the range [0, 1]."""
   # Piecewise linear splines are C0 smooth.
   return tf.stack((1.0 - position, position), axis=-1)
 
 
-def _quadratic(position):
+def _quadratic(position: tf.Tensor) -> tf.Tensor:
   """B-Spline basis functions of degree 2 for positions in the range [0, 1]."""
   # We pre-calculate the terms that are used multiple times.
   pos_sq = tf.pow(position, 2.0)
@@ -62,7 +64,7 @@ def _quadratic(position):
                   axis=-1)
 
 
-def _cubic(position):
+def _cubic(position: tf.Tensor) -> tf.Tensor:
   """B-Spline basis functions of degree 3 for positions in the range [0, 1]."""
   # We pre-calculate the terms that are used multiple times.
   neg_pos = 1.0 - position
@@ -77,7 +79,7 @@ def _cubic(position):
       axis=-1)
 
 
-def _quartic(position):
+def _quartic(position: tf.Tensor) -> tf.Tensor:
   """B-Spline basis functions of degree 4 for positions in the range [0, 1]."""
   # We pre-calculate the terms that are used multiple times.
   neg_pos = 1.0 - position
@@ -96,12 +98,14 @@ def _quartic(position):
       axis=-1)
 
 
-def knot_weights(positions,
-                 num_knots,
-                 degree,
-                 cyclical,
-                 sparse_mode=False,
-                 name="bspline_knot_weights"):
+def knot_weights(
+    positions: type_alias.TensorLike,
+    num_knots: type_alias.TensorLike,
+    degree: int,
+    cyclical: bool,
+    sparse_mode: bool = False,
+    name: str = "bspline_knot_weights"
+) -> Union[tf.Tensor, Tuple[tf.Tensor, tf.Tensor]]:
   """Function that converts cardinal B-spline positions to knot weights.
 
   Note:
@@ -209,9 +213,10 @@ def knot_weights(positions,
     return tf.reshape(weights, shape=shape_weights)
 
 
-def interpolate_with_weights(knots,
-                             weights,
-                             name="bspline_interpolate_with_weights"):
+def interpolate_with_weights(
+    knots: type_alias.TensorLike,
+    weights: type_alias.TensorLike,
+    name: str = "bspline_interpolate_with_weights") -> tf.Tensor:
   """Interpolates knots using knot weights.
 
   Note:
@@ -241,7 +246,11 @@ def interpolate_with_weights(knots,
   return tf.tensordot(weights, knots, (-1, -1))
 
 
-def interpolate(knots, positions, degree, cyclical, name="bspline_interpolate"):
+def interpolate(knots: type_alias.TensorLike,
+                positions: type_alias.TensorLike,
+                degree: int,
+                cyclical: bool,
+                name: str = "bspline_interpolate") -> tf.Tensor:
   """Applies B-spline interpolation to input control points (knots).
 
   Note:

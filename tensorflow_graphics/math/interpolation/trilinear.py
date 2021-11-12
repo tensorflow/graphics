@@ -21,9 +21,12 @@ import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def interpolate(grid_3d, sampling_points, name="trilinear_interpolate"):
+def interpolate(grid_3d: type_alias.TensorLike,
+                sampling_points: type_alias.TensorLike,
+                name: str = "trilinear_interpolate") -> tf.Tensor:
   """Trilinear interpolation on a 3D regular grid.
 
   Args:

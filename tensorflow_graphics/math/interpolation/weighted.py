@@ -24,14 +24,15 @@ from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def interpolate(points,
-                weights,
-                indices,
-                normalize=True,
-                allow_negative_weights=False,
-                name="weighted_interpolate"):
+def interpolate(points: type_alias.TensorLike,
+                weights: type_alias.TensorLike,
+                indices: type_alias.TensorLike,
+                normalize: bool = True,
+                allow_negative_weights: bool = False,
+                name: str = "weighted_interpolate") -> type_alias.TensorLike:
   """Weighted interpolation for M-D point sets.
 
   Given an M-D point set, this function can be used to generate a new point set
@@ -93,9 +94,11 @@ def interpolate(points,
         point_lists, tf.expand_dims(weights, axis=-1), axis=-2, keepdims=False)
 
 
-def get_barycentric_coordinates(triangle_vertices,
-                                pixels,
-                                name="rasterizer_get_barycentric_coordinates"):
+def get_barycentric_coordinates(
+    triangle_vertices: type_alias.TensorLike,
+    pixels: type_alias.TensorLike,
+    name: str = "rasterizer_get_barycentric_coordinates"
+) -> type_alias.TensorLike:
   """Computes the barycentric coordinates of pixels for 2D triangles.
 
   Barycentric coordinates of a point `p` are represented as coefficients
