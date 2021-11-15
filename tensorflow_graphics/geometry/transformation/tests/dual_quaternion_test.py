@@ -229,8 +229,7 @@ class DualQuaternionTest(test_case.TestCase):
   def test_from_rotation_translation_jacobian_random(self):
     (euler_angles_init, translation_init
     ) = test_helpers.generate_random_test_euler_angles_translations()
-    rotation_init = rotation_matrix_3d.from_quaternion(
-        quaternion.from_euler(euler_angles_init))
+    rotation_init = quaternion.from_euler(euler_angles_init)
 
     self.assert_jacobian_is_finite_fn(dual_quaternion.from_rotation_translation,
                                       [rotation_init, translation_init])
@@ -238,21 +237,19 @@ class DualQuaternionTest(test_case.TestCase):
   def test_from_rotation_matrix_normalized_random(self):
     (euler_angles, translation
     ) = test_helpers.generate_random_test_euler_angles_translations()
-    rotation = rotation_matrix_3d.from_quaternion(
-        quaternion.from_euler(euler_angles))
+    rotation = quaternion.from_euler(euler_angles)
 
     random_dual_quaternion = dual_quaternion.from_rotation_translation(
         rotation, translation)
 
     self.assertAllEqual(
         dual_quaternion.is_normalized(random_dual_quaternion),
-        np.ones(shape=rotation.shape[:-2] + (1,), dtype=bool))
+        np.ones(shape=rotation.shape[:-1] + (1,), dtype=bool))
 
   def test_from_rotation_matrix_random(self):
     (euler_angles_gt, translation_gt
     ) = test_helpers.generate_random_test_euler_angles_translations()
-    rotation_gt = rotation_matrix_3d.from_quaternion(
-        quaternion.from_euler(euler_angles_gt))
+    rotation_gt = quaternion.from_euler(euler_angles_gt)
 
     dual_quaternion_output = dual_quaternion.from_rotation_translation(
         rotation_gt, translation_gt)
@@ -263,7 +260,8 @@ class DualQuaternionTest(test_case.TestCase):
         dual_quaternion_dual, quaternion.inverse(dual_quaternion_real))
     translation = translation[..., 0:3]
 
-    self.assertAllClose(rotation_gt, rotation)
+    self.assertAllClose(rotation_matrix_3d.from_quaternion(rotation_gt),
+                        rotation)
     self.assertAllClose(translation_gt, translation)
 
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
@@ -291,15 +289,14 @@ class DualQuaternionTest(test_case.TestCase):
   def test_to_rotation_matrix_random(self):
     (euler_angles_gt, translation_gt
     ) = test_helpers.generate_random_test_euler_angles_translations()
-    rotation_gt = rotation_matrix_3d.from_quaternion(
-        quaternion.from_euler(euler_angles_gt))
+    rotation_gt = quaternion.from_euler(euler_angles_gt)
 
     dual_quaternion_output = dual_quaternion.from_rotation_translation(
         rotation_gt, translation_gt)
     rotation, translation = dual_quaternion.to_rotation_translation(
         dual_quaternion_output)
 
-    self.assertAllClose(rotation_gt,
+    self.assertAllClose(rotation_matrix_3d.from_quaternion(rotation_gt),
                         rotation_matrix_3d.from_quaternion(rotation))
     self.assertAllClose(translation_gt, translation)
 

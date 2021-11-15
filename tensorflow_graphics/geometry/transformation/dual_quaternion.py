@@ -252,7 +252,7 @@ def is_normalized(dual_quaternion: type_alias.TensorLike,
 
 
 def from_rotation_translation(
-    rotation_matrix: type_alias.TensorLike,
+    rotation_quaternion: type_alias.TensorLike,
     translation_vector: type_alias.TensorLike,
     name: str = "dual_quaternion_from_rotation_translation") -> tf.Tensor:
   """Converts a rotation matrix and translation vector to a dual quaternion.
@@ -265,8 +265,8 @@ def from_rotation_translation(
     applied first.
 
   Args:
-    rotation_matrix: A `[A1, ..., An, 3, 3]`-tensor, where the last two
-      dimensions represent a rotation matrix.
+    rotation_quaternion: A `[A1, ..., An, 4]`-tensor, where the last dimension
+      represents a rotation in the form a quaternion.
     translation_vector: A `[A1, ..., An, 3]`-tensor, where the last dimension
       represents a translation vector.
     name: A name for this op that defaults to "dual_quaternion_from_rot_trans".
@@ -279,14 +279,14 @@ def from_rotation_translation(
     ValueError: If the shape of `rotation_matrix` is not supported.
   """
   with tf.name_scope(name):
-    rotation_matrix = tf.convert_to_tensor(value=rotation_matrix)
+    rotation_quaternion = tf.convert_to_tensor(value=rotation_quaternion)
     translation_vector = tf.convert_to_tensor(value=translation_vector)
 
     shape.check_static(
-        tensor=rotation_matrix,
-        tensor_name="rotation_matrix",
+        tensor=rotation_quaternion,
+        tensor_name="rotation_quaternion",
         has_rank_greater_than=1,
-        has_dim_equals=((-1, 3), (-2, 3)))
+        has_dim_equals=(-1, 4))
 
     shape.check_static(
         tensor=translation_vector,
@@ -296,14 +296,13 @@ def from_rotation_translation(
     scalar_shape = tf.concat((tf.shape(translation_vector)[:-1], (1,)), axis=-1)
     dtype = translation_vector.dtype
 
-    quaternion_rotation = quaternion.from_rotation_matrix(rotation_matrix)
     quaternion_translation = tf.concat(
         (translation_vector, tf.zeros(scalar_shape, dtype)), axis=-1)
 
     dual_quaternion_dual_part = 0.5 * quaternion.multiply(
-        quaternion_translation, quaternion_rotation)
+        quaternion_translation, rotation_quaternion)
 
-    return tf.concat((quaternion_rotation, dual_quaternion_dual_part), axis=-1)
+    return tf.concat((rotation_quaternion, dual_quaternion_dual_part), axis=-1)
 
 
 def to_rotation_translation(
@@ -317,8 +316,8 @@ def to_rotation_translation(
     name: A name for this op that defaults to "dual_quaternion_to_rot_trans".
 
   Returns:
-    A `[A1, ..., An, 7]`-tensor, where the last dimension represents a
-    normalized quaternion and a translation vector, in that order.
+    A tuple with a `[A1, ..., An, 4]`-tensor for rotation in quaternion form,
+    and a `[A1, ..., An, 3]`-tensor for translation, in that order.
   """
   with tf.name_scope(name):
     dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
