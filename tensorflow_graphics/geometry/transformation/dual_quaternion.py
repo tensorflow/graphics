@@ -335,5 +335,63 @@ def to_rotation_translation(
     return rotation, translation
 
 
+def from_axis_angle_translation(axis: type_alias.TensorLike,
+                                angle: type_alias.TensorLike,
+                                translation_vector: type_alias.TensorLike,
+                                name: str = "dual_quat_from_axis_angle_trans"
+                                ) -> type_alias.TensorLike:
+  """Converts an axis-angle rotation and translation to a dual quaternion.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    axis: A tensor of shape `[A1, ..., An, 3]`, where the last dimension
+      represents a normalized axis.
+    angle: A tensor of shape `[A1, ..., An, 1]`, where the last dimension
+      represents an angle.
+    translation_vector: A `[A1, ..., An, 3]`-tensor, where the last dimension
+      represents a translation vector.
+    name: A name for this op that defaults to "dual_quat_from_axis_angle_trans".
+
+  Returns:
+    A `[A1, ..., An, 8]`-tensor, where the last dimension represents a
+    normalized dual quaternion.
+
+  Raises:
+    ValueError: If the shape of `axis`, `angle`, or `translation_vector`
+    is not supported.
+  """
+  with tf.name_scope(name):
+    axis = tf.convert_to_tensor(value=axis)
+    angle = tf.convert_to_tensor(value=angle)
+    translation_vector = tf.convert_to_tensor(value=translation_vector)
+
+    shape.check_static(tensor=axis,
+                       tensor_name="axis",
+                       has_dim_equals=(-1, 3))
+    shape.check_static(tensor=angle,
+                       tensor_name="angle",
+                       has_dim_equals=(-1, 1))
+    shape.check_static(tensor=translation_vector,
+                       tensor_name="translation_vector",
+                       has_dim_equals=(-1, 3))
+    shape.compare_batch_dimensions(tensors=(axis, angle, translation_vector),
+                                   last_axes=-2,
+                                   broadcast_compatible=True)
+
+    scalar_shape = tf.concat((tf.shape(translation_vector)[:-1], (1,)), axis=-1)
+    dtype = translation_vector.dtype
+
+    quaternion_rotation = quaternion.from_axis_angle(axis, angle)
+    quaternion_translation = tf.concat(
+        (translation_vector, tf.zeros(scalar_shape, dtype)), axis=-1)
+
+    dual_quaternion_dual_part = 0.5 * quaternion.multiply(
+        quaternion_translation, quaternion_rotation)
+
+    return tf.concat((quaternion_rotation, dual_quaternion_dual_part), axis=-1)
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()

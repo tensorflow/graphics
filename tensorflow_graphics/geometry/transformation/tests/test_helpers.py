@@ -253,3 +253,14 @@ def generate_preset_test_lbs_blend():
                                [0.88587099, -0.09324637, -0.45012815]]]])
 
   return points, weights, rotations, translations, blended_points
+
+
+def generate_random_test_axis_angle_translation():
+  """Generates random test angles, axes, translations."""
+  tensor_dimensions = np.random.randint(3)
+  tensor_shape = np.random.randint(1, 10, size=(tensor_dimensions)).tolist()
+  random_axis = np.random.uniform(size=tensor_shape + [3])
+  random_axis /= np.linalg.norm(random_axis, axis=-1, keepdims=True)
+  random_angle = np.random.uniform(size=tensor_shape + [1])
+  random_translation = np.random.uniform(size=tensor_shape + [3])
+  return random_axis, random_angle, random_translation
