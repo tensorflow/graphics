@@ -17,22 +17,26 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Any, Callable, List, Optional
+
 import tensorflow as tf
 
 import tensorflow_graphics.geometry.convolution.graph_convolution as gc
 from tensorflow_graphics.util import export_api
+from tensorflow_graphics.util import type_alias
 
 
 def feature_steered_convolution_layer(
-    data,
-    neighbors,
-    sizes,
-    translation_invariant=True,
-    num_weight_matrices=8,
-    num_output_channels=None,
-    initializer=tf.keras.initializers.TruncatedNormal(stddev=0.1),
-    name='graph_convolution_feature_steered_convolution',
-    var_name=None):
+    data: type_alias.TensorLike,
+    neighbors: tf.SparseTensor,
+    sizes: type_alias.TensorLike,
+    translation_invariant: bool = True,
+    num_weight_matrices: int = 8,
+    num_output_channels: Optional[int] = None,
+    initializer: tf.keras.initializers.Initializer = tf.keras.initializers
+    .TruncatedNormal(stddev=0.1),
+    name: str = 'graph_convolution_feature_steered_convolution',
+    var_name: Optional[str] = None) -> tf.Tensor:
   # pyformat: disable
   """Wraps the function `feature_steered_convolution` as a TensorFlow layer.
 
@@ -142,11 +146,11 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
   """Wraps the function `feature_steered_convolution` as a Keras layer."""
 
   def __init__(self,
-               translation_invariant=True,
-               num_weight_matrices=8,
-               num_output_channels=None,
-               initializer=None,
-               name=None,
+               translation_invariant: bool = True,
+               num_weight_matrices: int = 8,
+               num_output_channels: Optional[int] = None,
+               initializer: Optional[tf.keras.initializers.Initializer] = None,
+               name: Optional[str] = None,
                **kwargs):
     """Initializes FeatureSteeredConvolutionKerasLayer.
 
@@ -173,7 +177,7 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
     else:
       self._initializer = initializer
 
-  def build(self, input_shape):
+  def build(self, input_shape: type_alias.TensorLike):
     """Initializes the trainable weights."""
     in_channels = tf.TensorShape(input_shape[0]).as_list()[-1]
     if self._num_output_channels is None:
@@ -215,7 +219,9 @@ class FeatureSteeredConvolutionKerasLayer(tf.keras.layers.Layer):
         name='b',
         trainable=True)
 
-  def call(self, inputs, **kwargs):
+  def call(self,
+           inputs: List[type_alias.TensorLike],
+           **kwargs) -> tf.Tensor:
     # pyformat: disable
     """Executes the convolution.
 
@@ -290,20 +296,21 @@ class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
   input.
   """
 
-  def __init__(self,
-               num_output_channels,
-               reduction,
-               activation=None,
-               use_bias=True,
-               kernel_initializer='glorot_uniform',
-               bias_initializer='zeros',
-               kernel_regularizer=None,
-               bias_regularizer=None,
-               activity_regularizer=None,
-               kernel_constraint=None,
-               bias_constraint=None,
-               name=None,
-               **kwargs):
+  def __init__(
+      self,
+      num_output_channels: int,
+      reduction: str,
+      activation: Optional[Callable[[Any], Any]] = None,
+      use_bias: bool = True,
+      kernel_initializer: str = 'glorot_uniform',
+      bias_initializer: str = 'zeros',
+      kernel_regularizer: Optional[tf.keras.initializers.Initializer] = None,
+      bias_regularizer: Optional[tf.keras.regularizers.Regularizer] = None,
+      activity_regularizer: Optional[tf.keras.regularizers.Regularizer] = None,
+      kernel_constraint: Optional[tf.keras.constraints.Constraint] = None,
+      bias_constraint: Optional[tf.keras.constraints.Constraint] = None,
+      name: Optional[str] = None,
+      **kwargs):
     """Initializes DynamicGraphConvolutionKerasLayer.
 
     Args:
@@ -342,7 +349,7 @@ class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
     self._kernel_constraint = kernel_constraint
     self._bias_constraint = bias_constraint
 
-  def build(self, input_shape):  # pylint: disable=unused-argument
+  def build(self, input_shape: type_alias.TensorLike):  # pylint: disable=unused-argument
     """Initializes the layer weights."""
     self._conv1d_layer = tf.keras.layers.Conv1D(
         filters=self._num_output_channels,
@@ -359,7 +366,7 @@ class DynamicGraphConvolutionKerasLayer(tf.keras.layers.Layer):
         kernel_constraint=self._kernel_constraint,
         bias_constraint=self._bias_constraint)
 
-  def call(self, inputs, **kwargs):
+  def call(self, inputs: List[type_alias.TensorLike], **kwargs) -> tf.Tensor:
     # pyformat: disable
     """Executes the convolution.
 
