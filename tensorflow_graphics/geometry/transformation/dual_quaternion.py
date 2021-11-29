@@ -393,5 +393,41 @@ def from_axis_angle_translation(axis: type_alias.TensorLike,
     return tf.concat((quaternion_rotation, dual_quaternion_dual_part), axis=-1)
 
 
+def conjugate_dual(
+    dual_quaternion: type_alias.TensorLike,
+    name: str = "dual_quaternion_conjugate") -> tf.Tensor:
+  """Computes the conjugate (of dual numbers) in a dual quaternion.
+
+  Note:
+    For a dual quaternion q = q_0 + epsilon q_e, the dual conjugate is defined
+    as q = q_0 - epsilon q_e.
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    dual_quaternion: A TensorLike of shape `[A1, ..., An, 8]`, where the last
+      dimension represents a normalized dual quaternion.
+    name: A name for this op that defaults to "dual_quaternion_conjugate".
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 8]`, where the last dimension represents
+    a normalized dual quaternion.
+
+  Raises:
+    ValueError: If the shape of `dual_quaternion` is not supported.
+  """
+  with tf.name_scope(name):
+    dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
+
+    shape.check_static(
+        tensor=dual_quaternion,
+        tensor_name="dual_quaternion",
+        has_dim_equals=(-1, 8))
+
+    quaternion_real, quaternion_dual = tf.split(
+        dual_quaternion, (4, 4), axis=-1)
+
+    return tf.concat((quaternion_real, -quaternion_dual), axis=-1)
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()

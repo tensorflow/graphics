@@ -330,6 +330,43 @@ class DualQuaternionTest(test_case.TestCase):
     self.assertAllClose(rotation_gt, rotation)
     self.assertAllClose(translation_gt, translation)
 
+  @parameterized.parameters(
+      ((8,),),
+      ((None, 8),),
+  )
+  def test_conjugate_dual_exception_not_raised(self, *shape):
+    self.assert_exception_is_not_raised(dual_quaternion.conjugate_dual, shape)
+
+  @parameterized.parameters(
+      ("must have exactly 8 dimensions", (3,)),)
+  def test_conjugate_dual_exception_raised(self, error_msg, *shape):
+    self.assert_exception_is_raised(
+        dual_quaternion.conjugate_dual,
+        error_msg, shape)
+
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_conjugate_dual_jacobian_preset(self):
+    x_init = test_helpers.generate_preset_test_dual_quaternions()
+    self.assert_jacobian_is_correct_fn(dual_quaternion.conjugate_dual, [x_init])
+
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_conjugate_dual_jacobian_random(self):
+    x_init = test_helpers.generate_random_test_dual_quaternions()
+    self.assert_jacobian_is_correct_fn(dual_quaternion.conjugate_dual, [x_init])
+
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_conjugate_dual_preset(self):
+    x_init = test_helpers.generate_preset_test_dual_quaternions()
+    x = tf.convert_to_tensor(value=x_init)
+    y = tf.convert_to_tensor(value=x_init)
+
+    x = dual_quaternion.conjugate_dual(x)
+    x_real, x_dual = tf.split(x, (4, 4), axis=-1)
+    y_real, y_dual = tf.split(y, (4, 4), axis=-1)
+
+    self.assertAllEqual(x_real, y_real)
+    self.assertAllEqual(x_dual, -y_dual)
+
 
 if __name__ == "__main__":
   test_case.main()
