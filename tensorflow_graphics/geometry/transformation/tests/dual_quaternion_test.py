@@ -367,6 +367,34 @@ class DualQuaternionTest(test_case.TestCase):
     self.assertAllEqual(x_real, y_real)
     self.assertAllEqual(x_dual, -y_dual)
 
+  @parameterized.parameters(
+      ((3,),),
+      ((None, 3),),
+  )
+  def test_point_to_dual_quaternion_dual_exception_not_raised(self, *shape):
+    self.assert_exception_is_not_raised(
+        dual_quaternion.point_to_dual_quaternion, shape)
+
+  @parameterized.parameters(
+      ("must have exactly 3 dimensions", (4,)),)
+  def test_point_to_dual_quaternion_exception_raised(self, error_msg, *shape):
+    self.assert_exception_is_raised(
+        dual_quaternion.point_to_dual_quaternion,
+        error_msg, shape)
+
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_point_to_dual_quaternion_preset(self):
+    points = test_helpers.generate_preset_test_translations()
+    dual_quaternions = dual_quaternion.point_to_dual_quaternion(points)
+
+    ones_vector = tf.ones_like(points)[..., 0]
+    zeros_vector = tf.zeros_like(points)
+
+    self.assertAllEqual(dual_quaternions[..., 0], ones_vector)
+    self.assertAllEqual(dual_quaternions[..., 1:4], zeros_vector)
+    self.assertAllEqual(dual_quaternions[..., 4], ones_vector)
+    self.assertAllEqual(dual_quaternions[..., 5:8], points)
+
 
 if __name__ == "__main__":
   test_case.main()

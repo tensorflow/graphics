@@ -264,3 +264,11 @@ def generate_random_test_axis_angle_translation():
   random_angle = np.random.uniform(size=tensor_shape + [1])
   random_translation = np.random.uniform(size=tensor_shape + [3])
   return random_axis, random_angle, random_translation
+
+
+def generate_random_test_points():
+  """Generates random 3D points."""
+  tensor_dimensions = np.random.randint(3)
+  tensor_shape = np.random.randint(1, 10, size=(tensor_dimensions)).tolist()
+  random_point = np.random.uniform(size=tensor_shape + [3])
+  return random_point

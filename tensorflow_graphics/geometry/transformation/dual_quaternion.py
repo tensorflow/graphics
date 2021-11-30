@@ -429,5 +429,35 @@ def conjugate_dual(
     return tf.concat((quaternion_real, -quaternion_dual), axis=-1)
 
 
+def point_to_dual_quaternion(
+    point: type_alias.TensorLike,
+    name: str = "dual_quaternion_conjugate") -> tf.Tensor:
+  """Converts a 3D point to its dual quaternion representation.
+
+  Args:
+    point: A TensorLike of shape `[A1, ..., An, 3]`, where the last
+      dimension represents a point.
+    name: A name for this op that defaults to "point_to_dual_quaternion".
+
+  Returns:
+    The dual quaternion representation of `point`.
+  """
+  with tf.name_scope(name):
+    point = tf.convert_to_tensor(value=point)
+
+    shape.check_static(
+        tensor=point,
+        tensor_name="point",
+        has_dim_equals=(-1, 3))
+
+    ones_vector = tf.ones_like(point)[..., 0:1]
+
+    return tf.concat(
+        (ones_vector,
+         tf.zeros_like(point),
+         ones_vector,
+         point), -1)
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
