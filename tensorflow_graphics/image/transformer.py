@@ -97,15 +97,16 @@ def sample(image: type_alias.TensorLike,
     if resampling_type == ResamplingType.NEAREST:
       warp = tf.math.round(warp)
 
-    if border_type == BorderType.DUPLICATE:
-      image_size = tf.cast(tf.shape(input=image)[1:3], dtype=warp.dtype)
-      height, width = tf.unstack(image_size, axis=-1)
-      warp_x, warp_y = tf.unstack(warp, axis=-1)
-      warp_x = tf.clip_by_value(warp_x, 0.0, width - 1.0)
-      warp_y = tf.clip_by_value(warp_y, 0.0, height - 1.0)
-      warp = tf.stack((warp_x, warp_y), axis=-1)
+    if border_type == BorderType.ZERO:
+      image = tf.pad(image, ((0, 0), (1, 1), (1, 1), (0, 0)))
+      warp = warp + 1
 
-    return tfa_image.resampler(image, warp)
+    warp_shape = tf.shape(warp)
+    flat_warp = tf.reshape(warp, (warp_shape[0], -1, 2))
+    flat_sampled = tfa_image.interpolate_bilinear(
+        image, flat_warp, indexing="xy")
+    output_shape = tf.concat((warp_shape[:-1], tf.shape(flat_sampled)[-1:]), 0)
+    return tf.reshape(flat_sampled, output_shape)
 
 
 def perspective_transform(
