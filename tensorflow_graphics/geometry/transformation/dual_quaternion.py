@@ -454,8 +454,8 @@ def point_to_dual_quaternion(
 
     return tf.concat(
         (ones_vector,
-         tf.zeros_like(point),
-         ones_vector,
+         tf.zeros(tf.concat((tf.shape(point)[0:-1], [4]), -1),
+                  dtype=point.dtype),
          point), -1)
 
 

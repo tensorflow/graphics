@@ -388,11 +388,11 @@ class DualQuaternionTest(test_case.TestCase):
     dual_quaternions = dual_quaternion.point_to_dual_quaternion(points)
 
     ones_vector = tf.ones_like(points)[..., 0]
-    zeros_vector = tf.zeros_like(points)
+    zeros_vector = tf.zeros(tf.concat((tf.shape(points)[0:-1], [4]), -1),
+                            dtype=points.dtype)
 
     self.assertAllEqual(dual_quaternions[..., 0], ones_vector)
-    self.assertAllEqual(dual_quaternions[..., 1:4], zeros_vector)
-    self.assertAllEqual(dual_quaternions[..., 4], ones_vector)
+    self.assertAllEqual(dual_quaternions[..., 1:5], zeros_vector)
     self.assertAllEqual(dual_quaternions[..., 5:8], points)
 
 
