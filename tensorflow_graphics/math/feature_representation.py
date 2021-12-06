@@ -20,11 +20,12 @@ from six.moves import range
 import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
+from tensorflow_graphics.util.type_alias import TensorLike
 
 
-def positional_encoding(features: tf.Tensor,
+def positional_encoding(features: TensorLike,
                         num_frequencies: int,
-                        name="positional_encoding") -> tf.Tensor:
+                        name: str = "positional_encoding") -> TensorLike:
   """Positional enconding of a tensor as described in the NeRF paper (https://arxiv.org/abs/2003.08934).
 
   Args:

@@ -17,6 +17,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Tuple
+
 import numpy as np
 from six.moves import range
 import tensorflow as tf
@@ -26,12 +28,14 @@ from tensorflow_graphics.math import vector
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util.type_alias import TensorLike
 
 
-def integration_product(harmonics1,
-                        harmonics2,
-                        keepdims=True,
-                        name="spherical_harmonics_convolution"):
+def integration_product(
+    harmonics1: TensorLike,
+    harmonics2: TensorLike,
+    keepdims: bool = True,
+    name: str = "spherical_harmonics_convolution") -> TensorLike:
   """Computes the integral of harmonics1.harmonics2 over the sphere.
 
   Note:
@@ -72,7 +76,8 @@ def integration_product(harmonics1,
 
 
 def generate_l_m_permutations(
-    max_band, name="spherical_harmonics_generate_l_m_permutations"):
+    max_band: int,
+    name: str = "spherical_harmonics_generate_l_m_permutations") -> Tuple[TensorLike, TensorLike]:  # pylint: disable=line-too-long
   """Generates permutations of degree l and order m for spherical harmonics.
 
   Args:
@@ -94,7 +99,9 @@ def generate_l_m_permutations(
             tf.convert_to_tensor(value=order_m))
 
 
-def generate_l_m_zonal(max_band, name="spherical_harmonics_generate_l_m_zonal"):
+def generate_l_m_zonal(
+    max_band: int,
+    name: str = "spherical_harmonics_generate_l_m_zonal") -> Tuple[TensorLike, TensorLike]:  # pylint: disable=line-too-long
   """Generates l and m coefficients for zonal harmonics.
 
   Args:
@@ -154,7 +161,9 @@ def _evaluate_legendre_polynomial_branch(l, m, x, pmm):
   return res
 
 
-def evaluate_legendre_polynomial(degree_l, order_m, x):
+def evaluate_legendre_polynomial(degree_l: TensorLike,
+                                 order_m: TensorLike,
+                                 x: TensorLike) -> TensorLike:
   """Evaluates the Legendre polynomial of degree l and order m at x.
 
   Note:
@@ -227,11 +236,11 @@ def _evaluate_spherical_harmonics_branch(degree,
 
 
 def evaluate_spherical_harmonics(
-    degree_l,
-    order_m,
-    theta,
-    phi,
-    name="spherical_harmonics_evaluate_spherical_harmonics"):
+    degree_l: TensorLike,
+    order_m: TensorLike,
+    theta: TensorLike,
+    phi: TensorLike,
+    name: str = "spherical_harmonics_evaluate_spherical_harmonics") -> TensorLike:    # pylint: disable=line-too-long
   """Evaluates a point sample of a Spherical Harmonic basis function.
 
   Note:
@@ -305,10 +314,11 @@ def evaluate_spherical_harmonics(
     return tf.where(tf.equal(order_m, zeros), result_m_zero, result_branch)
 
 
-def rotate_zonal_harmonics(zonal_coeffs,
-                           theta,
-                           phi,
-                           name="spherical_harmonics_rotate_zonal_harmonics"):
+def rotate_zonal_harmonics(
+    zonal_coeffs: TensorLike,
+    theta: TensorLike,
+    phi: TensorLike,
+    name: str = "spherical_harmonics_rotate_zonal_harmonics") -> TensorLike:
   """Rotates zonal harmonics.
 
   Note:
@@ -356,8 +366,9 @@ def rotate_zonal_harmonics(zonal_coeffs,
         l_broadcasted, m_broadcasted, theta, phi)
 
 
-def tile_zonal_coefficients(coefficients,
-                            name="spherical_harmonics_tile_zonal_coefficients"):
+def tile_zonal_coefficients(
+    coefficients: TensorLike,
+    name: str = "spherical_harmonics_tile_zonal_coefficients") -> TensorLike:
   """Tiles zonal coefficients.
 
   Zonal Harmonics only contains the harmonics where m=0. This function returns
