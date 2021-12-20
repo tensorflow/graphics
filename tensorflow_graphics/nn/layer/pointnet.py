@@ -38,6 +38,8 @@ This shorthand notation is used throughout this module:
   `C`: The number of feature channels.
 """
 
+from typing import Optional
+
 import tensorflow as tf
 from tensorflow_graphics.util import export_api
 
@@ -62,13 +64,15 @@ class PointNetConv2Layer(tf.keras.layers.Layer):
     self.channels = channels
     self.momentum = momentum
 
-  def build(self, input_shape):
+  def build(self, input_shape: tf.Tensor):
     """Builds the layer with a specified input_shape."""
     self.conv = tf.keras.layers.Conv2D(
         self.channels, (1, 1), input_shape=input_shape)
     self.bn = tf.keras.layers.BatchNormalization(momentum=self.momentum)
 
-  def call(self, inputs, training=None):  # pylint: disable=arguments-differ
+  def call(self,
+           inputs: tf.Tensor,
+           training: Optional[bool] = None) -> tf.Tensor:  # pylint: disable=arguments-differ
     """Executes the convolution.
 
     Args:
@@ -96,12 +100,14 @@ class PointNetDenseLayer(tf.keras.layers.Layer):
     self.momentum = momentum
     self.channels = channels
 
-  def build(self, input_shape):
+  def build(self, input_shape: tf.Tensor):
     """Builds the layer with a specified input_shape."""
     self.dense = tf.keras.layers.Dense(self.channels, input_shape=input_shape)
     self.bn = tf.keras.layers.BatchNormalization(momentum=self.momentum)
 
-  def call(self, inputs, training=None):  # pylint: disable=arguments-differ
+  def call(self,
+           inputs: tf.Tensor,
+           training: Optional[bool] = None) -> tf.Tensor:  # pylint: disable=arguments-differ
     """Executes the convolution.
 
     Args:
@@ -125,7 +131,7 @@ class VanillaEncoder(tf.keras.layers.Layer):
   https://github.com/charlesq34/pointnet/blob/master/models/pointnet_cls_basic.py
   """
 
-  def __init__(self, momentum=.5):
+  def __init__(self, momentum: float = .5):
     """Constructs a VanillaEncoder keras layer.
 
     Args:
@@ -138,7 +144,9 @@ class VanillaEncoder(tf.keras.layers.Layer):
     self.conv4 = PointNetConv2Layer(128, momentum)
     self.conv5 = PointNetConv2Layer(1024, momentum)
 
-  def call(self, inputs, training=None):  # pylint: disable=arguments-differ
+  def call(self,
+           inputs: tf.Tensor,
+           training: Optional[bool] = None) -> tf.Tensor:  # pylint: disable=arguments-differ
     """Computes the PointNet features.
 
     Args:
@@ -166,7 +174,10 @@ class ClassificationHead(tf.keras.layers.Layer):
   logits of the num_classes classes.
   """
 
-  def __init__(self, num_classes=40, momentum=0.5, dropout_rate=0.3):
+  def __init__(self,
+               num_classes: int = 40,
+               momentum: float = 0.5,
+               dropout_rate: float = 0.3):
     """Constructor.
 
     Args:
@@ -180,7 +191,9 @@ class ClassificationHead(tf.keras.layers.Layer):
     self.dropout = tf.keras.layers.Dropout(dropout_rate)
     self.dense3 = tf.keras.layers.Dense(num_classes, activation="linear")
 
-  def call(self, inputs, training=None):  # pylint: disable=arguments-differ
+  def call(self,
+           inputs: tf.Tensor,
+           training: Optional[bool] = None) -> tf.Tensor:  # pylint: disable=arguments-differ
     """Computes the classifiation logits given features (note: without softmax).
 
     Args:
@@ -199,7 +212,10 @@ class ClassificationHead(tf.keras.layers.Layer):
 class PointNetVanillaClassifier(tf.keras.layers.Layer):
   """The PointNet 'Vanilla' classifier (i.e. without spatial transformer)."""
 
-  def __init__(self, num_classes=40, momentum=.5, dropout_rate=.3):
+  def __init__(self,
+               num_classes: int = 40,
+               momentum: float = .5,
+               dropout_rate: float = .3):
     """Constructor.
 
     Args:
@@ -212,7 +228,9 @@ class PointNetVanillaClassifier(tf.keras.layers.Layer):
     self.classifier = ClassificationHead(
         num_classes=num_classes, momentum=momentum, dropout_rate=dropout_rate)
 
-  def call(self, points, training=None):  # pylint: disable=arguments-differ
+  def call(self,
+           points: tf.Tensor,
+           training: Optional[bool] = None) -> tf.Tensor:  # pylint: disable=arguments-differ
     """Computes the classifiation logits of a point set.
 
     Args:
@@ -227,7 +245,8 @@ class PointNetVanillaClassifier(tf.keras.layers.Layer):
     return logits
 
   @staticmethod
-  def loss(labels, logits):
+  def loss(labels: tf.Tensor,
+           logits: tf.Tensor) -> tf.Tensor:
     """The classification model training loss.
 
     Note:
@@ -236,6 +255,9 @@ class PointNetVanillaClassifier(tf.keras.layers.Layer):
     Args:
       labels: a tensor with shape `[B,]`
       logits: a tensor with shape `[B,num_classes]`
+
+    Returns:
+      A tensor with the same shape as labels and of the same type as logits.
     """
     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits
     residual = cross_entropy(labels, logits)
