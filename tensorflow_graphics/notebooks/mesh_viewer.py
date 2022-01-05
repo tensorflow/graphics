@@ -18,6 +18,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Any, Dict
+
 import numpy as np
 from tensorflow_graphics.notebooks import threejs_visualization
 
@@ -32,7 +34,7 @@ SEGMENTATION_COLORMAP = np.array(
 class Viewer(object):
   """A ThreeJS based viewer class for viewing 3D meshes."""
 
-  def _mesh_from_data(self, data):
+  def _mesh_from_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
     """Creates a dictionary of ThreeJS mesh objects from numpy data."""
     if 'vertices' not in data or 'faces' not in data:
       raise ValueError('Mesh Data must contain vertices and faces')
@@ -54,7 +56,7 @@ class Viewer(object):
     mesh['material'] = material
     return mesh
 
-  def __init__(self, source_mesh_data):
+  def __init__(self, source_mesh_data: Dict[str, Any]):
     context = threejs_visualization.build_context()
     self.context = context
     light1 = context.THREE.PointLight.new_object(0x808080)
