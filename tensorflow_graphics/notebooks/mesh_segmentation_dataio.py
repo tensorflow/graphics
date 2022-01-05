@@ -24,12 +24,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Any, Callable, Dict, List, Tuple
+
 import numpy as np
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.convolution import utils as conv_utils
 from tensorflow_graphics.geometry.representation.mesh import utils as mesh_utils
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 DEFAULT_IO_PARAMS = {
     'batch_size': 8,
@@ -42,7 +45,11 @@ DEFAULT_IO_PARAMS = {
 }
 
 
-def adjacency_from_edges(edges, weights, num_edges, num_vertices):
+def adjacency_from_edges(
+    edges: type_alias.TensorLike,
+    weights: type_alias.TensorLike,
+    num_edges: type_alias.TensorLike,
+    num_vertices: type_alias.TensorLike) -> tf.SparseTensor:
   """Returns a batched sparse 1-ring adj tensor from edge list tensor.
 
   Args:
@@ -103,7 +110,9 @@ def adjacency_from_edges(edges, weights, num_edges, num_vertices):
   return adjacency
 
 
-def get_weighted_edges(faces, self_edges=True):
+def get_weighted_edges(
+    faces: np.ndarray,
+    self_edges: bool = True) -> Tuple[np.ndarray, np.ndarray]:
   r"""Gets unique edges and degree weights from a triangular mesh.
 
   The shorthands used below are:
@@ -136,12 +145,12 @@ def get_weighted_edges(faces, self_edges=True):
   return edges, weights
 
 
-def _tfrecords_to_dataset(tfrecords,
-                          parallel_threads,
-                          shuffle,
-                          repeat,
-                          sloppy,
-                          max_readers=16):
+def _tfrecords_to_dataset(tfrecords: List[str],
+                          parallel_threads: int,
+                          shuffle: bool,
+                          repeat: bool,
+                          sloppy: bool,
+                          max_readers: int = 16) -> tf.data.TFRecordDataset:
   """Creates a TFRecordsDataset that iterates over filenames in parallel.
 
   Args:
@@ -244,7 +253,9 @@ def _parse_mesh_data(mesh_data, mean_center=True):
   return mesh_data
 
 
-def create_dataset_from_tfrecords(tfrecords, params):
+def create_dataset_from_tfrecords(
+    tfrecords: List[str],
+    params: Dict[str, Any]) -> tf.data.Dataset:
   """Creates a mesh dataset given a list of tf records filenames.
 
   Args:
@@ -309,7 +320,10 @@ def create_dataset_from_tfrecords(tfrecords, params):
       drop_remainder=is_training)
 
 
-def create_input_from_dataset(dataset_fn, files, io_params):
+def create_input_from_dataset(
+    dataset_fn: Callable[..., Any],
+    files: List[str],
+    io_params: Dict[str, Any]) -> Tuple[Dict[str, Any], tf.Tensor]:
   """Creates input function given dataset generator and input files.
 
   Args:

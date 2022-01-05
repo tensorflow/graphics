@@ -23,12 +23,13 @@ import tensorflow as tf
 from tensorflow_graphics.util import asserts
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def evaluate(ground_truth_labels,
-             predicted_labels,
-             grid_size=1,
-             name="intersection_over_union_evaluate"):
+def evaluate(ground_truth_labels: type_alias.TensorLike,
+             predicted_labels: type_alias.TensorLike,
+             grid_size: int = 1,
+             name: str = "intersection_over_union_evaluate") -> tf.Tensor:
   """Computes the Intersection-Over-Union metric for the given ground truth and predicted labels.
 
   Note:

@@ -21,9 +21,12 @@ import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def evaluate(point_set_a, point_set_b, name="hausdorff_distance_evaluate"):
+def evaluate(point_set_a: type_alias.TensorLike,
+             point_set_b: type_alias.TensorLike,
+             name: str = "hausdorff_distance_evaluate") -> tf.Tensor:
   """Computes the Hausdorff distance from point_set_a to point_set_b.
 
   Note:
