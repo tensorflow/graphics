@@ -17,6 +17,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Any, Callable
+
 import tensorflow as tf
 
 from tensorflow_graphics.nn.metric import precision as precision_module
@@ -24,13 +26,14 @@ from tensorflow_graphics.nn.metric import recall as recall_module
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
-def evaluate(ground_truth,
-             prediction,
-             precision_function=precision_module.evaluate,
-             recall_function=recall_module.evaluate,
-             name="fscore_evaluate"):
+def evaluate(ground_truth: type_alias.TensorLike,
+             prediction: type_alias.TensorLike,
+             precision_function: Callable[..., Any] = precision_module.evaluate,
+             recall_function: Callable[..., Any] = recall_module.evaluate,
+             name: str = "fscore_evaluate") -> tf.Tensor:
   """Computes the fscore metric for the given ground truth and predicted labels.
 
   The fscore is calculated as 2 * (precision * recall) / (precision + recall)

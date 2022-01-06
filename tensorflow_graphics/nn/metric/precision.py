@@ -17,23 +17,26 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from typing import Any, Callable, List, Optional, Union, Tuple
+
 import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import safe_ops
 from tensorflow_graphics.util import shape
+from tensorflow_graphics.util import type_alias
 
 
 def _cast_to_int(prediction):
   return tf.cast(x=prediction, dtype=tf.int32)
 
 
-def evaluate(ground_truth,
-             prediction,
-             classes=None,
-             reduce_average=True,
-             prediction_to_category_function=_cast_to_int,
-             name="precision_evaluate"):
+def evaluate(ground_truth: type_alias.TensorLike,
+             prediction: type_alias.TensorLike,
+             classes: Optional[Union[int, List[int], Tuple[int]]] = None,
+             reduce_average: bool = True,
+             prediction_to_category_function: Callable[..., Any] = _cast_to_int,
+             name: str = "precision_evaluate") -> tf.Tensor:
   """Computes the precision metric for the given ground truth and predictions.
 
   Note:
