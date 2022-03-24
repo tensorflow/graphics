@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Lint as: python3
 """Computes a weighted point sampling of a triangular mesh.
 
 This op computes a uniform sampling of points on the surface of the mesh.
