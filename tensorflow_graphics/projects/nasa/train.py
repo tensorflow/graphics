@@ -15,6 +15,7 @@
 import numpy as np
 import tensorflow.compat.v1 as tf
 
+from tensorflow.compat.v1 import estimator as tf_estimator
 from tensorflow_graphics.projects.nasa.lib import datasets
 from tensorflow_graphics.projects.nasa.lib import models
 from tensorflow_graphics.projects.nasa.lib import utils
@@ -45,13 +46,13 @@ def main(unused_argv):
 
   # Set up training.
   logging.info("=> Setting up training ...")
-  run_config = tf.estimator.RunConfig(
+  run_config = tf_estimator.RunConfig(
       model_dir=FLAGS.train_dir,
       save_checkpoints_steps=FLAGS.save_every,
       save_summary_steps=FLAGS.summary_every,
       keep_checkpoint_max=None,
   )
-  trainer = tf.estimator.Estimator(
+  trainer = tf_estimator.Estimator(
       model_fn=model_fn,
       config=run_config,
   )

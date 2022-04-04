@@ -14,6 +14,7 @@
 """Model Implementations."""
 import tensorflow.compat.v1 as tf
 
+from tensorflow.compat.v1 import estimator as tf_estimator
 from tensorflow_graphics.projects.nasa.lib import model_utils
 
 tf.disable_eager_execution()
@@ -37,7 +38,7 @@ def nasa(hparams):
   sample_bbox = hparams.sample_bbox
 
   def _model_fn(features, labels, mode, params=None):
-    is_training = (mode == tf.estimator.ModeKeys.TRAIN)
+    is_training = (mode == tf_estimator.ModeKeys.TRAIN)
     batch_size = features['point'].shape[0]
     n_sample_frames = features['point'].shape[1]
     accum_size = batch_size * n_sample_frames
@@ -116,7 +117,7 @@ def nasa(hparams):
       train_op = optimizer.minimize(
           indicator_loss, global_step=global_step, name='optimizer_shape')
 
-    return tf.estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
+    return tf_estimator.EstimatorSpec(mode=mode, loss=loss, train_op=train_op)
 
   return _model_fn
 
