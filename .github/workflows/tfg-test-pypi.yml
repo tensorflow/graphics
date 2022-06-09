@@ -21,6 +21,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -U -r requirements.txt
+        pip install -U openexr
         pip install -U pytest
         pip install -U setuptools wheel
         pip install -U twine
