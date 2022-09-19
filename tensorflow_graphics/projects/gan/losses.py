@@ -13,7 +13,7 @@
 # limitations under the License.
 """Module with loss functions."""
 
-import collections
+from collections import abc
 from typing import Sequence, Union
 
 import tensorflow as tf
@@ -65,8 +65,8 @@ def gradient_penalty_loss(real_data: Union[tf.Tensor, Sequence[tf.Tensor]],
             dtype=real_data.dtype)
         interpolated_data = epsilon * real_data + (1.0 -
                                                    epsilon) * generated_data
-      elif (isinstance(real_data, collections.Sequence) and
-            isinstance(generated_data, collections.Sequence)):
+      elif (isinstance(real_data, abc.Sequence) and
+            isinstance(generated_data, abc.Sequence)):
         if len(real_data) != len(generated_data):
           raise ValueError(
               'The number of elements in real_data and generated_data are '
