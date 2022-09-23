@@ -32,13 +32,13 @@ tensorflow::Status ShaderStorageBuffer::Create(
   TFG_RETURN_IF_EGL_ERROR(glGenBuffers(1, &buffer));
   *shader_storage_buffer =
       std::unique_ptr<ShaderStorageBuffer>(new ShaderStorageBuffer(buffer));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status ShaderStorageBuffer::BindBufferBase(GLuint index) const {
   TFG_RETURN_IF_EGL_ERROR(
       glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, buffer_));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 }  // namespace gl_utils

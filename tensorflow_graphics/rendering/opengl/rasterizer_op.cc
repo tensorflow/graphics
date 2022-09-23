@@ -68,7 +68,7 @@ static tensorflow::Status GetVariablesRank(
           "Variable with name='", variable_names[index],
           "' has an invalid batch rank of ", batch_rank, "; expected ", *rank);
   }
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 REGISTER_OP("Rasterize")
@@ -137,7 +137,7 @@ rendered_image: A tensor of shape `[A1, ..., An, width, height, 4]`, with the
           c->Concatenate(batch_shape, image_shape, &output_shape));
       c->set_output(0, output_shape);
 
-      return tensorflow::Status::OK();
+      return tensorflow::Status();
     });
 
 class RasterizeOp : public tensorflow::OpKernel {
@@ -244,7 +244,7 @@ tensorflow::Status RasterizeOp::RenderImage(
 
   TF_RETURN_IF_ERROR(rasterizer->Render(
       num_points, absl::MakeSpan(image_data, image_data + image_size)));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status RasterizeOp::SetVariables(
@@ -280,7 +280,7 @@ tensorflow::Status RasterizeOp::SetVariables(
                     value_pointer + buffer_length * (outer_dim + 1))));
     }
   }
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status RasterizeOp::ValidateVariables(
@@ -327,7 +327,7 @@ tensorflow::Status RasterizeOp::ValidateVariables(
           *batch_shape);
     }
   }
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 // Register kernel with TF

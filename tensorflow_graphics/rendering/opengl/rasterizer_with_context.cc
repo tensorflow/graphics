@@ -28,7 +28,7 @@ RasterizerWithContext::RasterizerWithContext(
 RasterizerWithContext::~RasterizerWithContext() {
   // Destroy the rasterizer in the correct EGL context.
   auto status = egl_context_->MakeCurrent();
-  if (status != tensorflow::Status::OK())
+  if (status != tensorflow::Status())
     std::cerr
         << "~RasterizerWithContext: failure to set the context as current."
         << std::endl;
@@ -69,7 +69,7 @@ tensorflow::Status RasterizerWithContext::Create(
           std::move(offscreen_context), std::move(program),
           std::move(render_targets), clear_red, clear_green, clear_blue,
           clear_alpha, clear_depth, enable_cull_face));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status RasterizerWithContext::Render(int num_points,
@@ -79,7 +79,7 @@ tensorflow::Status RasterizerWithContext::Render(int num_points,
       MakeCleanup([this]() { return this->egl_context_->Release(); });
   TF_RETURN_IF_ERROR(Rasterizer::Render(num_points, result));
   // context_cleanup calls EGLOffscreenContext::Release here.
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status RasterizerWithContext::Render(
@@ -89,5 +89,5 @@ tensorflow::Status RasterizerWithContext::Render(
       MakeCleanup([this]() { return this->egl_context_->Release(); });
   TF_RETURN_IF_ERROR(Rasterizer::Render(num_points, result));
   // context_cleanup calls EGLOffscreenContext::Release here.
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }

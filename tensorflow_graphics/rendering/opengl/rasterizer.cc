@@ -98,5 +98,5 @@ tensorflow::Status Rasterizer::SetUniformMatrix(
       uniform_location, 1, transpose ? GL_TRUE : GL_FALSE, matrix.data()));
 
   // Cleanup the program; no program is active at this point.
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }

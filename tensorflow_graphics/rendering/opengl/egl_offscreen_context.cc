@@ -112,7 +112,7 @@ tensorflow::Status EGLOffscreenContext::Create(
   surface_cleanup.release();
   *egl_offscreen_context = std::unique_ptr<EGLOffscreenContext>(
       new EGLOffscreenContext(context, display, pixel_buffer_surface));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status EGLOffscreenContext::Destroy() {
@@ -127,13 +127,13 @@ tensorflow::Status EGLOffscreenContext::Destroy() {
     return TFG_INTERNAL_ERROR(
         "an error occured in TerminateInitializedEGLDisplay.");
   }
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status EGLOffscreenContext::MakeCurrent() const {
   TFG_RETURN_IF_EGL_ERROR(eglMakeCurrent(display_, pixel_buffer_surface_,
                                          pixel_buffer_surface_, context_));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status EGLOffscreenContext::Release() {
@@ -141,5 +141,5 @@ tensorflow::Status EGLOffscreenContext::Release() {
     TFG_RETURN_IF_EGL_ERROR(eglMakeCurrent(display_, EGL_NO_SURFACE,
                                            EGL_NO_SURFACE, EGL_NO_CONTEXT));
   }
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }

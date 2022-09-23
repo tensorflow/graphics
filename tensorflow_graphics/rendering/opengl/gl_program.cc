@@ -59,7 +59,7 @@ tensorflow::Status Program::CompileShader(const std::string& shader_code,
                               std::string(&info_log[0]));
   }
   shader_cleanup.release();
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status Program::Create(
@@ -99,12 +99,12 @@ tensorflow::Status Program::Create(
   program_cleanup.release();
   // The content of shader_cleanups needs cleanup and hence is not released; see
   // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDeleteProgram.xhtml.
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status Program::Detach() const {
   TFG_RETURN_IF_GL_ERROR(glUseProgram(0));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status Program::GetProgramResourceIndex(
@@ -113,7 +113,7 @@ tensorflow::Status Program::GetProgramResourceIndex(
   TFG_RETURN_IF_EGL_ERROR(*resource_index = glGetProgramResourceIndex(
                               program_handle_, program_interface,
                               resource_name.data()));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status Program::GetProgramResourceiv(
@@ -123,7 +123,7 @@ tensorflow::Status Program::GetProgramResourceiv(
   TFG_RETURN_IF_EGL_ERROR(glGetProgramResourceiv(
       program_handle_, program_interface, resource_index, num_properties,
       properties, num_property_value, length, property_value));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status Program::GetResourceProperty(
@@ -152,12 +152,12 @@ tensorflow::Status Program::GetResourceProperty(
     return TFG_INTERNAL_ERROR("length != num_properties: ", length,
                               " != ", num_properties);
 
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status Program::Use() const {
   TFG_RETURN_IF_EGL_ERROR(glUseProgram(program_handle_));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 }  // namespace gl_utils

@@ -40,7 +40,7 @@ RenderTargets::~RenderTargets() {
 
 tensorflow::Status RenderTargets::BindFramebuffer() const {
   TFG_RETURN_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 tensorflow::Status RenderTargets::CreateValidInternalFormat(
@@ -92,7 +92,7 @@ tensorflow::Status RenderTargets::CreateValidInternalFormat(
   gen_color_cleanup.release();
   gen_depth_cleanup.release();
   gen_frame_cleanup.release();
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 GLsizei RenderTargets::GetHeight() const { return height_; }
@@ -101,7 +101,7 @@ GLsizei RenderTargets::GetWidth() const { return width_; }
 
 tensorflow::Status RenderTargets::UnbindFrameBuffer() const {
   TFG_RETURN_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 }  // namespace gl_utils
