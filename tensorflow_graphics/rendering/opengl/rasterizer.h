@@ -45,7 +45,7 @@ class Rasterizer {
   //   storing a ready to use rasterizer.
   //
   // Returns:
-  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   A tensorflow::Status object storing tensorflow::Status() on success,
   //   and an object of type tensorflow::errors otherwise.
   template <typename T>
   static tensorflow::Status Create(const int width, const int height,
@@ -72,7 +72,7 @@ class Rasterizer {
   //   storing a ready to use rasterizer.
   //
   // Returns:
-  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   A tensorflow::Status object storing tensorflow::Status() on success,
   //   and an object of type tensorflow::errors otherwise.
   template <typename T>
   static tensorflow::Status Create(const int width, const int height,
@@ -94,7 +94,7 @@ class Rasterizer {
   //   Create.
   //
   // Returns:
-  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   A tensorflow::Status object storing tensorflow::Status() on success,
   //   and an object of type tensorflow::errors otherwise.
   virtual tensorflow::Status Render(int num_points, absl::Span<float> result);
   virtual tensorflow::Status Render(int num_points,
@@ -107,7 +107,7 @@ class Rasterizer {
   // * data: data to upload to the shader storage buffer.
   //
   // Returns:
-  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   A tensorflow::Status object storing tensorflow::Status() on success,
   //   and an object of type tensorflow::errors otherwise.
   template <typename T>
   tensorflow::Status SetShaderStorageBuffer(const std::string& name,
@@ -126,7 +126,7 @@ class Rasterizer {
   // * matrix: a buffer storing the matrix
   //
   // Returns:
-  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   A tensorflow::Status object storing tensorflow::Status() on success,
   //   and an object of type tensorflow::errors otherwise.
   virtual tensorflow::Status SetUniformMatrix(const std::string& name,
                                               int num_columns, int num_rows,
@@ -192,7 +192,7 @@ tensorflow::Status Rasterizer::Create(const int width, const int height,
   *rasterizer = std::unique_ptr<Rasterizer>(new Rasterizer(
       std::move(program), std::move(render_targets), clear_red, clear_green,
       clear_blue, clear_alpha, clear_depth, enable_cull_face));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 template <typename T>
@@ -210,7 +210,7 @@ tensorflow::Status Rasterizer::RenderImpl(int num_points,
     GLint slot;
     if (program_->GetResourceProperty(name, GL_SHADER_STORAGE_BLOCK, 1,
                                       &kProperty, 1,
-                                      &slot) != tensorflow::Status::OK())
+                                      &slot) != tensorflow::Status())
       // Buffer not found in program, so do nothing.
       continue;
     TF_RETURN_IF_ERROR(buffer.second->BindBufferBase(slot));
@@ -237,7 +237,7 @@ tensorflow::Status Rasterizer::RenderImpl(int num_points,
   TF_RETURN_IF_ERROR(render_targets_->CopyPixelsInto(result));
 
   // The program and framebuffer and released here.
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 template <typename T>
@@ -254,7 +254,7 @@ tensorflow::Status Rasterizer::SetShaderStorageBuffer(
   // Upload the data to the shader storage buffer.
   TF_RETURN_IF_ERROR(shader_storage_buffers_.at(name)->Upload(data));
 
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 #endif  // THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_TESTS_RASTERIZER_H_

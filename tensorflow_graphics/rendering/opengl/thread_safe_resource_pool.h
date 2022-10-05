@@ -44,7 +44,7 @@ class ThreadSafeResourcePool
   // the acquired resource.
   //
   // Returns:
-  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   A tensorflow::Status object storing tensorflow::Status() on success,
   //   and an object of type tensorflow::errors otherwise.
   tensorflow::Status AcquireResource(std::unique_ptr<T>* resource);
 
@@ -55,7 +55,7 @@ class ThreadSafeResourcePool
   // * resource: the resource to return to the pool.
   //
   // Returns:
-  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   A tensorflow::Status object storing tensorflow::Status() on success,
   //   and an object of type tensorflow::errors otherwise.
   tensorflow::Status ReturnResource(std::unique_ptr<T>& resource);
 
@@ -92,7 +92,7 @@ tensorflow::Status ThreadSafeResourcePool<T>::AcquireResource(
     *resource = std::move(resource_pool_.back());
     resource_pool_.pop_back();
   }
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 template <typename T>
@@ -108,7 +108,7 @@ tensorflow::Status ThreadSafeResourcePool<T>::ReturnResource(
     resource_pool_.push_back(std::move(resource));
   else
     resource.reset();
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 #endif  // THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_THREAD_SAFE_RESOURCE_POOL_H_

@@ -49,7 +49,7 @@ class RenderTargets {
   // * render_targets: a valid and usable instance of this class.
   //
   // Returns:
-  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   A tensorflow::Status object storing tensorflow::Status() on success,
   //   and an object of type tensorflow::errors otherwise.
   template <typename T>
   static tensorflow::Status Create(
@@ -73,7 +73,7 @@ class RenderTargets {
   // size of this buffer must be equal to 4 * width * height.
   //
   // Returns:
-  //   A tensorflow::Status object storing tensorflow::Status::OK() on success,
+  //   A tensorflow::Status object storing tensorflow::Status() on success,
   //   and an object of type tensorflow::errors otherwise.
   template <typename T>
   tensorflow::Status CopyPixelsInto(absl::Span<T> buffer) const;
@@ -152,7 +152,7 @@ tensorflow::Status RenderTargets::CopyPixelsIntoValidPixelType(
 
   TFG_RETURN_IF_GL_ERROR(
       glReadPixels(0, 0, width_, height_, GL_RGBA, pixel_type, buffer.data()));
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 }  // namespace gl_utils

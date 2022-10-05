@@ -59,7 +59,7 @@ tensorflow::Status ShaderStorageBuffer::Upload(absl::Span<T> data) const {
                                       data.size() * sizeof(T), data.data(),
                                       GL_DYNAMIC_COPY));
   // bind_cleanup is not released, leading the buffer to be unbound.
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 }  // namespace gl_utils

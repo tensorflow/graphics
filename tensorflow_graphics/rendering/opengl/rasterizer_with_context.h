@@ -125,7 +125,7 @@ tensorflow::Status RasterizerWithContext::SetShaderStorageBuffer(
       MakeCleanup([this]() { return this->egl_context_->Release(); });
   TF_RETURN_IF_ERROR(Rasterizer::SetShaderStorageBuffer(name, data));
   // context_cleanup calls EGLOffscreenContext::Release here.
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 template <typename T>
@@ -138,7 +138,7 @@ tensorflow::Status RasterizerWithContext::SetUniformMatrix(
   TF_RETURN_IF_ERROR(Rasterizer::SetUniformMatrix(name, num_columns, num_rows,
                                                   transpose, matrix));
   // context_cleanup calls EGLOffscreenContext::Release here.
-  return tensorflow::Status::OK();
+  return tensorflow::Status();
 }
 
 // template <typename T>
@@ -149,7 +149,7 @@ tensorflow::Status RasterizerWithContext::SetUniformMatrix(
 //       MakeCleanup([this]() { return this->egl_context_->Release(); });
 //   TF_RETURN_IF_ERROR(Rasterizer::Render(num_points, result));
 //   // context_cleanup calls EGLOffscreenContext::Release here.
-//   return tensorflow::Status::OK();
+//   return tensorflow::Status();
 // }
 
 #endif  // THIRD_PARTY_PY_TENSORFLOW_GRAPHICS_RENDERING_OPENGL_RASTERIZER_WITH_CONTEXT_H_
