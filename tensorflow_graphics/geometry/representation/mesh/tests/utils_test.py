@@ -102,9 +102,9 @@ class UtilsTest(test_case.TestCase):
       utils.get_degree_based_edge_weights(invalid_input)
 
   @parameterized.parameters(
-      (np.bool, "must be a numpy float type"),
-      (np.int, "must be a numpy float type"),
-      (np.complex, "must be a numpy float type"),
+      (bool, "must be a numpy float type"),
+      (int, "must be a numpy float type"),
+      (complex, "must be a numpy float type"),
       (np.uint, "must be a numpy float type"),
       (np.int16, "must be a numpy float type"),
   )
