@@ -311,7 +311,7 @@ class FullGridEncoderEvaluator(object):
     """
     # initialize output feature grid
     ogrid = np.zeros([self.ijk.shape[0], self.codelen])
-    niters = np.ceil(self.ijk.shape[0] / self.grid_batch).astype(np.int)
+    niters = np.ceil(self.ijk.shape[0] / self.grid_batch).astype(int)
     for idx in range(niters):
       sid = idx * self.grid_batch
       eid = min(sid + self.grid_batch, self.ijk.shape[0])
@@ -580,7 +580,7 @@ class SparseLIGEvaluator(object):
     output_grid = np.ones([res_per_part*s[0],
                            res_per_part*s[1],
                            res_per_part*s[2]], dtype=np.float32).reshape(-1)
-    mask = mask.astype(np.bool)
+    mask = mask.astype(bool)
     if self.overlap:
       mask = np.stack([mask[:-1, :-1, :-1],
                        mask[:-1, :-1, 1:],

@@ -91,7 +91,7 @@ def np_shifted_crop(v, idx_grid, shift, crop_size, ntarget):
   vall = v.copy()
   point_idxs = np.arange(v.shape[0])
   point_grid_idx = np.floor(vxyz / crop_size).astype(np.int32)
-  valid_mask = np.ones(point_grid_idx.shape[0]).astype(np.bool)
+  valid_mask = np.ones(point_grid_idx.shape[0]).astype(bool)
   for i in range(3):
     valid_mask = np.logical_and(valid_mask, point_grid_idx[:, i] >= 0)
     valid_mask = np.logical_and(valid_mask,

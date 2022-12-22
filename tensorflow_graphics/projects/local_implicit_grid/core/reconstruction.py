@@ -241,7 +241,7 @@ class LIGOptimizer(object):
 
 
 def occupancy_sparse_to_dense(occ_idx, grid_shape):
-  dense = np.zeros(grid_shape, dtype=np.bool).ravel()
+  dense = np.zeros(grid_shape, dtype=bool).ravel()
   occ_idx_f = (occ_idx[:, 0] * grid_shape[1] * grid_shape[2] +
                occ_idx[:, 1] * grid_shape[2] + occ_idx[:, 2])
   dense[occ_idx_f] = True
