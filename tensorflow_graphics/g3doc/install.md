@@ -30,7 +30,8 @@ You can also install from source by executing the following commands:
 
 ```shell
 git clone https://github.com/tensorflow/graphics.git
-sh build_pip_pkg.sh
+pip install -r requirements.txt
+python setup.py sdist bdist_wheel --nightly
 pip install --upgrade dist/*.whl
 ```
 
