@@ -127,7 +127,7 @@ class SlerpTest(test_case.TestCase):
   @parameterized.parameters(
       ((4,), (4,), (1,)),
       ((None, 4), (None, 4), (None, 1)),
-      ((None, 4), (None, 4), (None, 4)),
+      ((5, 1, 4), (5, 1, 4), (3, 1)),
   )
   def test_quaternion_weights_exception_not_raised(self, *shapes):
     """Tests that valid input shapes do not raise exceptions for qslerp."""
@@ -140,6 +140,8 @@ class SlerpTest(test_case.TestCase):
        (1,)),
       ("Not all batch dimensions are broadcast-compatible.", (1, 4), (3, 4),
        (2,)),
+      ("Not all batch dimensions are broadcast-compatible.", (5, 1, 4),
+       (5, 1, 4), (3,)),
   )
   def test_quaternion_weights_exception_raised(self, error_msg, *shapes):
     """Tests that the shape exceptions are properly raised for qslerp."""

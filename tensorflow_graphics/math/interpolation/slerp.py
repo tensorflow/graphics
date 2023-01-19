@@ -170,8 +170,8 @@ def quaternion_weights(
       quaternions in its last dimension.
     quaternion2: A tensor of shape `[A1, ... , An, 4]` storing normalized
       quaternions in its last dimension.
-    percent: A `float` or a tensor with a shape broadcastable to the shape `[A1,
-      ... , An]`.
+    percent: A `float` or tensor with shape broadcastable to the shape of input
+      vectors.
     eps: A `float` used to make operations safe. When left as None, the function
       automatically picks the best epsilon based on the dtype and the operation.
     name: A name for this op. Defaults to "quaternion_weights".
@@ -198,7 +198,7 @@ def quaternion_weights(
         tensor=quaternion2, tensor_name="quaternion2", has_dim_equals=(-1, 4))
     shape.compare_batch_dimensions(
         tensors=(quaternion1, quaternion2, percent),
-        last_axes=(-2, -2, -1),
+        last_axes=-1,
         broadcast_compatible=True,
         tensor_names=("quaternion1", "quaternion2", "percent"))
     quaternion1 = asserts.assert_normalized(quaternion1)
@@ -266,7 +266,7 @@ def vector_weights(vector1: type_alias.TensorLike,
         tensor_names=("vector1", "vector2"))
     shape.compare_batch_dimensions(
         tensors=(vector1, vector2, percent),
-        last_axes=(-2, -2, -1),
+        last_axes=-1,
         broadcast_compatible=True,
         tensor_names=("vector1", "vector2", "percent"))
     normalized1 = tf.nn.l2_normalize(vector1, axis=-1)
