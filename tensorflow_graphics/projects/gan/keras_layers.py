@@ -393,14 +393,14 @@ class DemodulatedConvolution(tf.keras.layers.Layer):
   def get_config(self) -> Dict[str, Any]:
     """Returns the config of the layer."""
     config = {
-        'kernel_size':
-            self._kernel_size,
-        'filters':
-            self._filters,
-        'kernel_initializer':
-            tf.keras.utils.serialize_keras_object(self._kernel_initializer),
-        'bias_initializer':
-            tf.keras.utils.serialize_keras_object(self._bias_initializer),
+        'kernel_size': self._kernel_size,
+        'filters': self._filters,
+        'kernel_initializer': tf.keras.utils.legacy.serialize_keras_object(
+            self._kernel_initializer
+        ),
+        'bias_initializer': tf.keras.utils.legacy.serialize_keras_object(
+            self._bias_initializer
+        ),
     }
     base_config = super().get_config()
     base_config.update(config)
