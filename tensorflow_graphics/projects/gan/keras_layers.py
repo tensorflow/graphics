@@ -23,6 +23,13 @@ _InitializerCallable = Callable[[tf.Tensor, tf.dtypes.DType], tf.Tensor]
 _KerasInitializer = Union[_InitializerCallable, str]
 
 
+def serialize_keras_object(obj):
+  if hasattr(tf.keras.utils, 'legacy'):  # Ensure backwards compatibility
+    return tf.keras.utils.legacy.serialize_keras_object(obj)
+  else:
+    return tf.keras.utils.serialize_keras_object(obj)
+
+
 class _KernelFanInScaler(tf.keras.layers.Layer):
   """Scales the kernel weights with sqrt(multiplier/fan_in)*kernel_multiplier.
 
@@ -393,14 +400,14 @@ class DemodulatedConvolution(tf.keras.layers.Layer):
   def get_config(self) -> Dict[str, Any]:
     """Returns the config of the layer."""
     config = {
-        'kernel_size':
-            self._kernel_size,
-        'filters':
-            self._filters,
-        'kernel_initializer':
-            tf.keras.utils.serialize_keras_object(self._kernel_initializer),
-        'bias_initializer':
-            tf.keras.utils.serialize_keras_object(self._bias_initializer),
+        'kernel_size': self._kernel_size,
+        'filters': self._filters,
+        'kernel_initializer': serialize_keras_object(
+            self._kernel_initializer
+        ),
+        'bias_initializer': serialize_keras_object(
+            self._bias_initializer
+        ),
     }
     base_config = super().get_config()
     base_config.update(config)
