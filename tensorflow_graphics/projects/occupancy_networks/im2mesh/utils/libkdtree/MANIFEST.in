@@ -1,0 +1,2 @@
+exclude pykdtree/render_template.py
+include LICENSE.txt
