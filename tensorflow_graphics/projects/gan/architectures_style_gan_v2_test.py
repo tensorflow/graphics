@@ -60,6 +60,7 @@ class ArchitecturesStyleGanV2Test(tf.test.TestCase, parameterized.TestCase):
 
   def test_cloning_generator(self):
     generator, _, _ = architectures_style_gan_v2.create_style_based_generator()
+    generator.use_legacy_config = True  # Old Keras serialization format flag
 
     with tf.keras.utils.custom_object_scope(
         architectures_style_gan_v2.CUSTOM_LAYERS):
