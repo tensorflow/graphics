@@ -144,7 +144,7 @@ class MeshConfig(ShapenetConfig):
         ),
     ]
 
-  def generate_examples(self, base_dir, models):
+  def generate_examples(self, base_dir, models):  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
     """Yields examples.
 
     The structure of the examples:
