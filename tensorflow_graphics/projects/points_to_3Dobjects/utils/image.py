@@ -13,7 +13,7 @@
 # limitations under the License.
 """Image functions."""
 # python3
-from cvx2 import latest as cv2
+import cv2
 import numpy as np
 
 

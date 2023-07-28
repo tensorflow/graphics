@@ -14,7 +14,7 @@
 """Transforms."""
 import functools
 
-from cvx2 import latest as cv2
+import cv2
 import numpy as np
 import tensorflow as tf
 from tensorflow_graphics.projects.points_to_3Dobjects.utils import image as image_utils
