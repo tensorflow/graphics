@@ -13,9 +13,9 @@
 # limitations under the License.
 """Storage classes for framebuffers and related data."""
 
+import dataclasses
 from typing import Dict, Optional
 
-import dataclasses
 import tensorflow as tf
 
 
@@ -51,14 +51,18 @@ class RasterizedAttribute(object):
 
     same_as_value = True
     static_shapes = [self.value.shape]
-    if self.d_dx is not None:
+    d_dx = self.d_dx
+    if d_dx is not None:
       same_as_value = tf.logical_and(
-          same_as_value, tf.equal(tf.shape(self.value), tf.shape(self.d_dx)))
-      static_shapes.append(self.d_dx.shape)
-    if self.d_dy is not None:
+          same_as_value, tf.equal(tf.shape(self.value), tf.shape(d_dx))
+      )
+      static_shapes.append(d_dx.shape)
+    d_dy = self.d_dy
+    if d_dy is not None:
       same_as_value = tf.logical_and(
-          same_as_value, tf.equal(tf.shape(self.value), tf.shape(self.d_dy)))
-      static_shapes.append(self.d_dy.shape)
+          same_as_value, tf.equal(tf.shape(self.value), tf.shape(d_dy))
+      )
+      static_shapes.append(d_dy.shape)
     tf.debugging.assert_equal(
         same_as_value,
         True,
