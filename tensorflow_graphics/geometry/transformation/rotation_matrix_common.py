@@ -20,7 +20,6 @@ from __future__ import print_function
 from six.moves import range
 import tensorflow as tf
 
-from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import shape
 from tensorflow_graphics.util import type_alias
 
@@ -72,6 +71,3 @@ def is_valid(matrix: type_alias.TensorLike,
                       tf.zeros_like(distance_to_unit_determinant, dtype=bool))
     return tf.expand_dims(output, axis=-1)
 
-
-# API contains all public functions and classes.
-__all__ = export_api.get_functions_and_classes()
