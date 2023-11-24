@@ -37,6 +37,12 @@ class GFileResolver(trimesh.visual.resolvers.Resolver):
       data = f.read()
     return data
 
+  def write(self, name, data):
+    raise NotImplementedError('writing not implemented in GFileResolver')
+
+  def namespaced(self, namespace):
+    raise NotImplementedError('namespaced not implemented in GFileResolver')
+
 
 def load(file_obj, file_type=None, **kwargs):
   """Loads a triangle mesh from the given GFile/file path.
