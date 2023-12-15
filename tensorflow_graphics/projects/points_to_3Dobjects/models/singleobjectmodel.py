@@ -106,10 +106,10 @@ class SingleObjectModel:
     self.decode_batch(sample, inputs)
 
     with tf.GradientTape() as t:
-      predictions = self.network(inputs['image'])  # pytype: disable=key-error
+      predictions = self.network(inputs['image'])
       outputs = self.decode_predictions(predictions, inputs, {})
       outputs = self.compute_loss(inputs, outputs, global_batch_size)
-      network_gradients = t.gradient(outputs['loss/total'],  # pytype: disable=key-error
+      network_gradients = t.gradient(outputs['loss/total'],
                                      self.network.trainable_weights)
     optimizer.apply_gradients(zip(network_gradients,
                                   self.network.trainable_weights))
