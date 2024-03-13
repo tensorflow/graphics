@@ -205,7 +205,7 @@ environment.
 If you use TensorFlow Graphics in your research, please reference it as:
 
     @inproceedings{TensorflowGraphicsIO2019,
-       author = {Valentin, Julien and Keskin, Cem and Pidlypenskyi, Pavel and Makadia, Ameesh and Sud, Avneesh and Bouaziz, Sofien},
+       author = {Oztireli, Cengiz and Valentin, Julien and Keskin, Cem and Pidlypenskyi, Pavel and Makadia, Ameesh and Sud, Avneesh and Bouaziz, Sofien},
        title = {TensorFlow Graphics: Computer Graphics Meets Deep Learning},
        year = {2019}
     }
