@@ -588,6 +588,8 @@ class Evaluator:
     result_dict = {'iou_mean': -1, 'iou_min': -1, 'collisions': 0,
                    'collision_intersection': 0, 'collision_iou': 0}
     num_boxes = sample['num_boxes'].numpy()
+    labeled_boxes_init = tf.gather(
+      sample['groundtruth_boxes'], axis=1, indices=[1, 0, 3, 2]) * 256.0
 
     for _, metric in self.metrics.items():
       if isinstance(metric, ShapeAccuracyMetric):
@@ -598,8 +600,7 @@ class Evaluator:
         scene_id = str(sample['scene_filename'].numpy(), 'utf-8')
 
         # Get ground truth boxes
-        labeled_boxes = tf.gather(
-            sample['groundtruth_boxes'], axis=1, indices=[1, 0, 3, 2]) * 256.0
+        labeled_boxes = labeled_boxes_init
         if metric.threed:
           rotations_y = tf.concat([tf_utils.euler_from_rotation_matrix(
               tf.reshape(detections['rotations_3d'][i], [3, 3]),
