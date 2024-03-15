@@ -70,7 +70,7 @@ documentation for instructions on how to install TensorFlow Graphics.
 ## API Documentation
 
 You can find the API documentation
-[here](https://github.com/tensorflow/graphics/blob/master/tensorflow_graphics/g3doc/api_docs/python/tfg.md).
+[here](https://www.tensorflow.org/graphics/api_docs/python/tfg).
 
 ## Compatibility
 
