@@ -451,5 +451,77 @@ def intersection_ray_sphere(sphere_center,
     return intersections_points, normals
 
 
+def intersection_ray_triangle(
+    ray_org,
+    ray_dir,
+    triangles,
+    epsilon=1e-8,
+    name="ray_intersection_ray_triangle",
+):
+  """Möller-Trumbore intersection algorithm.
+
+  Simultaneously computes barycentric coordinates and distance to intersections
+  of ray to planes defined by triangles. Uses epsilon to detect and ignore
+  numerically unstable cases, returning all zeros instead. No attempt is made
+  to ensure that intersections are contained within each triangle.
+
+  Note:
+    In the following, A1 to An are optional batch dimensions.
+
+  Args:
+    ray_org: A tensor of shape `[A1, ..., An, 3]`,
+      where the last dimension represents the 3D position of the ray origin.
+    ray_dir: A tensor of shape `[A1, ..., An, 3]`, where
+    the last dimension represents the normalized 3D direction of the ray.
+    triangles: A tensor of shape `[A1, ..., An, 3, 3]`, containing batches of
+      triangles represented using 3 vertices, where the last dimension
+      represents the 3D position of each vertex.
+    epsilon: Epsilon value use to detect and ignore degenerate cases.
+    name: A name for this op that defaults to "ray_intersection_ray_triangle"
+
+  Returns:
+    A tensor of shape `[A1, ..., An, 3]` representing the barycentric
+    coordinates of each intersection location, and a tensor of shape
+    `[A1, ..., An]` containing the distance of each ray origin to the
+    intersection location
+  """
+  with tf.name_scope(name):
+    ray_org = tf.convert_to_tensor(value=ray_org)
+    ray_dir = tf.convert_to_tensor(value=ray_dir)
+    triangles = tf.convert_to_tensor(value=triangles)
+
+    shape.check_static(
+        tensor=ray_org, tensor_name="ray_org", has_dim_equals=(-1, 3))
+    shape.check_static(
+        tensor=ray_dir, tensor_name="ray_dir", has_dim_equals=(-1, 3))
+    shape.check_static(
+        tensor=triangles,
+        tensor_name="triangles",
+        has_dim_equals=[(-2, 3), (-1, 3)],
+    )
+
+    shape.compare_batch_dimensions(
+        (ray_org, ray_dir, triangles), (-2, -2, -3),
+        broadcast_compatible=False)
+
+    e1 = triangles[..., 1, :] - triangles[..., 0, :]
+    e2 = triangles[..., 2, :] - triangles[..., 0, :]
+    s = ray_org - triangles[..., 0, :]
+    h = tf.linalg.cross(ray_dir, e2)
+    q = tf.linalg.cross(s, e1)
+    a = vector.dot(h, e1, keepdims=False)
+    invalid = tf.abs(a) < epsilon
+    denom = tf.where(invalid, tf.zeros_like(a), tf.math.divide_no_nan(1.0, a))
+
+    t = denom * vector.dot(q, e2, keepdims=False)
+    b1 = denom * vector.dot(h, s, keepdims=False)
+    b2 = denom * vector.dot(q, ray_dir, keepdims=False)
+    b0 = 1 - b1 - b2
+    barys = tf.stack((b0, b1, b2), axis=-1)
+    barys = tf.where(invalid[..., tf.newaxis], tf.zeros_like(barys), barys)
+    t = tf.where(invalid, tf.zeros_like(t), t)
+    return barys, t
+
+
 # API contains all public functions and classes.
 __all__ = export_api.get_functions_and_classes()
