@@ -121,6 +121,8 @@ def minimize(residuals,
   Examples:
 
     ```python
+    from tensorflow_graphics.math.optimizer.levenberg_marquardt import minimize
+    
     x = tf.constant(np.random.random_sample(size=(1,2)), dtype=tf.float32)
     y = tf.constant(np.random.random_sample(size=(3,1)), dtype=tf.float32)
 
