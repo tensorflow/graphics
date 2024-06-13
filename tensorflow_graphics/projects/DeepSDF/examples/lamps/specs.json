@@ -1,0 +1,44 @@
+{
+  "Description" : [ "This experiment learns a shape representation for lamps ",
+                    "using data from ShapeNet version 2." ],
+  "DataSource" : "data",
+  "TrainSplit" : "examples/splits/sv2_lamps_train.json",
+  "TestSplit" : "examples/splits/sv2_lamps_test.json",
+  "NetworkArch" : "deep_sdf_decoder",
+  "NetworkSpecs" : {
+    "dims" : [ 512, 512, 512, 512, 512, 512, 512, 512 ],
+    "dropout" : [0, 1, 2, 3, 4, 5, 6, 7],
+    "dropout_prob" : 0.2,
+    "norm_layers" : [0, 1, 2, 3, 4, 5, 6, 7],
+    "latent_in" : [4],
+    "xyz_in_all" : false,
+    "use_tanh" : false,
+    "latent_dropout" : false,
+    "weight_norm" : true
+    },
+  "CodeLength" : 256,
+  "NumEpochs" : 2001,
+  "SnapshotFrequency" : 1000,
+  "AdditionalSnapshots" : [ 100, 500 ],
+  "LearningRateSchedule" : [
+    {
+      "Type" : "Step",
+      "Initial" : 0.0005,
+      "Interval" : 500,
+      "Factor" : 0.5
+    },
+    {
+      "Type" : "Step",
+      "Initial" : 0.001,
+      "Interval" : 500,
+      "Factor" : 0.5
+    }],
+  "SamplesPerScene" : 16384,
+  "ScenesPerBatch" : 64,
+  "DataLoaderThreads" : 16,
+  "ClampingDistance" : 0.1,
+  "CodeRegularization" : true,
+  "CodeRegularizationLambda" : 1e-4,
+  "CodeBound" : 1.0
+}
+
