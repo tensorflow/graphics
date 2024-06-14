@@ -1,0 +1,18 @@
+build:cuda --define=using_cuda=true --define=using_cuda_nvcc=true
+build:manylinux2010cuda100 --crosstool_top=//third_party/toolchains/preconfig/ubuntu16.04/gcc7_manylinux2010-nvcc-cuda10.0:toolchain
+build:manylinux2010cuda101 --crosstool_top=//third_party/toolchains/preconfig/ubuntu16.04/gcc7_manylinux2010-nvcc-cuda10.1:toolchain
+build --spawn_strategy=standalone
+build --strategy=Genrule=standalone
+build -c opt
+build --action_env TF_HEADER_DIR="/usr/local/lib/python3.6/dist-packages/tensorflow/include"
+build --action_env TF_SHARED_LIBRARY_DIR="/usr/local/lib/python3.6/dist-packages/tensorflow"
+build --action_env TF_SHARED_LIBRARY_NAME="libtensorflow_framework.so.2"
+build --action_env TF_NEED_CUDA="1"
+build --action_env TF_CUDA_VERSION="10.1"
+build --action_env TF_CUDNN_VERSION="7"
+build --action_env CUDNN_INSTALL_PATH="/usr/lib/x86_64-linux-gnu"
+build --action_env CUDA_TOOLKIT_PATH="/usr/local/cuda"
+build --config=cuda
+test --config=cuda
+build --config=manylinux2010cuda101
+test --config=manylinux2010cuda101
