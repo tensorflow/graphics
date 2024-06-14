@@ -1,0 +1,20 @@
+{
+  "mesh_refinement": {
+    "num_stages": 3,
+    "num_gconvs_per_stage": 3,
+    "gconv_dim": 128,
+    "gconv_initializer": "normal",
+    "layer_name": "MeshRefinementLayer"
+  },
+
+  "loss_weights": {
+    "voxel": 1.0,
+    "chamfer": 1.0,
+    "normal": 0.2,
+    "edge": 0.5
+  },
+
+  "cubify_threshold": 0.0,
+  "mesh_loss_sample_size_gt": 5000,
+  "mesh_loss_sample_size_pred": 5000
+}
