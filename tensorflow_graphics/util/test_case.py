@@ -173,18 +173,15 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
         SparseTensor placeholders in graph mode.
       **kwargs: A dict of keyword arguments to be passed to the function.
     """
-    if tf.executing_eagerly() and shapes:
-      # If a shape is given in eager mode, the tensor will be initialized with
-      # zeros, which can make some range checks fail for certain functions.
-      # But if only kwargs are passed and shapes is empty, this function
-      # still should run correctly.
-      return
+    if tf.executing_eagerly():
+      # If shapes is an empty list, we can continue with the test. If shapes
+      # has None values, we shoud return.
+      shapes = self._remove_dynamic_shapes(shapes)
+      if shapes is None:
+        return
     placeholders = self._create_placeholders_from_shapes(
         shapes=shapes, dtypes=dtypes, sparse_tensors=sparse_tensors)
-    try:
-      func(*placeholders, **kwargs)
-    except Exception as e:  # pylint: disable=broad-except
-      self.fail("Exception raised: %s" % str(e))
+    func(*placeholders, **kwargs)
 
   def assert_exception_is_raised(self,
                                  func,
