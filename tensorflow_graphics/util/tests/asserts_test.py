@@ -347,7 +347,7 @@ class AssertsTest(test_case.TestCase):
     with self.assertRaises(tf.errors.InvalidArgumentError):
       self.evaluate(tf.debugging.assert_equal(a, a + eps))
 
-  @parameterized.parameters((np.NaN,), (np.inf,))
+  @parameterized.parameters((np.nan,), (np.inf,))
   @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
   def test_assert_no_infs_or_nans_passthrough(self, value):
     """Checks that the assert is a passthrough when the flag is False."""
@@ -357,7 +357,7 @@ class AssertsTest(test_case.TestCase):
 
     self.assertIs(vector_input, vector_output)
 
-  @parameterized.parameters((np.NaN,), (np.inf,))
+  @parameterized.parameters((np.nan,), (np.inf,))
   def test_assert_no_infs_or_nans_raises_exception_for_nan(self, value):
     """Checks that the assert works for `Inf` or `NaN` values."""
     vector_input = (value,)
