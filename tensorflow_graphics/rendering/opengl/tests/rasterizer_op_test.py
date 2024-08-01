@@ -17,12 +17,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import math
+
 from absl.testing import parameterized
 import numpy as np
 import six
 from six.moves import range
 import tensorflow as tf
-
 from tensorflow_graphics.geometry.transformation import look_at
 from tensorflow_graphics.rendering.camera import perspective
 from tensorflow_graphics.rendering.opengl import rasterization_backend
@@ -122,7 +123,7 @@ class RasterizerOPTest(test_case.TestCase):
     camera_origin = (0.0, 0.0, 0.0)
     camera_up = (0.0, 1.0, 0.0)
     look_at_point = (0.0, 0.0, 1.0)
-    fov = (60.0 * np.math.pi / 180,)
+    fov = (60.0 * math.pi / 180,)
     near_plane = (1.0,)
     far_plane = (10.0,)
     batch_shape = tf.convert_to_tensor(

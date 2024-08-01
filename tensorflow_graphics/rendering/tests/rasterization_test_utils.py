@@ -13,12 +13,12 @@
 # limitations under the License.
 """Util functions for rasterization tests."""
 
+import math
 import os
 import random
 
 import numpy as np
 import tensorflow as tf
-
 from tensorflow_graphics.geometry.transformation import look_at
 from tensorflow_graphics.rendering.camera import perspective
 from tensorflow_graphics.util import shape
@@ -39,7 +39,7 @@ def make_perspective_matrix(image_width=None, image_height=None):
   resulting image will be equal to the baseline image.
   """
 
-  field_of_view = (40 * np.math.pi / 180,)
+  field_of_view = (40 * math.pi / 180,)
   near_plane = (0.01,)
   far_plane = (10.0,)
   return perspective.right_handed(field_of_view,
