@@ -13,6 +13,7 @@
 # limitations under the License.
 """Utility functions for reading and writing EXR image files as numpy arrays."""
 
+
 # pylint: disable=c-extension-no-member
 
 from __future__ import absolute_import
@@ -21,7 +22,18 @@ from __future__ import print_function
 
 import Imath
 import numpy as np
-import OpenEXR
+from packaging import version
+
+try:
+  import OpenEXR
+except ImportError:
+  raise ImportError('OpenEXR is required for reading and writing EXR files, please install it.')
+else:
+  _min_version_openexr = "1.3.2"
+  if not version.parse(OpenEXR.__version__.decode("utf-8")) > version.parse(_min_version_openexr):
+    raise ImportError(
+        f"OpenEXR version {_min_version_openexr} is required, please upgrade it."
+    )
 from six.moves import range
 from six.moves import zip
 
