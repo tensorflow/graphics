@@ -34,7 +34,9 @@ sh build_pip_pkg.sh
 pip install --upgrade dist/*.whl
 ```
 
-## Installing optional packages - Linux
+## Installing optional packages
+
+### Linux
 
 To use the TensorFlow Graphics EXR data loader, OpenEXR needs to be installed.
 This can be done by running the following commands:
@@ -43,3 +45,14 @@ This can be done by running the following commands:
 sudo apt-get install libopenexr-dev
 pip install --upgrade OpenEXR
 ```
+
+### Windows
+
+Download and install from https://www.lfd.uci.edu/~gohlke/pythonlibs/#openexr (Unofficial) with appropriate python version. Say, for Python 3.6.9, 64 Bit Windows 10 OS, install via `pip install OpenEXR-1.3.2-cp36-cp36m-win_amd64.whl`
+
+
+## Errors and resolutions
+
+- While installing `tensorflow-graphics`, `OpenEXR` may FAIL to get installed. Resolution is to install `OpenEXR` first then re-run `pip install --upgrade tensorflow-graphics`.
+- While installing `OpenEXR`, it may error out saying FAILed to find `Imathbox.h`. It is due to missing `libopenexr-dev` . Resolution is to install `OpenEXR` as per OS (mentioned above) and re-install `tensorflow-graphics`.
+
