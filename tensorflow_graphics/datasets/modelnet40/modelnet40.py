@@ -72,10 +72,10 @@ class ModelNet40(tfds.core.GeneratorBasedBuilder):
         citation=_CITATION,
     )
 
-  def _split_generators(self, download_manager):
+  def _split_generators(self, dl_manager):
     """Returns SplitGenerators."""
 
-    extracted_path = download_manager.download_and_extract(_URL)
+    extracted_path = dl_manager.download_and_extract(_URL)
 
     # Note: VALIDATION split was not provided by the authors
     return [
