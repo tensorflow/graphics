@@ -31,6 +31,10 @@ from six.moves import zip
 import tensorflow as tf
 
 from tensorflow_graphics.util import tfg_flags
+# pylint: disable=g-direct-tensorflow-import
+from ai-edge-litert import interpreter as tfl_interpreter
+# pylint: enable=g-direct-tensorflow-import
+
 
 FLAGS = flags.FLAGS
 
@@ -98,6 +102,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
       error = 0
       row_max_error = 0
       column_max_error = 0
+      max_error = 0
       for j_t, j_n in grad:
         if j_t.size or j_n.size:  # Handle zero size tensors correctly
           diff = np.fabs(j_t - j_n)
@@ -364,7 +369,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
             sess, in_tensors, out_tensors)
         tflite_model = converter.convert()
         # Load TFLite model and allocate tensors.
-        interpreter = tf.lite.Interpreter(model_content=tflite_model)
+        interpreter = tfl_interpreter.Interpreter(model_content=tflite_model)
         interpreter.allocate_tensors()
         # If no test inputs provided then randomly generate inputs.
         if test_inputs is None:
