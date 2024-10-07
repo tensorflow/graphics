@@ -33,6 +33,7 @@ import tensorflow as tf
 from tensorflow_graphics.util import tfg_flags
 
 FLAGS = flags.FLAGS
+# adding a comment for test
 
 
 def _max_error(arrays1, arrays2):
