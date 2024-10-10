@@ -29,7 +29,7 @@ EGLOffscreenContext::EGLOffscreenContext(EGLContext context, EGLDisplay display,
 
 EGLOffscreenContext::~EGLOffscreenContext() { TF_CHECK_OK(Destroy()); }
 
-tensorflow::Status EGLOffscreenContext::Create(
+absl::Status EGLOffscreenContext::Create(
     std::unique_ptr<EGLOffscreenContext>* egl_offscreen_context) {
   constexpr std::array<int, 13> kDefaultConfigurationAttributes = {
       EGL_SURFACE_TYPE,
@@ -56,7 +56,7 @@ tensorflow::Status EGLOffscreenContext::Create(
                 kDefaultContextAttributes.data(), egl_offscreen_context);
 }
 
-tensorflow::Status EGLOffscreenContext::Create(
+absl::Status EGLOffscreenContext::Create(
     const int pixel_buffer_width, const int pixel_buffer_height,
     const EGLenum rendering_api, const EGLint* configuration_attributes,
     const EGLint* context_attributes,
@@ -112,10 +112,10 @@ tensorflow::Status EGLOffscreenContext::Create(
   surface_cleanup.release();
   *egl_offscreen_context = std::unique_ptr<EGLOffscreenContext>(
       new EGLOffscreenContext(context, display, pixel_buffer_surface));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status EGLOffscreenContext::Destroy() {
+absl::Status EGLOffscreenContext::Destroy() {
   TF_RETURN_IF_ERROR(Release());
   if (eglDestroyContext(display_, context_) == false) {
     return TFG_INTERNAL_ERROR("an error occured in eglDestroyContext.");
@@ -127,19 +127,19 @@ tensorflow::Status EGLOffscreenContext::Destroy() {
     return TFG_INTERNAL_ERROR(
         "an error occured in TerminateInitializedEGLDisplay.");
   }
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status EGLOffscreenContext::MakeCurrent() const {
+absl::Status EGLOffscreenContext::MakeCurrent() const {
   TFG_RETURN_IF_EGL_ERROR(eglMakeCurrent(display_, pixel_buffer_surface_,
                                          pixel_buffer_surface_, context_));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status EGLOffscreenContext::Release() {
+absl::Status EGLOffscreenContext::Release() {
   if (context_ != EGL_NO_CONTEXT && context_ == eglGetCurrentContext()) {
     TFG_RETURN_IF_EGL_ERROR(eglMakeCurrent(display_, EGL_NO_SURFACE,
                                            EGL_NO_SURFACE, EGL_NO_CONTEXT));
   }
-  return tensorflow::Status();
+  return absl::Status();
 }
