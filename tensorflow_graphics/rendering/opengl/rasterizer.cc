@@ -36,19 +36,19 @@ void Rasterizer::Reset() {
   for (auto&& buffer : shader_storage_buffers_) buffer.second.reset();
 }
 
-tensorflow::Status Rasterizer::Render(int num_points,
-                                      absl::Span<float> result) {
+absl::Status Rasterizer::Render(int num_points, absl::Span<float> result) {
   return RenderImpl(num_points, result);
 }
 
-tensorflow::Status Rasterizer::Render(int num_points,
-                                      absl::Span<unsigned char> result) {
+absl::Status Rasterizer::Render(int num_points,
+                                absl::Span<unsigned char> result) {
   return RenderImpl(num_points, result);
 }
 
-tensorflow::Status Rasterizer::SetUniformMatrix(
-    const std::string& name, int num_columns, int num_rows, bool transpose,
-    absl::Span<const float> matrix) {
+absl::Status Rasterizer::SetUniformMatrix(const std::string& name,
+                                          int num_columns, int num_rows,
+                                          bool transpose,
+                                          absl::Span<const float> matrix) {
   if (size_t(num_rows * num_columns) != matrix.size())
     return TFG_INTERNAL_ERROR("num_rows * num_columns != matrix.size()");
 
@@ -98,5 +98,5 @@ tensorflow::Status Rasterizer::SetUniformMatrix(
       uniform_location, 1, transpose ? GL_TRUE : GL_FALSE, matrix.data()));
 
   // Cleanup the program; no program is active at this point.
-  return tensorflow::Status();
+  return absl::Status();
 }
