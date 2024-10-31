@@ -26,7 +26,7 @@ limitations under the License.
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/core/status.h"
 
-static tensorflow::Status GetVariablesRank(
+static absl::Status GetVariablesRank(
     ::tensorflow::shape_inference::InferenceContext* c,
     tensorflow::int32* rank) {
   std::vector<std::string> variable_names, variable_kinds;
@@ -68,7 +68,7 @@ static tensorflow::Status GetVariablesRank(
           "Variable with name='", variable_names[index],
           "' has an invalid batch rank of ", batch_rank, "; expected ", *rank);
   }
-  return tensorflow::Status();
+  return absl::Status();
 }
 
 REGISTER_OP("Rasterize")
@@ -137,7 +137,7 @@ rendered_image: A tensor of shape `[A1, ..., An, width, height, 4]`, with the
           c->Concatenate(batch_shape, image_shape, &output_shape));
       c->set_output(0, output_shape);
 
-      return tensorflow::Status();
+      return absl::Status();
     });
 
 class RasterizeOp : public tensorflow::OpKernel {
@@ -176,8 +176,8 @@ class RasterizeOp : public tensorflow::OpKernel {
     auto rasterizer_creator =
         [vertex_shader, geometry_shader, fragment_shader, red_clear,
          green_clear, blue_clear, alpha_clear, depth_clear, enable_cull_face,
-         this](std::unique_ptr<RasterizerWithContext>* resource)
-        -> tensorflow::Status {
+         this](
+            std::unique_ptr<RasterizerWithContext>* resource) -> absl::Status {
       return RasterizerWithContext::Create(
           output_resolution_.dim_size(0), output_resolution_.dim_size(1),
           vertex_shader, geometry_shader, fragment_shader, resource, red_clear,
@@ -219,15 +219,14 @@ class RasterizeOp : public tensorflow::OpKernel {
   }
 
  private:
-  tensorflow::Status SetVariables(
-      tensorflow::OpKernelContext* context,
-      std::unique_ptr<RasterizerWithContext>& rasterizer, int outer_dim);
-  tensorflow::Status RenderImage(
-      tensorflow::OpKernelContext* context,
-      std::unique_ptr<RasterizerWithContext>& rasterizer,
-      tensorflow::int64 image_size, float* image_data);
-  tensorflow::Status ValidateVariables(tensorflow::OpKernelContext* context,
-                                       tensorflow::TensorShape* batch_shape);
+  absl::Status SetVariables(tensorflow::OpKernelContext* context,
+                            std::unique_ptr<RasterizerWithContext>& rasterizer,
+                            int outer_dim);
+  absl::Status RenderImage(tensorflow::OpKernelContext* context,
+                           std::unique_ptr<RasterizerWithContext>& rasterizer,
+                           tensorflow::int64 image_size, float* image_data);
+  absl::Status ValidateVariables(tensorflow::OpKernelContext* context,
+                                 tensorflow::TensorShape* batch_shape);
 
   std::unique_ptr<ThreadSafeResourcePool<RasterizerWithContext>>
       rasterizer_pool_;
@@ -236,7 +235,7 @@ class RasterizeOp : public tensorflow::OpKernel {
   tensorflow::TensorShape output_resolution_;
 };
 
-tensorflow::Status RasterizeOp::RenderImage(
+absl::Status RasterizeOp::RenderImage(
     tensorflow::OpKernelContext* context,
     std::unique_ptr<RasterizerWithContext>& rasterizer,
     const tensorflow::int64 image_size, float* image_data) {
@@ -244,10 +243,10 @@ tensorflow::Status RasterizeOp::RenderImage(
 
   TF_RETURN_IF_ERROR(rasterizer->Render(
       num_points, absl::MakeSpan(image_data, image_data + image_size)));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status RasterizeOp::SetVariables(
+absl::Status RasterizeOp::SetVariables(
     tensorflow::OpKernelContext* context,
     std::unique_ptr<RasterizerWithContext>& rasterizer, int outer_dim) {
   tensorflow::OpInputList variable_values;
@@ -280,10 +279,10 @@ tensorflow::Status RasterizeOp::SetVariables(
                     value_pointer + buffer_length * (outer_dim + 1))));
     }
   }
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status RasterizeOp::ValidateVariables(
+absl::Status RasterizeOp::ValidateVariables(
     tensorflow::OpKernelContext* context,
     tensorflow::TensorShape* batch_shape) {
   tensorflow::OpInputList variable_values;
@@ -327,7 +326,7 @@ tensorflow::Status RasterizeOp::ValidateVariables(
           *batch_shape);
     }
   }
-  return tensorflow::Status();
+  return absl::Status();
 }
 
 // Register kernel with TF
