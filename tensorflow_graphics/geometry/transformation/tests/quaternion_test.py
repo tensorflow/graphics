@@ -508,13 +508,14 @@ class QuaternionTest(test_case.TestCase):
     tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
 
     with self.subTest(name="dtype"):
-      with self.assertRaisesRegexp(ValueError, "'dtype' must be tf.float32."):
+      with self.assertRaisesRegex(ValueError, "'dtype' must be tf.float32."):
         quaternion.normalized_random_uniform_initializer()(
             tensor_shape + [4], dtype=tf.uint8)
 
     with self.subTest(name="shape"):
-      with self.assertRaisesRegexp(ValueError,
-                                   "Last dimension of 'shape' must be 4."):
+      with self.assertRaisesRegex(
+          ValueError, "Last dimension of 'shape' must be 4."
+      ):
         quaternion.normalized_random_uniform_initializer()(
             tensor_shape + [3], dtype=tf.float32)
 

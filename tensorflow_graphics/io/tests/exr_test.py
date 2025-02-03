@@ -79,23 +79,24 @@ class ExrTest(test_case.TestCase, parameterized.TestCase):
   def test_reading_mixed_datatypes_fails(self):
     with tempfile.NamedTemporaryFile() as temp:
       _WriteMixedDatatypesExr(temp.name)
-      with self.assertRaisesRegexp(ValueError, 'Channels have mixed datatypes'):
+      with self.assertRaisesRegex(ValueError, 'Channels have mixed datatypes'):
         _, _ = exr.read_exr(temp.name)
 
   def test_writing_with_array_channel_name_mismatch_fails(self):
     array_three_channels = np.zeros([64, 64, 3], dtype=np.float32)
     names_two_channels = ['A', 'B']
     with tempfile.NamedTemporaryFile() as temp:
-      with self.assertRaisesRegexp(
+      with self.assertRaisesRegex(
           ValueError,
-          'Number of channels in values does not match channel names'):
+          'Number of channels in values does not match channel names',
+      ):
         exr.write_exr(temp.name, array_three_channels, names_two_channels)
 
   def test_writing_unsupported_numpy_type_fails(self):
     uint8_array = np.zeros([64, 64, 3], dtype=np.uint8)
     names = ['R', 'G', 'B']
     with tempfile.NamedTemporaryFile() as temp:
-      with self.assertRaisesRegexp(TypeError, 'Unsupported numpy type'):
+      with self.assertRaisesRegex(TypeError, 'Unsupported numpy type'):
         exr.write_exr(temp.name, uint8_array, names)
 
   def test_reading_unknown_exr_type_fails(self):
@@ -109,7 +110,7 @@ class ExrTest(test_case.TestCase, parameterized.TestCase):
       header_dict['channels']['R'].type.v = -1  # Any bad value will do.
       make_mock_exr = collections.namedtuple('MockExr', ['header', 'channel'])
       mock_broken_exr = make_mock_exr(lambda: header_dict, exr_file.channel)
-      with self.assertRaisesRegexp(RuntimeError, 'Unknown EXR channel type'):
+      with self.assertRaisesRegex(RuntimeError, 'Unknown EXR channel type'):
         _ = exr.channels_to_ndarray(mock_broken_exr, ['R', 'G', 'B'])
 
 

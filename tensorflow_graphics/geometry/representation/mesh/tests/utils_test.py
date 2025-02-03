@@ -65,7 +65,7 @@ class UtilsTest(test_case.TestCase):
   def test_extract_edges_from_triangular_mesh_raised(
       self, invalid_input, error_msg):
     """Tests that the shape exceptions are properly raised."""
-    with self.assertRaisesRegexp(ValueError, error_msg):
+    with self.assertRaisesRegex(ValueError, error_msg):
       utils.extract_unique_edges_from_triangular_mesh(invalid_input)
 
   @parameterized.parameters(
@@ -98,7 +98,7 @@ class UtilsTest(test_case.TestCase):
   def test_get_degree_based_edge_weights_invalid_edges_raised(
       self, invalid_input, error_msg):
     """Tests that the shape exceptions are properly raised."""
-    with self.assertRaisesRegexp(ValueError, error_msg):
+    with self.assertRaisesRegex(ValueError, error_msg):
       utils.get_degree_based_edge_weights(invalid_input)
 
   @parameterized.parameters(
@@ -111,7 +111,7 @@ class UtilsTest(test_case.TestCase):
   def test_get_degree_based_edge_weights_dtype_raised(
       self, invalid_type, error_msg):
     """Tests that the shape exceptions are properly raised."""
-    with self.assertRaisesRegexp(ValueError, error_msg):
+    with self.assertRaisesRegex(ValueError, error_msg):
       utils.get_degree_based_edge_weights(np.array(((1, 1),)), invalid_type)
 
 if __name__ == "__main__":

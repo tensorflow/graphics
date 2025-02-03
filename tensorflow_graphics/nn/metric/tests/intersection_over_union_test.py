@@ -69,8 +69,9 @@ class IntersectionOverUnionTest(test_case.TestCase):
   def test_evaluate_invalid_argument_exception_raised(self, error_msg,
                                                       ground_truth, predictions,
                                                       grid_size):
-    with self.assertRaisesRegexp((tf.errors.InvalidArgumentError, ValueError),
-                                 error_msg):
+    with self.assertRaisesRegex(
+        (tf.errors.InvalidArgumentError, ValueError), error_msg
+    ):
       self.evaluate(
           intersection_over_union.evaluate(ground_truth, predictions,
                                            grid_size))

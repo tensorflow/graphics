@@ -65,7 +65,7 @@ class MeshSamplerTest(test_case.TestCase):
     face_wts = np.array([0.1, -0.1], dtype=np.float32)
     num_samples = 10
     error_msg = "Condition x >= y did not hold."
-    with self.assertRaisesRegexp(tf.errors.InvalidArgumentError, error_msg):
+    with self.assertRaisesRegex(tf.errors.InvalidArgumentError, error_msg):
       sampler.generate_random_face_indices(num_samples, face_weights=face_wts)
 
   @parameterized.parameters(
@@ -154,7 +154,7 @@ class MeshSamplerTest(test_case.TestCase):
     face_wts = np.array([-0.3, 0.1, 0.5, 0.6], dtype=np.float32)
     num_samples = 10
     error_msg = "Condition x >= y did not hold."
-    with self.assertRaisesRegexp(tf.errors.InvalidArgumentError, error_msg):
+    with self.assertRaisesRegex(tf.errors.InvalidArgumentError, error_msg):
       sampler.weighted_random_sample_triangle_mesh(
           vertices, faces, num_samples, face_weights=face_wts)
 

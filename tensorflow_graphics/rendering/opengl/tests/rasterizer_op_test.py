@@ -220,7 +220,7 @@ class RasterizerOPTest(test_case.TestCase):
       error = error_eager
     else:
       error = error_graph_mode
-    with self.assertRaisesRegexp(error, error_msg):
+    with self.assertRaisesRegex(error, error_msg):
       self.evaluate(
           rasterization_backend.render_ops.rasterize(
               num_points=0,

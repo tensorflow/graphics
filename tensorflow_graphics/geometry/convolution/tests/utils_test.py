@@ -58,7 +58,7 @@ class UtilsCheckValidGraphConvolutionInputTests(test_case.TestCase):
     neighbors = _dense_to_sparse(np.ones(shape=(2, 2, 2), dtype=neighbors_type))
     sizes = tf.convert_to_tensor(value=np.array((2, 2), dtype=sizes_type))
 
-    with self.assertRaisesRegexp(TypeError, err_msg):
+    with self.assertRaisesRegex(TypeError, err_msg):
       utils.check_valid_graph_convolution_input(data, neighbors, sizes)
 
   @parameterized.parameters(
@@ -187,7 +187,7 @@ class UtilsCheckValidGraphPoolingInputTests(test_case.TestCase):
     sizes = tf.convert_to_tensor(
         value=np.array(((1, 2), (2, 3)), dtype=sizes_type))
 
-    with self.assertRaisesRegexp(TypeError, err_msg):
+    with self.assertRaisesRegex(TypeError, err_msg):
       utils.check_valid_graph_pooling_input(data, pool_map, sizes)
 
   @parameterized.parameters(
@@ -305,8 +305,9 @@ class UtilsFlattenBatchTo2dTests(test_case.TestCase):
 
   def test_flatten_batch_to_2d_exception_raised_types(self):
     """Check the exception when input is not an integer."""
-    with self.assertRaisesRegexp(TypeError,
-                                 "'sizes' must have an integer type."):
+    with self.assertRaisesRegex(
+        TypeError, "'sizes' must have an integer type."
+    ):
       utils.flatten_batch_to_2d(np.ones((3, 4, 3)), np.ones((3,)))
 
   @parameterized.parameters(
@@ -433,8 +434,9 @@ class UtilsUnflatten2dToBatchTest(test_case.TestCase):
 
   def test_input_type_exception_raised(self):
     """Check that invalid input types trigger the right exception."""
-    with self.assertRaisesRegexp(TypeError,
-                                 "'sizes' must have an integer type."):
+    with self.assertRaisesRegex(
+        TypeError, "'sizes' must have an integer type."
+    ):
       utils.unflatten_2d_to_batch(np.ones((3, 4)), np.ones((3,)))
 
   @parameterized.parameters(
@@ -518,11 +520,12 @@ class UtilsConvertToBlockDiag2dTests(test_case.TestCase):
 
   def test_convert_to_block_diag_2d_exception_raised_types(self):
     """Check the exception when input is not a SparseTensor."""
-    with self.assertRaisesRegexp(TypeError, "'data' must be a 'SparseTensor'."):
+    with self.assertRaisesRegex(TypeError, "'data' must be a 'SparseTensor'."):
       utils.convert_to_block_diag_2d(np.zeros(shape=(3, 3, 3)))
 
-    with self.assertRaisesRegexp(TypeError,
-                                 "'sizes' must have an integer type."):
+    with self.assertRaisesRegex(
+        TypeError, "'sizes' must have an integer type."
+    ):
       utils.convert_to_block_diag_2d(
           _dense_to_sparse(np.ones(shape=(3, 3, 3))),
           np.ones(shape=(3, 2)),
@@ -530,26 +533,27 @@ class UtilsConvertToBlockDiag2dTests(test_case.TestCase):
 
   def test_convert_to_block_diag_2d_exception_raised_ranks(self):
     """Check the exception when input data rank is invalid."""
-    with self.assertRaisesRegexp(ValueError, "must have a rank greater than 2"):
+    with self.assertRaisesRegex(ValueError, "must have a rank greater than 2"):
       utils.convert_to_block_diag_2d(_dense_to_sparse(np.ones(shape=(3, 3))))
 
-    with self.assertRaisesRegexp(ValueError, "must have a rank greater than 2"):
+    with self.assertRaisesRegex(ValueError, "must have a rank greater than 2"):
       utils.convert_to_block_diag_2d(_dense_to_sparse(np.ones(shape=(3,))))
 
   def test_convert_to_block_diag_2d_exception_raised_sizes(self):
     """Check the expetion when the shape of sizes is invalid."""
-    with self.assertRaisesRegexp(ValueError, "must have a rank of 2"):
+    with self.assertRaisesRegex(ValueError, "must have a rank of 2"):
       utils.convert_to_block_diag_2d(
           _dense_to_sparse(np.ones(shape=(3, 3, 3))),
           np.ones(shape=(3,), dtype=np.int32))
 
-    with self.assertRaisesRegexp(ValueError, "must have a rank of 3"):
+    with self.assertRaisesRegex(ValueError, "must have a rank of 3"):
       utils.convert_to_block_diag_2d(
           _dense_to_sparse(np.ones(shape=(4, 3, 3, 3))),
           np.ones(shape=(4, 3), dtype=np.int32))
 
-    with self.assertRaisesRegexp(ValueError,
-                                 "must have exactly 2 dimensions in axis -1"):
+    with self.assertRaisesRegex(
+        ValueError, "must have exactly 2 dimensions in axis -1"
+    ):
       utils.convert_to_block_diag_2d(
           _dense_to_sparse(np.ones(shape=(3, 3, 3))),
           np.ones(shape=(3, 1), dtype=np.int32))

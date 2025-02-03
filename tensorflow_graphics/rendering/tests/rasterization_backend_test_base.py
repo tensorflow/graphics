@@ -97,7 +97,7 @@ class RasterizationBackendTestBase(test_case.TestCase):
   def test_rasterizer_rasterize_exception_raised(self, shapes, dtypes, backend):
     """Tests that unsupported backends raise exceptions."""
     placeholders = self._create_placeholders(shapes, dtypes)
-    with self.assertRaisesRegexp(KeyError, 'Backend is not supported'):
+    with self.assertRaisesRegex(KeyError, 'Backend is not supported'):
       rasterization_backend.rasterize(placeholders[0], placeholders[1],
                                       placeholders[2],
                                       (self.IMAGE_WIDTH, self.IMAGE_HEIGHT),

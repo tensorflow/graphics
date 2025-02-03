@@ -62,7 +62,7 @@ class GraphPoolingTestPoolTests(test_case.TestCase):
     pool_map = _dense_to_sparse(np.ones((2, 3, 3), dtype=pool_map_type))
     sizes = np.array(((1, 2), (2, 3)), dtype=sizes_type)
 
-    with self.assertRaisesRegexp(TypeError, err_msg):
+    with self.assertRaisesRegex(TypeError, err_msg):
       gp.pool(data, pool_map, sizes)
 
   @parameterized.parameters(
@@ -80,7 +80,7 @@ class GraphPoolingTestPoolTests(test_case.TestCase):
     else:
       sizes = None
 
-    with self.assertRaisesRegexp(ValueError, err_msg):
+    with self.assertRaisesRegex(ValueError, err_msg):
       gp.pool(data, pool_map, sizes)
 
   def test_pool_exception_raised_algorithm(self):
@@ -88,8 +88,9 @@ class GraphPoolingTestPoolTests(test_case.TestCase):
     data = np.ones(shape=(2, 2))
     pool_map = _dense_to_sparse(np.ones(shape=(2, 2)))
 
-    with self.assertRaisesRegexp(
-        ValueError, 'The pooling method must be "weighted" or "max"'):
+    with self.assertRaisesRegex(
+        ValueError, 'The pooling method must be "weighted" or "max"'
+    ):
       gp.pool(data, pool_map, sizes=None, algorithm='mean')
 
   @parameterized.parameters(
@@ -201,7 +202,7 @@ class GraphPoolingTestUnpoolTests(test_case.TestCase):
     pool_map = _dense_to_sparse(np.ones((2, 3, 3), dtype=pool_map_type))
     sizes = np.array(((1, 2), (2, 3)), dtype=sizes_type)
 
-    with self.assertRaisesRegexp(TypeError, err_msg):
+    with self.assertRaisesRegex(TypeError, err_msg):
       gp.unpool(data, pool_map, sizes)
 
   @parameterized.parameters(
@@ -221,7 +222,7 @@ class GraphPoolingTestUnpoolTests(test_case.TestCase):
     else:
       sizes = None
 
-    with self.assertRaisesRegexp(ValueError, err_msg):
+    with self.assertRaisesRegex(ValueError, err_msg):
       gp.unpool(data, pool_map, sizes)
 
   @parameterized.parameters(
@@ -311,7 +312,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
     pool_map = _dense_to_sparse(np.ones((2, 3, 3), dtype=pool_map_type))
     sizes = np.array(((1, 2), (2, 3)), dtype=sizes_type)
 
-    with self.assertRaisesRegexp(TypeError, err_msg):
+    with self.assertRaisesRegex(TypeError, err_msg):
       gp.upsample_transposed_convolution(
           data, pool_map, sizes, kernel_size=1, transposed_convolution_op=None)
 
@@ -332,7 +333,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
     else:
       sizes = None
 
-    with self.assertRaisesRegexp(ValueError, err_msg):
+    with self.assertRaisesRegex(ValueError, err_msg):
       gp.upsample_transposed_convolution(
           data, pool_map, sizes, kernel_size=1, transposed_convolution_op=None)
 
@@ -342,7 +343,7 @@ class GraphPoolingUpsampleTransposeConvolutionTests(test_case.TestCase):
     pool_map = _dense_to_sparse(np.eye(5))
     err_msg = "'transposed_convolution_op' must be callable."
 
-    with self.assertRaisesRegexp(TypeError, err_msg):
+    with self.assertRaisesRegex(TypeError, err_msg):
       gp.upsample_transposed_convolution(
           data,
           pool_map,

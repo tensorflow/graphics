@@ -140,7 +140,7 @@ class GraphConvolutionTestFeatureSteeredConvolutionTests(test_case.TestCase):
     data, neighbors, sizes = _random_data(1, 5, 3, True, False, data_type,
                                           neighbors_type, sizes_type)
     u, v, c, w, b = _random_variables(3, 3, 1, var_type)
-    with self.assertRaisesRegexp(TypeError, err_msg):
+    with self.assertRaisesRegex(TypeError, err_msg):
       _ = gc.feature_steered_convolution(
           data=data,
           neighbors=neighbors,
@@ -178,7 +178,7 @@ class GraphConvolutionTestFeatureSteeredConvolutionTests(test_case.TestCase):
 
   def test_feature_steered_convolution_exception_raised_shapes(self):
     """Check that invalid input shapes trigger the right exceptions."""
-    with self.assertRaisesRegexp(ValueError, "must have a rank of 2"):
+    with self.assertRaisesRegex(ValueError, "must have a rank of 2"):
       data, neighbors = _dummy_data(1, 5, 2)
       u, v, c, w, b = _dummy_variables(2, 2, 1)
       data = data[0, :]
@@ -192,7 +192,7 @@ class GraphConvolutionTestFeatureSteeredConvolutionTests(test_case.TestCase):
           var_w=w,
           var_b=b)
 
-    with self.assertRaisesRegexp(ValueError, "must have a rank greater than 1"):
+    with self.assertRaisesRegex(ValueError, "must have a rank greater than 1"):
       u, v, c, w, b = _dummy_variables(2, 2, 1)
       data = np.ones(shape=(5), dtype=np.float32)
       neighbors = _dense_to_sparse(np.ones(shape=(5), dtype=np.float32))
@@ -206,8 +206,9 @@ class GraphConvolutionTestFeatureSteeredConvolutionTests(test_case.TestCase):
           var_w=w,
           var_b=b)
 
-    with self.assertRaisesRegexp(ValueError,
-                                 "Not all batch dimensions are identical."):
+    with self.assertRaisesRegex(
+        ValueError, "Not all batch dimensions are identical."
+    ):
       data, neighbors = _dummy_data(1, 5, 2)
       u, v, c, w, b = _dummy_variables(2, 2, 1)
       _ = gc.feature_steered_convolution(
@@ -553,7 +554,7 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
     """Check the type errors for invalid input types."""
     data, neighbors, sizes = _random_data(1, 5, 3, True, False, data_type,
                                           neighbors_type, sizes_type)
-    with self.assertRaisesRegexp(TypeError, err_msg):
+    with self.assertRaisesRegex(TypeError, err_msg):
       gc.edge_convolution_template(
           data=data,
           neighbors=neighbors,
@@ -590,7 +591,7 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
 
   def test_edge_convolution_template_exception_raised_shapes(self):
     """Check that invalid input shapes trigger the right exceptions."""
-    with self.assertRaisesRegexp(ValueError, "must have a rank of 2"):
+    with self.assertRaisesRegex(ValueError, "must have a rank of 2"):
       data, neighbors = _dummy_data(1, 5, 2)
       data = data[0, :]
       _ = gc.edge_convolution_template(
@@ -601,7 +602,7 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
           reduction="weighted",
           edge_function_kwargs=dict())
 
-    with self.assertRaisesRegexp(ValueError, "must have a rank greater than 1"):
+    with self.assertRaisesRegex(ValueError, "must have a rank greater than 1"):
       data = np.ones(shape=(5), dtype=np.float32)
       neighbors = _dense_to_sparse(np.ones(shape=(5), dtype=np.float32))
       _ = gc.edge_convolution_template(
@@ -612,7 +613,7 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
           reduction="weighted",
           edge_function_kwargs=dict())
 
-    with self.assertRaisesRegexp(ValueError, "must have a rank of 1"):
+    with self.assertRaisesRegex(ValueError, "must have a rank of 1"):
       data, neighbors = _dummy_data(1, 5, 2)
       _ = gc.edge_convolution_template(
           data=data,
@@ -626,7 +627,7 @@ class EdgeConvolutionTemplateTests(test_case.TestCase):
   def test_edge_convolution_template_exception_raised_reduction(
       self, reduction):
     """Check that an invalid reduction method triggers the exception."""
-    with self.assertRaisesRegexp(ValueError, "reduction method"):
+    with self.assertRaisesRegex(ValueError, "reduction method"):
       data, neighbors = _dummy_data(1, 5, 2)
       gc.edge_convolution_template(
           data=data,
