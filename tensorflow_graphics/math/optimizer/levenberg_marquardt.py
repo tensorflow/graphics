@@ -78,7 +78,7 @@ def _values_and_jacobian(residuals, variables):
   values = tf.expand_dims(values, axis=-1)
   return values, jacobian
 
-
+@tf.function
 def minimize(residuals,
              variables,
              max_iterations,
