@@ -342,6 +342,58 @@ class RayTest(test_case.TestCase):
     self.assert_output_is_correct(
         ray.intersection_ray_sphere, test_inputs, test_outputs, tile=False)
 
+  @flagsaver.flagsaver(tfg_add_asserts_to_graph=False)
+  def test_intersection_ray_triangle_random(self):
+    """Test the intersection_ray_triangle function."""
+    tensor_size = np.random.randint(3)
+    tensor_shape = np.random.randint(1, 10, size=(tensor_size)).tolist()
+    ray_org = np.random.uniform(size=tensor_shape + [3])
+    ray_dir = np.random.uniform(size=tensor_shape + [3])
+    ray_dir /= np.linalg.norm(ray_dir, axis=-1, keepdims=True)
+    triangles = np.random.uniform(size=tensor_shape + [3, 3])
+
+    barys, t = ray.intersection_ray_triangle(ray_org, ray_dir, triangles)
+
+    intersections_barys = tf.math.reduce_sum(
+        barys[..., tf.newaxis] * triangles, axis=-2)
+
+    intersections_dists = t[..., tf.newaxis] * ray_dir + ray_org
+
+    intersections_barys = tf.where(
+        tf.abs(t) > 0,
+        intersections_barys,
+        tf.zeros_like(intersections_barys))
+
+    intersections_dists = tf.where(
+        tf.abs(t) > 0,
+        intersections_dists,
+        tf.zeros_like(intersections_dists))
+
+    self.assertAllClose(
+        intersections_barys, intersections_dists, atol=1e-04, rtol=1e-04)
+
+  @parameterized.parameters(
+      (
+          (
+              (0.0, 0.0, 0.0),
+              (0.0, 0.0, 1.0),
+              ((1.0, 0.0, 1.0), (0.0, 1.0, 1.0), (0.0, 0.0, 1.0)),
+          ),
+          ((0.0, 0.0, 1.0), 1.0),
+      ),
+      (
+          (
+              (0.5, 0.5, 0.0),
+              (0.0, 0.0, 1.0),
+              ((1.0, 0.0, 0.5), (0.0, 1.0, 0.5), (0.0, 0.0, 0.5)),
+          ),
+          ((0.5, 0.5, 0.0), 0.5),
+      ),
+  )
+  def test_intersection_ray_triangle_preset(self, test_inputs, test_outputs):
+    self.assert_output_is_correct(
+        ray.intersection_ray_triangle, test_inputs, test_outputs, tile=False)
+
 
 if __name__ == "__main__":
   test_case.main()
