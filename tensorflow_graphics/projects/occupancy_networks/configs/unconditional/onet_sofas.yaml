@@ -1,0 +1,28 @@
+method: onet
+data:
+  classes: ['04256520']
+  input_type: null
+  path: data/ShapeNet
+  points_subsample: 2048
+model:
+  encoder_latent: simple
+  decoder: simple
+  encoder: null
+  c_dim: 0
+  z_dim: 128
+training:
+  out_dir:  out/unconditional/onet_sofas
+  batch_size: 64
+  eval_sample: true
+test:
+  threshold: 0.2
+  eval_mesh: true
+  eval_pointcloud: false
+generation:
+  batch_size: 100000
+  refine: false
+  n_x: 128
+  n_z: 1
+  use_sampling: true
+  copy_groundtruth: false
+  copy_input: false

@@ -1,0 +1,35 @@
+method: onet
+data:
+  input_type: idx
+  classes: ['03001627']
+  path: data/ShapeNet
+  train_split: train
+  test_split: train
+  val_split: train
+  points_subsample: 1024
+model:
+  encoder_latent: simple
+  decoder: cbatchnorm
+  encoder: idx
+  decoder_kwargs:
+    legacy: true
+  c_dim: 512
+  z_dim: 0
+  use_poincloud: false
+training:
+  out_dir:  out/repr_power/onet
+  batch_size: 64
+  visualize_every: 2000
+  validate_every: 2000
+  model_selection_metric: iou
+  model_selection_mode: maximize
+test:
+  model_file: model.ckpt
+  threshold: 0.5
+  eval_mesh: true
+generation:
+  split: train
+  batch_size: 100000
+  refine: false
+  n_x: 128
+  n_z: 1
