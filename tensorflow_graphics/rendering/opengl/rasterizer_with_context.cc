@@ -28,7 +28,7 @@ RasterizerWithContext::RasterizerWithContext(
 RasterizerWithContext::~RasterizerWithContext() {
   // Destroy the rasterizer in the correct EGL context.
   auto status = egl_context_->MakeCurrent();
-  if (status != tensorflow::Status())
+  if (status != absl::Status())
     std::cerr
         << "~RasterizerWithContext: failure to set the context as current."
         << std::endl;
@@ -39,7 +39,7 @@ RasterizerWithContext::~RasterizerWithContext() {
   // egl_offscreen_context::Release().
 }
 
-tensorflow::Status RasterizerWithContext::Create(
+absl::Status RasterizerWithContext::Create(
     int width, int height, const std::string& vertex_shader_source,
     const std::string& geometry_shader_source,
     const std::string& fragment_shader_source,
@@ -69,25 +69,25 @@ tensorflow::Status RasterizerWithContext::Create(
           std::move(offscreen_context), std::move(program),
           std::move(render_targets), clear_red, clear_green, clear_blue,
           clear_alpha, clear_depth, enable_cull_face));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status RasterizerWithContext::Render(int num_points,
-                                                 absl::Span<float> result) {
+absl::Status RasterizerWithContext::Render(int num_points,
+                                           absl::Span<float> result) {
   TF_RETURN_IF_ERROR(egl_context_->MakeCurrent());
   auto context_cleanup =
       MakeCleanup([this]() { return this->egl_context_->Release(); });
   TF_RETURN_IF_ERROR(Rasterizer::Render(num_points, result));
   // context_cleanup calls EGLOffscreenContext::Release here.
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status RasterizerWithContext::Render(
-    int num_points, absl::Span<unsigned char> result) {
+absl::Status RasterizerWithContext::Render(int num_points,
+                                           absl::Span<unsigned char> result) {
   TF_RETURN_IF_ERROR(egl_context_->MakeCurrent());
   auto context_cleanup =
       MakeCleanup([this]() { return this->egl_context_->Release(); });
   TF_RETURN_IF_ERROR(Rasterizer::Render(num_points, result));
   // context_cleanup calls EGLOffscreenContext::Release here.
-  return tensorflow::Status();
+  return absl::Status();
 }
