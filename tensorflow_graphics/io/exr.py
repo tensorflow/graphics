@@ -25,7 +25,6 @@ import OpenEXR
 from six.moves import range
 from six.moves import zip
 
-
 _np_to_exr = {
     np.float16: Imath.PixelType.HALF,
     np.float32: Imath.PixelType.FLOAT,
