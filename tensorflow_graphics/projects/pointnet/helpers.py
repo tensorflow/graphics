@@ -147,7 +147,7 @@ def handle_keyboard_interrupt(flags):
   if flags.logdir.startswith("gs://"):
     bucketpath = flags.logdir[5:]
     print("Delete these summaries with: ")
-    termcolor.cprint("  gsutil rm -rf {}".format(flags.logdir), "red")
+    termcolor.cprint("  gcloud storage rm --recursive --continue-on-error {}".format(flags.logdir), "red")
     baseurl = "  https://pantheon.google.com/storage/browser/{}"
     print("Or by visiting: ")
     termcolor.cprint(baseurl.format(bucketpath), "red")
