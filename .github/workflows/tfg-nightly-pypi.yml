@@ -7,6 +7,9 @@ on:
     # runs daily at 00:30 am
     - cron:  '30 0 * * *'
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     if: github.repository == 'tensorflow/graphics'  # prevents action from running on forks

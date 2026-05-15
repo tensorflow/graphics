@@ -3,6 +3,9 @@ name: Deploy to test-pypi
 
 on: workflow_dispatch
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     if: github.repository == 'tensorflow/graphics'  # prevents action from running on forks
