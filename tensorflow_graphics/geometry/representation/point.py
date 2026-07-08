@@ -55,7 +55,7 @@ def distance_to_ray(point: type_alias.TensorLike,
     ValueError: If the shape of `point`, `origin`, or 'direction' is not
     supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point = tf.convert_to_tensor(value=point)
     origin = tf.convert_to_tensor(value=origin)
     direction = tf.convert_to_tensor(value=direction)
@@ -99,7 +99,7 @@ def project_to_ray(point: type_alias.TensorLike,
     ValueError: If the shape of `point`, `origin`, or 'direction' is not
     supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point = tf.convert_to_tensor(value=point)
     origin = tf.convert_to_tensor(value=origin)
     direction = tf.convert_to_tensor(value=direction)

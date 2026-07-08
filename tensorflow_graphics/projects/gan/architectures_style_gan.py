@@ -113,7 +113,7 @@ def create_mapping_network(latent_code_dimension: int = 128,
 
   tensor = maybe_normalized_input_tensor
   for i in range(num_layers):
-    with tf.name_scope(name='mapping_layer_%d' % i):
+    with tf.name_scope(name='mapping_layer_%d' % i):  # pyrefly: ignore[bad-instantiation]
       # The kernel_multiplier implements the reduced learning rate of the
       # mapping network.
       tensor = keras_layers.FanInScaledDense(
@@ -123,7 +123,7 @@ def create_mapping_network(latent_code_dimension: int = 128,
           kernel_initializer=tf.keras.initializers.TruncatedNormal(
               mean=0.0, stddev=1.0 / learning_rate_multiplier))(
                   tensor)
-      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
   return tf.keras.Model(inputs=input_tensor, outputs=tensor, name=name)
 
 
@@ -162,7 +162,7 @@ def create_synthesis_network(latent_code_dimension: int = 128,
 
   tensor = keras_layers.LearnedConstant()(mapped_latent_code_input)
   tensor = keras_layers.Noise()(tensor)
-  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
   tensor = apply_style_with_adain(
       mapped_latent_code=mapped_latent_code_input, input_tensor=tensor)
   tensor = keras_layers.FanInScaledConv2D(
@@ -173,7 +173,7 @@ def create_synthesis_network(latent_code_dimension: int = 128,
       kernel_initializer=kernel_initializer)(
           tensor)
   tensor = keras_layers.Noise()(tensor)
-  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
   tensor = apply_style_with_adain(
       mapped_latent_code=mapped_latent_code_input, input_tensor=tensor)
 
@@ -197,7 +197,7 @@ def create_synthesis_network(latent_code_dimension: int = 128,
           kernel_initializer=kernel_initializer)(
               tensor)
       tensor = keras_layers.Noise()(tensor)
-      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
       tensor = apply_style_with_adain(
           mapped_latent_code=mapped_latent_code_input, input_tensor=tensor)
 
@@ -262,8 +262,8 @@ def create_style_based_generator(
       use_bilinear_upsampling=use_bilinear_upsampling)
 
   input_tensor = tf.keras.Input(shape=(latent_code_dimension,))
-  mapped_latent_code = mapping_network(input_tensor)
-  generated_images = synthesis_network(mapped_latent_code)
+  mapped_latent_code = mapping_network(input_tensor)  # pyrefly: ignore[not-callable]
+  generated_images = synthesis_network(mapped_latent_code)  # pyrefly: ignore[not-callable]
   generator = tf.keras.Model(
       inputs=input_tensor, outputs=generated_images, name=name)
 

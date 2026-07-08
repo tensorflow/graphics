@@ -46,7 +46,7 @@ def render(voxels: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of the input tensors are not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     voxels = tf.convert_to_tensor(value=voxels)
 
     shape.check_static(

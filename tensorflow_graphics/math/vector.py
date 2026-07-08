@@ -47,7 +47,7 @@ def cross(vector1: TensorLike,
     A tensor of shape `[A1, ..., Ai = 3, ..., An]`, where the dimension i = axis
     represents the result of the cross product.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector1 = tf.convert_to_tensor(value=vector1)
     vector2 = tf.convert_to_tensor(value=vector2)
 
@@ -90,7 +90,7 @@ def dot(vector1: TensorLike,
     A tensor of shape `[A1, ..., Ai = 1, ..., An]`, where the dimension i = axis
     represents the result of the dot product.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector1 = tf.convert_to_tensor(value=vector1)
     vector2 = tf.convert_to_tensor(value=vector2)
 
@@ -132,7 +132,7 @@ def reflect(vector: TensorLike,
     A tensor of shape `[A1, ..., Ai, ..., An]`, where the dimension i = axis
     represents a reflected vector.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector = tf.convert_to_tensor(value=vector)
     normal = tf.convert_to_tensor(value=normal)
 

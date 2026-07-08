@@ -60,7 +60,7 @@ def from_axis_angle(axis: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, 3]`, where the last dimension represents
     the three Euler angles.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     return from_quaternion(quaternion.from_axis_angle(axis, angle))
 
 
@@ -98,7 +98,7 @@ def from_quaternion(quaternions: type_alias.TensorLike,
     angles = tf.stack((theta_x, theta_y, theta_z), axis=-1)
     return angles
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternions = tf.convert_to_tensor(value=quaternions)
 
     shape.check_static(
@@ -193,7 +193,7 @@ def from_rotation_matrix(rotation_matrix: type_alias.TensorLike,
     angles = tf.stack((theta_x, theta_y, theta_z), axis=-1)
     return angles
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     rotation_matrix = tf.convert_to_tensor(value=rotation_matrix)
 
     shape.check_static(
@@ -232,7 +232,7 @@ def inverse(euler_angle: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `euler_angle` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     euler_angle = tf.convert_to_tensor(value=euler_angle)
 
     shape.check_static(

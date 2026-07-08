@@ -32,7 +32,7 @@ from __future__ import print_function
 
 from typing import List
 
-from six.moves import range
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import rotation_matrix_3d
@@ -98,7 +98,7 @@ def between_two_vectors_3d(vector1: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `vector1` or `vector2` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector1 = tf.convert_to_tensor(value=vector1)
     vector2 = tf.convert_to_tensor(value=vector2)
 
@@ -154,7 +154,7 @@ def conjugate(quaternion: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion = tf.convert_to_tensor(value=quaternion)
 
     shape.check_static(
@@ -187,7 +187,7 @@ def from_axis_angle(axis: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `axis` or `angle` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     axis = tf.convert_to_tensor(value=axis)
     angle = tf.convert_to_tensor(value=angle)
 
@@ -229,7 +229,7 @@ def from_euler(angles: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `angles` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     angles = tf.convert_to_tensor(value=angles)
 
     shape.check_static(
@@ -272,7 +272,7 @@ def from_euler_with_small_angles_approximation(
   Raises:
     ValueError: If the shape of `angles` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     angles = tf.convert_to_tensor(value=angles)
 
     shape.check_static(
@@ -310,7 +310,7 @@ def from_rotation_matrix(rotation_matrix: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `rotation_matrix` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     rotation_matrix = tf.convert_to_tensor(value=rotation_matrix)
 
     shape.check_static(
@@ -395,7 +395,7 @@ def inverse(quaternion: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion = tf.convert_to_tensor(value=quaternion)
 
     shape.check_static(
@@ -429,7 +429,7 @@ def is_normalized(quaternion: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion = tf.convert_to_tensor(value=quaternion)
 
     shape.check_static(
@@ -463,7 +463,7 @@ def normalize(quaternion: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion = tf.convert_to_tensor(value=quaternion)
 
     shape.check_static(
@@ -494,7 +494,7 @@ def multiply(quaternion1: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `quaternion1` or `quaternion2` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion1 = tf.convert_to_tensor(value=quaternion1)
     quaternion2 = tf.convert_to_tensor(value=quaternion2)
 
@@ -526,7 +526,7 @@ def normalized_random_uniform(quaternion_shape: List[int],
     A tensor of shape `[quaternion_shape[0],...,quaternion_shape[-1], 4]`
     representing random normalized quaternions.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion_shape = tf.convert_to_tensor(
         value=quaternion_shape, dtype=tf.int32)
     quaternion_shape = tf.concat((quaternion_shape, tf.constant([4])), axis=0)
@@ -594,7 +594,7 @@ def rotate(point: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `point` or `quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point = tf.convert_to_tensor(value=point)
     quaternion = tf.convert_to_tensor(value=quaternion)
 
@@ -642,7 +642,7 @@ def relative_angle(quaternion1: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `quaternion1` or `quaternion2` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion1 = tf.convert_to_tensor(value=quaternion1)
     quaternion2 = tf.convert_to_tensor(value=quaternion2)
 

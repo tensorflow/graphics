@@ -66,7 +66,7 @@ def evaluate(ground_truth: type_alias.TensorLike,
   Raises:
     ValueError: if the shape of `ground_truth`, `prediction` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     ground_truth = tf.cast(
         x=tf.convert_to_tensor(value=ground_truth), dtype=tf.int32)
     prediction = tf.convert_to_tensor(value=prediction)

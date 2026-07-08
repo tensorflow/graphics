@@ -38,7 +38,7 @@ def nonzero_sign(
     x: type_alias.TensorLike,
     name: str = 'nonzero_sign') -> tf.Tensor:
   """Returns the sign of x with sign(0) defined as 1 instead of 0."""
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     x = tf.convert_to_tensor(value=x)
 
     one = tf.ones_like(x)
@@ -76,7 +76,7 @@ def safe_cospx_div_cosx(
   Returns:
     A tensor of shape `[A1, ..., An]` containing the resulting values.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     theta = tf.convert_to_tensor(value=theta)
     factor = tf.convert_to_tensor(value=factor, dtype=theta.dtype)
     if eps is None:
@@ -88,7 +88,7 @@ def safe_cospx_div_cosx(
     # factors as small as 1e-10 correctly, while preventing a division by zero.
     eps *= tf.clip_by_value(1.0 / factor, 1.0, 1e10)
     sign = nonzero_sign(0.5 * np.pi - (theta - 0.5 * np.pi) % np.pi)
-    theta += sign * eps
+    theta += sign * eps  # pyrefly: ignore[unsupported-operation]
     div = tf.cos(factor * theta) / tf.cos(theta)
     return asserts.assert_no_infs_or_nans(div)
 
@@ -138,7 +138,7 @@ def safe_shrink(
   Returns:
     A tensor of shape `[A1, ..., An]` containing the shrinked values.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector = tf.convert_to_tensor(value=vector)
     if eps is None:
       eps = asserts.select_eps_for_addition(vector.dtype)
@@ -181,7 +181,7 @@ def safe_signed_div(
   Returns:
      A tensor of shape `[A1, ..., An]` containing the results of division.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     a = tf.convert_to_tensor(value=a)
     b = tf.convert_to_tensor(value=b)
     if eps is None:
@@ -222,7 +222,7 @@ def safe_sinpx_div_sinx(
   Returns:
     A tensor of shape `[A1, ..., An]` containing the resulting values.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     theta = tf.convert_to_tensor(value=theta)
     factor = tf.convert_to_tensor(value=factor, dtype=theta.dtype)
     if eps is None:
@@ -234,7 +234,7 @@ def safe_sinpx_div_sinx(
     # factors as small as 1e-10 correctly, while preventing a division by zero.
     eps *= tf.clip_by_value(1.0 / factor, 1.0, 1e10)
     sign = nonzero_sign(0.5 * np.pi - theta % np.pi)
-    theta += sign * eps
+    theta += sign * eps  # pyrefly: ignore[unsupported-operation]
     div = tf.sin(factor * theta) / tf.sin(theta)
     return asserts.assert_no_infs_or_nans(div)
 
@@ -264,7 +264,7 @@ def safe_unsigned_div(
   Returns:
      A tensor of shape `[A1, ..., An]` containing the results of division.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     a = tf.convert_to_tensor(value=a)
     b = tf.convert_to_tensor(value=b)
     if eps is None:

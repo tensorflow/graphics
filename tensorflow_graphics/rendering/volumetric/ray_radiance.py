@@ -47,7 +47,7 @@ def compute_radiance(
     and a tensor of shape `[A1, ..., An, N]` for the sample weights.
   """
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     rgba_values = tf.convert_to_tensor(value=rgba_values)
     distances = tf.convert_to_tensor(value=distances)
     distances = tf.expand_dims(distances, -1)

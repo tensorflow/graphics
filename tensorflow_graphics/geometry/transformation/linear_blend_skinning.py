@@ -56,7 +56,7 @@ def blend(points: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of the input tensors are not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     points = tf.convert_to_tensor(value=points)
     skinning_weights = tf.convert_to_tensor(value=skinning_weights)
     bone_rotations = tf.convert_to_tensor(value=bone_rotations)

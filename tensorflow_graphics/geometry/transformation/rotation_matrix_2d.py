@@ -35,7 +35,7 @@ from __future__ import print_function
 
 from typing import Optional
 
-from six.moves import range
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.transformation import rotation_matrix_common
@@ -77,7 +77,7 @@ def from_euler(angle: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `angle` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     angle = tf.convert_to_tensor(value=angle)
 
     shape.check_static(
@@ -132,7 +132,7 @@ def from_euler_with_small_angles_approximation(
   Raises:
     ValueError: If the shape of `angle` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     angles = tf.convert_to_tensor(value=angles)
 
     shape.check_static(
@@ -166,7 +166,7 @@ def inverse(matrix: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `matrix` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     matrix = tf.convert_to_tensor(value=matrix)
 
     shape.check_static(
@@ -201,7 +201,7 @@ def is_valid(matrix: type_alias.TensorLike,
     A tensor of type `bool` and shape `[A1, ..., An, 1]` where False indicates
     that the input is not a valid rotation matrix.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     matrix = tf.convert_to_tensor(value=matrix)
 
     shape.check_static(
@@ -236,7 +236,7 @@ def rotate(point: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `point` or `matrix` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point = tf.convert_to_tensor(value=point)
     matrix = tf.convert_to_tensor(value=matrix)
 

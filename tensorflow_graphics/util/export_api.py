@@ -48,7 +48,7 @@ def get_modules():
   return [
       obj_name for obj_name, obj in inspect.getmembers(module)
       if inspect.ismodule(obj) and six.ensure_str(obj.__name__).rsplit(".", 1)
-      [0] == module.__name__ and not obj_name.startswith("_")
+      [0] == module.__name__ and not obj_name.startswith("_")  # pyrefly: ignore[missing-attribute]
   ]
 
 

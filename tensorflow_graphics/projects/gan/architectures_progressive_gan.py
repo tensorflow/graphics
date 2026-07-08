@@ -103,7 +103,7 @@ def create_generator(latent_code_dimension: int = 128,
      The created generator keras model object.
   """
   if kernel_initializer is None:
-    kernel_initializer = tf.keras.initializers.TruncatedNormal(
+    kernel_initializer = tf.keras.initializers.TruncatedNormal(  # pyrefly: ignore[bad-assignment]
         mean=0.0, stddev=1.0)
 
   input_tensor = tf.keras.Input(shape=(latent_code_dimension,))
@@ -118,9 +118,9 @@ def create_generator(latent_code_dimension: int = 128,
       units=4 * 4 * latent_code_dimension,
       kernel_initializer=kernel_initializer)(
           maybe_normzlized_input_tensor)
-  tensor = tf.keras.layers.Reshape(target_shape=(4, 4, latent_code_dimension))(
+  tensor = tf.keras.layers.Reshape(target_shape=(4, 4, latent_code_dimension))(  # pyrefly: ignore[not-callable]
       tensor)
-  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
   if use_batch_normalization:
     tensor = tf.keras.layers.BatchNormalization()(tensor)
   if use_pixel_normalization:
@@ -132,7 +132,7 @@ def create_generator(latent_code_dimension: int = 128,
       padding='same',
       kernel_initializer=kernel_initializer)(
           tensor)
-  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
   if use_batch_normalization:
     tensor = tf.keras.layers.BatchNormalization()(tensor)
   if use_pixel_normalization:
@@ -144,7 +144,7 @@ def create_generator(latent_code_dimension: int = 128,
       outputs.append(
           to_rgb(
               input_tensor=tensor,
-              kernel_initializer=kernel_initializer,
+              kernel_initializer=kernel_initializer,  # pyrefly: ignore[bad-argument-type]
               name='side_output_%d_conv' % index))
     tensor = keras_layers.TwoByTwoNearestNeighborUpSampling()(tensor)
 
@@ -156,7 +156,7 @@ def create_generator(latent_code_dimension: int = 128,
           padding='same',
           kernel_initializer=kernel_initializer)(
               tensor)
-      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
       if use_batch_normalization:
         tensor = tf.keras.layers.BatchNormalization()(tensor)
       if use_pixel_normalization:
@@ -164,7 +164,7 @@ def create_generator(latent_code_dimension: int = 128,
 
   tensor = to_rgb(
       input_tensor=tensor,
-      kernel_initializer=kernel_initializer,
+      kernel_initializer=kernel_initializer,  # pyrefly: ignore[bad-argument-type]
       name='final_output')
   if generate_intermediate_outputs:
     outputs.append(tensor)
@@ -213,7 +213,7 @@ def from_rgb(input_tensor: tf.Tensor,
   Returns:
     The feature map.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     output = create_conv_layer(
         use_fan_in_scaled_kernel=use_fan_in_scaled_kernel,
         filters=num_channels,
@@ -222,7 +222,7 @@ def from_rgb(input_tensor: tf.Tensor,
         kernel_initializer=kernel_initializer,
         padding='same')(
             input_tensor)
-    return tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(output)
+    return tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(output)  # pyrefly: ignore[not-callable]
 
 
 def create_discriminator(
@@ -270,7 +270,7 @@ def create_discriminator(
     The generated discriminator keras model.
   """
   if kernel_initializer is None:
-    kernel_initializer = tf.keras.initializers.TruncatedNormal(
+    kernel_initializer = tf.keras.initializers.TruncatedNormal(  # pyrefly: ignore[bad-assignment]
         mean=0.0, stddev=1.0)
 
   if use_intermediate_inputs:
@@ -286,7 +286,7 @@ def create_discriminator(
       tensor,
       use_fan_in_scaled_kernel=use_fan_in_scaled_kernels,
       num_channels=downsampling_blocks_num_channels[0][0],
-      kernel_initializer=kernel_initializer,
+      kernel_initializer=kernel_initializer,  # pyrefly: ignore[bad-argument-type]
       relu_leakiness=relu_leakiness)
   if use_layer_normalization:
     tensor = tfa_normalizations.GroupNormalization(groups=1)(tensor)
@@ -301,7 +301,7 @@ def create_discriminator(
         padding='same',
         kernel_initializer=kernel_initializer)(
             tensor)
-    tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+    tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
     if use_layer_normalization:
       tensor = tfa_normalizations.GroupNormalization(groups=1)(tensor)
     tensor = create_conv_layer(
@@ -312,7 +312,7 @@ def create_discriminator(
         padding='same',
         kernel_initializer=kernel_initializer)(
             tensor)
-    tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+    tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
     if use_layer_normalization:
       tensor = tfa_normalizations.GroupNormalization(groups=1)(tensor)
     if use_antialiased_bilinear_downsampling:
@@ -320,7 +320,7 @@ def create_discriminator(
     tensor = tf.keras.layers.AveragePooling2D()(tensor)
 
     if use_intermediate_inputs:
-      tensor = tf.keras.layers.Concatenate()([inputs[-index - 2], tensor])
+      tensor = tf.keras.layers.Concatenate()([inputs[-index - 2], tensor])  # pyrefly: ignore[unbound-name]
 
   tensor = create_conv_layer(
       use_fan_in_scaled_kernel=use_fan_in_scaled_kernels,
@@ -330,7 +330,7 @@ def create_discriminator(
       padding='same',
       kernel_initializer=kernel_initializer)(
           tensor)
-  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
   if use_layer_normalization:
     tensor = tfa_normalizations.GroupNormalization(groups=1)(tensor)
 
@@ -342,7 +342,7 @@ def create_discriminator(
       padding='valid',
       kernel_initializer=kernel_initializer)(
           tensor)
-  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
   if use_layer_normalization:
     tensor = tfa_normalizations.GroupNormalization(groups=1)(tensor)
 
@@ -353,9 +353,9 @@ def create_discriminator(
       kernel_size=1,
       kernel_initializer=kernel_initializer)(
           tensor)
-  tensor = tf.keras.layers.Reshape((-1,))(tensor)
+  tensor = tf.keras.layers.Reshape((-1,))(tensor)  # pyrefly: ignore[not-callable]
 
   if use_intermediate_inputs:
-    return tf.keras.Model(inputs=inputs, outputs=tensor, name=name)
+    return tf.keras.Model(inputs=inputs, outputs=tensor, name=name)  # pyrefly: ignore[unbound-name]
   else:
-    return tf.keras.Model(inputs=input_tensor, outputs=tensor, name=name)
+    return tf.keras.Model(inputs=input_tensor, outputs=tensor, name=name)  # pyrefly: ignore[unbound-name]

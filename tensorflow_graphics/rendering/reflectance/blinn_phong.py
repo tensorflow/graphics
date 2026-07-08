@@ -89,7 +89,7 @@ def brdf(direction_incoming_light: type_alias.TensorLike,
     InvalidArgumentError: if not all of shininess values are non-negative, or if
     at least one element of `albedo` is outside of [0,1].
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     direction_incoming_light = tf.convert_to_tensor(
         value=direction_incoming_light)
     direction_outgoing_light = tf.convert_to_tensor(

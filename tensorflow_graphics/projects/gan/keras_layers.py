@@ -88,7 +88,7 @@ class _KernelFanInScaler(tf.keras.layers.Layer):
     # Fan in computation assumes that the last dimension of the kernel is the
     # output dimension.
     fan_in = np.prod(self._kernel.shape.as_list()[:-1])
-    return (self._kernel * self._multiplier / math.sqrt(fan_in) *
+    return (self._kernel * self._multiplier / math.sqrt(fan_in) *  # pyrefly: ignore[bad-return, unsupported-operation]
             self._kernel_multiplier)
 
   @kernel.setter
@@ -98,7 +98,7 @@ class _KernelFanInScaler(tf.keras.layers.Layer):
   @property
   def bias(self) -> tf.Tensor:
     if self._bias_multiplier is not None:
-      return self._bias * self._bias_multiplier
+      return self._bias * self._bias_multiplier  # pyrefly: ignore[bad-return, unsupported-operation]
     else:
       return self._bias.read_value()
 
@@ -384,7 +384,7 @@ class DemodulatedConvolution(tf.keras.layers.Layer):
       raise ValueError('inputs needs to have two elements.')
 
     feature_map, mapped_latent_code = inputs
-    style = self._dense_layer(mapped_latent_code)[:, tf.newaxis, tf.newaxis, :]
+    style = self._dense_layer(mapped_latent_code)[:, tf.newaxis, tf.newaxis, :]  # pyrefly: ignore[not-callable]
 
     modulated_features = self._conv_layer(feature_map * style)
     weight = self._conv_layer.kernel[tf.newaxis, :, :, :, :]

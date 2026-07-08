@@ -61,7 +61,7 @@ def interpolate(points: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, M]` storing the interpolated M-D
     points. The first n dimensions will be the same as weights and indices.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     points = tf.convert_to_tensor(value=points)
     weights = tf.convert_to_tensor(value=weights)
     indices = tf.convert_to_tensor(value=indices)
@@ -128,7 +128,7 @@ def get_barycentric_coordinates(
     valid: A boolean tensor of shape `[A1, ..., An, N], which is `True` where
       pixels are inside the triangle, and `False` otherwise.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     triangle_vertices = tf.convert_to_tensor(value=triangle_vertices)
     pixels = tf.convert_to_tensor(value=pixels)
 

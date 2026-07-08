@@ -18,7 +18,7 @@ from __future__ import division
 from __future__ import print_function
 
 from typing import Tuple, Union
-from six.moves import range
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.math import sampling
@@ -92,7 +92,7 @@ def sample_1d(
     A tensor of shape `[A1, ..., An, M, 3]` indicating the M points on the ray
       and a tensor of shape `[A1, ..., An, M]` for the Z values on the points.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     ray_org = tf.convert_to_tensor(ray_org)
     ray_dir = tf.convert_to_tensor(ray_dir)
     near = tf.convert_to_tensor(near) * tf.ones((1,))
@@ -145,7 +145,7 @@ def sample_1d(
     else:
       strategy_method = None
 
-    random_z_values = strategy_method(near, far, n_samples)
+    random_z_values = strategy_method(near, far, n_samples)  # pyrefly: ignore[not-callable]
     points3d = _points_from_z_values(ray_org, ray_dir, random_z_values)
     return points3d, random_z_values
 
@@ -175,7 +175,7 @@ def sample_stratified_1d(
     A tensor of shape `[A1, ..., An, M, 3]` indicating the M points on the ray
       and a tensor of shape `[A1, ..., An, M]` for the Z values on the points.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     ray_org = tf.convert_to_tensor(ray_org)
     ray_dir = tf.convert_to_tensor(ray_dir)
     near = tf.convert_to_tensor(near) * tf.ones((1,))
@@ -245,7 +245,7 @@ def sample_inverse_transform_stratified_1d(
     A tensor of shape `[A1, ..., An, M, 3]` indicating the M points on the ray
       and a tensor of shape `[A1, ..., An, M]` for the Z values on the points.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     shape.check_static(
         tensor=ray_org,
         tensor_name="ray_org",
@@ -312,7 +312,7 @@ def triangulate(startpoints, endpoints, weights, name="ray_triangulate"):
   Raises:
     ValueError: If the shape of the arguments is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     startpoints = tf.convert_to_tensor(value=startpoints)
     endpoints = tf.convert_to_tensor(value=endpoints)
     weights = tf.convert_to_tensor(value=weights)
@@ -403,7 +403,7 @@ def intersection_ray_sphere(sphere_center,
       `point_on_ray` is not supported.
     tf.errors.InvalidArgumentError: If `ray` is not normalized.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     sphere_center = tf.convert_to_tensor(value=sphere_center)
     sphere_radius = tf.convert_to_tensor(value=sphere_radius)
     ray = tf.convert_to_tensor(value=ray)

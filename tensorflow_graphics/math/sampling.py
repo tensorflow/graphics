@@ -40,7 +40,7 @@ def regular_1d(near: TensorLike,
   Returns:
     A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     near = tf.convert_to_tensor(near)
     far = tf.convert_to_tensor(far)
 
@@ -70,7 +70,7 @@ def regular_inverse_1d(near: TensorLike,
   Returns:
     A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     near = tf.convert_to_tensor(near)
     far = tf.convert_to_tensor(far)
 
@@ -100,7 +100,7 @@ def uniform_1d(near: TensorLike,
   Returns:
     A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     near = tf.convert_to_tensor(near)
     far = tf.convert_to_tensor(far)
 
@@ -135,7 +135,7 @@ def stratified_1d(near: TensorLike,
   Returns:
     A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     near = tf.convert_to_tensor(near)
     far = tf.convert_to_tensor(far)
 
@@ -175,7 +175,7 @@ def logspace_1d(near: TensorLike,
   Returns:
     A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     near = tf.convert_to_tensor(near)
     far = tf.convert_to_tensor(far)
     shape.compare_batch_dimensions(
@@ -209,7 +209,7 @@ def geomspace_1d(near: TensorLike,
   Returns:
     A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     near = tf.convert_to_tensor(near)
     far = tf.convert_to_tensor(far)
     shape.compare_batch_dimensions(
@@ -238,7 +238,7 @@ def stratified_geomspace_1d(near: TensorLike,
   Returns:
     A tensor of shape `[A1, ..., An, M]` indicating the M points on the ray
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     near = tf.convert_to_tensor(near)
     far = tf.convert_to_tensor(far)
 
@@ -268,7 +268,7 @@ def _normalize_pdf(pdf: TensorLike, name="normalize_pdf") -> tf.Tensor:
   Returns:
     A tensor of shape `[A1, ..., An, M]`.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     pdf = tf.convert_to_tensor(value=pdf)
     pdf += 1e-5
     return safe_ops.safe_signed_div(pdf, tf.reduce_sum(pdf, -1, keepdims=True))
@@ -285,7 +285,7 @@ def _get_cdf(pdf: TensorLike, name="get_cdf"):
   Returns:
     A tensor of shape `[A1, ..., An, M+1]`.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     pdf = tf.convert_to_tensor(value=pdf)
     batch_shape = tf.shape(pdf)[:-1]
     cdf = tf.cumsum(pdf, -1)
@@ -317,7 +317,7 @@ def inverse_transform_sampling_1d(
     A tensor of shape `[A1, ..., An, N]` indicating the new N random points.
   """
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     bins = tf.convert_to_tensor(value=bins)
     pdf = tf.convert_to_tensor(value=pdf)
 
@@ -378,7 +378,7 @@ def inverse_transform_stratified_1d(bin_start: TensorLike,
     A tensor of shape `[A1, ..., An, N]` indicating the N points on the ray
   """
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     bin_start = tf.convert_to_tensor(value=bin_start)
     bin_width = tf.convert_to_tensor(value=bin_width)
     pdf = tf.convert_to_tensor(value=pdf)

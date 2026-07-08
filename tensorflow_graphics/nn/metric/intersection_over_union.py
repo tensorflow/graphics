@@ -17,7 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from six.moves import range
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.util import asserts
@@ -54,7 +54,7 @@ def evaluate(ground_truth_labels: type_alias.TensorLike,
     ValueError: if the shape of `ground_truth_labels`, `predicted_labels` is
     not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     ground_truth_labels = tf.convert_to_tensor(value=ground_truth_labels)
     predicted_labels = tf.convert_to_tensor(value=predicted_labels)
 

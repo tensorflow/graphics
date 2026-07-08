@@ -57,7 +57,7 @@ def normal(v0: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `v0`, `v1`, or `v2` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     v0 = tf.convert_to_tensor(value=v0)
     v1 = tf.convert_to_tensor(value=v1)
     v2 = tf.convert_to_tensor(value=v2)
@@ -104,7 +104,7 @@ def area(v0: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, 1]`, where the last dimension represents
       a normalized vector.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     v0 = tf.convert_to_tensor(value=v0)
     v1 = tf.convert_to_tensor(value=v1)
     v2 = tf.convert_to_tensor(value=v2)

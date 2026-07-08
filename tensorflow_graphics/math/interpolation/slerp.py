@@ -142,7 +142,7 @@ def interpolate_with_weights(
     A tensor of shape `[A1, ... , An, M]` containing the result of the
     interpolation.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     return weight1 * vector1 + weight2 * vector2
 
 
@@ -185,7 +185,7 @@ def quaternion_weights(
     Two tensors of shape `[A1, ... , An, 1]` each, which are the two slerp
       weights for each quaternion.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion1 = tf.convert_to_tensor(value=quaternion1)
     quaternion2 = tf.convert_to_tensor(value=quaternion2)
     percent = tf.convert_to_tensor(value=percent, dtype=quaternion1.dtype)
@@ -253,7 +253,7 @@ def vector_weights(vector1: type_alias.TensorLike,
     Two tensors of shape `[A1, ... , An, 1]`, representing interpolation weights
     for each input vector.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector1 = tf.convert_to_tensor(value=vector1)
     vector2 = tf.convert_to_tensor(value=vector2)
     percent = tf.convert_to_tensor(value=percent, dtype=vector1.dtype)

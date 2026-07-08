@@ -41,7 +41,7 @@ def interpolate(grid_3d: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, M, C]`
   """
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     grid_3d = tf.convert_to_tensor(value=grid_3d)
     sampling_points = tf.convert_to_tensor(value=sampling_points)
 

@@ -52,7 +52,7 @@ def cartesian_to_spherical_coordinates(
     (`r`,`theta`,`phi`), where `r` is the sphere radius, `theta` is the polar
     angle and `phi` is the azimuthal angle. Returns `NaN` gradient if x = y = 0.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_cartesian = tf.convert_to_tensor(value=point_cartesian)
 
     shape.check_static(
@@ -140,7 +140,7 @@ def spherical_to_cartesian_coordinates(
     A tensor of shape `[A1, ..., An, 3]`, where the last dimension contains the
     cartesian coordinates in x,y,z order.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_spherical = tf.convert_to_tensor(value=point_spherical)
 
     shape.check_static(
@@ -180,7 +180,7 @@ def square_to_spherical_coordinates(
     [0,1].
 
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_2d = tf.convert_to_tensor(value=point_2d)
 
     shape.check_static(

@@ -50,7 +50,7 @@ def right_handed(camera_position: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, 4, 4]`, containing right handed look at
     matrices.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     camera_position = tf.convert_to_tensor(value=camera_position)
     look_at = tf.convert_to_tensor(value=look_at)
     up_vector = tf.convert_to_tensor(value=up_vector)

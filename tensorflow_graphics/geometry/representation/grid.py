@@ -17,7 +17,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from six.moves import zip
+from six.moves import zip  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
@@ -98,7 +98,7 @@ def generate(starts, stops, nums, name="grid_generate"):
     axis and from -2.0 to 2.0 with 5 subdivisions for the y axis. This lead to a
     tensor of shape (3, 5, 2).
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     starts = tf.convert_to_tensor(value=starts)
     stops = tf.convert_to_tensor(value=stops)
     nums = tf.convert_to_tensor(value=nums)

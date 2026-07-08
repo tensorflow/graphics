@@ -141,7 +141,7 @@ class SyncMiniBatchStandardDeviation(MiniBatchStandardDeviationBase):
 
   def _calculate_mean_feature_standard_deviation(self, inputs, batch_axis):
 
-    with tf.name_scope('mean_feature_standard_deviation'):
+    with tf.name_scope('mean_feature_standard_deviation'):  # pyrefly: ignore[bad-instantiation]
       # The dynamic range of fp16 is too limited to support the collection of
       # sufficient statistics. As a workaround we simply perform the operations
       # on 32-bit floats before converting the mean and variance back to fp16

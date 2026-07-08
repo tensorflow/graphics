@@ -132,10 +132,10 @@ def create_synthesis_network(
       filters=upsampling_blocks_num_channels[0],
       kernel_size=3)((tensor, mapped_latent_code_input))
   if use_noise_inputs:
-    tensor = keras_layers.Noise()((tensor, noise_inputs[0]))
+    tensor = keras_layers.Noise()((tensor, noise_inputs[0]))  # pyrefly: ignore[unbound-name]
   else:
     tensor = keras_layers.Noise()(tensor)
-  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
 
   output = None
   for index, channels in enumerate(upsampling_blocks_num_channels):
@@ -157,7 +157,7 @@ def create_synthesis_network(
         tensor = keras_layers.Noise()((tensor, noise_inputs[noise_index]))
       else:
         tensor = keras_layers.Noise()(tensor)
-      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
 
   output = _maybe_upsample_and_add_outputs(
       architectures_progressive_gan.to_rgb(
@@ -270,7 +270,7 @@ def create_discriminator(
     The generated discriminator keras model.
   """
   if kernel_initializer is None:
-    kernel_initializer = tf.keras.initializers.TruncatedNormal(
+    kernel_initializer = tf.keras.initializers.TruncatedNormal(  # pyrefly: ignore[bad-assignment]
         mean=0.0, stddev=1.0)
 
   input_tensor = tf.keras.Input(shape=(None, None, num_channels))
@@ -283,7 +283,7 @@ def create_discriminator(
 
   for index, (channels_1,
               channels_2) in enumerate(downsampling_blocks_num_channels):
-    with tf.name_scope(f'downsampling_block_{index}'):
+    with tf.name_scope(f'downsampling_block_{index}'):  # pyrefly: ignore[bad-instantiation]
       shortcut = tensor
 
       shortcut = architectures_progressive_gan.create_conv_layer(
@@ -306,7 +306,7 @@ def create_discriminator(
           padding='same',
           kernel_initializer=kernel_initializer)(
               tensor)
-      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
       tensor = architectures_progressive_gan.create_conv_layer(
           use_fan_in_scaled_kernel=use_fan_in_scaled_kernels,
           filters=channels_2,
@@ -315,7 +315,7 @@ def create_discriminator(
           padding='same',
           kernel_initializer=kernel_initializer)(
               tensor)
-      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+      tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
       if use_antialiased_bilinear_downsampling:
         tensor = keras_layers.Blur2D()(tensor)
       tensor = tf.keras.layers.AveragePooling2D()(tensor)
@@ -331,7 +331,7 @@ def create_discriminator(
       padding='same',
       kernel_initializer=kernel_initializer)(
           tensor)
-  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
 
   tensor = architectures_progressive_gan.create_conv_layer(
       use_fan_in_scaled_kernel=use_fan_in_scaled_kernels,
@@ -341,7 +341,7 @@ def create_discriminator(
       padding='valid',
       kernel_initializer=kernel_initializer)(
           tensor)
-  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)
+  tensor = tf.keras.layers.LeakyReLU(alpha=relu_leakiness)(tensor)  # pyrefly: ignore[not-callable]
 
   tensor = architectures_progressive_gan.create_conv_layer(
       use_fan_in_scaled_kernel=use_fan_in_scaled_kernels,
@@ -350,6 +350,6 @@ def create_discriminator(
       kernel_size=1,
       kernel_initializer=kernel_initializer)(
           tensor)
-  tensor = tf.keras.layers.Reshape((-1,))(tensor)
+  tensor = tf.keras.layers.Reshape((-1,))(tensor)  # pyrefly: ignore[not-callable]
 
   return tf.keras.Model(inputs=input_tensor, outputs=tensor, name=name)

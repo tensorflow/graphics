@@ -22,8 +22,8 @@ from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 import six
-from six.moves import range
-from six.moves import zip
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
+from six.moves import zip  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 

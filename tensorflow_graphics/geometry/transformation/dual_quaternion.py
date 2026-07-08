@@ -63,7 +63,7 @@ def conjugate(dual_quaternion: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `dual_quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
 
     shape.check_static(
@@ -97,7 +97,7 @@ def multiply(dual_quaternion1: type_alias.TensorLike,
   Returns:
     A tensor of shape `[A1, ..., An, 8]` representing dual quaternions.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     dual_quaternion1 = tf.convert_to_tensor(value=dual_quaternion1)
     dual_quaternion2 = tf.convert_to_tensor(value=dual_quaternion2)
 
@@ -144,7 +144,7 @@ def inverse(dual_quaternion: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `dual quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
 
     shape.check_static(
@@ -193,7 +193,7 @@ def norm(dual_quaternion: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `dual quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
 
     shape.check_static(
@@ -234,7 +234,7 @@ def is_normalized(dual_quaternion: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `dual_quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
 
     shape.check_static(
@@ -278,7 +278,7 @@ def from_rotation_translation(
   Raises:
     ValueError: If the shape of `rotation_matrix` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     rotation_quaternion = tf.convert_to_tensor(value=rotation_quaternion)
     translation_vector = tf.convert_to_tensor(value=translation_vector)
 
@@ -319,7 +319,7 @@ def to_rotation_translation(
     A tuple with a `[A1, ..., An, 4]`-tensor for rotation in quaternion form,
     and a `[A1, ..., An, 3]`-tensor for translation, in that order.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
 
     shape.check_static(
@@ -362,7 +362,7 @@ def from_axis_angle_translation(axis: type_alias.TensorLike,
     ValueError: If the shape of `axis`, `angle`, or `translation_vector`
     is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     axis = tf.convert_to_tensor(value=axis)
     angle = tf.convert_to_tensor(value=angle)
     translation_vector = tf.convert_to_tensor(value=translation_vector)
@@ -415,7 +415,7 @@ def conjugate_dual(
   Raises:
     ValueError: If the shape of `dual_quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     dual_quaternion = tf.convert_to_tensor(value=dual_quaternion)
 
     shape.check_static(
@@ -442,7 +442,7 @@ def point_to_dual_quaternion(
   Returns:
     The dual quaternion representation of `point`.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point = tf.convert_to_tensor(value=point)
 
     shape.check_static(

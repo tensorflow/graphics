@@ -51,7 +51,7 @@ def assert_no_infs_or_nans(
   if not FLAGS[tfg_flags.TFG_ADD_ASSERTS_TO_GRAPH].value:
     return tensor
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     tensor = tf.convert_to_tensor(value=tensor)
 
     assert_ops = (tf.debugging.check_numerics(
@@ -87,7 +87,7 @@ def assert_all_above(
   if not FLAGS[tfg_flags.TFG_ADD_ASSERTS_TO_GRAPH].value:
     return vector
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector = tf.convert_to_tensor(value=vector)
     minval = tf.convert_to_tensor(value=minval, dtype=vector.dtype)
 
@@ -126,7 +126,7 @@ def assert_all_below(
   if not FLAGS[tfg_flags.TFG_ADD_ASSERTS_TO_GRAPH].value:
     return vector
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector = tf.convert_to_tensor(value=vector)
     maxval = tf.convert_to_tensor(value=maxval, dtype=vector.dtype)
 
@@ -172,7 +172,7 @@ def assert_all_in_range(
   if not FLAGS[tfg_flags.TFG_ADD_ASSERTS_TO_GRAPH].value:
     return vector
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector = tf.convert_to_tensor(value=vector)
     minval = tf.convert_to_tensor(value=minval, dtype=vector.dtype)
     maxval = tf.convert_to_tensor(value=maxval, dtype=vector.dtype)
@@ -218,7 +218,7 @@ def assert_nonzero_norm(
   if not FLAGS[tfg_flags.TFG_ADD_ASSERTS_TO_GRAPH].value:
     return vector
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector = tf.convert_to_tensor(value=vector)
     if eps is None:
       eps = select_eps_for_division(vector.dtype)
@@ -258,7 +258,7 @@ def assert_normalized(
   if not FLAGS[tfg_flags.TFG_ADD_ASSERTS_TO_GRAPH].value:
     return vector
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vector = tf.convert_to_tensor(value=vector)
     if eps is None:
       eps = select_eps_for_division(vector.dtype)
@@ -298,7 +298,7 @@ def assert_at_least_k_non_zero_entries(
   if not FLAGS[tfg_flags.TFG_ADD_ASSERTS_TO_GRAPH].value:
     return tensor
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     tensor = tf.convert_to_tensor(value=tensor)
 
     indicator = tf.cast(tf.math.greater(tensor, 0.0), dtype=tensor.dtype)
@@ -329,7 +329,7 @@ def assert_binary(
   if not FLAGS[tfg_flags.TFG_ADD_ASSERTS_TO_GRAPH].value:
     return tensor
 
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     tensor = tf.convert_to_tensor(value=tensor)
     condition = tf.reduce_all(
         input_tensor=tf.logical_or(tf.equal(tensor, 0), tf.equal(tensor, 1)))

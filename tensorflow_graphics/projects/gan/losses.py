@@ -54,7 +54,7 @@ def gradient_penalty_loss(real_data: Union[tf.Tensor, Sequence[tf.Tensor]],
     ValueError if the numnber of elements in real_data and generated_data are
     not equal.
   """
-  with tf.name_scope(name=name_scope):
+  with tf.name_scope(name=name_scope):  # pyrefly: ignore[bad-instantiation]
     with tf.GradientTape() as tape:
       if (isinstance(real_data, tf.Tensor) and
           isinstance(generated_data, tf.Tensor)):
@@ -88,9 +88,9 @@ def gradient_penalty_loss(real_data: Union[tf.Tensor, Sequence[tf.Tensor]],
             (type(real_data), type(generated_data)))
       # By default the gradient tape only watches trainable variables.
       tape.watch(interpolated_data)
-      interpolated_labels = discriminator(interpolated_data)
+      interpolated_labels = discriminator(interpolated_data)  # pyrefly: ignore[not-callable]
 
-      with tf.name_scope(name='gradients'):
+      with tf.name_scope(name='gradients'):  # pyrefly: ignore[bad-instantiation]
         gradients = tape.gradient(
             target=interpolated_labels, sources=interpolated_data)
 
@@ -146,12 +146,12 @@ def r1_regularization(real_data: Union[tf.Tensor, Sequence[tf.Tensor]],
   Returns:
     The r1 regulatization loss per example as tensor of shape [batch_size].
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     with tf.GradientTape() as tape:
       tape.watch(real_data)
-      discriminator_output = discriminator(real_data)
+      discriminator_output = discriminator(real_data)  # pyrefly: ignore[not-callable]
 
-      with tf.name_scope(name='gradients'):
+      with tf.name_scope(name='gradients'):  # pyrefly: ignore[bad-instantiation]
         gradients = tape.gradient(
             target=discriminator_output, sources=real_data)
 
@@ -186,7 +186,7 @@ def wasserstein_generator_loss(
   Returns:
     The loss for the generator.
   """
-  with tf.name_scope(name=name):
+  with tf.name_scope(name=name):  # pyrefly: ignore[bad-instantiation]
     return -discriminator_output_generated_data
 
 
@@ -211,8 +211,8 @@ def wasserstein_discriminator_loss(
   Returns:
     The loss for the discriminator.
   """
-  with tf.name_scope(name=name):
-    return discriminator_output_generated_data - discriminator_output_real_data
+  with tf.name_scope(name=name):  # pyrefly: ignore[bad-instantiation]
+    return discriminator_output_generated_data - discriminator_output_real_data  # pyrefly: ignore[unsupported-operation]
 
 
 def wasserstein_hinge_generator_loss(
@@ -235,7 +235,7 @@ def wasserstein_hinge_generator_loss(
   Returns:
     The loss for the generator.
   """
-  with tf.name_scope(name=name):
+  with tf.name_scope(name=name):  # pyrefly: ignore[bad-instantiation]
     return -discriminator_output_generated_data
 
 
@@ -260,9 +260,9 @@ def wasserstein_hinge_discriminator_loss(
   Returns:
     The loss for the discriminator.
   """
-  with tf.name_scope(name=name):
-    return tf.nn.relu(1.0 - discriminator_output_real_data) + tf.nn.relu(
-        discriminator_output_generated_data + 1.0)
+  with tf.name_scope(name=name):  # pyrefly: ignore[bad-instantiation]
+    return tf.nn.relu(1.0 - discriminator_output_real_data) + tf.nn.relu(  # pyrefly: ignore[unsupported-operation]
+        discriminator_output_generated_data + 1.0)  # pyrefly: ignore[unsupported-operation]
 
 
 def minimax_generator_loss(discriminator_output_generated_data: tf.Tensor,
@@ -280,7 +280,7 @@ def minimax_generator_loss(discriminator_output_generated_data: tf.Tensor,
   Returns:
     The loss for the generator.
   """
-  with tf.name_scope(name=name):
+  with tf.name_scope(name=name):  # pyrefly: ignore[bad-instantiation]
     # -log(sigmoid(discriminator_output_generated_data))
     return tf.nn.sigmoid_cross_entropy_with_logits(
         labels=tf.ones_like(discriminator_output_generated_data),
@@ -306,7 +306,7 @@ def minimax_discriminator_loss(
   Returns:
     The loss for the discriminator.
   """
-  with tf.name_scope(name=name):
+  with tf.name_scope(name=name):  # pyrefly: ignore[bad-instantiation]
     # -log(sigmoid(discriminator_output_real_data))
     loss_real = tf.nn.sigmoid_cross_entropy_with_logits(
         labels=tf.ones_like(discriminator_output_real_data),

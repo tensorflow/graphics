@@ -46,12 +46,12 @@ class ExponentialMovingAverage(tf.Module):
     Args:
       decay: The decay rate of the exponential moving average.
     """
-    self.averaged_variables: Sequence[tf.Variable] = None
+    self.averaged_variables: Sequence[tf.Variable] = None  # pyrefly: ignore[bad-assignment]
     self._decay = decay
 
   def _ema_assign_fn(self, variable: tf.Variable, value: tf.Tensor):
     """Updates the exponential moving average for a single variable."""
-    return variable.assign(self._decay * variable + (1.0 - self._decay) * value)
+    return variable.assign(self._decay * variable + (1.0 - self._decay) * value)  # pyrefly: ignore[unsupported-operation]
 
   def _apply_values(self, variables: Sequence[tf.Variable]):
     """Applies the new values to the exponential moving averages."""
@@ -88,7 +88,7 @@ class ExponentialMovingAverage(tf.Module):
     if self.averaged_variables is None:
       with tf.init_scope():
         strategy = tf.distribute.get_strategy()
-        self.averaged_variables = []
+        self.averaged_variables = []  # pyrefly: ignore[bad-assignment]
 
         for variable in variables:
           with strategy.extended.colocate_vars_with(variable):

@@ -73,7 +73,7 @@ def from_euler(angles: type_alias.TensorLike,
     `[A1, ..., An, 1]`, where the first tensor represents the axis, and the
     second represents the angle. The resulting axis is a normalized vector.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion = quaternion_lib.from_euler(angles)
     return from_quaternion(quaternion)
 
@@ -109,7 +109,7 @@ def from_euler_with_small_angles_approximation(
     `[A1, ..., An, 1]`, where the first tensor represents the axis, and the
     second represents the angle. The resulting axis is a normalized vector.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion = quaternion_lib.from_euler_with_small_angles_approximation(
         angles)
     return from_quaternion(quaternion)
@@ -136,7 +136,7 @@ def from_quaternion(quaternion: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `quaternion` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     quaternion = tf.convert_to_tensor(value=quaternion)
 
     shape.check_static(
@@ -180,7 +180,7 @@ def from_rotation_matrix(rotation_matrix: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `rotation_matrix` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     rotation_matrix = tf.convert_to_tensor(value=rotation_matrix)
 
     shape.check_static(
@@ -218,7 +218,7 @@ def inverse(axis: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `axis` or `angle` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     axis = tf.convert_to_tensor(value=axis)
     angle = tf.convert_to_tensor(value=angle)
 
@@ -256,7 +256,7 @@ def is_normalized(axis: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, 1]`, where False indicates that the axis is
     not normalized.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     axis = tf.convert_to_tensor(value=axis)
     angle = tf.convert_to_tensor(value=angle)
 
@@ -305,7 +305,7 @@ def rotate(point: type_alias.TensorLike,
     ValueError: If `point`, `axis`, or `angle` are of different shape or if
     their respective shape is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point = tf.convert_to_tensor(value=point)
     axis = tf.convert_to_tensor(value=axis)
     angle = tf.convert_to_tensor(value=angle)

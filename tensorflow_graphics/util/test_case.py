@@ -27,7 +27,7 @@ import warnings
 from absl import flags
 from absl.testing import parameterized
 import numpy as np
-from six.moves import zip
+from six.moves import zip  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.util import tfg_flags
@@ -104,7 +104,7 @@ class TestCase(parameterized.TestCase, tf.test.TestCase):
           max_error = np.maximum(error, diff.max())
           row_max_error, column_max_error = np.unravel_index(
               diff.argmax(), diff.shape)
-      return max_error, row_max_error, column_max_error
+      return max_error, row_max_error, column_max_error  # pyrefly: ignore[unbound-name]
 
   def _create_placeholders_from_shapes(self,
                                        shapes,
