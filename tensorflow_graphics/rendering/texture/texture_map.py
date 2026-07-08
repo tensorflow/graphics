@@ -72,7 +72,7 @@ def map_texture(uv_map: tfg_type.TensorLike,
     A tensor of shape `[A1, ..., An, H, W, C]` containing the interpolated
     values.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
 
     uv_map = tf.convert_to_tensor(value=uv_map, dtype=tf.float32)
     texture_image = tf.convert_to_tensor(value=texture_image, dtype=tf.float32)

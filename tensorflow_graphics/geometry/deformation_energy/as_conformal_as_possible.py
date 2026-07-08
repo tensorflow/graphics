@@ -95,7 +95,7 @@ def energy(vertices_rest_pose: type_alias.TensorLike,
     ValueError: if the shape of `vertices_rest_pose`, `vertices_deformed_pose`,
     `quaternions`, `edges`, `vertex_weight`, or `edge_weight` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vertices_rest_pose = tf.convert_to_tensor(value=vertices_rest_pose)
     vertices_deformed_pose = tf.convert_to_tensor(value=vertices_deformed_pose)
     quaternions = tf.convert_to_tensor(value=quaternions)

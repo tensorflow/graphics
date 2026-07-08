@@ -36,9 +36,9 @@ def conv_block_3d(tensor, num_filters, size, strides,
   tensor = norm_layer(tensor, normalization)
 
   if relu:
-    tensor = tf.keras.layers.LeakyReLU(alpha=alpha_lrelu)(tensor)
+    tensor = tf.keras.layers.LeakyReLU(alpha=alpha_lrelu)(tensor)  # pyrefly: ignore[not-callable]
   if dropout:
-    tensor = tf.keras.layers.Dropout(rate)(tensor)
+    tensor = tf.keras.layers.Dropout(rate)(tensor)  # pyrefly: ignore[not-callable]
   return tensor
 
 
@@ -56,8 +56,8 @@ def conv_t_block_3d(tensor, num_filters, size, strides,
 
   tensor = norm_layer(tensor, normalization)
   if relu:
-    tensor = tf.keras.layers.LeakyReLU(alpha=alpha_lrelu)(tensor)
+    tensor = tf.keras.layers.LeakyReLU(alpha=alpha_lrelu)(tensor)  # pyrefly: ignore[not-callable]
   if dropout:
-    tensor = tf.keras.layers.Dropout(rate)(tensor)
+    tensor = tf.keras.layers.Dropout(rate)(tensor)  # pyrefly: ignore[not-callable]
   return tensor
 

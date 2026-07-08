@@ -58,7 +58,7 @@ def from_linear_rgb(linear_rgb: type_alias.TensorLike,
     A tensor of shape `[A_1, ..., A_n, 3]`, where the last dimension represents
     sRGB values.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     linear_rgb = tf.convert_to_tensor(value=linear_rgb)
 
     shape.check_static(

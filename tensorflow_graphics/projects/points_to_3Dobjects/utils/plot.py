@@ -332,22 +332,22 @@ def plot_detections(
 
   for j, [boxes, style] in enumerate([[labels, 'dashed'],
                                       [detections, 'solid']]):
-    number_of_boxes = boxes['detection_boxes'].shape[0]
+    number_of_boxes = boxes['detection_boxes'].shape[0]  # pyrefly: ignore[bad-index]
     for i in range(number_of_boxes):
       predicted_pose_obj2world = np.eye(4)
-      predicted_pose_obj2world[0:3, 0:3] = boxes['rotations_3d'][i].numpy()
-      predicted_pose_obj2world[0:3, 3] = boxes['center3d'][i].numpy()
-      draw_bounding_box_3d(boxes['size3d'].numpy()[i],
+      predicted_pose_obj2world[0:3, 0:3] = boxes['rotations_3d'][i].numpy()  # pyrefly: ignore[bad-index]
+      predicted_pose_obj2world[0:3, 3] = boxes['center3d'][i].numpy()  # pyrefly: ignore[bad-index]
+      draw_bounding_box_3d(boxes['size3d'].numpy()[i],  # pyrefly: ignore[bad-index]
                            predicted_pose_obj2world,
                            intrinsics, pose_world2camera,
                            linestyle=style)
       if j == 0:
-        if isinstance(boxes['detection_boxes'], tf.Tensor):
-          boxes['detection_boxes'] = boxes['detection_boxes'].numpy()
+        if isinstance(boxes['detection_boxes'], tf.Tensor):  # pyrefly: ignore[bad-index]
+          boxes['detection_boxes'] = boxes['detection_boxes'].numpy()  # pyrefly: ignore[unsupported-operation]
         # if isinstance(boxes['detection_classes'], tf.Tensor):
         #   boxes['detection_classes'] = boxes['detection_classes'].numpy()
 
-        x_min, y_min, x_max, y_max = boxes['detection_boxes'][i]
+        x_min, y_min, x_max, y_max = boxes['detection_boxes'][i]  # pyrefly: ignore[bad-index]
         # plt.text(x_min, y_min,
         #          class_id_to_name[int(boxes['detection_classes'][i])])
         plt.plot([x_min, x_max, x_max, x_min, x_min],

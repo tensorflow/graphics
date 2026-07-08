@@ -131,7 +131,7 @@ def build_matrices(image: type_alias.TensorLike,
   Raises:
     ValueError: If `image` is not of rank 4.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     image = tf.convert_to_tensor(value=image)
     eps = tf.constant(value=eps, dtype=image.dtype)
 
@@ -192,7 +192,7 @@ def linear_coefficients(matte: type_alias.TensorLike,
     of rank 4. If `pseudo_inverse` is not of rank 5. If `B` is different
     between `matte` and `pseudo_inverse`.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     matte = tf.convert_to_tensor(value=matte)
     pseudo_inverse = tf.convert_to_tensor(value=pseudo_inverse)
 
@@ -216,7 +216,7 @@ def linear_coefficients(matte: type_alias.TensorLike,
     width = tf.shape(input=matte)[2] + size - 1
     coeffs = tf.image.resize_with_crop_or_pad(coeffs, height, width)
     ones = tf.image.resize_with_crop_or_pad(ones, height, width)
-    coeffs = _image_average(coeffs, size) / _image_average(ones, size)
+    coeffs = _image_average(coeffs, size) / _image_average(ones, size)  # pyrefly: ignore[unsupported-operation]
     return tf.split(coeffs, (-1, 1), axis=-1)
 
 
@@ -246,7 +246,7 @@ def loss(matte: type_alias.TensorLike,
     same size. If `laplacian` is not of rank 5. If `B` is different
     between `matte` and `laplacian`.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     matte = tf.convert_to_tensor(value=matte)
     laplacian = tf.convert_to_tensor(value=laplacian)
 
@@ -287,7 +287,7 @@ def reconstruct(image: type_alias.TensorLike,
     the last dimension of `coeff_add` is not 1. If the batch dimensions of
     `image`, `coeff_mul`, and `coeff_add` do not match.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     image = tf.convert_to_tensor(value=image)
     coeff_mul = tf.convert_to_tensor(value=coeff_mul)
     coeff_add = tf.convert_to_tensor(value=coeff_add)

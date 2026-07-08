@@ -144,7 +144,7 @@ def rasterize(vertices: type_alias.TensorLike,
     The barycentric coordinates can be used to determine pixel validity instead.
     See framebuffer.py for a description of the Framebuffer fields.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     if num_layers != 1:
       raise ValueError("OpenGL rasterizer only supports single layer.")
 

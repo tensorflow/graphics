@@ -74,7 +74,7 @@ def load_synthetic_nerf_dataset(dataset_dir: str = DATASETDIR,
     transform_matrix = np.array(frame['transform_matrix'])
     transform_matrices[i, :, :] = transform_matrix
 
-  dataset = tf.data.Dataset.from_tensor_slices((images,
+  dataset = tf.data.Dataset.from_tensor_slices((images,  # pyrefly: ignore[bad-argument-type]
                                                 focals,
                                                 principal_points,
                                                 transform_matrices))
@@ -269,7 +269,7 @@ def load_srn_dataset(tfrecords_dir: str,
       A tf.data.Dataset containing the images and camera parameters.
   """
   tfrecords_pattern = tfrecords_dir + '/*.tfrecord'
-  dataset = tf.data.Dataset.list_files(tfrecords_pattern,
+  dataset = tf.data.Dataset.list_files(tfrecords_pattern,  # pyrefly: ignore[bad-argument-type]
                                        shuffle=True,
                                        seed=seed)
   dataset = dataset.interleave(tf.data.TFRecordDataset, cycle_length=16)

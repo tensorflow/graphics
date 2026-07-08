@@ -80,13 +80,13 @@ class ModelNet40(tfds.core.GeneratorBasedBuilder):
     # Note: VALIDATION split was not provided by the authors
     return [
         tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
+            name=tfds.Split.TRAIN,  # pyrefly: ignore[missing-attribute]
             gen_kwargs=dict(
                 filename_list_path=os.path.join(
                     extracted_path,
                     'modelnet40_ply_hdf5_2048/train_files.txt'),)),
         tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
+            name=tfds.Split.TEST,  # pyrefly: ignore[missing-attribute]
             gen_kwargs=dict(
                 filename_list_path=os.path.join(
                     extracted_path,

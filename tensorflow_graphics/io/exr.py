@@ -22,8 +22,8 @@ from __future__ import print_function
 import Imath
 import numpy as np
 import OpenEXR
-from six.moves import range
-from six.moves import zip
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
+from six.moves import zip  # pyrefly: ignore[missing-source-for-stubs]
 
 
 _np_to_exr = {

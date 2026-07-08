@@ -35,7 +35,7 @@ class CrossEntropyLoss:
       cross_entropy_loss = tf.keras.losses.CategoricalCrossentropy(
           from_logits=True, label_smoothing=self.label_smoothing,
           reduction=tf.keras.losses.Reduction.NONE)
-      loss = cross_entropy_loss(gt, predicted_centers)
+      loss = cross_entropy_loss(gt, predicted_centers)  # pyrefly: ignore[not-callable]
     else:
       gt = tf.cast(sample['shapes_soft'], dtype=tf.float32)
       gt = tf.reshape(gt, [b, -1, num_classes])

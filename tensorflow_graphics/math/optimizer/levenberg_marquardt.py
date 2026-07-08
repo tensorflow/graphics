@@ -35,7 +35,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from six.moves import zip
+from six.moves import zip  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
@@ -151,7 +151,7 @@ def minimize(residuals,
   """
   if not isinstance(variables, (tuple, list)):
     variables = [variables]
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     if not isinstance(residuals, (tuple, list)):
       residuals = [residuals]
     if isinstance(residuals, tuple):

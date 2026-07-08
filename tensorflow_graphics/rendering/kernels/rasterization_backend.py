@@ -20,7 +20,7 @@ from __future__ import print_function
 import enum
 from typing import Tuple
 
-from six.moves import range
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.rendering import framebuffer as fb
@@ -85,7 +85,7 @@ def rasterize(
     The barycentric coordinates can be used to determine pixel validity instead.
     See framebuffer.py for a description of the Framebuffer fields.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vertices = tf.convert_to_tensor(value=vertices)
     triangles = tf.convert_to_tensor(value=triangles)
     view_projection_matrices = tf.convert_to_tensor(

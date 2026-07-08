@@ -21,7 +21,7 @@ def dense_block(tensor, n_filters, n_layers=2, activation=layers.ReLU(),
                 seed=None):
   initializer = tf.keras.initializers.GlorotUniform(seed=seed)
   for _ in range(n_layers):
-    tensor = layers.Dense(n_filters,
+    tensor = layers.Dense(n_filters,  # pyrefly: ignore[not-callable]
                           activation=activation,
                           kernel_initializer=initializer)(tensor)
   return tensor

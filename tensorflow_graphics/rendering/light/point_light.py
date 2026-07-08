@@ -90,7 +90,7 @@ def estimate_radiance(
     not supported.
     InvalidArgumentError: if 'surface_point_normal' is not normalized.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_light_radiance = tf.convert_to_tensor(value=point_light_radiance)
     point_light_position = tf.convert_to_tensor(value=point_light_position)
     surface_point_position = tf.convert_to_tensor(value=surface_point_position)

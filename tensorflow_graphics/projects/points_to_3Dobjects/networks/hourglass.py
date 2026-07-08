@@ -132,10 +132,10 @@ class EncoderDecoderBlock(tf.keras.layers.Layer):
     for block in self.encoder_block2:
       x_s = block(x_s)
     for block in self.inner_block:
-      x_s = block(x_s)
+      x_s = block(x_s)  # pyrefly: ignore[not-callable]
     for block in self.decoder_block:
       x_s = block(x_s)
-    x_s = self.upsample(x_s)
+    x_s = self.upsample(x_s)  # pyrefly: ignore[not-callable]
     merge_features = self.merge_features([x, x_s])
     return merge_features
 
@@ -169,9 +169,9 @@ class Head(tf.keras.layers.Layer):
       self.out_conv.bias_initializer = tf.keras.initializers.constant(-2.19)
 
   def call(self, inputs, **kwargs):
-    x = self.pad(inputs)
+    x = self.pad(inputs)  # pyrefly: ignore[not-callable]
     x = self.conv(x)
-    x_ = self.relu(x)
+    x_ = self.relu(x)  # pyrefly: ignore[not-callable]
     x = self.out_conv(x_)
     if self.return_features:
       out_x = {self.name: x, f'{self.name}_features': x_}
@@ -210,7 +210,7 @@ class ClassificationHead(tf.keras.layers.Layer):
     for block in self._encoder:
       x = block(x)
     x = tf.reduce_mean(x, axis=[1, 2])
-    return {self.name: self._logits(x)}
+    return {self.name: self._logits(x)}  # pyrefly: ignore[not-callable]
 
 
 class Hourglass(tf.keras.Model):
@@ -289,7 +289,7 @@ class Hourglass(tf.keras.Model):
 
   def call(self, inputs, training=None, mask=None):
 
-    x = self.downsample_input(inputs)
+    x = self.downsample_input(inputs)  # pyrefly: ignore[not-callable]
     output = []
     for ii in range(self.number_hourglasses):
       x_hourglass = self.hourglass_network[ii](x)
@@ -311,7 +311,7 @@ class Hourglass(tf.keras.Model):
 
       if ii < self.number_hourglasses - 1:
         x = self.intermediate_conv1[ii](x) + self.intermediate_conv2[ii](x_out)
-        x = self.intermediate_relu(x)
+        x = self.intermediate_relu(x)  # pyrefly: ignore[not-callable]
 
         intermediate_residual = self.intermediate_residual[ii]
         x = intermediate_residual(x)

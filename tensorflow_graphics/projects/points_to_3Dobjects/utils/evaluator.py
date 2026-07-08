@@ -213,7 +213,7 @@ class IoUMetric:
                                           self.resolution,
                                           self.resolution])
               inter = tf.transpose(tf.reduce_max(inter, axis=a))
-              im = axs[fig_obj_count, mtype * 2 + 0].matshow(inter.numpy())
+              im = axs[fig_obj_count, mtype * 2 + 0].matshow(inter.numpy())  # pyrefly: ignore[unbound-name]
               plt.colorbar(im, ax=axs[fig_obj_count, mtype * 2 + 0])
               print(mtype, fig_obj_count, 0)
 
@@ -265,7 +265,7 @@ class IoUMetric:
     """Evaluate."""
     if self.slave:
       data = self.iou_per_class
-      with gfile.Open(self.path, 'wb') as file:
+      with gfile.Open(self.path, 'wb') as file:  # pyrefly: ignore[no-matching-overload]
         pickle.dump(data, file)
       logging.info(file)
       return
@@ -343,7 +343,7 @@ class CollisionMetric:
                                       self.resolution,
                                       self.resolution])
           inter = tf.transpose(tf.reduce_max(inter, axis=a))
-          im = axs[fig_obj_count, 0].matshow(inter.numpy())
+          im = axs[fig_obj_count, 0].matshow(inter.numpy())  # pyrefly: ignore[unbound-name]
           plt.colorbar(im, ax=axs[fig_obj_count, 0])
 
           values = tf.math.sign(tf.nn.relu(interpolated + self.tol))
@@ -378,7 +378,7 @@ class CollisionMetric:
       data = {'collisions': self.collisions,
               'intersections': self.intersections,
               'ious': self.ious}
-      with gfile.Open(self.path, 'wb') as file:
+      with gfile.Open(self.path, 'wb') as file:  # pyrefly: ignore[no-matching-overload]
         pickle.dump(data, file)
       logging.info(file)
       return
@@ -542,7 +542,7 @@ class BoxIoUMetric:
             jmax = j
 
       if ovmax > ovthresh:
-        if not r['det'][jmax]:
+        if not r['det'][jmax]:  # pyrefly: ignore[unbound-name]
           tp[d] = 1.
           r['det'][jmax] = 1
         else:
@@ -696,7 +696,7 @@ class Evaluator:
 
         iou_mean, iou_min = metric.update(
             labeled_sdfs, labeled_classes, labeled_poses, predicted_sdfs,
-            predicted_classes, predicted_poses, sample['dot'])
+            predicted_classes, predicted_poses, sample['dot'])  # pyrefly: ignore[bad-argument-count]
         result_dict['iou_mean'] = iou_mean
         result_dict['iou_min'] = iou_min
       elif isinstance(metric, CollisionMetric):

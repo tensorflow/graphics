@@ -43,7 +43,7 @@ def make_perspective_matrix(image_width=None, image_height=None):
   near_plane = (0.01,)
   far_plane = (10.0,)
   return perspective.right_handed(field_of_view,
-                                  (float(image_width) / float(image_height),),
+                                  (float(image_width) / float(image_height),),  # pyrefly: ignore[bad-argument-type]
                                   near_plane, far_plane)
 
 

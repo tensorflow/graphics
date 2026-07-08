@@ -18,7 +18,7 @@ from __future__ import division
 from __future__ import print_function
 
 from typing import Any, Callable, Dict
-from six.moves import zip
+from six.moves import zip  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.geometry.convolution import utils
@@ -96,7 +96,7 @@ def feature_steered_convolution(
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     data = tf.convert_to_tensor(value=data)
     neighbors = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=neighbors)
     if sizes is not None:
@@ -157,7 +157,7 @@ def feature_steered_convolution(
       y_i_m.append(tf.matmul(p_sum, w_m))
     y_out = tf.add_n(inputs=y_i_m) + tf.reshape(var_b, [1, -1])
     if data_ndims > 2:
-      y_out = unflatten(y_out)
+      y_out = unflatten(y_out)  # pyrefly: ignore[unbound-name]
     return y_out
 
 
@@ -239,7 +239,7 @@ def edge_convolution_template(
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     data = tf.convert_to_tensor(value=data)
     neighbors = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=neighbors)
     if sizes is not None:
@@ -286,7 +286,7 @@ def edge_convolution_template(
              tf.compat.dimension_value(edge_features.shape[-1]))))
 
     if data_ndims > 2:
-      features = unflatten(features)
+      features = unflatten(features)  # pyrefly: ignore[unbound-name]
     return features
 
 

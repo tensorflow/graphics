@@ -131,26 +131,26 @@ class AppearanceNetwork:
   def load_checkpoint(self, checkpoint=None):
     """Load checkpoints."""
     if checkpoint is None:
-      latest_checkpoint = self.manager.latest_checkpoint
+      latest_checkpoint = self.manager.latest_checkpoint  # pyrefly: ignore[missing-attribute]
     else:
       latest_checkpoint = checkpoint
     if latest_checkpoint is not None:
       logging.info("Checkpoint %s restored", latest_checkpoint)
-      _ = self.checkpoint.restore(latest_checkpoint).expect_partial()
-      for a, b in zip(self.model_backup.variables,
-                      self.model.variables):
+      _ = self.checkpoint.restore(latest_checkpoint).expect_partial()  # pyrefly: ignore[missing-attribute]
+      for a, b in zip(self.model_backup.variables,  # pyrefly: ignore[missing-attribute]
+                      self.model.variables):  # pyrefly: ignore[missing-attribute]
         a.assign(b)
     else:
       logging.warning("No checkpoint was restored.")
 
   def reset_models(self):
-    for a, b in zip(self.model.variables,
-                    self.model_backup.variables):
+    for a, b in zip(self.model.variables,  # pyrefly: ignore[missing-attribute]
+                    self.model_backup.variables):  # pyrefly: ignore[missing-attribute]
       a.assign(b)
 
   def get_model(self):
     """NeRF-based network."""
-    with tf.name_scope("Network/"):
+    with tf.name_scope("Network/"):  # pyrefly: ignore[bad-instantiation]
       input_features = tf.keras.layers.Input(shape=[self.input_dim])
       feat0 = nerf_layers.concat_block(input_features,
                                        n_filters=self.n_filters,
@@ -158,7 +158,7 @@ class AppearanceNetwork:
       feat1 = nerf_layers.dense_block(feat0,
                                       n_filters=self.n_filters,
                                       n_layers=3)
-      rgb_density = tf.keras.layers.Dense(4)(feat1)
+      rgb_density = tf.keras.layers.Dense(4)(feat1)  # pyrefly: ignore[not-callable]
       return tf.keras.Model(inputs=[input_features], outputs=[rgb_density])
 
   @tf.function
@@ -251,7 +251,7 @@ class AppearanceNetwork:
                             alpha], axis=-1)
     net_inputs = tf.reshape(net_inputs, [-1, tf.shape(net_inputs)[-1]])
     # Run the network and render -----------------------------------------------
-    rgb_density = self.model([net_inputs])
+    rgb_density = self.model([net_inputs])  # pyrefly: ignore[not-callable]
     rgb_fine, _ = self.render_network_output(rgb_density, ray_points_fine)
     return rgb_fine
 
@@ -288,9 +288,9 @@ class AppearanceNetwork:
       rgb_fine_loss = utils.l2_loss(rgb_fine, gt_rgb)
       total_loss = rgb_fine_loss
     gradients = tape.gradient(total_loss,
-                              self.network_vars + [self.latent_code_vars])
-    self.optimizer_network.apply_gradients(
-        zip(gradients[:len(self.network_vars)], self.network_vars))
-    self.optimizer_latent.apply_gradients(
+                              self.network_vars + [self.latent_code_vars])  # pyrefly: ignore[unsupported-operation]
+    self.optimizer_network.apply_gradients(  # pyrefly: ignore[missing-attribute]
+        zip(gradients[:len(self.network_vars)], self.network_vars))  # pyrefly: ignore[bad-argument-type]
+    self.optimizer_latent.apply_gradients(  # pyrefly: ignore[missing-attribute]
         zip(gradients[len(self.network_vars):], [self.latent_code_vars]))
     return total_loss

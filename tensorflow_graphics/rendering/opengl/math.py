@@ -55,7 +55,7 @@ def model_to_eye(point_model_space: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, 3]`, containing `point_model_space` in eye
     coordinates.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_model_space = tf.convert_to_tensor(value=point_model_space)
     camera_position = tf.convert_to_tensor(value=camera_position)
     look_at_point = tf.convert_to_tensor(value=look_at_point)
@@ -119,7 +119,7 @@ def eye_to_clip(point_eye_space: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, 4]`, containing `point_eye_space` in
     homogeneous clip coordinates.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_eye_space = tf.convert_to_tensor(value=point_eye_space)
     vertical_field_of_view = tf.convert_to_tensor(value=vertical_field_of_view)
     aspect_ratio = tf.convert_to_tensor(value=aspect_ratio)
@@ -177,7 +177,7 @@ def clip_to_ndc(point_clip_space: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, 3]`, containing `point_clip_space` in
     normalized device coordinates.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_clip_space = tf.convert_to_tensor(value=point_clip_space)
 
     shape.check_static(
@@ -227,7 +227,7 @@ def ndc_to_screen(point_ndc_space: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, 3]`, containing `point_ndc_space` in
     screen coordinates.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_ndc_space = tf.convert_to_tensor(value=point_ndc_space)
     lower_left_corner = tf.convert_to_tensor(value=lower_left_corner)
     screen_dimensions = tf.convert_to_tensor(value=screen_dimensions)
@@ -318,7 +318,7 @@ def model_to_screen(
     `point_model_space` in screen coordinates, and the second represents the 'w'
     component of `point_model_space` in clip space.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_model_space = tf.convert_to_tensor(value=point_model_space)
     model_to_eye_matrix = tf.convert_to_tensor(value=model_to_eye_matrix)
     perspective_matrix = tf.convert_to_tensor(value=perspective_matrix)
@@ -406,7 +406,7 @@ def perspective_correct_barycentrics(
     A tensor of shape `[A1, ..., An, 3]`, containing perspective correct
     barycentric coordinates.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     pixel_position = tf.convert_to_tensor(value=pixel_position)
     triangle_vertices_model_space = tf.convert_to_tensor(
         value=triangle_vertices_model_space)
@@ -464,7 +464,7 @@ def interpolate_attributes(attribute: type_alias.TensorLike,
   Returns:
     A tensor of shape `[A1, ..., An, B]`, containing interpolated attributes.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     attribute = tf.convert_to_tensor(value=attribute)
     barycentric = tf.convert_to_tensor(value=barycentric)
 
@@ -527,7 +527,7 @@ def perspective_correct_interpolation(
   Returns:
     A tensor of shape `[A1, ..., An, B]`, containing interpolated attributes.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     barycentric = perspective_correct_barycentrics(
         triangle_vertices_model_space, pixel_position, model_to_eye_matrix,
         perspective_matrix, screen_dimensions, lower_left_corner)

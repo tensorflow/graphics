@@ -82,7 +82,7 @@ def parameters_from_right_handed(
     represent the near and far clipping planes used to construct
     `projection_matrix`.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     projection_matrix = tf.convert_to_tensor(value=projection_matrix)
 
     shape.check_static(
@@ -141,7 +141,7 @@ def right_handed(vertical_field_of_view: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, 4, 4]`, containing matrices of right
     handed perspective-view frustum.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vertical_field_of_view = tf.convert_to_tensor(value=vertical_field_of_view)
     aspect_ratio = tf.convert_to_tensor(value=aspect_ratio)
     near = tf.convert_to_tensor(value=near)
@@ -220,7 +220,7 @@ def intrinsics_from_matrix(
   Raises:
     ValueError: If the shape of `matrix` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     matrix = tf.convert_to_tensor(value=matrix)
 
     shape.check_static(
@@ -281,7 +281,7 @@ def matrix_from_intrinsics(
     ValueError: If the shape of `focal`, or `principal_point` is not
     supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
     skew = tf.convert_to_tensor(value=skew)
@@ -363,7 +363,7 @@ def project(point_3d: type_alias.TensorLike,
     ValueError: If the shape of `point_3d`, `focal`, or `principal_point` is not
     supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_3d = tf.convert_to_tensor(value=point_3d)
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
@@ -427,7 +427,7 @@ def ray(point_2d: type_alias.TensorLike,
     ValueError: If the shape of `point_2d`, `focal`, or `principal_point` is not
     supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_2d = tf.convert_to_tensor(value=point_2d)
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
@@ -478,7 +478,7 @@ def random_rays(focal: tf.Tensor,
     A tensor of shape `[A1, ..., An, M, 3]` with the ray directions and
     a tensor of shape `[A1, ..., An, M, 2]` with the pixel x, y locations.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
 
@@ -531,7 +531,7 @@ def random_patches(focal: tf.Tensor,
       ray directions in 3D passing from the M*N pixels of the patch and
     a tensor of shape `[A1, ..., An, M*N, 2]` with the pixel x, y locations.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     focal = tf.convert_to_tensor(value=focal)
     principal_point = tf.convert_to_tensor(value=principal_point)
 
@@ -619,7 +619,7 @@ def unproject(point_2d: type_alias.TensorLike,
     ValueError: If the shape of `point_2d`, `depth`, `focal`, or
     `principal_point` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_2d = tf.convert_to_tensor(value=point_2d)
     depth = tf.convert_to_tensor(value=depth)
     focal = tf.convert_to_tensor(value=focal)

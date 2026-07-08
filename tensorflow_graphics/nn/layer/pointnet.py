@@ -117,7 +117,7 @@ class PointNetDenseLayer(tf.keras.layers.Layer):
     Returns:
       Tensor with shape `[B, C]`.
     """
-    return tf.nn.relu(self.bn(self.dense(inputs), training))
+    return tf.nn.relu(self.bn(self.dense(inputs), training))  # pyrefly: ignore[not-callable]
 
 
 class VanillaEncoder(tf.keras.layers.Layer):
@@ -157,11 +157,11 @@ class VanillaEncoder(tf.keras.layers.Layer):
       Tensor with shape `[B, N, C=1024]`
     """
     x = tf.expand_dims(inputs, axis=2)  # [B,N,1,D]
-    x = self.conv1(x, training)  # [B,N,1,64]
-    x = self.conv2(x, training)  # [B,N,1,64]
-    x = self.conv3(x, training)  # [B,N,1,64]
-    x = self.conv4(x, training)  # [B,N,1,128]
-    x = self.conv5(x, training)  # [B,N,1,1024]
+    x = self.conv1(x, training)  # [B,N,1,64]  # pyrefly: ignore[not-callable]
+    x = self.conv2(x, training)  # [B,N,1,64]  # pyrefly: ignore[not-callable]
+    x = self.conv3(x, training)  # [B,N,1,64]  # pyrefly: ignore[not-callable]
+    x = self.conv4(x, training)  # [B,N,1,128]  # pyrefly: ignore[not-callable]
+    x = self.conv5(x, training)  # [B,N,1,1024]  # pyrefly: ignore[not-callable]
     x = tf.math.reduce_max(input_tensor=x, axis=1)  # [B,1,1024]
     return tf.squeeze(x)  # [B,1024]
 
@@ -203,10 +203,10 @@ class ClassificationHead(tf.keras.layers.Layer):
     Returns:
       Tensor with shape `[B,num_classes]`
     """
-    x = self.dense1(inputs, training)  # [B,512]
-    x = self.dense2(x, training)  # [B,256]
-    x = self.dropout(x, training)  # [B,256]
-    return self.dense3(x)  # [B,num_classes)
+    x = self.dense1(inputs, training)  # [B,512]  # pyrefly: ignore[not-callable]
+    x = self.dense2(x, training)  # [B,256]  # pyrefly: ignore[not-callable]
+    x = self.dropout(x, training)  # [B,256]  # pyrefly: ignore[not-callable]
+    return self.dense3(x)  # [B,num_classes)  # pyrefly: ignore[not-callable]
 
 
 class PointNetVanillaClassifier(tf.keras.layers.Layer):
@@ -240,8 +240,8 @@ class PointNetVanillaClassifier(tf.keras.layers.Layer):
     Returns:
       Tensor with shape `[B,num_classes]`
     """
-    features = self.encoder(points, training)  # (B,1024)
-    logits = self.classifier(features, training)  # (B,num_classes)
+    features = self.encoder(points, training)  # (B,1024)  # pyrefly: ignore[not-callable]
+    logits = self.classifier(features, training)  # (B,num_classes)  # pyrefly: ignore[not-callable]
     return logits
 
   @staticmethod

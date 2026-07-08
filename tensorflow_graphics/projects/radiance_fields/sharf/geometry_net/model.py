@@ -64,17 +64,17 @@ class GeometryNetwork:
     norm3d = self.norm3d
     activation = self.fc_activation
 
-    with tf.name_scope('Network/'):
+    with tf.name_scope('Network/'):  # pyrefly: ignore[bad-instantiation]
       latent_code = tf.keras.layers.Input(shape=(self.latent_code_dim,))
 
-      with tf.name_scope('FC_layers'):
-        fc0 = tf.keras.layers.Dense(fc_channels,
+      with tf.name_scope('FC_layers'):  # pyrefly: ignore[bad-instantiation]
+        fc0 = tf.keras.layers.Dense(fc_channels,  # pyrefly: ignore[not-callable]
                                     activation=activation)(latent_code)
-        fc1 = tf.keras.layers.Dense(fc_channels, activation=activation)(fc0)
-        fc2 = tf.keras.layers.Dense(fc_channels, activation=activation)(fc1)
-        fc2_as_volume = tf.keras.layers.Reshape((1, 1, 1, fc_channels))(fc2)
+        fc1 = tf.keras.layers.Dense(fc_channels, activation=activation)(fc0)  # pyrefly: ignore[not-callable]
+        fc2 = tf.keras.layers.Dense(fc_channels, activation=activation)(fc1)  # pyrefly: ignore[not-callable]
+        fc2_as_volume = tf.keras.layers.Reshape((1, 1, 1, fc_channels))(fc2)  # pyrefly: ignore[not-callable]
 
-      with tf.name_scope('GLO_VoxelDecoder'):
+      with tf.name_scope('GLO_VoxelDecoder'):  # pyrefly: ignore[bad-instantiation]
         decoder_1 = geometry_layers.conv_t_block_3d(fc2_as_volume,
                                                     num_filters=32,
                                                     size=self.conv_size,
@@ -151,20 +151,20 @@ class GeometryNetwork:
   def load_checkpoint(self, checkpoint=None):
     """Load checkpoints."""
     if checkpoint is None:
-      latest_checkpoint = self.manager.latest_checkpoint
+      latest_checkpoint = self.manager.latest_checkpoint  # pyrefly: ignore[missing-attribute]
     else:
       latest_checkpoint = checkpoint
     if latest_checkpoint is not None:
       logging.info('Checkpoint %s restored', latest_checkpoint)
-      _ = self.checkpoint.restore(latest_checkpoint).expect_partial()
-      for a, b in zip(self.model_backup.variables,
-                      self.model.variables):
+      _ = self.checkpoint.restore(latest_checkpoint).expect_partial()  # pyrefly: ignore[missing-attribute]
+      for a, b in zip(self.model_backup.variables,  # pyrefly: ignore[missing-attribute]
+                      self.model.variables):  # pyrefly: ignore[missing-attribute]
         a.assign(b)
     else:
       logging.warning('No checkpoint was restored.')
 
   def reset_models(self):
-    for a, b in zip(self.model.variables,
-                    self.model_backup.variables):
+    for a, b in zip(self.model.variables,  # pyrefly: ignore[missing-attribute]
+                    self.model_backup.variables):  # pyrefly: ignore[missing-attribute]
       a.assign(b)
 

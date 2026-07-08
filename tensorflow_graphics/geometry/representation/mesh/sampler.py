@@ -75,7 +75,7 @@ def triangle_area(vertex0: type_alias.TensorLike,
     A tensor of shape `[A1, ..., An, 1]`, where the last dimension represents
       the triangle areas.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vertex0 = tf.convert_to_tensor(value=vertex0)
     vertex1 = tf.convert_to_tensor(value=vertex1)
     vertex2 = tf.convert_to_tensor(value=vertex2)
@@ -116,7 +116,7 @@ def _random_categorical_sample(
   Returns:
     A `sample_dtype` tensor of shape `[A1, ..., An, num_samples]`.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     asserts.assert_all_above(weights, 0)
     logits = tf.math.log(weights)
     num_faces = tf.shape(input=logits)[-1]
@@ -168,7 +168,7 @@ def generate_random_face_indices(
     An `int32` tensor of shape `[A1, ..., An, num_samples]` denoting sampled
       face indices.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     num_samples = tf.convert_to_tensor(value=num_samples)
     face_weights = tf.convert_to_tensor(value=face_weights)
     shape.check_static(
@@ -222,7 +222,7 @@ def generate_random_barycentric_coordinates(
 
 
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     sample_shape = tf.convert_to_tensor(value=sample_shape)
     shape.check_static(
         tensor=sample_shape, tensor_name="sample_shape", has_rank=1)
@@ -279,7 +279,7 @@ def weighted_random_sample_triangle_mesh(
       where D is dimensionality of each sampled point.
     sample_face_indices: A `int` tensor of shape `[A1, ..., An, num_samples]`.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     faces = tf.convert_to_tensor(value=faces)
     vertex_attributes = tf.convert_to_tensor(value=vertex_attributes)
     face_weights = tf.convert_to_tensor(value=face_weights)
@@ -369,7 +369,7 @@ def area_weighted_random_sample_triangle_mesh(
       where D is dimensionality of each sampled point.
     sample_face_indices: A `int` tensor of shape `[A1, ..., An, num_samples]`.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     faces = tf.convert_to_tensor(value=faces)
     vertex_attributes = tf.convert_to_tensor(value=vertex_attributes)
     num_samples = tf.convert_to_tensor(value=num_samples)

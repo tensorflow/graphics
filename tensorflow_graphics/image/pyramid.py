@@ -24,7 +24,7 @@ from __future__ import print_function
 from typing import Callable, List, Optional, Tuple
 
 import numpy as np
-from six.moves import range
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.util import export_api
@@ -170,7 +170,7 @@ def downsample(image: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `image` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     image = tf.convert_to_tensor(value=image)
 
     shape.check_static(tensor=image, tensor_name="image", has_rank=4)
@@ -196,7 +196,7 @@ def merge(levels: List[type_alias.TensorLike],
   Raises:
     ValueError: If the shape of the elements of `levels` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     levels = [tf.convert_to_tensor(value=level) for level in levels]
 
     for index, level in enumerate(levels):
@@ -229,7 +229,7 @@ def split(image: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `image` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     image = tf.convert_to_tensor(value=image)
 
     shape.check_static(tensor=image, tensor_name="image", has_rank=4)
@@ -264,7 +264,7 @@ def upsample(image: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `image` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     image = tf.convert_to_tensor(value=image)
 
     shape.check_static(tensor=image, tensor_name="image", has_rank=4)

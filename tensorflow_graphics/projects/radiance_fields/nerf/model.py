@@ -109,17 +109,17 @@ class NeRF:
 
   def load_checkpoint(self, checkpoint=None):
     """Load checkpoints."""
-    latest_checkpoint = self.manager.latest_checkpoint if checkpoint is None else checkpoint
+    latest_checkpoint = self.manager.latest_checkpoint if checkpoint is None else checkpoint  # pyrefly: ignore[missing-attribute]
 
     if latest_checkpoint is not None:
       logging.info("Checkpoint %s restored", latest_checkpoint)
-      _ = self.checkpoint.restore(latest_checkpoint).expect_partial()
+      _ = self.checkpoint.restore(latest_checkpoint).expect_partial()  # pyrefly: ignore[missing-attribute]
     else:
       logging.warning("No checkpoint was restored.")
 
   def get_model(self):
     """Constructs the original NeRF network as a keras model."""
-    with tf.name_scope("Network/"):
+    with tf.name_scope("Network/"):  # pyrefly: ignore[bad-instantiation]
       xyz_features = tf.keras.layers.Input(shape=[None, None, self.xyz_dim])
       dir_features = tf.keras.layers.Input(shape=[None, None, self.dir_dim])
 
@@ -129,11 +129,11 @@ class NeRF:
       feat1 = nerf_layers.dense_block(feat0,
                                       n_filters=self.n_filters,
                                       n_layers=4)
-      feat2 = tf.keras.layers.Dense(self.n_filters)(feat1)
-      density = tf.keras.layers.Dense(1)(feat2)
+      feat2 = tf.keras.layers.Dense(self.n_filters)(feat1)  # pyrefly: ignore[not-callable]
+      density = tf.keras.layers.Dense(1)(feat2)  # pyrefly: ignore[not-callable]
       feat2_dir = tf.keras.layers.concatenate([feat2, dir_features], -1)
-      feat3 = tf.keras.layers.Dense(self.n_filters//2)(feat2_dir)
-      rgb = tf.keras.layers.Dense(3)(feat3)
+      feat3 = tf.keras.layers.Dense(self.n_filters//2)(feat2_dir)  # pyrefly: ignore[not-callable]
+      rgb = tf.keras.layers.Dense(3)(feat3)  # pyrefly: ignore[not-callable]
       rgb_density = tf.keras.layers.concatenate([rgb, density], -1)
       return tf.keras.Model(inputs=[xyz_features, dir_features],
                             outputs=[rgb_density])
@@ -208,7 +208,7 @@ class NeRF:
         n_samples=self.ray_samples_coarse,
         strategy=self.coarse_sampling_strategy)
     posenc_features = self.prepare_positional_encoding(ray_points_coarse, r_dir)
-    rgb_density = self.coarse_model(posenc_features)
+    rgb_density = self.coarse_model(posenc_features)  # pyrefly: ignore[not-callable]
     rgb_coarse, weights_coarse = self.render_network_output(rgb_density,
                                                             ray_points_coarse)
     depth_map_coarse = tf.reduce_sum(weights_coarse * z_vals_coarse, axis=-1)
@@ -221,7 +221,7 @@ class NeRF:
         n_samples=self.ray_samples_fine,
         combine_z_values=True)
     posenc_features = self.prepare_positional_encoding(ray_points_fine, r_dir)
-    rgb_density = self.fine_model(posenc_features)
+    rgb_density = self.fine_model(posenc_features)  # pyrefly: ignore[not-callable]
     rgb_fine, weights_fine = self.render_network_output(rgb_density,
                                                         ray_points_fine)
     depth_map_fine = tf.reduce_sum(weights_fine * z_vals_fine, axis=-1)
@@ -248,9 +248,9 @@ class NeRF:
       rgb_fine_loss = utils.l2_loss(rgb_fine, gt_rgb)
       total_loss = rgb_coarse_loss + rgb_fine_loss
     gradients = tape.gradient(total_loss, self.network_vars)
-    self.optimizer_network.apply_gradients(zip(gradients, self.network_vars))
+    self.optimizer_network.apply_gradients(zip(gradients, self.network_vars))  # pyrefly: ignore[bad-argument-type, missing-attribute]
 
-    with self.summary_writer.as_default():
+    with self.summary_writer.as_default():  # pyrefly: ignore[missing-attribute]
       step = self.global_step
       tf.summary.scalar("total_loss", total_loss, step=step)
       tf.summary.scalar("rgb_loss_f", rgb_fine_loss, step=step)

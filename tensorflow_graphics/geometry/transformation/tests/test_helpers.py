@@ -22,7 +22,7 @@ import math
 
 import numpy as np
 from scipy import stats
-from six.moves import range
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow.compat.v2 as tf
 
 from tensorflow_graphics.geometry.transformation import axis_angle

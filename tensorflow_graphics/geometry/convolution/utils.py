@@ -249,7 +249,7 @@ def flatten_batch_to_2d(data: type_alias.TensorLike,
   Raises:
     ValueError: if the input tensor dimensions are invalid.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     data = tf.convert_to_tensor(value=data)
     if sizes is not None:
       sizes = tf.convert_to_tensor(value=sizes)
@@ -272,7 +272,7 @@ def flatten_batch_to_2d(data: type_alias.TensorLike,
 
       def unflatten(flat, name="utils_unflatten"):
         """Invert flatten_batch_to_2d."""
-        with tf.name_scope(name):
+        with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
           flat = tf.convert_to_tensor(value=flat)
           output_shape = tf.concat((data_shape[:-1], tf.shape(input=flat)[-1:]),
                                    axis=0)
@@ -288,7 +288,7 @@ def flatten_batch_to_2d(data: type_alias.TensorLike,
 
       def unflatten(flat, name="utils_unflatten"):
         """Invert flatten_batch_to_2d."""
-        with tf.name_scope(name):
+        with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
           flat = tf.convert_to_tensor(value=flat)
           output_shape = tf.concat((data_shape[:-1], tf.shape(input=flat)[-1:]),
                                    axis=0)
@@ -362,7 +362,7 @@ def unflatten_2d_to_batch(data: type_alias.TensorLike,
   Returns:
     A tensor with shape `[A1, A2, ..., max_rows, D2]`.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     data = tf.convert_to_tensor(value=data)
     sizes = tf.convert_to_tensor(value=sizes)
     if max_rows is None:
@@ -418,7 +418,7 @@ def convert_to_block_diag_2d(data: tf.sparse.SparseTensor,
     TypeError: if the input types are invalid.
     ValueError: if the input dimensions are invalid.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     data = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=data)
     if sizes is not None:
       sizes = tf.convert_to_tensor(value=sizes)

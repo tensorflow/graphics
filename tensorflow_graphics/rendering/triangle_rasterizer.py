@@ -79,7 +79,7 @@ def rasterize(
     the dictionary contains perspective correct interpolated attributes of shape
     `[A1, ..., An, height, width, K]` per entry in the `attributes` dictionary.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     vertices = tf.convert_to_tensor(value=vertices)
     triangles = tf.convert_to_tensor(value=triangles)
     view_projection_matrix = tf.convert_to_tensor(value=view_projection_matrix)

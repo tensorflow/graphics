@@ -33,7 +33,7 @@ from __future__ import division
 from __future__ import print_function
 
 from typing import Tuple
-from six.moves import range
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 
 from tensorflow_graphics.util import asserts
@@ -79,7 +79,7 @@ def distortion_factor(
       monotonically increasing. Wherever `overflow_mask` is True,
       `distortion_factor`'s value is meaningless.
   """
-  with tf.name_scope(name,):
+  with tf.name_scope(name,):  # pyrefly: ignore[bad-instantiation]
     squared_radius = tf.convert_to_tensor(value=squared_radius)
     distortion_coefficient = tf.convert_to_tensor(value=distortion_coefficient)
 
@@ -154,7 +154,7 @@ def undistortion_factor(
       `undistortion_factor`'s value is meaningless.
 
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     distorted_squared_radius = tf.convert_to_tensor(
         value=distorted_squared_radius)
     distortion_coefficient = tf.convert_to_tensor(value=distortion_coefficient)

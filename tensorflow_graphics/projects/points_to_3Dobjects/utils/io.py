@@ -29,7 +29,7 @@ def tfrecords_to_dataset_tf2(tfrecords_pattern,
                              buffer_size=5000,
                              shuffle=True):
   """Generates a TF Dataset from a rio pattern."""
-  with tf.name_scope('Input/'):
+  with tf.name_scope('Input/'):  # pyrefly: ignore[bad-instantiation]
     tfrecords_pattern = expand_rio_pattern(tfrecords_pattern)
     dataset = tf.data.Dataset.list_files(tfrecords_pattern, shuffle=shuffle)
     dataset = dataset.interleave(tf.data.TFRecordDataset, cycle_length=16)
@@ -46,7 +46,7 @@ def get_dataset(tfrecords_pattern,
                 shuffle=True,
                 cycle_length=16):
   """Generates a TF Dataset from a rio pattern."""
-  with tf.name_scope('Input/'):
+  with tf.name_scope('Input/'):  # pyrefly: ignore[bad-instantiation]
     tfrecords_pattern = expand_rio_pattern(tfrecords_pattern)
     dataset = tf.data.Dataset.list_files(tfrecords_pattern, shuffle=shuffle)
     dataset = dataset.interleave(tf.data.TFRecordDataset,

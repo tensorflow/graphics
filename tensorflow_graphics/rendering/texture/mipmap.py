@@ -34,7 +34,7 @@ from __future__ import print_function
 
 from typing import Optional, Sequence, Text
 
-from six.moves import range
+from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
 import tensorflow as tf
 from tensorflow_graphics.rendering.texture import texture_map
 from tensorflow_graphics.util import export_api
@@ -94,7 +94,7 @@ def map_texture(uv_map: tfg_type.TensorLike,
     ValueError: If texture_image is too small for the mipmap images to be
       constructed.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
 
     if mipmap_images is None and texture_image is None:
       raise ValueError('Either texture_image or mipmap_images should be '
@@ -131,15 +131,15 @@ def map_texture(uv_map: tfg_type.TensorLike,
       texture_shape = texture_image.get_shape().as_list()
       texture_height, texture_width = texture_shape[-3:-1]
 
-      if (texture_height / 2**num_mipmap_levels < 1 or
-          texture_width / 2**num_mipmap_levels < 1):
+      if (texture_height / 2**num_mipmap_levels < 1 or  # pyrefly: ignore[unsupported-operation]
+          texture_width / 2**num_mipmap_levels < 1):  # pyrefly: ignore[unsupported-operation]
         raise ValueError('The size of texture_image '
                          f'({texture_height}, {texture_width}) '
                          'is too small for the provided number of mipmap '
                          f'levels ({num_mipmap_levels}).')
 
       mipmap_images = [texture_image]
-      for idx in range(num_mipmap_levels - 1):
+      for idx in range(num_mipmap_levels - 1):  # pyrefly: ignore[unsupported-operation]
         previous_size = mipmap_images[idx].shape.as_list()
         current_height = tf.floor(previous_size[0] / 2)
         current_width = tf.floor(previous_size[1] / 2)
@@ -157,19 +157,19 @@ def map_texture(uv_map: tfg_type.TensorLike,
     max_derivative = tf.math.maximum(
         tf.reduce_max(input_tensor=tf.math.abs(ddx), axis=-1),
         tf.reduce_max(input_tensor=tf.math.abs(ddy), axis=-1))
-    max_derivative = max_derivative * [texture_height, texture_width]
+    max_derivative = max_derivative * [texture_height, texture_width]  # pyrefly: ignore[unbound-name]
     max_derivative = tf.math.maximum(max_derivative, 1.0)
 
     mipmap_level = tf.experimental.numpy.log2(max_derivative)
     mipmap_indices = tf.stack(
         (tf.math.floor(mipmap_level), tf.math.ceil(mipmap_level)), axis=-1)
     mipmap_level = mipmap_level - mipmap_indices[..., 0]
-    mipmap_indices = tf.clip_by_value(mipmap_indices, 0, num_mipmap_levels - 1)
+    mipmap_indices = tf.clip_by_value(mipmap_indices, 0, num_mipmap_levels - 1)  # pyrefly: ignore[unsupported-operation]
     mipmap_indices = tf.cast(mipmap_indices, dtype=tf.int32)
 
     # Map texture for each level and stack the results
     mapped_texture_stack = []
-    for mipmap_image in mipmap_images:
+    for mipmap_image in mipmap_images:  # pyrefly: ignore[not-iterable]
       mapped_texture_stack.append(
           texture_map.map_texture(
               uv_map=uv_map, texture_image=mipmap_image, tiling=tiling))
@@ -194,7 +194,7 @@ def map_texture(uv_map: tfg_type.TensorLike,
 
     return tf.reshape(
         mapped_texture,
-        uv_batch_dimensions + [uv_height, uv_width, texture_shape[-1]])
+        uv_batch_dimensions + [uv_height, uv_width, texture_shape[-1]])  # pyrefly: ignore[unbound-name]
 
 
 # API contains all public functions and classes.

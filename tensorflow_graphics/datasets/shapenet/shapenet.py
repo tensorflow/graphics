@@ -122,21 +122,21 @@ class MeshConfig(ShapenetConfig):
 
     return [
         tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
+            name=tfds.Split.TRAIN,  # pyrefly: ignore[missing-attribute]
             gen_kwargs={
                 'base_dir': dl_manager.manual_dir,
                 'models': model_items['train']
             },
         ),
         tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
+            name=tfds.Split.TEST,  # pyrefly: ignore[missing-attribute]
             gen_kwargs={
                 'base_dir': dl_manager.manual_dir,
                 'models': model_items['test']
             },
         ),
         tfds.core.SplitGenerator(
-            name=tfds.Split.VALIDATION,
+            name=tfds.Split.VALIDATION,  # pyrefly: ignore[missing-attribute]
             gen_kwargs={
                 'base_dir': dl_manager.manual_dir,
                 'models': model_items['val']

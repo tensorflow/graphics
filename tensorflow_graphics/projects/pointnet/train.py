@@ -99,7 +99,7 @@ def train(example):
 
   # --- report rate in summaries
   if FLAGS.lr_decay and step % FLAGS.tb_every == 0:
-    tf.summary.scalar(name="learning_rate", data=lr_scheduler(step), step=step)
+    tf.summary.scalar(name="learning_rate", data=lr_scheduler(step), step=step)  # pyrefly: ignore[not-callable]
 
 
 # ------------------------------------------------------------------------------
@@ -111,18 +111,18 @@ def evaluate():
   """Identify the best accuracy reached during training."""
   step = optimizer.iterations.numpy()
   if "best_accuracy" not in evaluate.__dict__:
-    evaluate.best_accuracy = 0
+    evaluate.best_accuracy = 0  # pyrefly: ignore[missing-attribute]
   if step % FLAGS.ev_every != 0:
-    return evaluate.best_accuracy
+    return evaluate.best_accuracy  # pyrefly: ignore[missing-attribute]
   aggregator = tf.keras.metrics.SparseCategoricalAccuracy()
   for example in ds_test:
     points, labels = example["points"], example["label"]
     logits = model(points, training=False)
     aggregator.update_state(labels, logits)
   accuracy = aggregator.result()
-  evaluate.best_accuracy = max(accuracy, evaluate.best_accuracy)
+  evaluate.best_accuracy = max(accuracy, evaluate.best_accuracy)  # pyrefly: ignore[missing-attribute]
   tf.summary.scalar(name="accuracy_test", data=accuracy, step=step)
-  return evaluate.best_accuracy
+  return evaluate.best_accuracy  # pyrefly: ignore[missing-attribute]
 
 
 # ------------------------------------------------------------------------------

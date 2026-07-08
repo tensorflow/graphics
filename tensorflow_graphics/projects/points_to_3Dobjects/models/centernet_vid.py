@@ -427,7 +427,7 @@ class CenterNetVID:
       network_gradients, gradients_norm = tf.clip_by_global_norm(
           network_gradients, clip_norm=self.clip_norm)
 
-    self.optimizer.apply_gradients(
+    self.optimizer.apply_gradients(  # pyrefly: ignore[missing-attribute]
         zip(network_gradients, self.network.trainable_variables))
 
     additional_logs = {'total_loss': total_loss,

@@ -59,7 +59,7 @@ def project(point_3d: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `point_3d` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_3d = tf.convert_to_tensor(value=point_3d)
 
     shape.check_static(
@@ -97,7 +97,7 @@ def ray(point_2d: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `point_2d` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_2d = tf.convert_to_tensor(value=point_2d)
 
     shape.check_static(
@@ -139,7 +139,7 @@ def unproject(point_2d: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `point_2d`, `depth` is not supported.
   """
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     point_2d = tf.convert_to_tensor(value=point_2d)
     depth = tf.convert_to_tensor(value=depth)
 

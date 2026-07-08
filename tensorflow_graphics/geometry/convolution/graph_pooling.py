@@ -74,7 +74,7 @@ def pool(data: type_alias.TensorLike,
     ValueError: if `algorithm` is invalid.
   """
   #  pyformat: enable
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     data = tf.convert_to_tensor(value=data)
     pool_map = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=pool_map)
     if sizes is not None:
@@ -161,7 +161,7 @@ def unpool(data: type_alias.TensorLike,
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     data = tf.convert_to_tensor(value=data)
     pool_map = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=pool_map)
     if sizes is not None:
@@ -253,7 +253,7 @@ def upsample_transposed_convolution(
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
-  with tf.name_scope(name):
+  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
     data = tf.convert_to_tensor(value=data)
     pool_map = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=pool_map)
     if sizes is not None:

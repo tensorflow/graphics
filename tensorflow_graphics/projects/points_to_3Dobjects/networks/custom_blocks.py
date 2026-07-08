@@ -107,10 +107,10 @@ class ConvolutionalBlock(tf.keras.layers.Layer):
       self.relu = IdentityLayer(name='identity')
 
   def call(self, inputs, **kwargs):
-    x = self.pad(inputs)
+    x = self.pad(inputs)  # pyrefly: ignore[not-callable]
     x = self.conv(x)
     x = self.norm(x)
-    x = self.relu(x)
+    x = self.relu(x)  # pyrefly: ignore[not-callable]
     return x
 
 
@@ -159,9 +159,9 @@ class ResidualBlock(tf.keras.layers.Layer):
     self.relu = tf.keras.layers.ReLU(name='relu')
 
   def call(self, inputs, **kwargs):
-    x = self.conv_block(inputs)
+    x = self.conv_block(inputs)  # pyrefly: ignore[not-callable]
     x = self.conv(x)
     x = self.norm(x)
-    x_skip = self.skip(inputs)
-    x = self.relu(x + x_skip)
+    x_skip = self.skip(inputs)  # pyrefly: ignore[not-callable]
+    x = self.relu(x + x_skip)  # pyrefly: ignore[not-callable]
     return x

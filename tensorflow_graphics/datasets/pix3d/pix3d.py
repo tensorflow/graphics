@@ -148,14 +148,14 @@ class Pix3d(tfds.core.GeneratorBasedBuilder):
 
     return [
         tfds.core.SplitGenerator(
-            name=tfds.Split.TRAIN,
+            name=tfds.Split.TRAIN,  # pyrefly: ignore[missing-attribute]
             gen_kwargs={
                 'samples_directory': pix3d_dir,
                 'split_file': self.TRAIN_SPLIT_IDX
             },
         ),
         tfds.core.SplitGenerator(
-            name=tfds.Split.TEST,
+            name=tfds.Split.TEST,  # pyrefly: ignore[missing-attribute]
             gen_kwargs={
                 'samples_directory': pix3d_dir,
                 'split_file': self.TEST_SPLIT_IDX
