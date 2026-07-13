@@ -1,0 +1,25 @@
+method: r2n2
+data:
+  path: data/ShapeNet
+  img_folder: img_choy2016
+  img_size: 224
+model:
+  encoder_latent: null
+  decoder: simple
+  encoder: resnet18 
+  c_dim: 256 
+  z_dim: 0
+training:
+  out_dir: out/img/r2n2
+  batch_size: 64
+  model_selection_metric: iou
+  model_selection_mode: maximize
+test:
+  threshold: 0.4
+  eval_mesh: true
+  eval_pointcloud: false
+generation:
+  batch_size: 100000
+  refine: false
+  n_x: 128
+  n_z: 1
