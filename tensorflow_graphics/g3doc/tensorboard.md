@@ -78,9 +78,9 @@ All keys from `camera_config` will be passed to a class with name
 
 ```python
 camera_config = {
-  'cls': 'PerspectiveCamera',
-  'fov': 75,
-  'aspect': 0.9,
+    'cls': 'PerspectiveCamera',
+    'fov': 75,
+    'aspect': 0.9,
 }
 ...
 ```
