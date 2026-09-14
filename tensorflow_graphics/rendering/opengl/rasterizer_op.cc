@@ -26,9 +26,8 @@ limitations under the License.
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/core/status.h"
 
-static tensorflow::Status GetVariablesRank(
-    ::tensorflow::shape_inference::InferenceContext* c,
-    tensorflow::int32* rank) {
+static absl::Status GetVariablesRank(
+    ::tensorflow::shape_inference::InferenceContext* c, int32_t* rank) {
   std::vector<std::string> variable_names, variable_kinds;
   TF_RETURN_IF_ERROR(c->GetAttr("variable_names", &variable_names));
   TF_RETURN_IF_ERROR(c->GetAttr("variable_kinds", &variable_kinds));
@@ -38,7 +37,7 @@ static tensorflow::Status GetVariablesRank(
 
   if (variable_names.size() != variable_values.size() ||
       variable_names.size() != variable_kinds.size()) {
-    return tensorflow::errors::InvalidArgument(
+    return absl::InvalidArgumentError(
         "The variable names, kinds, and values must have the same size.");
   }
 
@@ -49,26 +48,26 @@ static tensorflow::Status GetVariablesRank(
     auto batch_rank = c->Rank(h);
     if (kind == "mat") {
       if (batch_rank < 2)
-        return tensorflow::errors::InvalidArgument(
-            "Matrix with name='", variable_names[index],
-            "' has an invalid rank of ", batch_rank);
+        return absl::InvalidArgumentError(
+            absl::StrCat("Matrix with name='", variable_names[index],
+                         "' has an invalid rank of ", batch_rank));
       batch_rank -= 2;
     } else if (kind == "buffer") {
       if (batch_rank < 1)
-        return tensorflow::errors::InvalidArgument(
-            "Buffer with name='", variable_names[index],
-            "' has an invalid rank of ", batch_rank);
+        return absl::InvalidArgumentError(
+            absl::StrCat("Buffer with name='", variable_names[index],
+                         "' has an invalid rank of ", batch_rank));
       batch_rank -= 1;
     }
 
     if (index == 0)
       *rank = batch_rank;
     else if (*rank != batch_rank)
-      return tensorflow::errors::InvalidArgument(
+      return absl::InvalidArgumentError(absl::StrCat(
           "Variable with name='", variable_names[index],
-          "' has an invalid batch rank of ", batch_rank, "; expected ", *rank);
+          "' has an invalid batch rank of ", batch_rank, "; expected ", *rank));
   }
-  return tensorflow::Status();
+  return absl::Status();
 }
 
 REGISTER_OP("Rasterize")
@@ -123,7 +122,7 @@ rendered_image: A tensor of shape `[A1, ..., An, width, height, 4]`, with the
   width and height defined by `output_resolution`.
     )doc")
     .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c) {
-      tensorflow::int32 variables_rank;
+      int32_t variables_rank;
       TF_RETURN_IF_ERROR(GetVariablesRank(c, &variables_rank));
       auto batch_shape = c->UnknownShapeOfRank(variables_rank);
 
@@ -137,7 +136,7 @@ rendered_image: A tensor of shape `[A1, ..., An, width, height, 4]`, with the
           c->Concatenate(batch_shape, image_shape, &output_shape));
       c->set_output(0, output_shape);
 
-      return tensorflow::Status();
+      return absl::Status();
     });
 
 class RasterizeOp : public tensorflow::OpKernel {
@@ -176,8 +175,8 @@ class RasterizeOp : public tensorflow::OpKernel {
     auto rasterizer_creator =
         [vertex_shader, geometry_shader, fragment_shader, red_clear,
          green_clear, blue_clear, alpha_clear, depth_clear, enable_cull_face,
-         this](std::unique_ptr<RasterizerWithContext>* resource)
-        -> tensorflow::Status {
+         this](
+            std::unique_ptr<RasterizerWithContext>* resource) -> absl::Status {
       return RasterizerWithContext::Create(
           output_resolution_.dim_size(0), output_resolution_.dim_size(1),
           vertex_shader, geometry_shader, fragment_shader, resource, red_clear,
@@ -206,7 +205,7 @@ class RasterizeOp : public tensorflow::OpKernel {
 
     std::unique_ptr<RasterizerWithContext> rasterizer;
     float* image_data = output_image->flat<float>().data();
-    const tensorflow::int64 image_size =
+    const int64_t image_size =
         output_resolution_.dim_size(0) * output_resolution_.dim_size(1) * 4;
 
     OP_REQUIRES_OK(context, rasterizer_pool_->AcquireResource(&rasterizer));
@@ -219,15 +218,14 @@ class RasterizeOp : public tensorflow::OpKernel {
   }
 
  private:
-  tensorflow::Status SetVariables(
-      tensorflow::OpKernelContext* context,
-      std::unique_ptr<RasterizerWithContext>& rasterizer, int outer_dim);
-  tensorflow::Status RenderImage(
-      tensorflow::OpKernelContext* context,
-      std::unique_ptr<RasterizerWithContext>& rasterizer,
-      tensorflow::int64 image_size, float* image_data);
-  tensorflow::Status ValidateVariables(tensorflow::OpKernelContext* context,
-                                       tensorflow::TensorShape* batch_shape);
+  absl::Status SetVariables(tensorflow::OpKernelContext* context,
+                            std::unique_ptr<RasterizerWithContext>& rasterizer,
+                            int outer_dim);
+  absl::Status RenderImage(tensorflow::OpKernelContext* context,
+                           std::unique_ptr<RasterizerWithContext>& rasterizer,
+                           int64_t image_size, float* image_data);
+  absl::Status ValidateVariables(tensorflow::OpKernelContext* context,
+                                 tensorflow::TensorShape* batch_shape);
 
   std::unique_ptr<ThreadSafeResourcePool<RasterizerWithContext>>
       rasterizer_pool_;
@@ -236,18 +234,18 @@ class RasterizeOp : public tensorflow::OpKernel {
   tensorflow::TensorShape output_resolution_;
 };
 
-tensorflow::Status RasterizeOp::RenderImage(
+absl::Status RasterizeOp::RenderImage(
     tensorflow::OpKernelContext* context,
     std::unique_ptr<RasterizerWithContext>& rasterizer,
-    const tensorflow::int64 image_size, float* image_data) {
+    const int64_t image_size, float* image_data) {
   int num_points = context->input(0).scalar<int>()();
 
   TF_RETURN_IF_ERROR(rasterizer->Render(
       num_points, absl::MakeSpan(image_data, image_data + image_size)));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status RasterizeOp::SetVariables(
+absl::Status RasterizeOp::SetVariables(
     tensorflow::OpKernelContext* context,
     std::unique_ptr<RasterizerWithContext>& rasterizer, int outer_dim) {
   tensorflow::OpInputList variable_values;
@@ -270,7 +268,7 @@ tensorflow::Status RasterizeOp::SetVariables(
           absl::MakeConstSpan(value_pointer + num_elements * outer_dim,
                               value_pointer + num_elements * (outer_dim + 1))));
     } else if (kind == "buffer") {
-      const tensorflow::int32 buffer_length =
+      const int32_t buffer_length =
           value_shape.dim_size(value_shape.dims() - 1);
 
       const auto value_pointer = value.flat<float>().data();
@@ -280,10 +278,10 @@ tensorflow::Status RasterizeOp::SetVariables(
                     value_pointer + buffer_length * (outer_dim + 1))));
     }
   }
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status RasterizeOp::ValidateVariables(
+absl::Status RasterizeOp::ValidateVariables(
     tensorflow::OpKernelContext* context,
     tensorflow::TensorShape* batch_shape) {
   tensorflow::OpInputList variable_values;
@@ -291,7 +289,7 @@ tensorflow::Status RasterizeOp::ValidateVariables(
 
   if (variable_names_.size() != variable_values.size() ||
       variable_names_.size() != variable_kinds_.size()) {
-    return tensorflow::errors::InvalidArgument(
+    return absl::InvalidArgumentError(
         "The variable names, kinds, and values must have the same size.");
   }
 
@@ -306,15 +304,15 @@ tensorflow::Status RasterizeOp::ValidateVariables(
 
     if (kind == "mat") {
       if (value_batch_shape.dims() < 2)
-        return tensorflow::errors::InvalidArgument(
+        return absl::InvalidArgumentError(absl::StrCat(
             "Matrix with name='", name,
-            "' has an invalid shape=", value_batch_shape.DebugString());
+            "' has an invalid shape=", value_batch_shape.DebugString()));
       value_batch_shape.RemoveLastDims(2);
     } else if (kind == "buffer") {
       if (value_batch_shape.dims() < 1)
-        return tensorflow::errors::InvalidArgument(
+        return absl::InvalidArgumentError(absl::StrCat(
             "Buffer with name='", name,
-            "' has an invalid shape=", value_batch_shape.DebugString());
+            "' has an invalid shape=", value_batch_shape.DebugString()));
       value_batch_shape.RemoveLastDims(1);
     }
     if (batch_initialized == false) {
@@ -327,7 +325,7 @@ tensorflow::Status RasterizeOp::ValidateVariables(
           *batch_shape);
     }
   }
-  return tensorflow::Status();
+  return absl::Status();
 }
 
 // Register kernel with TF
