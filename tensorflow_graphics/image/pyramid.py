@@ -170,7 +170,7 @@ def downsample(image: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `image` is not supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     image = tf.convert_to_tensor(value=image)
 
     shape.check_static(tensor=image, tensor_name="image", has_rank=4)
@@ -196,7 +196,7 @@ def merge(levels: List[type_alias.TensorLike],
   Raises:
     ValueError: If the shape of the elements of `levels` is not supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     levels = [tf.convert_to_tensor(value=level) for level in levels]
 
     for index, level in enumerate(levels):
@@ -229,7 +229,7 @@ def split(image: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `image` is not supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     image = tf.convert_to_tensor(value=image)
 
     shape.check_static(tensor=image, tensor_name="image", has_rank=4)
@@ -264,7 +264,7 @@ def upsample(image: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `image` is not supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     image = tf.convert_to_tensor(value=image)
 
     shape.check_static(tensor=image, tensor_name="image", has_rank=4)

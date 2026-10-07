@@ -98,7 +98,7 @@ def generate(starts, stops, nums, name="grid_generate"):
     axis and from -2.0 to 2.0 with 5 subdivisions for the y axis. This lead to a
     tensor of shape (3, 5, 2).
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     starts = tf.convert_to_tensor(value=starts)
     stops = tf.convert_to_tensor(value=stops)
     nums = tf.convert_to_tensor(value=nums)

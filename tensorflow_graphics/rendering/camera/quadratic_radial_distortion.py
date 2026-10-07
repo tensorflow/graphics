@@ -79,7 +79,7 @@ def distortion_factor(
       monotonically increasing. Wherever `overflow_mask` is True,
       `distortion_factor`'s value is meaningless.
   """
-  with tf.name_scope(name,):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name,):
     squared_radius = tf.convert_to_tensor(value=squared_radius)
     distortion_coefficient = tf.convert_to_tensor(value=distortion_coefficient)
 
@@ -154,7 +154,7 @@ def undistortion_factor(
       `undistortion_factor`'s value is meaningless.
 
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     distorted_squared_radius = tf.convert_to_tensor(
         value=distorted_squared_radius)
     distortion_coefficient = tf.convert_to_tensor(value=distortion_coefficient)

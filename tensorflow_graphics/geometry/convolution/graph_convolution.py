@@ -96,7 +96,7 @@ def feature_steered_convolution(
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     data = tf.convert_to_tensor(value=data)
     neighbors = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=neighbors)
     if sizes is not None:
@@ -239,7 +239,7 @@ def edge_convolution_template(
     ValueError: if the input dimensions are invalid.
   """
   #  pyformat: enable
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     data = tf.convert_to_tensor(value=data)
     neighbors = tf.compat.v1.convert_to_tensor_or_sparse_tensor(value=neighbors)
     if sizes is not None:

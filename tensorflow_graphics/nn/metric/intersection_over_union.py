@@ -54,7 +54,7 @@ def evaluate(ground_truth_labels: type_alias.TensorLike,
     ValueError: if the shape of `ground_truth_labels`, `predicted_labels` is
     not supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     ground_truth_labels = tf.convert_to_tensor(value=ground_truth_labels)
     predicted_labels = tf.convert_to_tensor(value=predicted_labels)
 

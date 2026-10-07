@@ -77,7 +77,7 @@ def sample(image: type_alias.TensorLike,
     ValueError: If `image` has rank != 4. If `warp` has rank < 2 or its last
     dimension is not 2. If `image` and `warp` batch dimension does not match.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     image = tf.convert_to_tensor(value=image, name="image")
     warp = tf.convert_to_tensor(value=warp, name="warp")
 
@@ -154,7 +154,7 @@ def perspective_transform(
     its last two dimensions are not 3. If `image` and `transform_matrix` batch
     dimension does not match.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     image = tf.convert_to_tensor(value=image, name="image")
     transform_matrix = tf.convert_to_tensor(
         value=transform_matrix, name="transform_matrix")
