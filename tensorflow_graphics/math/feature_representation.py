@@ -37,7 +37,7 @@ def positional_encoding(features: TensorLike,
   Returns:
     A tensor of shape `[A1, ..., An, 2*N*M + M]`.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     features = tf.convert_to_tensor(value=features)
 
     output = [features]

@@ -58,7 +58,7 @@ def integration_product(
     ValueError: if the last dimension of `harmonics1` is different from the last
     dimension of `harmonics2`.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     harmonics1 = tf.convert_to_tensor(value=harmonics1)
     harmonics2 = tf.convert_to_tensor(value=harmonics2)
 
@@ -88,7 +88,7 @@ def generate_l_m_permutations(
   Returns:
     Two tensors of shape `[max_band*max_band]`.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     degree_l = []
     order_m = []
     for degree in range(0, max_band + 1):
@@ -112,7 +112,7 @@ def generate_l_m_zonal(
   Returns:
     Two tensors of shape `[max_band+1]`, one for degree l and one for order m.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     degree_l = np.linspace(0, max_band, num=max_band + 1, dtype=np.int32)
     order_m = np.zeros(max_band + 1, dtype=np.int32)
     return (tf.convert_to_tensor(value=degree_l),
@@ -273,7 +273,7 @@ def evaluate_spherical_harmonics(
     InvalidArgumentError: if at least an element of `l`, `m`, `theta` or `phi`
     is outside the expected range.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     degree_l = tf.convert_to_tensor(value=degree_l)
     order_m = tf.convert_to_tensor(value=order_m)
     theta = tf.convert_to_tensor(value=theta)
@@ -339,7 +339,7 @@ def rotate_zonal_harmonics(
     ValueError: If the shape of `zonal_coeffs`, `theta` or `phi` is not
       supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     zonal_coeffs = tf.convert_to_tensor(value=zonal_coeffs)
     theta = tf.convert_to_tensor(value=theta)
     phi = tf.convert_to_tensor(value=phi)
@@ -386,7 +386,7 @@ def tile_zonal_coefficients(
   Raises:
     ValueError: if the shape of `coefficients` is not supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     coefficients = tf.convert_to_tensor(value=coefficients)
 
     shape.check_static(

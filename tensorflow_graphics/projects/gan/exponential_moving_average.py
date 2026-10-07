@@ -51,7 +51,7 @@ class ExponentialMovingAverage(tf.Module):
 
   def _ema_assign_fn(self, variable: tf.Variable, value: tf.Tensor):
     """Updates the exponential moving average for a single variable."""
-    return variable.assign(self._decay * variable + (1.0 - self._decay) * value)  # pyrefly: ignore[unsupported-operation]
+    return variable.assign(self._decay * variable + (1.0 - self._decay) * value)
 
   def _apply_values(self, variables: Sequence[tf.Variable]):
     """Applies the new values to the exponential moving averages."""
