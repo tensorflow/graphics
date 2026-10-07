@@ -150,7 +150,7 @@ class AppearanceNetwork:
 
   def get_model(self):
     """NeRF-based network."""
-    with tf.name_scope("Network/"):  # pyrefly: ignore[bad-instantiation]
+    with tf.name_scope("Network/"):
       input_features = tf.keras.layers.Input(shape=[self.input_dim])
       feat0 = nerf_layers.concat_block(input_features,
                                        n_filters=self.n_filters,
@@ -158,7 +158,7 @@ class AppearanceNetwork:
       feat1 = nerf_layers.dense_block(feat0,
                                       n_filters=self.n_filters,
                                       n_layers=3)
-      rgb_density = tf.keras.layers.Dense(4)(feat1)  # pyrefly: ignore[not-callable]
+      rgb_density = tf.keras.layers.Dense(4)(feat1)
       return tf.keras.Model(inputs=[input_features], outputs=[rgb_density])
 
   @tf.function

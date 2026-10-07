@@ -151,7 +151,7 @@ def minimize(residuals,
   """
   if not isinstance(variables, (tuple, list)):
     variables = [variables]
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     if not isinstance(residuals, (tuple, list)):
       residuals = [residuals]
     if isinstance(residuals, tuple):

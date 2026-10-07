@@ -54,7 +54,7 @@ def gather_faces(vertices: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `vertices` or `indices` is not supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     vertices = tf.convert_to_tensor(value=vertices)
     indices = tf.convert_to_tensor(value=indices)
 
@@ -109,7 +109,7 @@ def face_normals(faces: type_alias.TensorLike,
   Raises:
     ValueError: If the shape of `vertices`, `faces` is not supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     faces = tf.convert_to_tensor(value=faces)
 
     shape.check_static(
@@ -158,7 +158,7 @@ def vertex_normals(
   Raises:
     ValueError: If the shape of `vertices`, `indices` is not supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     vertices = tf.convert_to_tensor(value=vertices)
     indices = tf.convert_to_tensor(value=indices)
 

@@ -144,7 +144,7 @@ class MeshConfig(ShapenetConfig):
         ),
     ]
 
-  def generate_examples(self, base_dir, models):  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
+  def generate_examples(self, base_dir, models):  # pyrefly: ignore[bad-override]
     """Yields examples.
 
     The structure of the examples:
@@ -200,7 +200,7 @@ class Shapenet(tfds.core.GeneratorBasedBuilder):
 
   @staticmethod
   def load(*args, **kwargs):
-    return tfds.load('shapenet', *args, **kwargs)  # pytype: disable=wrong-arg-count
+    return tfds.load('shapenet', *args, **kwargs)
 
   MANUAL_DOWNLOAD_INSTRUCTIONS = textwrap.dedent("""\
   manual_dir should contain the extracted ShapeNetCore.v2.zip archive.

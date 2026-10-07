@@ -119,7 +119,7 @@ class NeRF:
 
   def get_model(self):
     """Constructs the original NeRF network as a keras model."""
-    with tf.name_scope("Network/"):  # pyrefly: ignore[bad-instantiation]
+    with tf.name_scope("Network/"):
       xyz_features = tf.keras.layers.Input(shape=[None, None, self.xyz_dim])
       dir_features = tf.keras.layers.Input(shape=[None, None, self.dir_dim])
 
@@ -129,11 +129,11 @@ class NeRF:
       feat1 = nerf_layers.dense_block(feat0,
                                       n_filters=self.n_filters,
                                       n_layers=4)
-      feat2 = tf.keras.layers.Dense(self.n_filters)(feat1)  # pyrefly: ignore[not-callable]
-      density = tf.keras.layers.Dense(1)(feat2)  # pyrefly: ignore[not-callable]
+      feat2 = tf.keras.layers.Dense(self.n_filters)(feat1)
+      density = tf.keras.layers.Dense(1)(feat2)
       feat2_dir = tf.keras.layers.concatenate([feat2, dir_features], -1)
-      feat3 = tf.keras.layers.Dense(self.n_filters//2)(feat2_dir)  # pyrefly: ignore[not-callable]
-      rgb = tf.keras.layers.Dense(3)(feat3)  # pyrefly: ignore[not-callable]
+      feat3 = tf.keras.layers.Dense(self.n_filters//2)(feat2_dir)
+      rgb = tf.keras.layers.Dense(3)(feat3)
       rgb_density = tf.keras.layers.concatenate([rgb, density], -1)
       return tf.keras.Model(inputs=[xyz_features, dir_features],
                             outputs=[rgb_density])

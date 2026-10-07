@@ -65,7 +65,7 @@ def change_coordinate_system(points3d,
   Returns:
       [type]: [description]
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     points3d = tf.convert_to_tensor(points3d)
     rotation = tf.convert_to_tensor(rotations)
     scale = tf.convert_to_tensor(scale)

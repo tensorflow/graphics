@@ -58,7 +58,7 @@ def evaluate(point_set_a: type_alias.TensorLike,
   Raises:
     ValueError: if the shape of `point_set_a`, `point_set_b` is not supported.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
     point_set_a = tf.convert_to_tensor(value=point_set_a)
     point_set_b = tf.convert_to_tensor(value=point_set_b)
 

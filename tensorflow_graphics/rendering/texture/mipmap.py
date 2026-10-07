@@ -94,7 +94,7 @@ def map_texture(uv_map: tfg_type.TensorLike,
     ValueError: If texture_image is too small for the mipmap images to be
       constructed.
   """
-  with tf.name_scope(name):  # pyrefly: ignore[bad-instantiation]
+  with tf.name_scope(name):
 
     if mipmap_images is None and texture_image is None:
       raise ValueError('Either texture_image or mipmap_images should be '

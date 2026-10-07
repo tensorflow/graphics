@@ -99,7 +99,7 @@ def train(example):
 
   # --- report rate in summaries
   if FLAGS.lr_decay and step % FLAGS.tb_every == 0:
-    tf.summary.scalar(name="learning_rate", data=lr_scheduler(step), step=step)  # pyrefly: ignore[not-callable]
+    tf.summary.scalar(name="learning_rate", data=lr_scheduler(step), step=step)
 
 
 # ------------------------------------------------------------------------------

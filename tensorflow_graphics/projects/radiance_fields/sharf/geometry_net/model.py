@@ -64,17 +64,17 @@ class GeometryNetwork:
     norm3d = self.norm3d
     activation = self.fc_activation
 
-    with tf.name_scope('Network/'):  # pyrefly: ignore[bad-instantiation]
+    with tf.name_scope('Network/'):
       latent_code = tf.keras.layers.Input(shape=(self.latent_code_dim,))
 
-      with tf.name_scope('FC_layers'):  # pyrefly: ignore[bad-instantiation]
-        fc0 = tf.keras.layers.Dense(fc_channels,  # pyrefly: ignore[not-callable]
+      with tf.name_scope('FC_layers'):
+        fc0 = tf.keras.layers.Dense(fc_channels,
                                     activation=activation)(latent_code)
-        fc1 = tf.keras.layers.Dense(fc_channels, activation=activation)(fc0)  # pyrefly: ignore[not-callable]
-        fc2 = tf.keras.layers.Dense(fc_channels, activation=activation)(fc1)  # pyrefly: ignore[not-callable]
-        fc2_as_volume = tf.keras.layers.Reshape((1, 1, 1, fc_channels))(fc2)  # pyrefly: ignore[not-callable]
+        fc1 = tf.keras.layers.Dense(fc_channels, activation=activation)(fc0)
+        fc2 = tf.keras.layers.Dense(fc_channels, activation=activation)(fc1)
+        fc2_as_volume = tf.keras.layers.Reshape((1, 1, 1, fc_channels))(fc2)
 
-      with tf.name_scope('GLO_VoxelDecoder'):  # pyrefly: ignore[bad-instantiation]
+      with tf.name_scope('GLO_VoxelDecoder'):
         decoder_1 = geometry_layers.conv_t_block_3d(fc2_as_volume,
                                                     num_filters=32,
                                                     size=self.conv_size,
