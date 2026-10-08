@@ -77,17 +77,18 @@ class RasterizeTrianglesOp : public OpKernel {
       : OpKernel(context) {
     OP_REQUIRES_OK(context, context->GetAttr("image_width", &image_width_));
     OP_REQUIRES(context, image_width_ > 0,
-                InvalidArgument("Image width must be > 0, got ", image_width_));
+                absl::InvalidArgumentError(absl::StrCat(
+                    "Image width must be > 0, got ", image_width_)));
 
     OP_REQUIRES_OK(context, context->GetAttr("image_height", &image_height_));
-    OP_REQUIRES(
-        context, image_height_ > 0,
-        InvalidArgument("Image height must be > 0, got ", image_height_));
+    OP_REQUIRES(context, image_height_ > 0,
+                absl::InvalidArgumentError(absl::StrCat(
+                    "Image height must be > 0, got ", image_height_)));
 
     OP_REQUIRES_OK(context, context->GetAttr("num_layers", &num_layers_));
-    OP_REQUIRES(
-        context, num_layers_ > 0,
-        InvalidArgument("Number of layers must be > 0, got ", num_layers_));
+    OP_REQUIRES(context, num_layers_ > 0,
+                absl::InvalidArgumentError(absl::StrCat(
+                    "Number of layers must be > 0, got ", num_layers_)));
 
     int int_culling_mode;
     OP_REQUIRES_OK(context,
@@ -97,7 +98,8 @@ class RasterizeTrianglesOp : public OpKernel {
         int_culling_mode == static_cast<int>(FaceCullingMode::kNone) ||
             int_culling_mode == static_cast<int>(FaceCullingMode::kFront) ||
             int_culling_mode == static_cast<int>(FaceCullingMode::kBack),
-        InvalidArgument("Invalid face culling mode. Got ", int_culling_mode));
+        absl::InvalidArgumentError(
+            absl::StrCat("Invalid face culling mode. Got ", int_culling_mode)));
     face_culling_mode_ = static_cast<FaceCullingMode>(int_culling_mode);
   }
 
@@ -108,8 +110,9 @@ class RasterizeTrianglesOp : public OpKernel {
     OP_REQUIRES(
         context,
         PartialTensorShape({-1, 4}).IsCompatibleWith(vertices_tensor.shape()),
-        InvalidArgument("RasterizeTriangles expects vertices to have "
-                        "shape (-1, 4)."));
+        absl::InvalidArgumentError(
+            "RasterizeTriangles expects vertices to have "
+            "shape (-1, 4)."));
     auto vertices_flat = vertices_tensor.flat<float>();
     const float* vertices = vertices_flat.data();
 
@@ -117,7 +120,7 @@ class RasterizeTrianglesOp : public OpKernel {
     OP_REQUIRES(
         context,
         PartialTensorShape({-1, 3}).IsCompatibleWith(triangles_tensor.shape()),
-        InvalidArgument(
+        absl::InvalidArgumentError(
             "RasterizeTriangles expects triangles to be a matrix."));
     auto triangles_flat = triangles_tensor.flat<int32_t>();
     const int32_t* triangles = triangles_flat.data();
