@@ -24,9 +24,9 @@ Program::Program(GLuint program_handle) : program_handle_(program_handle) {}
 
 Program::~Program() { glDeleteProgram(program_handle_); }
 
-tensorflow::Status Program::CompileShader(const std::string& shader_code,
-                                          const GLenum& shader_type,
-                                          GLuint* shader_idx) {
+absl::Status Program::CompileShader(const std::string& shader_code,
+                                    const GLenum& shader_type,
+                                    GLuint* shader_idx) {
   // Create an empty shader object.
   TFG_RETURN_IF_EGL_ERROR(*shader_idx = glCreateShader(shader_type));
   if (*shader_idx == 0)
@@ -59,10 +59,10 @@ tensorflow::Status Program::CompileShader(const std::string& shader_code,
                               std::string(&info_log[0]));
   }
   shader_cleanup.release();
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status Program::Create(
+absl::Status Program::Create(
     const std::vector<std::pair<std::string, GLenum>>& shaders,
     std::unique_ptr<Program>* program) {
   // Create an empty program object.
@@ -99,37 +99,39 @@ tensorflow::Status Program::Create(
   program_cleanup.release();
   // The content of shader_cleanups needs cleanup and hence is not released; see
   // https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glDeleteProgram.xhtml.
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status Program::Detach() const {
+absl::Status Program::Detach() const {
   TFG_RETURN_IF_GL_ERROR(glUseProgram(0));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status Program::GetProgramResourceIndex(
-    GLenum program_interface, absl::string_view resource_name,
-    GLuint* resource_index) const {
+absl::Status Program::GetProgramResourceIndex(GLenum program_interface,
+                                              absl::string_view resource_name,
+                                              GLuint* resource_index) const {
   TFG_RETURN_IF_EGL_ERROR(*resource_index = glGetProgramResourceIndex(
                               program_handle_, program_interface,
                               resource_name.data()));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status Program::GetProgramResourceiv(
+absl::Status Program::GetProgramResourceiv(
     GLenum program_interface, GLuint resource_index, int num_properties,
     const GLenum* properties, int num_property_value, GLsizei* length,
     GLint* property_value) const {
   TFG_RETURN_IF_EGL_ERROR(glGetProgramResourceiv(
       program_handle_, program_interface, resource_index, num_properties,
       properties, num_property_value, length, property_value));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status Program::GetResourceProperty(
-    const std::string& resource_name, GLenum program_interface,
-    int num_properties, const GLenum* properties, int num_property_value,
-    GLint* property_value) {
+absl::Status Program::GetResourceProperty(const std::string& resource_name,
+                                          GLenum program_interface,
+                                          int num_properties,
+                                          const GLenum* properties,
+                                          int num_property_value,
+                                          GLint* property_value) {
   if (num_property_value != num_properties)
     return TFG_INTERNAL_ERROR("num_property_value != num_properties");
 
@@ -152,12 +154,12 @@ tensorflow::Status Program::GetResourceProperty(
     return TFG_INTERNAL_ERROR("length != num_properties: ", length,
                               " != ", num_properties);
 
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status Program::Use() const {
+absl::Status Program::Use() const {
   TFG_RETURN_IF_EGL_ERROR(glUseProgram(program_handle_));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
 }  // namespace gl_utils

@@ -38,12 +38,12 @@ RenderTargets::~RenderTargets() {
   glDeleteFramebuffers(1, &frame_buffer_);
 }
 
-tensorflow::Status RenderTargets::BindFramebuffer() const {
+absl::Status RenderTargets::BindFramebuffer() const {
   TFG_RETURN_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
-tensorflow::Status RenderTargets::CreateValidInternalFormat(
+absl::Status RenderTargets::CreateValidInternalFormat(
     GLenum internalformat, GLsizei width, GLsizei height,
     std::unique_ptr<RenderTargets>* render_targets) {
   GLuint color_buffer;
@@ -92,16 +92,16 @@ tensorflow::Status RenderTargets::CreateValidInternalFormat(
   gen_color_cleanup.release();
   gen_depth_cleanup.release();
   gen_frame_cleanup.release();
-  return tensorflow::Status();
+  return absl::Status();
 }
 
 GLsizei RenderTargets::GetHeight() const { return height_; }
 
 GLsizei RenderTargets::GetWidth() const { return width_; }
 
-tensorflow::Status RenderTargets::UnbindFrameBuffer() const {
+absl::Status RenderTargets::UnbindFrameBuffer() const {
   TFG_RETURN_IF_GL_ERROR(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-  return tensorflow::Status();
+  return absl::Status();
 }
 
 }  // namespace gl_utils
