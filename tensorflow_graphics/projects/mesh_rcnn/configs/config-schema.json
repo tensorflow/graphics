@@ -1,0 +1,116 @@
+{
+  "type": "object",
+  "title": "Mesh R-CNN config schema",
+  "description": "Schema for Mesh R-CNN config.",
+  "required": [
+    "voxel_prediction",
+    "mesh_refinement",
+    "loss_weights",
+    "cubify_threshold",
+    "mesh_loss_sample_size_gt",
+    "mesh_loss_sample_size_pred"
+  ],
+  "properties": {
+    "voxel_prediction": {
+      "$id": "#/properties/voxel_prediction",
+      "type": "object",
+      "required": [
+        "num_convs",
+        "latent_dim",
+        "output_depth",
+        "layer_name"
+      ],
+      "properties": {
+        "num_convs": {
+          "$id": "#/properties/voxel_prediction/properties/num_convs",
+          "type": "integer"
+        },
+        "latent_dim": {
+          "$id": "#/properties/voxel_prediction/properties/latent_dim",
+          "type": "integer"
+        },
+        "output_depth": {
+          "$id": "#/properties/voxel_prediction/properties/output_depth",
+          "type": "integer"
+        },
+        "layer_name": {
+          "$id": "#/properties/voxel_prediction/properties/layer_name",
+          "type": "string"
+        }
+      }
+    },
+    "mesh_refinement": {
+      "$id": "#/properties/mesh_refinement",
+      "type": "object",
+      "required": [
+        "num_stages",
+        "num_gconvs_per_stage",
+        "gconv_dim",
+        "gconv_initializer",
+        "layer_name"
+      ],
+      "properties": {
+        "num_stages": {
+          "$id": "#/properties/mesh_refinement/properties/num_stages",
+          "type": "integer"
+        },
+        "num_gconvs_per_stage": {
+          "$id": "#/properties/mesh_refinement/properties/num_gconvs_per_stage",
+          "type": "integer"
+        },
+        "gconv_dim": {
+          "$id": "#/properties/mesh_refinement/properties/gconv_dim",
+          "type": "integer"
+        },
+        "gconv_initializer": {
+          "$id": "#/properties/mesh_refinement/properties/gconv_initializer",
+          "type": "string"
+        },
+        "layer_name": {
+          "$id": "#/properties/mesh_refinement/properties/layer_name",
+          "type": "string"
+        }
+      }
+    },
+    "loss_weights": {
+      "$id": "#/properties/loss_weights",
+      "type": "object",
+      "required": [
+        "voxel",
+        "chamfer",
+        "normal",
+        "edge"
+      ],
+      "properties": {
+        "voxel": {
+          "$id": "#/properties/loss_weights/properties/voxel",
+          "type": "number"
+        },
+        "chamfer": {
+          "$id": "#/properties/loss_weights/properties/chamfer",
+          "type": "number"
+        },
+        "normal": {
+          "$id": "#/properties/loss_weights/properties/normal",
+          "type": "number"
+        },
+        "edge": {
+          "$id": "#/properties/loss_weights/properties/edge",
+          "type": "number"
+        }
+      }
+    },
+    "cubify_threshold": {
+      "$id": "#/properties/cubify_threshold",
+      "type": "number"
+    },
+    "mesh_loss_sample_size_gt": {
+      "$id": "#/properties/mesh_loss_sample_size_gt",
+      "type": "integer"
+    },
+    "mesh_loss_sample_size_pred": {
+      "$id": "#/properties/mesh_loss_sample_size_pred",
+      "type": "integer"
+    }
+  }
+}
