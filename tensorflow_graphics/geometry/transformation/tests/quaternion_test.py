@@ -307,7 +307,7 @@ class QuaternionTest(test_case.TestCase):
         np.ones(shape=random_matrix.shape[:-2] + (1,), dtype=bool))
 
   @parameterized.parameters(
-      ((td.MAT_3D_ID,), (td.QUAT_ID,)),
+      ((td.MAT_3D_ID,), (td.QUAT_X_45,)),
       ((td.MAT_3D_X_45,), (td.QUAT_X_45,)),
       ((td.MAT_3D_Y_45,), (td.QUAT_Y_45,)),
       ((td.MAT_3D_Z_45,), (td.QUAT_Z_45,)),
