@@ -18,8 +18,20 @@ from __future__ import division
 from __future__ import print_function
 
 import inspect
+import sys
 
 import six
+
+
+def _get_caller_module():
+  """Returns the module of the caller of the public export_api function."""
+  # Avoid inspect.stack() (O(depth * len(sys.modules))) and inspect.getmodule()
+  # on uncached newly-imported modules, which scans sys.modules and realpath().
+  frame = sys._getframe(2)  # pylint: disable=protected-access
+  module = sys.modules.get(frame.f_globals.get("__name__", ""))
+  if getattr(module, "__dict__", None) is frame.f_globals:
+    return module
+  return inspect.getmodule(frame)
 
 
 def get_functions_and_classes():
@@ -28,8 +40,7 @@ def get_functions_and_classes():
   Returns:
     A list of function and class names.
   """
-  caller = inspect.stack()[1]
-  module = inspect.getmodule(caller[0])
+  module = _get_caller_module()
   return [
       obj_name for obj_name, obj in inspect.getmembers(module)
       if inspect.isfunction(obj) or
@@ -43,8 +54,7 @@ def get_modules():
   Returns:
     A list of module names.
   """
-  caller = inspect.stack()[1]
-  module = inspect.getmodule(caller[0])
+  module = _get_caller_module()
   return [
       obj_name for obj_name, obj in inspect.getmembers(module)
       if inspect.ismodule(obj) and six.ensure_str(obj.__name__).rsplit(".", 1)

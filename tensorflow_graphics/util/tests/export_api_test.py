@@ -13,25 +13,50 @@
 # limitations under the License.
 """Tests for export API functionalities."""
 
+import sys
+import types
+
 from tensorflow_graphics.util import export_api
 from tensorflow_graphics.util import test_case
+
+
+def sample_public_function():
+  """Sample public function for export_api testing."""
+
+
+class _SamplePrivateClass:
+  """Sample private class for export_api testing."""
 
 
 class ExportAPITest(test_case.TestCase):
 
   def test_get_functions_and_classes(self):
-    """Tests that get_functions_and_classes does not raise an exception."""
-    try:
-      export_api.get_functions_and_classes()
-    except Exception as e:  # pylint: disable=broad-except
-      self.fail("Exception raised: %s" % str(e))
+    """Tests that get_functions_and_classes returns public symbols."""
+    exported = export_api.get_functions_and_classes()
+    self.assertIn("ExportAPITest", exported)
+    self.assertIn("sample_public_function", exported)
+    self.assertNotIn("_SamplePrivateClass", exported)
 
   def test_get_modules(self):
-    """Tests that get_modules does not raise an exception."""
+    """Tests that get_modules returns public direct submodules."""
+    self.assertEqual(export_api.get_modules(), [])
+
+    pkg_name = "_tfg_export_api_test_pkg"
+    pkg = types.ModuleType(pkg_name)
+    pkg.__dict__["export_api"] = export_api
+    pkg.__dict__["child"] = types.ModuleType(pkg_name + ".child")
+    pkg.__dict__["_private"] = types.ModuleType(pkg_name + "._private")
+    pkg.__dict__["other"] = types.ModuleType("unrelated_pkg.other")
+
+    def _call():
+      return export_api.get_modules()
+
+    sys.modules[pkg_name] = pkg
     try:
-      export_api.get_modules()
-    except Exception as e:  # pylint: disable=broad-except
-      self.fail("Exception raised: %s" % str(e))
+      call_in_pkg = types.FunctionType(_call.__code__, pkg.__dict__)
+      self.assertEqual(call_in_pkg(), ["child"])
+    finally:
+      sys.modules.pop(pkg_name, None)
 
 
 if __name__ == "__main__":
