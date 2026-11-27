@@ -1,0 +1,23 @@
+method: psgn
+data:
+  path: data/ShapeNet
+  img_folder: img_choy2016
+  img_size: 224 
+  pointcloud_target_n: 1024
+model:
+  decoder: simple
+  encoder: resnet18 
+  c_dim: 256 
+  z_dim: 0
+training:
+  out_dir: out/img/psgn
+  batch_size: 64
+test:
+  eval_mesh: false
+  eval_pointcloud: true
+generation:
+  batch_size: 100000
+  refine: false
+  n_x: 128
+  n_z: 1
+  generate_mesh: false

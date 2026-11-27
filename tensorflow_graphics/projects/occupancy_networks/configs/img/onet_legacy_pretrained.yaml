@@ -1,0 +1,12 @@
+inherit_from: configs/img/onet.yaml
+data:
+  img_augment: true
+model:
+  decoder_kwargs:
+    legacy: true
+training:
+  out_dir:  out/img/onet_legacy
+test:
+  model_file: https://s3.eu-central-1.amazonaws.com/avg-projects/occupancy_networks/models/onet_img2mesh-0c7780d1.pt
+generation:
+  generation_dir: pretrained

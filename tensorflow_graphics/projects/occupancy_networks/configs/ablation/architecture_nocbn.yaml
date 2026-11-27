@@ -1,0 +1,27 @@
+method: onet
+data:
+  path: data/ShapeNet
+  img_folder: img_choy2016
+  img_size: 224 
+  points_subsample: 2048
+model:
+  encoder_latent: null
+  decoder: batchnorm
+  encoder: resnet18
+  c_dim: 256
+  z_dim: 0
+training:
+  out_dir:  out/ablation/architecture_nocbn
+  batch_size: 64
+  model_selection_metric: iou
+  model_selection_mode: maximize
+  visualize_every: -1
+test:
+  threshold: 0.2
+  eval_mesh: true
+  eval_pointcloud: false
+generation:
+  batch_size: 100000
+  refine: false
+  n_x: 128
+  n_z: 1
