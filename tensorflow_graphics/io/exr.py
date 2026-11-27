@@ -25,7 +25,6 @@ import OpenEXR
 from six.moves import range  # pyrefly: ignore[missing-source-for-stubs]
 from six.moves import zip  # pyrefly: ignore[missing-source-for-stubs]
 
-
 _np_to_exr = {
     np.float16: Imath.PixelType.HALF,
     np.float32: Imath.PixelType.FLOAT,
